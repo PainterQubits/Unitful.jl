@@ -321,9 +321,9 @@ function dimension(u::UnitDatum)
     dims
 end
 
-function dimension{N}(u::UnitData{N})
+function dimension(u::UnitData)
     dims = Dict()
-    for i in 1:N
+    for i in 1:length(u.tup)
         unitdatum = u.tup[i]
         mergeadd!(dims, dimension(unitdatum))
     end
