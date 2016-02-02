@@ -21,7 +21,7 @@ import Base: ==, +, -, *, /, .+, .-, .*, ./, //, ^
 import Base: show, convert
 import Base: abs, conj, float, imag, inv, real, sqrt
 import Base: sin, cos, tan, cot, sec, csc
-import Base: min, max
+import Base: min, max, floor, ceil
 
 import Base: mod, rem, div
 import Base: isless, isinteger, isreal
@@ -33,6 +33,8 @@ export dimension
 export power
 export tens
 export unit
+
+export promote_op
 
 # Dimensions
 @enum Dimension _Mass _Length _Time _Current _Temperature _Amount _Luminosity _Angle
@@ -179,6 +181,7 @@ for op in [:+, :-]
         result_units = SUnits() + TUnits()
         ($op)(convert(result_units, x), convert(result_units, y))
     end
+    @eval ($op)(x::Quantity) = Quantity(($op)(x.val),unit(x))
 end
 
 # Multiplication
@@ -248,7 +251,6 @@ All computation is done at compile time and so at run time this is very fast.
     :(($T){$d}())
 end
 
-# Use generated functions for type stability! Fancy
 @generated function *{T,Units}(x::Quantity{T,Units}, y::UnitData, z::UnitData...)
     result_units = *(Units(),y(),map(x->x(),z)...)
     if isa(result_units,UnitData{()})
@@ -258,9 +260,10 @@ end
     end
 end
 
-@generated function *{S,T,SUnits,TUnits}(x::Quantity{S,SUnits},
-        y::Quantity{T,TUnits})
-    result_units = SUnits()*TUnits()
+@generated function *(x::Quantity, y::Quantity)
+    xunits = x.parameters[2]()
+    yunits = y.parameters[2]()
+    result_units = xunits*yunits
     if isa(result_units,UnitData{()})
         :(x.val*y.val)
     else
@@ -271,28 +274,36 @@ end
     end
 end
 
-# *{T<:Quantity}(x::AbstractArray{T}, y::Number)
+*(x::Quantity, y::Number) = Quantity(x.val*y, unit(x))
+*(x::Bool, y::Quantity) = ifelse(x, y, ifelse(signbit(y), -zero(y), zero(y)))
+*(y::Number, x::Quantity) = *(x,y)
+
 # Division (floating point)
 
-/(x::UnitData, y::UnitData)   = *(x,inv(y))
-/(x::Number, y::UnitData)     = Quantity(x,inv(y))
-/(x::UnitData, y::Number)     = (1/y) * x
-/{T,Units}(x::Quantity{T,Units}, y::UnitData) = Quantity(x.val, Units() / y)
-/{S,T,SUnits,TUnits}(x::Quantity{S,SUnits}, y::Quantity{T,TUnits}) =
-    Quantity(x.val / y.val, SUnits() / TUnits())
+/(x::UnitData, y::UnitData) = *(x,inv(y))
+/(x::Number, y::UnitData)   = Quantity(x,inv(y))
+/(x::UnitData, y::Number)   = (1/y) * x
+/(x::Quantity, y::UnitData) = Quantity(x.val, unit(x) / y)
+/(x::Quantity, y::Quantity) = Quantity(x.val / y.val, unit(x) / unit(y))
+/(x::Quantity, y::Number)   = Quantity(x.val / y, unit(x))
+/(x::Number, y::Quantity)   = Quantity(x / y.val, inv(unit(y)))
 
 # Division (rationals)
 
-//(x::UnitData, y::UnitData)  = x/y
-//(x::Number, y::UnitData)    = x/y
-//(x::UnitData, y::Number)    = (1//y) * x
+//(x::UnitData, y::UnitData) = x/y
+//(x::Number, y::UnitData)   = x/y
+//(x::UnitData, y::Number)   = (1//y) * x
 
-function //(x::Quantity, y::Quantity)
-    z = x.val // y.val
-    xunits = typeof(x).parameters[2]
-    yunits = typeof(y).parameters[2]
-    Quantity(z, xunits() / yunits())
+//(x::Quantity, y::Quantity) = Quantity(x.val // y.val, unit(x) / unit(y))
+
+function //(x::Quantity, y::Complex)
+    xr = complex(Rational(real(x).val),Rational(imag(x).val))
+    yr = complex(Rational(real(y).val),Rational(imag(y).val))
+    Quantity(xr//yr, unit(x))
 end
+
+//(x::Quantity, y::Number) = Quantity(x.val // y, unit(x))
+//(x::Number, y::Quantity) = Quantity(x // y.val, inv(unit(y)))
 
 # Division (other functions)
 
@@ -306,10 +317,7 @@ function rem(x::Quantity, y::Quantity)
     Quantity(rem(z.val,y.val), unit(y))
 end
 
-div{S,T,SUnits,TUnits}(x::Quantity{S,SUnits}, y::Quantity{T,TUnits}) =
-    Quantity(div(x.val, y.val), SUnits() / TUnits())
-
-
+div(x::Quantity, y::Quantity) = Quantity(div(x.val, y.val), unit(x) / unit(y))
 
 # Exponentiation...
 #    is not type stable.
@@ -347,11 +355,11 @@ end
 
 # Other mathematical functions
 sqrt(x::UnitData) = x^(1//2)
-sqrt{T,Units}(x::Quantity{T,Units}) = Quantity(sqrt(x.val), sqrt(Units()))
- abs{T,Units}(x::Quantity{T,Units}) = Quantity(abs(x.val),  Units())
-conj{T,Units}(x::Quantity{T,Units}) = Quantity(conj(x.val), Units())
-imag{T,Units}(x::Quantity{T,Units}) = Quantity(imag(x.val), Units())
-real{T,Units}(x::Quantity{T,Units}) = Quantity(real(x.val), Units())
+sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
+ abs(x::Quantity) = Quantity(abs(x.val),  unit(x))
+conj(x::Quantity) = Quantity(conj(x.val), unit(x))
+imag(x::Quantity) = Quantity(imag(x.val), unit(x))
+real(x::Quantity) = Quantity(real(x.val), unit(x))
 
 for y in [:sin, :cos, :tan, :cot, :sec, :csc]
     @eval ($y){T}(x::Quantity{T,UnitData{(UnitDatum(_Degree,0,1),)}}) = ($y)(x.val*pi/180.)
@@ -414,11 +422,22 @@ isless(x::Quantity, y::Quantity) = isless(convert(unit(y), x).val,y.val)
 
 one(x::Quantity) = Quantity(one(x.val),unit(x))
 zero(x::Quantity) = Quantity(zero(x.val),unit(x)) #* unit?
-
+floor(x::Quantity) = floor(x.val)
+ceil(x::Quantity) = ceil(x.val)
 isinteger(x::Quantity) = isinteger(x.val)
 isreal(x::Quantity) = isreal(x.val)
+isfinite(x::Quantity) = isfinite(x.val)
 
-# promote_op{R<:Number,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
+# Needed for array operations to work right
+promote_op{R<:Number,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
+promote_op{R<:Number,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
+
+.+{T<:Real,S}(x::Quantity{T,S}, r::Range) = (+(x,first(r))):step(r):(+(x,last(r)))
+.+{T<:Real,S}(r::Range, x::Quantity{T,S}) = +(x,r)
+
+# .-{T<:Real,}
+
+# broadcast does not respect promote_op apparently
 
 # colon{A,B,C}(a::Quantity{A,C}, b::Quantity{B,C}) =
 
