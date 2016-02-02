@@ -17,7 +17,7 @@ which is represented by a tuple (1,0,-1,...) to decide if the operation is allow
 """
 module Unitful
 
-import Base: ==, +, -, *, /, .+, .-, .*, ./, //, ^
+import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, //, ^
 import Base: show, convert
 import Base: abs, conj, float, imag, inv, real, sqrt
 import Base: sin, cos, tan, cot, sec, csc
@@ -25,8 +25,9 @@ import Base: min, max, floor, ceil
 
 import Base: mod, rem, div
 import Base: isless, isinteger, isreal
-import Base: promote_op
-import Base: length, getindex, next, float, start, step, last, done, first, eltype, one, zero
+import Base: promote_op, promote_rule
+import Base: length, float, range, start, done, next, colon, one, zero
+import Base: getindex, eltype, step, last, first
 
 export baseunit
 export dimension
@@ -167,7 +168,8 @@ abstract  Unitlike
 immutable UnitData{N} <: Unitlike end
 immutable DimensionData{N} <: Unitlike end
 
-immutable Quantity{T<:Number, Units} <: Number
+typealias NNN Real
+immutable Quantity{T<:NNN, Units} <: NNN
     val::T
 end
 Quantity(x,y) = Quantity{typeof(x),typeof(y)}(x)
@@ -187,8 +189,8 @@ end
 # Multiplication
 
 "Make a unitful quantity."
-*(x::Number, y::UnitData, z::UnitData...) = Quantity(x,*(y,z...))
-*(x::UnitData, y::Number) = *(y,x)          # ... although this is kind of weird
+*(x::NNN, y::UnitData, z::UnitData...) = Quantity(x,*(y,z...))
+*(x::UnitData, y::NNN) = *(y,x)          # ... although this is kind of weird
 
 """
 Given however many unit-like objects, multiply them together.
@@ -274,36 +276,36 @@ end
     end
 end
 
-*(x::Quantity, y::Number) = Quantity(x.val*y, unit(x))
+*(x::Quantity, y::NNN) = Quantity(x.val*y, unit(x))
 *(x::Bool, y::Quantity) = ifelse(x, y, ifelse(signbit(y), -zero(y), zero(y)))
-*(y::Number, x::Quantity) = *(x,y)
+*(y::NNN, x::Quantity) = *(x,y)
 
 # Division (floating point)
 
 /(x::UnitData, y::UnitData) = *(x,inv(y))
-/(x::Number, y::UnitData)   = Quantity(x,inv(y))
-/(x::UnitData, y::Number)   = (1/y) * x
+/(x::NNN, y::UnitData)   = Quantity(x,inv(y))
+/(x::UnitData, y::NNN)   = (1/y) * x
 /(x::Quantity, y::UnitData) = Quantity(x.val, unit(x) / y)
 /(x::Quantity, y::Quantity) = Quantity(x.val / y.val, unit(x) / unit(y))
-/(x::Quantity, y::Number)   = Quantity(x.val / y, unit(x))
-/(x::Number, y::Quantity)   = Quantity(x / y.val, inv(unit(y)))
+/(x::Quantity, y::NNN)   = Quantity(x.val / y, unit(x))
+/(x::NNN, y::Quantity)   = Quantity(x / y.val, inv(unit(y)))
 
 # Division (rationals)
 
 //(x::UnitData, y::UnitData) = x/y
-//(x::Number, y::UnitData)   = x/y
-//(x::UnitData, y::Number)   = (1//y) * x
+//(x::NNN, y::UnitData)   = x/y
+//(x::UnitData, y::NNN)   = (1//y) * x
 
 //(x::Quantity, y::Quantity) = Quantity(x.val // y.val, unit(x) / unit(y))
 
-function //(x::Quantity, y::Complex)
-    xr = complex(Rational(real(x).val),Rational(imag(x).val))
-    yr = complex(Rational(real(y).val),Rational(imag(y).val))
-    Quantity(xr//yr, unit(x))
-end
+# function //(x::Quantity, y::Complex)
+#     xr = complex(Rational(real(x).val),Rational(imag(x).val))
+#     yr = complex(Rational(real(y).val),Rational(imag(y).val))
+#     Quantity(xr//yr, unit(x))
+# end
 
-//(x::Quantity, y::Number) = Quantity(x.val // y, unit(x))
-//(x::Number, y::Quantity) = Quantity(x // y.val, inv(unit(y)))
+//(x::Quantity, y::NNN) = Quantity(x.val // y, unit(x))
+//(x::NNN, y::Quantity) = Quantity(x // y.val, inv(unit(y)))
 
 # Division (other functions)
 
@@ -417,23 +419,46 @@ max(x::UnitData, y::UnitData) = unit(max(Quantity(1.0, x), Quantity(1.0, y)))
 
 isless{A,B}(x::Quantity{A,B}, y::Quantity{A,B}) = isless(x.val, y.val)
 isless(x::Quantity, y::Quantity) = isless(convert(unit(y), x).val,y.val)
+<{A,B}(x::Quantity{A,B}, y::Quantity{A,B}) = (x.val < y.val)
+<(x::Quantity, y::Quantity) = <(convert(unit(y), x).val,y.val)
+
 =={A,B,C}(x::Quantity{A,C}, y::Quantity{B,C}) = (x.val == y.val)
 ==(x::Quantity, y::Quantity) = convert(unit(y), x).val == y.val
+<=(x::Quantity, y::Quantity) = <(x,y) || x==y
 
-one(x::Quantity) = Quantity(one(x.val),unit(x))
-zero(x::Quantity) = Quantity(zero(x.val),unit(x)) #* unit?
-floor(x::Quantity) = floor(x.val)
-ceil(x::Quantity) = ceil(x.val)
+for f in [:one, :zero, :floor, :ceil]
+    @eval ($f)(x::Quantity) = Quantity(($f)(x.val), unit(x))
+end
+
 isinteger(x::Quantity) = isinteger(x.val)
 isreal(x::Quantity) = isreal(x.val)
 isfinite(x::Quantity) = isfinite(x.val)
 
-# Needed for array operations to work right
-promote_op{R<:Number,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
-promote_op{R<:Number,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
+"Needed for array operations to work right."
+promote_op{R<:NNN,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
+#promote_op{R<:NNN,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
 
-.+{T<:Real,S}(x::Quantity{T,S}, r::Range) = (+(x,first(r))):step(r):(+(x,last(r)))
-.+{T<:Real,S}(r::Range, x::Quantity{T,S}) = +(x,r)
+"Forward numeric promotion wherever appropriate."
+promote_rule{S,T,U}(::Type{Quantity{S,U}},::Type{Quantity{T,U}}) =
+    Quantity{promote_type(S,T),U}
+
+# range.jl release-0.4 l346
+start{T,U}(r::UnitRange{Quantity{T,U}})  = oftype(r.start+one(r.start),r.start)
+# range.jl release-0.4 l347
+next{T,U}(r::UnitRange{Quantity{T,U}}, i) = (convert(Quantity{T,U}, i), i+one(i))
+# range.jl release-0.4 l348
+done{T,U}(r::UnitRange{Quantity{T,U}}, i) = i == oftype(i, r.stop) + one(r.stop)
+# range.jl release-0.4 l271
+length{T,U}(r::UnitRange{Quantity{T,U}}) = Integer(r.stop) - Integer(r.start) + 1
+# range.jl release-0.4 l84
+range(a::Quantity, len::Integer) =
+    UnitRange{typeof(a)}(a, oftype(a, a + oftype(a, len-1)))
+
+# range.jl release-0.5 l162
+colon{A<:AbstractFloat,C}(a::Quantity{A,C},b::Quantity{A,C}) = colon(a, one(a), b)
+
+# .+{T<:Real,S}(x::Quantity{T,S}, r::Range) = (+(x,first(r))):step(r):(+(x,last(r)))
+# .+{T<:Real,S}(r::Range, x::Quantity{T,S}) = +(x,r)
 
 # .-{T<:Real,}
 
@@ -608,6 +633,15 @@ end
 
 "No conversion factor needed if you already have the right units."
 convert{S}(s::UnitData{S}, t::UnitData{S}) = 1
+
+"Put units on a number."
+convert{T,U}(::Type{Quantity{T,U}}, x::Real) = Quantity(convert(T,x), U())
+
+# convert(::Type{Bool}, x::Quantity) = convert(Bool, x.val)
+# convert(::Type{Integer}, x::Quantity) = Integer(x.val)
+#
+# "Strip units from a number."
+# convert{S<:Number,T,U}(::Type{S}, x::Quantity{T,U}) = convert(S, x.val)
 
 function basefactor(x::UnitDatum)
     (basefactor(Val{unit(x)}) * 10^float(tens(x)))^power(x)
