@@ -14,17 +14,22 @@ time has dimensions of length and vice versa so we just call both "length"
 Operations on unitful quantities should look at dimension: [L] [T]^-1, etc.
 which is represented by a tuple (1,0,-1,...) to decide if the operation is allowed.
 
+- TODO: Clean up min/max with closures in Julia 0.5
+- TODO: How to handle cases where there is an exact conversion between two
+non-SI units? Right now if we convert 12 inches to feet there is an epsilon
+error from some floating-point math.
+
 """
 module Unitful
 
 import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, //, ^
 import Base: show, convert
-import Base: abs, conj, float, imag, inv, real, sqrt
+import Base: abs, float, inv, sqrt
 import Base: sin, cos, tan, cot, sec, csc
 import Base: min, max, floor, ceil
 
 import Base: mod, rem, div
-import Base: isless, isinteger, isreal
+import Base: isless, isapprox, isinteger, isreal, isfinite
 import Base: promote_op, promote_rule
 import Base: length, float, range, start, done, next, colon, one, zero
 import Base: getindex, eltype, step, last, first
@@ -359,19 +364,12 @@ end
 sqrt(x::UnitData) = x^(1//2)
 sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
  abs(x::Quantity) = Quantity(abs(x.val),  unit(x))
-conj(x::Quantity) = Quantity(conj(x.val), unit(x))
-imag(x::Quantity) = Quantity(imag(x.val), unit(x))
-real(x::Quantity) = Quantity(real(x.val), unit(x))
 
 for y in [:sin, :cos, :tan, :cot, :sec, :csc]
     @eval ($y){T}(x::Quantity{T,UnitData{(UnitDatum(_Degree,0,1),)}}) = ($y)(x.val*pi/180.)
     @eval ($y){T}(x::Quantity{T,UnitData{(UnitDatum(_Radian,0,1),)}}) = ($y)(x.val)
 end
 
-"""
-TODO: What to do if equal but different units? see also max(x,y)
-TODO: Clean up min/max with closures in Julia 0.5
-"""
 @generated function min(x::Quantity, y::Quantity)
     xdim = dimension(x.parameters[2]())
     ydim = dimension(y.parameters[2]())
@@ -422,6 +420,8 @@ isless(x::Quantity, y::Quantity) = isless(convert(unit(y), x).val,y.val)
 <{A,B}(x::Quantity{A,B}, y::Quantity{A,B}) = (x.val < y.val)
 <(x::Quantity, y::Quantity) = <(convert(unit(y), x).val,y.val)
 
+isapprox{A,B,C}(x::Quantity{A,C}, y::Quantity{B,C}) = isapprox(x.val, y.val)
+isapprox(x::Quantity, y::Quantity) = isapprox(convert(unit(y), x).val, y.val)
 =={A,B,C}(x::Quantity{A,C}, y::Quantity{B,C}) = (x.val == y.val)
 ==(x::Quantity, y::Quantity) = convert(unit(y), x).val == y.val
 <=(x::Quantity, y::Quantity) = <(x,y) || x==y
@@ -431,7 +431,7 @@ for f in [:one, :zero, :floor, :ceil]
 end
 
 isinteger(x::Quantity) = isinteger(x.val)
-isreal(x::Quantity) = isreal(x.val)
+isreal(x::Quantity) = true # isreal(x.val)
 isfinite(x::Quantity) = isfinite(x.val)
 
 "Needed for array operations to work right."
