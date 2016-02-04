@@ -12,6 +12,10 @@ using Base.Test
 @test 3m * 2cm == 3cm * 2m            # Binary multiplication
 @test (3m)*m == 3*(m*m)               # Associative multiplication
 @test 2m // 5s == (2//5)*(m/s)        # Units propagate through rationals
+@test (2//3)*m // 5 == (2//15)*m      # Quantity // Real
+@test (m//2) === 1//2 * m             # Unit // Real
+@test (2//m) === (2//1) / m           # Real // Unit
+@test (m//s) === m/s                  # Unit // Unit
 @test abs(-3m) == 3m
 @test sqrt(4m^2) == 2m                # sqrt works
 @test sqrt(4m^(2//3)) == 2m^(1//3)    # less trivial example
@@ -37,12 +41,11 @@ using Base.Test
 @test 1inch == 2.54cm                 # Exact because an SI unit is involved.
 @test 1ft ≈ 12inch                    # Approx because of an error O(ϵ)...
 
-
 # Ranges
 @test isa((1m:5m), UnitRange)
 @test isa((1.0m:5m), StepRange)
 @test isa(collect(1m:5m), Array)
 
 # Conversion
-# @test convert(Float64, 3m) == 3.0
 @test convert(typeof(3m),1) == 1m
+# @test convert(Float64, 3m) == 3.0

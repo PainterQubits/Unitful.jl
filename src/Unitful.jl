@@ -18,6 +18,7 @@ which is represented by a tuple (1,0,-1,...) to decide if the operation is allow
 - TODO: How to handle cases where there is an exact conversion between two
 non-SI units? Right now if we convert 12 inches to feet there is an epsilon
 error from some floating-point math.
+- TODO: rewrite div
 
 """
 module Unitful
@@ -298,7 +299,7 @@ end
 # Division (rationals)
 
 //(x::UnitData, y::UnitData) = x/y
-//(x::NNN, y::UnitData)   = x/y
+//(x::NNN, y::UnitData)   = Rational(x)/y
 //(x::UnitData, y::NNN)   = (1//y) * x
 
 //(x::Quantity, y::Quantity) = Quantity(x.val // y.val, unit(x) / unit(y))
@@ -324,7 +325,17 @@ function rem(x::Quantity, y::Quantity)
     Quantity(rem(z.val,y.val), unit(y))
 end
 
-div(x::Quantity, y::Quantity) = Quantity(div(x.val, y.val), unit(x) / unit(y))
+@generated function div(x::Quantity, y::Quantity)
+    result_units = x.parameters[2]() / y.parameters[2]()
+    if isa(result_units,UnitData{()})
+        :(div(x.val,y.val))
+    else
+        quote
+            z = div(x.val,y.val)
+            Quantity(z,$result_units)
+        end
+    end
+end
 
 # Exponentiation...
 #    is not type stable.
