@@ -153,10 +153,17 @@ immutable UnitData{N} <: Unitlike end
 immutable DimensionData{N} <: Unitlike end
 
 typealias NNN Real
-immutable Quantity{T<:NNN, Units} <: NNN
+immutable IntegerQuantity{T<:Integer, Units} <: Integer
     val::T
 end
-Quantity(x,y) = Quantity{typeof(x),typeof(y)}(x)
+immutable AbstractFloatQuantity{T<:NNN, Units} <: AbstractFloat
+    val::T
+end
+typealias Quantity{T,U} Union{IntegerQuantity{T,U}, AbstractFloatQuantity{T,U}}
+
+Quantity(x::AbstractFloat, y) = AbstractFloatQuantity{typeof(x),typeof(y)}(x)
+Quantity(x::Integer, y) = IntegerQuantity{typeof(x),typeof(y)}(x)
+
 unit{T,Units}(x::Quantity{T,Units}) = Units()
 
 # Addition / subtraction
@@ -677,7 +684,8 @@ end
 convert{S}(s::UnitData{S}, t::UnitData{S}) = 1
 
 "Put units on a number."
-convert{T,U}(::Type{Quantity{T,U}}, x::Real) = Quantity(convert(T,x), U())
+convert{T,U}(::Union{Type{IntegerQuantity{T,U}},
+    Type{AbstractFloatQuantity{T,U}}}, x::Real) = Quantity(convert(T,x), U())
 
 convert(::Type{Bool}, x::Quantity) = convert(Bool, x.val)
 convert(::Type{Integer}, x::Quantity) = Integer(x.val)
