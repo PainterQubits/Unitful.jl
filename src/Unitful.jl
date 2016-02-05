@@ -29,7 +29,7 @@ import Base: abs, float, inv, sqrt
 import Base: sin, cos, tan, cot, sec, csc
 import Base: min, max, floor, ceil
 
-import Base: mod, rem, div
+import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isfinite
 import Base: promote_op, promote_rule
 import Base: length, float, range, start, done, next, colon, one, zero
@@ -138,9 +138,9 @@ const prefixdict = Dict(
     24  => "Y"
 )
 
-@generated function prefix{N}(x::Type{Val{N}})
-    if haskey(prefixdict, N)
-        str = prefixdict[N]
+@generated function prefix(x::Val)
+    if haskey(prefixdict, x.parameters[1])
+        str = prefixdict[x.parameters[1]]
         :($str)
     else
         :(error("Invalid prefix"))
@@ -190,6 +190,17 @@ for op in [:+, :-]
         ($op)(convert(result_units, x), convert(result_units, y))
     end
     @eval ($op)(x::Quantity) = Quantity(($op)(x.val),unit(x))
+end
+
+# Addition / subtraction for arrays
+for f in (Base.DotAddFun,
+          Base.DotSubFun,
+          Base.AddFun,
+          Base.SubFun)
+
+    @eval promote_op{S,SUnits,T,TUnits}(::$f,
+        ::Type{Quantity{S,SUnits}}, ::Type{Quantity{T,TUnits}}) =
+        Quantity{promote_op(($f)(),S,T),typeof(SUnits()+TUnits())}
 end
 
 # Multiplication
@@ -286,6 +297,20 @@ end
 *(x::Bool, y::Quantity) = ifelse(x, y, ifelse(signbit(y), -zero(y), zero(y)))
 *(y::NNN, x::Quantity) = *(x,y)
 
+for (f,F) in ((Base.DotMulFun, :*),
+              (Base.DotRDivFun, :/),
+              (Base.MulFun, :*),
+              (Base.RDivFun, :/))
+
+    @eval promote_op{S,SUnits,T,TUnits}(::$f,
+        ::Type{Quantity{S,SUnits}}, ::Type{Quantity{T,TUnits}}) =
+        Quantity{promote_op(($f)(),S,T),typeof(($F)(SUnits(),TUnits()))}
+end
+
+promote_op{S,SUnits,T,TUnits}(a::Base.DotMulFun,
+    ::Type{Quantity{S,SUnits}}, ::Type{Quantity{T,TUnits}}) =
+    Quantity{promote_op(a,S,T),typeof(SUnits()*TUnits())}
+
 # Division (floating point)
 
 /(x::UnitData, y::UnitData) = *(x,inv(y))
@@ -315,27 +340,20 @@ end
 
 # Division (other functions)
 
-function mod(x::Quantity, y::Quantity)
-    z = convert(unit(y), x)
-    Quantity(mod(z.val,y.val), unit(y))
-end
-
-function rem(x::Quantity, y::Quantity)
-    z = convert(unit(y), x)
-    Quantity(rem(z.val,y.val), unit(y))
-end
-
-@generated function div(x::Quantity, y::Quantity)
-    result_units = x.parameters[2]() / y.parameters[2]()
-    if isa(result_units,UnitData{()})
-        :(div(x.val,y.val))
-    else
-        quote
-            z = div(x.val,y.val)
-            Quantity(z,$result_units)
-        end
+for f in (:div, :fld, :cld)
+    @eval function ($f)(x::Quantity, y::Quantity)
+        z = convert(unit(y), x)
+        ($f)(z.val,y.val)
     end
 end
+
+for f in (:mod, :rem)
+    @eval function ($f)(x::Quantity, y::Quantity)
+        z = convert(unit(y), x)
+        Quantity(($f)(z.val,y.val), unit(y))
+    end
+end
+
 
 # Exponentiation...
 #    is not type stable.
@@ -356,7 +374,6 @@ end
 ^(x::DimensionDatum, y::Integer) = DimensionDatum(unit(x),power(x)*y)
 ^(x::DimensionDatum, y) = DimensionDatum(unit(x),power(x)*y)
 
-"Not type stable but could be made type-stable using closures?"
 function ^(x::Unitlike, y::Integer)
     T = (isa(x, UnitData) ? UnitData : DimensionData)
     *(T{map(a->a^y, typeof(x).parameters[1])}())
@@ -426,6 +443,9 @@ end
 min(x::UnitData, y::UnitData) = unit(min(Quantity(1.0, x), Quantity(1.0, y)))
 max(x::UnitData, y::UnitData) = unit(max(Quantity(1.0, x), Quantity(1.0, y)))
 
+trunc(x::Quantity) = Quantity(trunc(x.val), unit(x))
+round(x::Quantity) = Quantity(round(x.val), unit(x))
+
 isless{A,B}(x::Quantity{A,B}, y::Quantity{A,B}) = isless(x.val, y.val)
 isless(x::Quantity, y::Quantity) = isless(convert(unit(y), x).val,y.val)
 <{A,B}(x::Quantity{A,B}, y::Quantity{A,B}) = (x.val < y.val)
@@ -433,8 +453,20 @@ isless(x::Quantity, y::Quantity) = isless(convert(unit(y), x).val,y.val)
 
 isapprox{A,B,C}(x::Quantity{A,C}, y::Quantity{B,C}) = isapprox(x.val, y.val)
 isapprox(x::Quantity, y::Quantity) = isapprox(convert(unit(y), x).val, y.val)
-=={A,B,C}(x::Quantity{A,C}, y::Quantity{B,C}) = (x.val == y.val)
-==(x::Quantity, y::Quantity) = convert(unit(y), x).val == y.val
+
+=={A<:NNN,B<:NNN,C}(x::Quantity{A,C}, y::Quantity{B,C}) = (x.val == y.val)
+function ==(x::Quantity, y::Quantity)
+    dimension(x) != dimension(y) && return false
+    convert(unit(y), x).val == y.val
+end
+==(x::Quantity, y::Complex) = false
+==(x::Quantity, y::Irrational) = false
+==(x::Quantity, y::Number) = false
+==(y::Complex, x::Quantity) = false
+==(y::Irrational, x::Quantity) = false
+==(y::Number, x::Quantity) = false
+
+
 <=(x::Quantity, y::Quantity) = <(x,y) || x==y
 
 for f in [:one, :zero, :floor, :ceil]
@@ -453,6 +485,9 @@ promote_op{R<:NNN,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
 promote_rule{S,T,U}(::Type{Quantity{S,U}},::Type{Quantity{T,U}}) =
     Quantity{promote_type(S,T),U}
 
+sign(x::Quantity) = sign(x.val)
+signbit(x::Quantity) = signbit(x.val)
+
 # range.jl release-0.4 l346
 start{T,U}(r::UnitRange{Quantity{T,U}})  = oftype(r.start+one(r.start),r.start)
 # range.jl release-0.4 l347
@@ -464,7 +499,6 @@ length{T,U}(r::UnitRange{Quantity{T,U}}) = Integer(r.stop) - Integer(r.start) + 
 # range.jl release-0.4 l84
 range(a::Quantity, len::Integer) =
     UnitRange{typeof(a)}(a, oftype(a, a + oftype(a, len-1)))
-
 # range.jl release-0.5 l162
 colon{A<:AbstractFloat,C}(a::Quantity{A,C},b::Quantity{A,C}) = colon(a, one(a), b)
 
@@ -485,6 +519,10 @@ function mergeadd!(a::Dict, b::Dict)
             a[k] += v
         end
     end
+end
+
+function dimension(x::Number)
+    UnitData{()}()
 end
 
 function dimension(u::UnitDatum)
@@ -527,8 +565,8 @@ function show(io::IO,x::Unitlike)
 end
 
 "Prefix the unit with any decimal prefix and append the exponent."
-function show(io::IO, x::Union{UnitDatum,DimensionDatum})
-    print(io, prefix(Val{tens(x)}))
+function show(io::IO, x::UnitDatum)
+    print(io, prefix(Val{tens(x)}()))
     print(io, abbr(Val{unit(x)}))
     print(io, (power(x) == 1//1 ? "" : superscript(power(x))))
     nothing
@@ -571,6 +609,15 @@ macro u(x,y)
     quote
         const $(esc(s)) = UnitData{(UnitDatum($y,0,1),)}()
         export $(esc(s))
+    end
+end
+
+macro simplify_prefixes()
+    quote
+        @generated function simplify(x::Quantity)
+            tup = u.parameters[1]
+            
+        end
     end
 end
 
@@ -648,11 +695,12 @@ convert{S}(s::UnitData{S}, t::UnitData{S}) = 1
 "Put units on a number."
 convert{T,U}(::Type{Quantity{T,U}}, x::Real) = Quantity(convert(T,x), U())
 
-# convert(::Type{Bool}, x::Quantity) = convert(Bool, x.val)
-# convert(::Type{Integer}, x::Quantity) = Integer(x.val)
-#
-# "Strip units from a number."
-# convert{S<:Number,T,U}(::Type{S}, x::Quantity{T,U}) = convert(S, x.val)
+convert(::Type{Bool}, x::Quantity) = convert(Bool, x.val)
+convert(::Type{Integer}, x::Quantity) = Integer(x.val)
+convert(::Type{Complex}, x::Quantity) = Complex(x.val,0)
+
+"Strip units from a number."
+convert{S<:Number}(::Type{S}, x::Quantity) = convert(S, x.val)
 
 function basefactor(x::UnitDatum)
     (basefactor(Val{unit(x)}) * 10^float(tens(x)))^power(x)

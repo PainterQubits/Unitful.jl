@@ -18,7 +18,10 @@
 @u    rad _Radian
 
 # Default rules for addition and subtraction.
-
 for op in [:+, :-]
+    # Can change to min(x,y), x, or y
     @eval ($op)(x::UnitData, y::UnitData) = max(x,y)
 end
+
+# Default rules for simplification
+@simplify_prefixes
