@@ -1,26 +1,4 @@
-"""
-Requirements for a unit system.
-
-Points to consider:
-- ft^2 is an area, so is acre^1; dimensions cannot be determined by exponents
-- how to handle units with built-in exponents (e.g. nm or km)
-- how to handle adding different units with same dimension (m [L] + ft [L])
-- how to handle different unit systems, including natural units
-
-When adding unitful quantities, they may only be added if they have the same
-dimensions; you cannot add a length and a time in SI units. In natural units
-time has dimensions of length and vice versa so we just call both "length"
-
-Operations on unitful quantities should look at dimension: [L] [T]^-1, etc.
-which is represented by a tuple (1,0,-1,...) to decide if the operation is allowed.
-
-- TODO: Clean up min/max with closures in Julia 0.5
-- TODO: How to handle cases where there is an exact conversion between two
-non-SI units? Right now if we convert 12 inches to feet there is an epsilon
-error from some floating-point math.
-- TODO: rewrite div
-
-"""
+"Copyright Andrew J. Keller, 2016"
 module Unitful
 
 import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, //, ^
@@ -360,7 +338,7 @@ end
 # For now we define a special `inv` method to at least
 # enable division to be fast.
 
-"1/units"
+"Fast inverse units."
 @generated function inv(x::UnitData)
     tup = x.parameters[1]
     tup2 = map(x->x^-1,tup)
@@ -389,7 +367,13 @@ end
 ^{T,Units}(x::Quantity{T,Units}, y::Real) = Quantity((x.val)^y, Units()^y)
 
 # Other mathematical functions
-sqrt(x::UnitData) = x^(1//2)
+"Fast square root for units."
+@generated function sqrt(x::UnitData)
+    tup = x.parameters[1]
+    tup2 = map(x->x^(1//2),tup)
+    y = *(UnitData{tup2}())
+    :($y)
+end
 sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
  abs(x::Quantity) = Quantity(abs(x.val),  unit(x))
 
@@ -616,7 +600,7 @@ macro simplify_prefixes()
     quote
         @generated function simplify(x::Quantity)
             tup = u.parameters[1]
-            
+
         end
     end
 end

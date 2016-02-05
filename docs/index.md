@@ -1,40 +1,43 @@
 Unitful.jl
 ============
 
-A [Julia](http://julialang.org) package for using units. Available at
-[Unitful.jl](https://github.com/ajkeller34/Unitful.jl). Inspired by
-[SIUnits.jl](https://github.com/keno/SIUnits.jl).
+A [Julia](http://julialang.org) package for using units. Available
+[here](https://github.com/ajkeller34/Unitful.jl). Inspired by Keno Fischer's
+package [SIUnits.jl](https://github.com/keno/SIUnits.jl).
 
 Installation
 ------------
 
-+ Use a recent nightly build of Julia 0.5.
++ Use a recent nightly build of Julia 0.5. In 0.4, `promote_op` is not used
+extensively enough for common array operations to work properly with units.
+
 + `Pkg.clone("www.github.com/ajkeller34/Unitful.jl.git")`
 
 Quick start
 -----------
 
-```
+```jl
 using Unitful
 ```
 
-That's it.
-<!--
-Building this documentation
----------------------------
-In a fresh instance of Julia:
-```
-include(joinpath(Pkg.dir("Unitful"),"docs/build.jl"))
-```
+By default, SI units and their power-of-ten prefixes are exported. Imperial units
+are exported but not power-of-ten prefixes.
 
-To process with mkdocs, run the following in the Unitful pkg. directory:
-```
-mkdocs build --clean
-```
+- `m`, `km`, `cm`, etc. are exported.
+- `nft` for nano-foot is not exported.
 
-To serve locally or publish to GitHub, run either of the following in the Unitful pkg. directory:
+Some unit abbreviations conflict with Julia definitions or syntax:
 
+- `inch` is used instead of `in`
+- `minute` is used instead of `min`
+
+Testing this package
+--------------------
+
+There are of course subtleties in getting this all to work. To test that
+changes to either Julia or Unitful haven't given rise to undesirable behavior,
+run the test suite in Julia:
+```jl
+cd(Pkg.dir("Unitful"))
+include("test/runtests.jl")
 ```
-mkdocs serve
-mkdocs gh-deploy --clean
-``` -->
