@@ -31,6 +31,9 @@ is more useful, for my purposes anyway.
 
 ## To do
 
+- Conversion between units is always multiplicative, therefore handling
+degrees Fahrenheit and degrees Celsius is problematic.
+
 - How to handle cases where there is an exact conversion between two
 non-SI units? Right now if we convert 12 inches to feet there is an epsilon
 error from some floating-point math.

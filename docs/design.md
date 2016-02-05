@@ -10,4 +10,4 @@ Some considerations:
 
 - We can in principle add quantities with the same dimension (`m [L] + ft [L]`)
 - Note that dimensions cannot be determined by exponents: `ft^2` is an area, but so is `acre^1`.
-- To avoid overflow issues, we should keep prefixes with units (e.g. `nm` or `km`)
+- To avoid overflow issues and general ugliness, we should keep prefixes with units (e.g. `nm` or `km`)
