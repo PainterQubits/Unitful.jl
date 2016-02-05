@@ -31,6 +31,9 @@ is more useful, for my purposes anyway.
 
 ## To do
 
+- `Linspace` wants an AbstractFloat subtype. We could get this to work by defining
+  `AbstractFloatQuantity`, `IntegerQuantity`, etc. but this gets ugly fast.
+
 - Conversion between units is always multiplicative, therefore handling
 degrees Fahrenheit and degrees Celsius is problematic.
 
