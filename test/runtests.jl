@@ -101,7 +101,7 @@ end
 @testset "Collections" begin
     @testset "Ranges" begin
         @test isa((1m:5m), UnitRange)
-        @test isa((1.0m:5m), StepRange)
+        @test isa((1.0m:1m:5m), StepRange)
         @test isa(collect(1m:5m), Array)
     end
 
@@ -111,6 +111,5 @@ end
         @test @inferred([1m, 2m] + [3m, 4m]) == [4m, 6m]
     end
 end
-
 
 nothing
