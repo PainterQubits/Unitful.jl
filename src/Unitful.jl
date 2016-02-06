@@ -9,8 +9,8 @@ import Base: min, max, floor, ceil
 
 import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isfinite
-import Base: promote_op, promote_rule
-import Base: length, float, range, start, done, next, colon, one, zero
+import Base: promote_op, promote_rule, unsafe_getindex
+import Base: length, float, range, start, done, next, one, zero
 import Base: getindex, eltype, step, last, first
 
 export baseunit
@@ -479,19 +479,7 @@ promote_rule{S,T,U}(::Type{Quantity{S,U}},::Type{Quantity{T,U}}) =
 sign(x::Quantity) = sign(x.val)
 signbit(x::Quantity) = signbit(x.val)
 
-# range.jl release-0.4 l346
-start{T,U}(r::UnitRange{Quantity{T,U}})  = oftype(r.start+one(r.start),r.start)
-# range.jl release-0.4 l347
-next{T,U}(r::UnitRange{Quantity{T,U}}, i) = (convert(Quantity{T,U}, i), i+one(i))
-# range.jl release-0.4 l348
-done{T,U}(r::UnitRange{Quantity{T,U}}, i) = i == oftype(i, r.stop) + one(r.stop)
-# range.jl release-0.4 l271
-length{T,U}(r::UnitRange{Quantity{T,U}}) = Integer(r.stop) - Integer(r.start) + 1
-# range.jl release-0.4 l84
-range(a::Quantity, len::Integer) =
-    UnitRange{typeof(a)}(a, oftype(a, a + oftype(a, len-1)))
-# range.jl release-0.5 l162
-colon{A<:AbstractFloat,C}(a::Quantity{A,C},b::Quantity{A,C}) = colon(a, one(a), b)
+include("Redefinitions.jl")
 
 # .+{T<:Real,S}(x::Quantity{T,S}, r::Range) = (+(x,first(r))):step(r):(+(x,last(r)))
 # .+{T<:Real,S}(r::Range, x::Quantity{T,S}) = +(x,r)
@@ -500,7 +488,6 @@ colon{A<:AbstractFloat,C}(a::Quantity{A,C},b::Quantity{A,C}) = colon(a, one(a), 
 
 # broadcast does not respect promote_op apparently
 
-# colon{A,B,C}(a::Quantity{A,C}, b::Quantity{B,C}) =
 
 function mergeadd!(a::Dict, b::Dict)
     for (k,v) in b

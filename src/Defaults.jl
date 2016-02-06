@@ -24,4 +24,4 @@ for op in [:+, :-]
 end
 
 # Default rules for simplification
-@simplify_prefixes
+#@simplify_prefixes
