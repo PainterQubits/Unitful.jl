@@ -5,12 +5,134 @@
 # # range.jl release-0.4 l348
 # done{T,U}(r::UnitRange{Quantity{T,U}}, i) = i == oftype(i, r.stop) + one(r.stop)
 
-# range.jl release-0.4 l271; commit 2bb94d6 l323
-length(r::UnitRange) = Integer(r.stop - r.start) + 1
+export unitless
 
-# range.jl release-0.4 l84; commit 2bb94d6 l85
+@inline unitless(x) = x
+@inline unitless(x::Quantity) = x.val
+
+"""
+`rat(x)`
+
+We override this function in Base, which is not exported.
+
+We allow ourselves to be a little sloppy and strip units.
+Probably for unitful quantities, units should be on the first member of the
+output tuple, if we're entirely consistent. It is however much more convenient
+to have this act the same way for unitful and unitless quantities.
+
+By inlining the unitless statements I don't think there should be a penalty...
+"""
+function rat(x)
+    y = unitless(x)
+    a = d = 1
+    b = c = 0
+    m = maxintfloat(Float32)
+    while abs(y) <= m
+        f = trunc(Int,y)
+        y -= f
+        a, c = f*a + c, a
+        b, d = f*b + d, b
+        max(abs(a),abs(b)) <= convert(Int,m) || return c, d
+        oftype(unitless(x),a)/oftype(unitless(x),b) == unitless(x) && break
+        y = inv(y)
+    end
+    return a, b
+end
+
+
+# range.jl commit 2bb94d6 l85
 range(a::Real, len::Integer) =
-    UnitRange{typeof(a)}(a, oftype(a, a + oftype(a, len-1)))
+    UnitRange{typeof(a)}(a, oftype(a, oftype(a, unitless(a)+len-1)))
+
+# range.jl commit 2bb94d6 l183
+function linspace{T<:AbstractFloat}(start::T, stop::T, len::T)
+    len == round(len) || throw(InexactError())
+    zero(len) <= len || error("linspace($start, $stop, $len): negative length")
+    if len == zero(len)
+        n = unitless(convert(T, 2))
+        if isinf(n*start) || isinf(n*stop)
+            start /= n; stop /= n; n = T(1)
+        end
+        return LinSpace(-start, -stop, -T(1), n)
+    end
+    if unitless(len) == 1
+        start == stop || error("linspace($start, $stop, $len): endpoints differ")
+        return LinSpace(-start, -start, zero(T), T(1))
+    end
+    n = convert(T, unitless(len) - 1)
+    len - n == T(1) || error("linspace($start, $stop, $len): too long for $T")
+    a0, b = rat(start)
+    a = convert(T,a0)
+    if a/convert(T,b) == unitless(start)
+        c0, d = rat(stop)
+        c = convert(T,c0)
+        if c/convert(T,d) == unitless(stop)
+            e = lcm(b,d)
+            a *= div(e,b)
+            c *= div(e,d)
+            s = convert(T,n*e)
+            if isinf(a*n) || isinf(c*n)
+                s, p = frexp(s)
+                p2 = oftype(unitless(s),2)^p
+                a /= p2; c /= p2
+            end
+            if a*n/s == start && c*n/s == stop
+                return LinSpace(a, c, len, s)
+            end
+        end
+    end
+    a, c, s = start, stop, n
+    if isinf(a*n) || isinf(c*n)
+        s, p = frexp(s)
+        p2 = oftype(unitless(s),2)^p
+        a /= p2; c /= p2
+    end
+    if a*n/s == start && c*n/s == stop
+        return LinSpace(a, c, len, s)
+    end
+    return LinSpace(start, stop, len, n)
+end
+
+# range.jl commit 2bb94d6 l230
+function linspace{T<:AbstractFloat}(start::T, stop::T, len::Real)
+    T_len = convert(T, len)
+    unitless(T_len) == len || throw(InexactError())
+    linspace(start, stop, T_len)
+end
+
+# range.jl commit 2bb94d6 l315
+@generated function step(r::UnitRange)
+    v = 1*unit(r.parameters[1])
+    :($v)
+end
+
+# range.jl commit 2bb94d6 l316
+step(r::FloatRange) = r.step / unitless(r.divisor)
+
+# range.jl commit 2bb94d6 l317
+step{T}(r::LinSpace{T}) = ifelse(r.len <= zero(r.len), convert(T, NaN),
+    (r.stop-r.start) / unitless(r.divisor))
+
+# range.jl commit 2bb94d6 l323
+length(r::UnitRange) = Integer(unitless(r.stop) - unitless(r.start) + 1)
+length(r::LinSpace) = Integer(r.len + signbit(unitless(r.len) - 1))
+
+# range.jl commit 2bb94d6 l360
+first{T}(r::LinSpace{T}) = convert(T, (unitless(r.len)-1)*r.start/r.divisor)
+
+# range.jl commit 2bb94d6 l364
+last{T}(r::FloatRange{T}) = convert(T, (r.start + (unitless(r.len) - 1)*r.step)/r.divisor)
+
+# range.jl commit 2bb94d6 l365
+last{T}(r::LinSpace{T}) = convert(T, (unitless(r.len) - 1)*r.stop/r.divisor)
+
+# range.jl commit 2bb94d6 l388
+next{T}(r::LinSpace{T}, i::Int) =
+    (convert(T, ((unitless(r.len)-i)*r.start + (i-1)*r.stop)/r.divisor), i+1)
+
+# range.jl commit 2bb94d6 l426
+unsafe_getindex{T}(r::LinSpace{T}, i::Integer) =
+    convert(T, ((unitless(r.len)-i)*r.start + (i-1)*r.stop)/r.divisor)
 
 # range.jl commit 2bb94d6 l432
 function unsafe_getindex{T<:Integer}(r::UnitRange, s::UnitRange{T})
@@ -22,4 +144,43 @@ end
 function unsafe_getindex{T<:Integer}(r::UnitRange, s::StepRange{T})
     st = oftype(r.start, r.start + oftype(r.start, s.start - oftype(s.start,1)))
     range(st, oftype(r.start, step(s)), length(s))
+end
+# range.jl commit 2bb94d6 l455
+function unsafe_getindex{T}(r::LinSpace{T}, s::OrdinalRange)
+    sl::T = length(s)
+    ifirst = first(s)
+    ilast = last(s)
+    vfirst::T = ((length(r) - ifirst) * r.start + (ifirst - 1) * r.stop) / r.divisor
+    vlast::T = ((length(r) - ilast) * r.start + (ilast - 1) * r.stop) / r.divisor
+    return linspace(vfirst, vlast, sl)
+end
+
+function colon{T<:FloatQuantity}(start::T, step::T, stop::T)
+    step == T(0) && throw(ArgumentError("range step cannot be zero"))
+    start == stop && return FloatRange{T}(start,step,1,1)
+    (zero(step) < step) != (start < stop) && return FloatRange{T}(start,step,0,1)
+
+    # float range "lifting"
+    r = (stop-start)/step
+    n = round(r)
+    lo = prevfloat((prevfloat(stop)-nextfloat(start))/n)
+    hi = nextfloat((nextfloat(stop)-prevfloat(start))/n)
+    if lo <= step <= hi
+        a0, b = rat(start)
+        a = convert(T,a0)
+        if a/convert(T,b) == unitless(start)
+            c0, d = rat(step)
+            c = convert(T,c0)
+            if c/convert(T,d) == unitless(step)
+                e = lcm(b,d)
+                a *= div(e,b)
+                c *= div(e,d)
+                eT = convert(T,e)
+                if (a+n*c)/eT == unitless(stop)
+                    return FloatRange{T}(a, c, n+1, eT)
+                end
+            end
+        end
+    end
+    FloatRange{T}(start, step, floor(r)+1, step)
 end

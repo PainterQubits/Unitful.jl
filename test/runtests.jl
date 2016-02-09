@@ -1,8 +1,6 @@
 using Unitful
 using Base.Test
 
-# Commented tests are failing at the moment.
-
 # Conversion
 @testset "Conversion" begin
     @testset "Unitless <--> unitful" begin
@@ -48,6 +46,8 @@ end
         @test *(1s) == 1s                     # Unary multiplication
         @test 3m * 2cm == 3cm * 2m            # Binary multiplication
         @test (3m)*m == 3*(m*m)               # Associative multiplication
+        @test true*1kg == 1kg                 # Boolean multiplication (T)
+        @test false*1kg == 0kg                # Boolean multiplication (F)
     end
 
     @testset "Division" begin
@@ -73,6 +73,10 @@ end
     @test !isinteger(1.4m)
     @test isfinite(1.0m)
     @test !isfinite(Inf*m)
+
+    @test frexp(1.5m) == (0.75m, 1.0)
+    @test unit(nextfloat(0.0m)) == m
+    @test unit(prevfloat(0.0m)) == m
 end
 
 @testset "Rounding" begin
@@ -99,16 +103,72 @@ end
 end
 
 @testset "Collections" begin
+
     @testset "Ranges" begin
-        @test isa((1m:5m), UnitRange)
-        @test isa((1.0m:1m:5m), StepRange)
-        @test isa(collect(1m:5m), Array)
+
+        @testset "Some test/ranges.jl tests, with units" begin
+            @test size(10m:1m:0m) == (0,)
+            @test length(1m:.2m:2m) == 6
+            @test length(1.m:.2m:2.m) == 6
+            @test length(2m:-.2m:1m) == 6
+            @test length(2.m:-.2m:1.m) == 6
+            @test length(2m:.2m:1m) == 0
+            @test length(2.m:.2m:1.m) == 0
+
+            @test length(1m:0m) == 0
+            @test length(0.0m:-0.5m) == 0
+            @test length(1m:2m:0m) == 0
+
+            # L32 = linspace(Int32(1)*m, Int32(4)*m, 4)
+            # L64 = linspace(Int64(1)*m, Int64(4)*m, 4)
+            # @test L32[1] == 1 && L64[1] == 1
+            # @test L32[2] == 2 && L64[2] == 2
+            # @test L32[3] == 3 && L64[3] == 3
+            # @test L32[4] == 4 && L64[4] == 4
+        end
+
+        @testset "UnitRange" begin
+            @test isa((1m:5m), UnitRange{typeof(1m)})
+            @test length(1m:5m) === 5
+            @test step(1m:5m) === 1m
+        end
+
+        @testset "StepRange" begin
+            @test isa((1m:1m:5m), StepRange)
+            @test length(1m:1m:5m) === 5
+            @test step(1m:1m:5m) === 1m
+        end
+
+        @testset "FloatRange" begin
+            @test isa((1.0m:1m:5m), FloatRange{typeof(1.0m)})
+            @test length(1.0m:1m:5m) === 5
+            @test step(1.0m:1m:5m) === 1.0m
+        end
+
+        @testset "LinSpace" begin
+            @test isa(linspace(1.0m, 3.0m, 5), LinSpace{typeof(1.0m)})
+        end
+
+        @testset "Range → Range" begin
+            @test isa((1m:5m)*2, StepRange)
+            @test isa((1m:5m)/2, FloatRange)
+            @test isa((1m:2m:5m)/2, FloatRange)
+        end
+
+        @testset "Range → Array" begin
+            @test isa(collect(1m:5m), Array{typeof(1m),1})
+            @test isa(collect(1m:2m:10m), Array{typeof(1m),1})
+            @test isa(collect(1.0m:2m:10m), Array{typeof(1.0m),1})
+            @test isa(collect(linspace(1.0m,10.0m,5)), Array{typeof(1.0m),1})
+        end
     end
 
     @testset "Array math" begin
-        @test @inferred([1m, 2m, 3m] .* 5m)  == [5m^2, 10m^2, 15m^2]
-        @test @inferred(5m .* [1m, 2m, 3m])  == [5m^2, 10m^2, 15m^2]
-        @test @inferred([1m, 2m] + [3m, 4m]) == [4m, 6m]
+        @test @inferred([1m, 2m]' * [3m, 4m]) == [11m^2]
+        @test @inferred([1m, 2m, 3m] .* 5m)   == [5m^2, 10m^2, 15m^2]
+        @test @inferred(5m .* [1m, 2m, 3m])   == [5m^2, 10m^2, 15m^2]
+        @test @inferred(5m .+ [1m, 2m, 3m])   == [6m, 7m, 8m]
+        @test @inferred([1m, 2m] + [3m, 4m])  == [4m, 6m]
     end
 end
 

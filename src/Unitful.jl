@@ -8,10 +8,11 @@ import Base: sin, cos, tan, cot, sec, csc
 import Base: min, max, floor, ceil
 
 import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
-import Base: isless, isapprox, isinteger, isreal, isfinite
-import Base: promote_op, promote_rule, unsafe_getindex
-import Base: length, float, range, start, done, next, one, zero
-import Base: getindex, eltype, step, last, first
+import Base: isless, isapprox, isinteger, isreal, isinf, isfinite
+import Base: prevfloat, nextfloat, maxintfloat, rat, step, linspace
+import Base: promote_op, promote_rule, unsafe_getindex, colon
+import Base: length, float, range, start, done, next, last, one, zero
+import Base: getindex, eltype, step, last, first, frexp
 
 export baseunit
 export dimension
@@ -19,10 +20,14 @@ export power
 export tens
 export unit
 
-export promote_op
-
 # Dimensions
-@enum Dimension _Mass _Length _Time _Current _Temperature _Amount _Luminosity _Angle
+@enum(Dimension,
+    _Mass, _Length, _Time, _Current, _Temperature, _Amount, _Luminosity, _Angle)
+
+"`abbr(x)` provides a string that can be used to print units."
+function abbr end
+
+abbr(x) = "???"     # Indicate missing abbreviations
 
 abbr(::Type{Val{_Length}})      = "[L]"
 abbr(::Type{Val{_Mass}})        = "[M]"
@@ -39,25 +44,54 @@ _Gram,
 _Foot, _Inch, _Meter,
 _Second, _Minute, _Hour,
 _Ampere,
+_Kelvin, _Celsius, _Rankine, _Fahrenheit,
+_Mole,
+_Candela,
+_Degree, _Radian,
 _Coulomb,
-_Volt,
-_Degree, _Radian)
+_Volt)
 
-abbr(::Type{Val{_Meter}})   = "m"
-abbr(::Type{Val{_Foot}})    = "ft"
-abbr(::Type{Val{_Inch}})    = "in"
+# Length
+abbr(::Type{Val{_Meter}})      = "m"
+abbr(::Type{Val{_Foot}})       = "ft"
+abbr(::Type{Val{_Inch}})       = "in"
 
-abbr(::Type{Val{_Second}})  = "s"
-abbr(::Type{Val{_Minute}})  = "min"
-abbr(::Type{Val{_Hour}})    = "h"
+# Time
+abbr(::Type{Val{_Second}})     = "s"
+abbr(::Type{Val{_Minute}})     = "min"
+abbr(::Type{Val{_Hour}})       = "h"
 
-abbr(::Type{Val{_Gram}})    = "g"
-abbr(::Type{Val{_Ampere}})  = "A"
-abbr(::Type{Val{_Coulomb}}) = "C"
-abbr(::Type{Val{_Volt}})    = "V"
+# Mass
+abbr(::Type{Val{_Gram}})       = "g"
 
-abbr(::Type{Val{_Degree}})  = "°"
-abbr(::Type{Val{_Radian}})  = "rad"
+# Current
+abbr(::Type{Val{_Ampere}})     = "A"
+
+# Temperature
+abbr(::Type{Val{_Kelvin}})     = "K"
+abbr(::Type{Val{_Celsius}})    = "°C"
+abbr(::Type{Val{_Rankine}})    = "°Ra"
+abbr(::Type{Val{_Fahrenheit}}) = "°F"
+
+# Amount
+abbr(::Type{Val{_Mole}})       = "mol"
+
+# Luminosity
+abbr(::Type{Val{_Candela}})    = "cd"
+
+# Angle
+abbr(::Type{Val{_Degree}})     = "°"
+abbr(::Type{Val{_Radian}})     = "rad"
+
+# Derived units
+abbr(::Type{Val{_Coulomb}})    = "C"
+abbr(::Type{Val{_Volt}})       = "V"
+
+"""
+`dimension(x)` specifies a `Dict` containing how many powers of each
+dimension correspond to a given unit. It should be implemented for all units.
+"""
+function dimension end
 
 for x in [_Meter, _Foot, _Inch]
     @eval dimension(::Type{Val{$x}}) = Dict(_Length=>1)
@@ -67,31 +101,150 @@ for x in [_Second, _Minute, _Hour]
     @eval dimension(::Type{Val{$x}}) = Dict(_Time=>1)
 end
 
-dimension(::Type{Val{_Gram}})    = Dict(_Mass=>1)
-dimension(::Type{Val{_Ampere}})  = Dict(_Current=>1)
-dimension(::Type{Val{_Coulomb}}) = Dict(_Current=>1, _Time=>1)
-dimension(::Type{Val{_Volt}})    = Dict(_Mass=>1, _Length=>2, _Time=>-3, _Current=>-1)
+for x in [_Kelvin, _Celsius, _Rankine, _Fahrenheit]
+    @eval dimension(::Type{Val{$x}}) = Dict(_Temperature=>1)
+end
 
 for x in [_Degree, _Radian]
     @eval dimension(::Type{Val{$x}}) = Dict(_Angle=>1)
 end
 
-basefactor(x::Type{Val{_Meter}}) = 1
-basefactor(x::Type{Val{_Foot}}) = 0.3048
-basefactor(x::Type{Val{_Inch}}) = 0.0254
+dimension(::Type{Val{_Gram}})    = Dict(_Mass=>1)
+dimension(::Type{Val{_Ampere}})  = Dict(_Current=>1)
+dimension(::Type{Val{_Candela}}) = Dict(_Luminosity=>1)
+dimension(::Type{Val{_Mole}})    = Dict(_Mole=>1)
+dimension(::Type{Val{_Coulomb}}) = Dict(_Current=>1, _Time=>1)
+dimension(::Type{Val{_Volt}})    = Dict(_Mass=>1, _Length=>2, _Time=>-3, _Current=>-1)
 
-basefactor(x::Type{Val{_Second}}) = 1
-basefactor(x::Type{Val{_Minute}}) = 60
-basefactor(x::Type{Val{_Hour}}) = 3600
+"""
+Description of a unit, including powers of that unit and any 10^x exponents.
+"""
+immutable UnitDatum
+    unit::Unit
+    tens::Int
+    power::Rational{Int}
+end
 
-basefactor(x::Type{Val{_Gram}}) = 0.001    # because of the kg
-basefactor(x::Type{Val{_Ampere}}) = 1
-basefactor(x::Type{Val{_Coulomb}}) = 1
-basefactor(x::Type{Val{_Volt}}) = 1
+"""
+Description of a "dimension" like length, &c. including powers of that dimension.
+"""
+immutable DimensionDatum
+    unit::Dimension
+    power::Rational{Int}
+end
+DimensionDatum(a,b,c) = DimensionDatum(a,c)
 
-basefactor(x::Type{Val{_Degree}}) = pi/180.
-basefactor(x::Type{Val{_Radian}}) = 1
+@inline unit(x) = one(x)
+@inline unit(x::UnitDatum) = x.unit
+@inline unit(x::DimensionDatum) = x.unit
+@inline tens(x::UnitDatum) = x.tens
+@inline tens(x::DimensionDatum) = 0
+@inline power(x) = x.power
 
+"A unit or dimension."
+abstract  Unitlike
+
+"A container for `UnitDatum` objects to be stored in the type signature."
+immutable UnitData{N} <: Unitlike end
+
+"A container for `DimensionDatum` objects to be stored in the type signature."
+immutable DimensionData{N} <: Unitlike end
+
+"""
+`RealQuantity` has a numeric value and associated units. It should be used
+with integers or rationals.
+"""
+immutable RealQuantity{T<:Real, Units} <: Real
+    val::T
+end
+
+"""
+`FloatQuantity` has a numeric value and associated units. It should be used
+with `AbstractFloat` numeric types and is itself a subtype
+of `AbstractFloat`. This is needed to tie into certain `Range` subtypes.
+"""
+immutable FloatQuantity{T<:AbstractFloat, Units} <: AbstractFloat
+    val::T
+end
+
+"Sometimes we don't care what kind of quantity we are dealing with."
+typealias Quantity{T,U} Union{RealQuantity{T,U},
+                              FloatQuantity{T,U}}
+
+"Shorthand to simplify some promotion rules."
+typealias TypeQuantity{T,U} Union{Type{RealQuantity{T,U}},
+                                  Type{FloatQuantity{T,U}}}
+
+"Simple constructors for the appropriate `Quantity` type."
+function Quantity end
+
+Quantity(x::AbstractFloat, y::UnitData{()}) = x
+Quantity(x::AbstractFloat, y) = FloatQuantity{typeof(x), typeof(y)}(x)
+Quantity(x, y::UnitData{()}) = x
+Quantity(x, y) = RealQuantity{typeof(x), typeof(y)}(x)
+
+unit{T,Units}(x::Quantity{T,Units}) = Units()
+unit{T,Units}(x::Type{Quantity{T,Units}}) = Units()
+
+"""
+All units being the same, specifies how to promote
+`FloatQuantity` and `RealQuantity`.
+"""
+function promote_rule{R,S,T}(x::Type{FloatQuantity{R,S}}, y::Type{RealQuantity{T,S}})
+    promote_type(R,T) <: AbstractFloat ?
+        FloatQuantity{promote_type(R,T), S} :
+        RealQuantity{promote_type(R,T), S}
+end
+
+"""
+`basefactor(x)` specifies a conversion factor to base SI units.
+
+Where possible use an exact factor, e.g.
+```
+basefactor(x::Type{Val{_Inch}}) = 254//10000 # the inch is exactly 0.0254 m
+```
+"""
+function basefactor end
+
+basefactor(x::Type{Val{_Meter}})      = 1
+basefactor(x::Type{Val{_Foot}})       = 3048//10000
+basefactor(x::Type{Val{_Inch}})       = 254//10000
+
+basefactor(x::Type{Val{_Second}})     = 1
+basefactor(x::Type{Val{_Minute}})     = 60
+basefactor(x::Type{Val{_Hour}})       = 3600
+
+basefactor(x::Type{Val{_Gram}})       = 1//1000    # because of the kg
+
+basefactor(x::Type{Val{_Ampere}})     = 1
+
+basefactor(x::Type{Val{_Kelvin}})     = 1
+basefactor(x::Type{Val{_Celsius}})    = 1
+basefactor(x::Type{Val{_Rankine}})    = 5//9    # Some special casing needed
+basefactor(x::Type{Val{_Fahrenheit}}) = 5//9    # Some special casing needed
+
+basefactor(x::Type{Val{_Candela}})    = 1
+
+basefactor(x::Type{Val{_Mole}})       = 1
+
+basefactor(x::Type{Val{_Degree}})     = pi/180.
+basefactor(x::Type{Val{_Radian}})     = 1
+
+basefactor(x::Type{Val{_Coulomb}})    = 1
+basefactor(x::Type{Val{_Volt}})       = 1
+
+"""
+`basefactor(x::UnitDatum)`
+
+Specifies how the base factor is computed when 10^x factors and powers of the
+unit are taken into account. Could be improved to enable exact conversions;
+right now there is an explicit floating point conversion because of the 10^x.
+"""
+function basefactor(x::UnitDatum)
+    (basefactor(Val{unit(x)}) * 10^float(tens(x)))^power(x)
+end
+
+"Map the x in 10^x to an SI prefix."
 const prefixdict = Dict(
     -24 => "y",
     -21 => "z",
@@ -116,6 +269,9 @@ const prefixdict = Dict(
     24  => "Y"
 )
 
+"""
+Unnecessary generated function to make the code easy to maintain.
+"""
 @generated function prefix(x::Val)
     if haskey(prefixdict, x.parameters[1])
         str = prefixdict[x.parameters[1]]
@@ -125,46 +281,6 @@ const prefixdict = Dict(
     end
 end
 
-"""
-Describes a numerical quantity and a unit (`UnitTuple`).
-
-The type of the UnitTuple describes the system of measurement,
-and the parameters of the type
-"""
-immutable UnitDatum
-    unit::Unit
-    tens::Int
-    power::Rational{Int}
-end
-
-immutable DimensionDatum
-    unit::Dimension
-    power::Rational{Int}
-end
-DimensionDatum(a,b,c) = DimensionDatum(a,c)
-
-unit(x) = x.unit
-tens(x::UnitDatum) = x.tens
-tens(x::DimensionDatum) = 0
-power(x) = x.power
-
-abstract  Unitlike
-immutable UnitData{N} <: Unitlike end
-immutable DimensionData{N} <: Unitlike end
-
-typealias NNN Real
-immutable IntegerQuantity{T<:Integer, Units} <: Integer
-    val::T
-end
-immutable AbstractFloatQuantity{T<:NNN, Units} <: AbstractFloat
-    val::T
-end
-typealias Quantity{T,U} Union{IntegerQuantity{T,U}, AbstractFloatQuantity{T,U}}
-
-Quantity(x::AbstractFloat, y) = AbstractFloatQuantity{typeof(x),typeof(y)}(x)
-Quantity(x::Integer, y) = IntegerQuantity{typeof(x),typeof(y)}(x)
-
-unit{T,Units}(x::Quantity{T,Units}) = Units()
 
 # Addition / subtraction
 for op in [:+, :-]
@@ -183,29 +299,39 @@ for f in (Base.DotAddFun,
           Base.AddFun,
           Base.SubFun)
 
-    @eval promote_op{S,SUnits,T,TUnits}(::$f,
-        ::Type{Quantity{S,SUnits}}, ::Type{Quantity{T,TUnits}}) =
-        Quantity{promote_op(($f)(),S,T),typeof(SUnits()+TUnits())}
+    @eval function promote_op{S,SUnits,T,TUnits}(::$f,
+        ::Type{Quantity{S,SUnits}}, ::Type{Quantity{T,TUnits}})
+
+        numtype = promote_op(($f)(),S,T)
+        quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+        quant{numtype, typeof(+(SUnits(), TUnits()))}
+
+    end
 end
 
 # Multiplication
 
-"Make a unitful quantity."
-*(x::NNN, y::UnitData, z::UnitData...) = Quantity(x,*(y,z...))
-*(x::UnitData, y::NNN) = *(y,x)          # ... although this is kind of weird
+"Construct a unitful quantity by multiplication."
+*(x::Real, y::UnitData, z::UnitData...) = Quantity(x,*(y,z...))
+
+"Kind of weird but okay, sure"
+*(x::UnitData, y::Real) = *(y,x)
 
 """
-Given however many unit-like objects, multiply them together.
+Given however many unit-like objects, multiply them together. The following
+applies equally well to `DimensionData` instead of `UnitData`.
 
-Collect `Datum` from the types of the `Data` objects. For identical
+Collect `UnitDatum` from the types of the `UnitData` objects. For identical
 units including SI prefixes (i.e. cm ≠ m), collect powers and sort uniquely.
 The unique sorting has some advantages:
 
 - could reduce compile-time overhead, compared to without sorting
 - unique ordering of units permits easy unit comparisons
 
-You can think of this as mapping a product of units to a unique result of units.
-All computation is done at compile time and so at run time this is very fast.
+You can think of this generated function as mapping a product of units
+to a unique result of units. All computation is done at compile time,
+so at run time this is very fast. It is likely that some compile-time
+optimizations would be good...
 """
 @generated function *(a0::Unitlike, a::Unitlike...)
 
@@ -264,53 +390,61 @@ end
     end
 end
 
+
 @generated function *(x::Quantity, y::Quantity)
     xunits = x.parameters[2]()
     yunits = y.parameters[2]()
     result_units = xunits*yunits
-    if isa(result_units,UnitData{()})
-        :(x.val*y.val)
-    else
-        quote
-            z = x.val*y.val
-            Quantity(z,$result_units)
-        end
+    quote
+        z = x.val*y.val
+        Quantity(z,$result_units)
     end
 end
 
-*(x::Quantity, y::NNN) = Quantity(x.val*y, unit(x))
-*(x::Bool, y::Quantity) = ifelse(x, y, ifelse(signbit(y), -zero(y), zero(y)))
-*(y::NNN, x::Quantity) = *(x,y)
+# Next line resolves some method ambiguity:
+*{T<:Quantity}(x::Bool, y::T) =
+    ifelse(x, y, ifelse(signbit(y), -zero(y), zero(y)))
+*(y::Real, x::Quantity) = *(x,y)
+*(x::Quantity, y::Real) = Quantity(x.val*y, unit(x))
 
 for (f,F) in ((Base.DotMulFun, :*),
               (Base.DotRDivFun, :/),
               (Base.MulFun, :*),
               (Base.RDivFun, :/))
 
-    @eval promote_op{S,SUnits,T,TUnits}(::$f,
-        ::Type{Quantity{S,SUnits}}, ::Type{Quantity{T,TUnits}}) =
-        Quantity{promote_op(($f)(),S,T),typeof(($F)(SUnits(),TUnits()))}
-end
+    # Tried doing this without @generated and the @inferred macro
+    # failed. The runtime test (numtype <: AbstractFloat)
+    # was likely the source of the problem.
+    @eval @generated function promote_op{S,SUnits,T,TUnits}(::$f,
+        x::TypeQuantity{S,SUnits}, y::TypeQuantity{T,TUnits})
 
-promote_op{S,SUnits,T,TUnits}(a::Base.DotMulFun,
-    ::Type{Quantity{S,SUnits}}, ::Type{Quantity{T,TUnits}}) =
-    Quantity{promote_op(a,S,T),typeof(SUnits()*TUnits())}
+        X = x.parameters[1].parameters[1]
+        Y = y.parameters[1].parameters[1]
+        XUnits = x.parameters[1].parameters[2]
+        YUnits = y.parameters[1].parameters[2]
+
+        numtype = promote_op(($f)(),S,T)
+        quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+        unittype = typeof(($F)(XUnits(), YUnits()))
+        :(($quant){$numtype, $unittype})
+    end
+end
 
 # Division (floating point)
 
-/(x::UnitData, y::UnitData) = *(x,inv(y))
-/(x::NNN, y::UnitData)   = Quantity(x,inv(y))
-/(x::UnitData, y::NNN)   = (1/y) * x
-/(x::Quantity, y::UnitData) = Quantity(x.val, unit(x) / y)
-/(x::Quantity, y::Quantity) = Quantity(x.val / y.val, unit(x) / unit(y))
-/(x::Quantity, y::NNN)   = Quantity(x.val / y, unit(x))
-/(x::NNN, y::Quantity)   = Quantity(x / y.val, inv(unit(y)))
+/(x::UnitData, y::UnitData)       = *(x,inv(y))
+/(x::Real, y::UnitData)           = Quantity(x,inv(y))
+/(x::UnitData, y::Real)           = (1/y) * x
+/(x::Quantity, y::UnitData)       = Quantity(x.val, unit(x) / y)
+/(x::Quantity, y::Quantity)       = Quantity(x.val / y.val, unit(x) / unit(y))
+/(x::Quantity, y::Real)           = Quantity(x.val / y, unit(x))
+/(x::Real, y::Quantity)           = Quantity(x / y.val, inv(unit(y)))
 
 # Division (rationals)
 
 //(x::UnitData, y::UnitData) = x/y
-//(x::NNN, y::UnitData)   = Rational(x)/y
-//(x::UnitData, y::NNN)   = (1//y) * x
+//(x::Real, y::UnitData)   = Rational(x)/y
+//(x::UnitData, y::Real)   = (1//y) * x
 
 //(x::Quantity, y::Quantity) = Quantity(x.val // y.val, unit(x) / unit(y))
 
@@ -320,8 +454,8 @@ promote_op{S,SUnits,T,TUnits}(a::Base.DotMulFun,
 #     Quantity(xr//yr, unit(x))
 # end
 
-//(x::Quantity, y::NNN) = Quantity(x.val // y, unit(x))
-//(x::NNN, y::Quantity) = Quantity(x // y.val, inv(unit(y)))
+//(x::Quantity, y::Real) = Quantity(x.val // y, unit(x))
+//(x::Real, y::Quantity) = Quantity(x // y.val, inv(unit(y)))
 
 # Division (other functions)
 
@@ -338,7 +472,6 @@ for f in (:mod, :rem)
         Quantity(($f)(z.val,y.val), unit(y))
     end
 end
-
 
 # Exponentiation...
 #    is not type stable.
@@ -371,6 +504,7 @@ end
 
 ^{T,Units}(x::Quantity{T,Units}, y::Integer) = Quantity((x.val)^y, Units()^y)
 ^{T,Units}(x::Quantity{T,Units}, y::Rational) = Quantity((x.val)^y, Units()^y)
+^{T,Units}(x::FloatQuantity{T,Units}, y::Rational) = Quantity((x.val)^y, Units()^y)
 ^{T,Units}(x::Quantity{T,Units}, y::Real) = Quantity((x.val)^y, Units()^y)
 
 # Other mathematical functions
@@ -445,18 +579,19 @@ isless(x::Quantity, y::Quantity) = isless(convert(unit(y), x).val,y.val)
 isapprox{A,B,C}(x::Quantity{A,C}, y::Quantity{B,C}) = isapprox(x.val, y.val)
 isapprox(x::Quantity, y::Quantity) = isapprox(convert(unit(y), x).val, y.val)
 
-=={A<:NNN,B<:NNN,C}(x::Quantity{A,C}, y::Quantity{B,C}) = (x.val == y.val)
+=={A<:Real,B<:Real,C}(x::Quantity{A,C}, y::Quantity{B,C}) = (x.val == y.val)
 function ==(x::Quantity, y::Quantity)
     dimension(x) != dimension(y) && return false
     convert(unit(y), x).val == y.val
 end
 ==(x::Quantity, y::Complex) = false
+=={T,U}(x::FloatQuantity{T,U}, y::Rational) = false
 ==(x::Quantity, y::Irrational) = false
 ==(x::Quantity, y::Number) = false
 ==(y::Complex, x::Quantity) = false
 ==(y::Irrational, x::Quantity) = false
+=={T,U}(x::Rational, y::FloatQuantity{T,U}) = false
 ==(y::Number, x::Quantity) = false
-
 
 <=(x::Quantity, y::Quantity) = <(x,y) || x==y
 
@@ -467,10 +602,11 @@ end
 isinteger(x::Quantity) = isinteger(x.val)
 isreal(x::Quantity) = true # isreal(x.val)
 isfinite(x::Quantity) = isfinite(x.val)
+isinf(x::Quantity) = isinf(x.val)
 
 "Needed for array operations to work right."
-promote_op{R<:NNN,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
-#promote_op{R<:NNN,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
+promote_op{R<:Real,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
+#promote_op{R<:Real,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
 
 "Forward numeric promotion wherever appropriate."
 promote_rule{S,T,U}(::Type{Quantity{S,U}},::Type{Quantity{T,U}}) =
@@ -479,23 +615,39 @@ promote_rule{S,T,U}(::Type{Quantity{S,U}},::Type{Quantity{T,U}}) =
 sign(x::Quantity) = sign(x.val)
 signbit(x::Quantity) = signbit(x.val)
 
+maxintfloat{T,U}(x::FloatQuantity{T,U}) = FloatQuantity(maxintfloat(T),U())
+
+"`prevfloat(x)` preserves units."
+prevfloat(x::Quantity) = Quantity(prevfloat(x.val), unit(x))
+
+"`nextfloat(x)` preserves units."
+nextfloat(x::Quantity) = Quantity(nextfloat(x.val), unit(x))
+
+"""
+`frexp(x::FloatQuantity)`
+
+Same as for a unitless `AbstractFloat`, but the first number in the
+result carries the units of the input.
+"""
+frexp(x::FloatQuantity) = map(*, frexp(x.val), (unit(x), one(x.val)))
+
+
+
+function linspace(start::Quantity, stop::Quantity, len::Real=50)
+    nums = promote(AbstractFloat(start), AbstractFloat(stop))
+
+    linspace(promote(AbstractFloat(start), AbstractFloat(stop))..., len)
+end
+
 include("Redefinitions.jl")
 
-# .+{T<:Real,S}(x::Quantity{T,S}, r::Range) = (+(x,first(r))):step(r):(+(x,last(r)))
-# .+{T<:Real,S}(r::Range, x::Quantity{T,S}) = +(x,r)
-
-# .-{T<:Real,}
-
-# broadcast does not respect promote_op apparently
-
-
+"""
+Merge the keys of two dictionaries, adding the values if the keys were shared.
+The first argument is modified.
+"""
 function mergeadd!(a::Dict, b::Dict)
     for (k,v) in b
-        if !haskey(a,k)
-            a[k] = v
-        else
-            a[k] += v
-        end
+        !haskey(a,k) ? (a[k] = v) : (a[k] += v)
     end
 end
 
@@ -671,19 +823,31 @@ end
 convert{S}(s::UnitData{S}, t::UnitData{S}) = 1
 
 "Put units on a number."
-convert{T,U}(::Union{Type{IntegerQuantity{T,U}},
-    Type{AbstractFloatQuantity{T,U}}}, x::Real) = Quantity(convert(T,x), U())
+convert{T,U,S}(::Type{FloatQuantity{T,U}}, x::Rational{S}) =
+    Quantity(T(x),U())
 
-convert(::Type{Bool}, x::Quantity) = convert(Bool, x.val)
+"Put units on a number."
+convert{T,U}(::TypeQuantity{T,U}, x::Real) = Quantity(convert(T,x), U())
+
+"Needed to avoid complaints about ambiguous methods"
+convert(::Type{Bool}, x::Quantity)    = Bool(x.val)
+"Needed to avoid complaints about ambiguous methods"
 convert(::Type{Integer}, x::Quantity) = Integer(x.val)
+"Needed to avoid complaints about ambiguous methods"
 convert(::Type{Complex}, x::Quantity) = Complex(x.val,0)
+
+convert{T,U}(::Type{Rational{BigInt}}, x::FloatQuantity{T,U}) =
+    Rational{BigInt}(x.val)
+convert{S<:Integer,T,U}(::Type{Rational{S}}, x::FloatQuantity{T,U}) =
+    Rational{S}(x.val)
+
+convert{R,S,T,U}(::Type{FloatQuantity{R,S}}, x::Quantity{T,U}) =
+    Quantity(R(x.val),convert(S,U()))
+convert{R,S,T,U}(::Type{RealQuantity{R,S}}, x::Quantity{T,U}) =
+    Quantity(R(x.val),convert(S,U()))
 
 "Strip units from a number."
 convert{S<:Number}(::Type{S}, x::Quantity) = convert(S, x.val)
-
-function basefactor(x::UnitDatum)
-    (basefactor(Val{unit(x)}) * 10^float(tens(x)))^power(x)
-end
 
 include("Defaults.jl")
 

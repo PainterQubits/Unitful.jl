@@ -14,6 +14,9 @@
 @uall C _Coulomb
 @uall V _Volt
 
+@uall K   _Kelvin
+@u    °Ra _Rankine
+
 @u    ° _Degree
 @u    rad _Radian
 
