@@ -1,27 +1,22 @@
-# # range.jl release-0.4 l346
-# start{T,U}(r::UnitRange{Quantity{T,U}})  = oftype(r.start+one(r.start),r.start)
-# # range.jl release-0.4 l347
-# next{T,U}(r::UnitRange{Quantity{T,U}}, i) = (convert(Quantity{T,U}, i), i+one(i))
-# # range.jl release-0.4 l348
-# done{T,U}(r::UnitRange{Quantity{T,U}}, i) = i == oftype(i, r.stop) + one(r.stop)
-
-export unitless
+# Apart from the functions `unit(x)` and `unitless(x)`, which for unitless
+# numbers return one(x) and x respectively, the redefinitions that follow
+# could perhaps be drop-in replacements for the definitions in Base.
+# Some benchmarking and testing should be done to confirm they have no ill
+# effect for unitless numeric operations.
 
 @inline unitless(x) = x
 @inline unitless(x::Quantity) = x.val
 
-"""
-`rat(x)`
+# We override the `rat` function in Base, which is not exported.
 
-We override this function in Base, which is not exported.
+# We allow ourselves to be a little sloppy and strip units.
+# Probably for unitful quantities, units should be on the first member of the
+# output tuple, if we're entirely consistent. It is however much more convenient
+# to have this act the same way for unitful and unitless quantities.
 
-We allow ourselves to be a little sloppy and strip units.
-Probably for unitful quantities, units should be on the first member of the
-output tuple, if we're entirely consistent. It is however much more convenient
-to have this act the same way for unitful and unitless quantities.
+# By inlining the unitless statements I don't think there should be a penalty...
 
-By inlining the unitless statements I don't think there should be a penalty...
-"""
+# range.jl commit 2bb94d6 l116
 function rat(x)
     y = unitless(x)
     a = d = 1
@@ -39,10 +34,40 @@ function rat(x)
     return a, b
 end
 
-
 # range.jl commit 2bb94d6 l85
 range(a::Real, len::Integer) =
     UnitRange{typeof(a)}(a, oftype(a, oftype(a, unitless(a)+len-1)))
+
+# range.jl commit 2bb94d6 l133
+function colon{T<:AbstractFloat}(start::T, step::T, stop::T)
+    step == zero(T) && throw(ArgumentError("range step cannot be zero"))
+    start == stop && return FloatRange{T}(start,step,1,1)
+    (zero(step) < step) != (start < stop) && return FloatRange{T}(start,step,0,1)
+
+    # float range "lifting"
+    r = (stop-start)/step
+    n = round(r)
+    lo = prevfloat((prevfloat(stop)-nextfloat(start))/n)
+    hi = nextfloat((nextfloat(stop)-prevfloat(start))/n)
+    if lo <= step <= hi
+        a0, b = rat(start)
+        a = convert(T,a0)
+        if a/convert(T,b) == unitless(start)
+            c0, d = rat(step)
+            c = convert(T,c0)
+            if c/convert(T,d) == unitless(step)
+                e = lcm(b,d)
+                a *= div(e,b)
+                c *= div(e,d)
+                eT = convert(T,e)
+                if (a+n*c)/eT == unitless(stop)
+                    return FloatRange{T}(a, c, n+1, eT)
+                end
+            end
+        end
+    end
+    FloatRange{T}(start, step, floor(r)+1, one(step))
+end
 
 # range.jl commit 2bb94d6 l183
 function linspace{T<:AbstractFloat}(start::T, stop::T, len::T)
@@ -153,34 +178,4 @@ function unsafe_getindex{T}(r::LinSpace{T}, s::OrdinalRange)
     vfirst::T = ((length(r) - ifirst) * r.start + (ifirst - 1) * r.stop) / r.divisor
     vlast::T = ((length(r) - ilast) * r.start + (ilast - 1) * r.stop) / r.divisor
     return linspace(vfirst, vlast, sl)
-end
-
-function colon{T<:FloatQuantity}(start::T, step::T, stop::T)
-    step == T(0) && throw(ArgumentError("range step cannot be zero"))
-    start == stop && return FloatRange{T}(start,step,1,1)
-    (zero(step) < step) != (start < stop) && return FloatRange{T}(start,step,0,1)
-
-    # float range "lifting"
-    r = (stop-start)/step
-    n = round(r)
-    lo = prevfloat((prevfloat(stop)-nextfloat(start))/n)
-    hi = nextfloat((nextfloat(stop)-prevfloat(start))/n)
-    if lo <= step <= hi
-        a0, b = rat(start)
-        a = convert(T,a0)
-        if a/convert(T,b) == unitless(start)
-            c0, d = rat(step)
-            c = convert(T,c0)
-            if c/convert(T,d) == unitless(step)
-                e = lcm(b,d)
-                a *= div(e,b)
-                c *= div(e,d)
-                eT = convert(T,e)
-                if (a+n*c)/eT == unitless(stop)
-                    return FloatRange{T}(a, c, n+1, eT)
-                end
-            end
-        end
-    end
-    FloatRange{T}(start, step, floor(r)+1, step)
 end

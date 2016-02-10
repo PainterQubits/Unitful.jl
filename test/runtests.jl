@@ -4,6 +4,8 @@ using Base.Test
 # Conversion
 @testset "Conversion" begin
     @testset "Unitless <--> unitful" begin
+        @test typeof(1.0m) ==
+            Unitful.FloatQuantity{Float64, UnitData{(UnitDatum(Unitful._Meter,0,1),)}}
         @test convert(typeof(3m),1) === 1m
         @test convert(Float64, 3m) === Float64(3.0)
         @test float(3m) == 3.0
@@ -19,6 +21,18 @@ using Base.Test
         @testset "Inter-unit conversion" begin
             @test 1inch == 2.54cm                 # Exact because an SI unit is involved.
             @test 1ft ≈ 12inch                    # Approx because of an error O(ϵ)...
+        end
+        @testset "Temperature conversion" begin
+            # When converting a pure temperature, offsets in temperature are
+            # taken into account. If you like °Ra seek help
+            @test convert(°Ra, 4.2K) ≈ 7.56°Ra
+            @test convert(°F, 0°C) ≈ 32°F
+            @test convert(°C, 212°F) ≈ 100°C
+
+            # When appearing w/ other units, we calculate
+            # by converting between temperature intervals (no offsets).
+            # e.g. the linear thermal expansion coefficient of glass
+            @test convert(µm/(m*°F), 9µm/(m*°C)) ≈ 5µm/(m*°F)
         end
     end
 end
@@ -106,7 +120,7 @@ end
 
     @testset "Ranges" begin
 
-        @testset "Some test/ranges.jl tests, with units" begin
+        @testset "Some of test/ranges.jl, with units" begin
             @test size(10m:1m:0m) == (0,)
             @test length(1m:.2m:2m) == 6
             @test length(1.m:.2m:2.m) == 6
@@ -118,13 +132,35 @@ end
             @test length(1m:0m) == 0
             @test length(0.0m:-0.5m) == 0
             @test length(1m:2m:0m) == 0
+            L32 = linspace(Int32(1)*m, Int32(4)*m, 4)
+            L64 = linspace(Int64(1)*m, Int64(4)*m, 4)
+            @test L32[1] == 1m && L64[1] == 1m
+            @test L32[2] == 2m && L64[2] == 2m
+            @test L32[3] == 3m && L64[3] == 3m
+            @test L32[4] == 4m && L64[4] == 4m
 
-            # L32 = linspace(Int32(1)*m, Int32(4)*m, 4)
-            # L64 = linspace(Int64(1)*m, Int64(4)*m, 4)
-            # @test L32[1] == 1 && L64[1] == 1
-            # @test L32[2] == 2 && L64[2] == 2
-            # @test L32[3] == 3 && L64[3] == 3
-            # @test L32[4] == 4 && L64[4] == 4
+            r = 5m:-1m:1m
+            @test r[1]==5m
+            @test r[2]==4m
+            @test r[3]==3m
+            @test r[4]==2m
+            @test r[5]==1m
+
+            @test length(.1m:.1m:.3m) == 3
+            @test length(1.1m:1.1m:3.3m) == 3
+            @test length(1.1m:1.3m:3m) == 2
+            @test length(1m:1m:1.8m) == 1
+
+            @test (1m:5m)[1:4] == 1m:4m
+            @test (2m:6m)[1:4] == 2m:5m
+            @test (1m:6m)[2:5] == 2m:5m
+            @test typeof((1m:6m)[2:5]) == typeof(2m:5m)
+            @test (1m:6m)[2:2:5] == 2m:2m:4m
+            @test typeof((1m:6m)[2:2:5]) == typeof(2m:2m:4m)
+            @test (1m:2m:13m)[2:6] == 3m:2m:11m
+            @test typeof((1m:2m:13m)[2:6]) == typeof(3m:2m:11m)
+            @test (1m:2m:13m)[2:3:7] == 3m:6m:13m
+            @test typeof((1m:2m:13m)[2:3:7]) == typeof(3m:6m:13m)
         end
 
         @testset "UnitRange" begin
@@ -147,6 +183,11 @@ end
 
         @testset "LinSpace" begin
             @test isa(linspace(1.0m, 3.0m, 5), LinSpace{typeof(1.0m)})
+            @test isa(linspace(1.0m, 10m, 5), LinSpace{typeof(1.0m)})
+            @test isa(linspace(1m, 10.0m, 5), LinSpace{typeof(1.0m)})
+            @test isa(linspace(1m, 10m, 5), LinSpace{typeof(1.0m)})
+            @test_throws Exception linspace(1m, 10, 5)
+            @test_throws Exception linspace(1, 10m, 5)
         end
 
         @testset "Range → Range" begin

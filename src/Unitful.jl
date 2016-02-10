@@ -1,4 +1,5 @@
 "Copyright Andrew J. Keller, 2016"
+
 module Unitful
 
 import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, //, ^
@@ -18,7 +19,10 @@ export baseunit
 export dimension
 export power
 export tens
-export unit
+export unit, unitless
+
+export Quantity, FloatQuantity, RealQuantity
+export UnitDatum, UnitData
 
 # Dimensions
 @enum(Dimension,
@@ -40,21 +44,30 @@ abbr(::Type{Val{_Angle}})       = "[°]"
 
 # Units
 @enum(Unit,
-_Gram,
-_Foot, _Inch, _Meter,
+_Mile, _Yard, _Foot, _Inch, _Meter,
+_Are, _Acre,
 _Second, _Minute, _Hour,
+_Gram,
 _Ampere,
 _Kelvin, _Celsius, _Rankine, _Fahrenheit,
 _Mole,
 _Candela,
 _Degree, _Radian,
+_Watt,
+_Joule, _eV,
 _Coulomb,
 _Volt)
 
 # Length
 abbr(::Type{Val{_Meter}})      = "m"
+abbr(::Type{Val{_Mile}})       = "mi"
+abbr(::Type{Val{_Yard}})       = "yd"
 abbr(::Type{Val{_Foot}})       = "ft"
 abbr(::Type{Val{_Inch}})       = "in"
+
+# Area
+abbr(::Type{Val{_Are}})        = "a"
+abbr(::Type{Val{_Acre}})       = "ac"
 
 # Time
 abbr(::Type{Val{_Second}})     = "s"
@@ -84,6 +97,9 @@ abbr(::Type{Val{_Degree}})     = "°"
 abbr(::Type{Val{_Radian}})     = "rad"
 
 # Derived units
+abbr(::Type{Val{_Watt}})       = "W"
+abbr(::Type{Val{_Joule}})      = "J"
+abbr(::Type{Val{_eV}})         = "eV"
 abbr(::Type{Val{_Coulomb}})    = "C"
 abbr(::Type{Val{_Volt}})       = "V"
 
@@ -93,8 +109,12 @@ dimension correspond to a given unit. It should be implemented for all units.
 """
 function dimension end
 
-for x in [_Meter, _Foot, _Inch]
+for x in [_Meter, _Mile, _Yard, _Foot, _Inch]
     @eval dimension(::Type{Val{$x}}) = Dict(_Length=>1)
+end
+
+for x in [_Are, _Acre]
+    @eval dimension(::Type{Val{$x}}) = Dict(_Length=>2)
 end
 
 for x in [_Second, _Minute, _Hour]
@@ -113,6 +133,9 @@ dimension(::Type{Val{_Gram}})    = Dict(_Mass=>1)
 dimension(::Type{Val{_Ampere}})  = Dict(_Current=>1)
 dimension(::Type{Val{_Candela}}) = Dict(_Luminosity=>1)
 dimension(::Type{Val{_Mole}})    = Dict(_Mole=>1)
+dimension(::Type{Val{_Watt}})    = Dict(_Mass=>1, _Length=>2, _Time=>-3)
+dimension(::Type{Val{_Joule}})   = Dict(_Mass=>1, _Length=>2, _Time=>-2)
+dimension(::Type{Val{_eV}})      = Dict(_Mass=>1, _Length=>2, _Time=>-2)
 dimension(::Type{Val{_Coulomb}}) = Dict(_Current=>1, _Time=>1)
 dimension(::Type{Val{_Volt}})    = Dict(_Mass=>1, _Length=>2, _Time=>-3, _Current=>-1)
 
@@ -178,10 +201,10 @@ typealias TypeQuantity{T,U} Union{Type{RealQuantity{T,U}},
 "Simple constructors for the appropriate `Quantity` type."
 function Quantity end
 
-Quantity(x::AbstractFloat, y::UnitData{()}) = x
-Quantity(x::AbstractFloat, y) = FloatQuantity{typeof(x), typeof(y)}(x)
-Quantity(x, y::UnitData{()}) = x
-Quantity(x, y) = RealQuantity{typeof(x), typeof(y)}(x)
+@inline Quantity(x::AbstractFloat, y::UnitData{()}) = x
+@inline Quantity(x::AbstractFloat, y) = FloatQuantity{typeof(x), typeof(y)}(x)
+@inline Quantity(x, y::UnitData{()}) = x
+@inline Quantity(x, y) = RealQuantity{typeof(x), typeof(y)}(x)
 
 unit{T,Units}(x::Quantity{T,Units}) = Units()
 unit{T,Units}(x::Type{Quantity{T,Units}}) = Units()
@@ -207,8 +230,13 @@ basefactor(x::Type{Val{_Inch}}) = 254//10000 # the inch is exactly 0.0254 m
 function basefactor end
 
 basefactor(x::Type{Val{_Meter}})      = 1
+basefactor(x::Type{Val{_Mile}})       = 1609344//1000       # English mile
+basefactor(x::Type{Val{_Yard}})       = 9144//10000
 basefactor(x::Type{Val{_Foot}})       = 3048//10000
 basefactor(x::Type{Val{_Inch}})       = 254//10000
+
+basefactor(x::Type{Val{_Are}})        = 100                 # hectare = 100 ares
+basefactor(x::Type{Val{_Acre}})       = 40468564224//(10^7) # international acre
 
 basefactor(x::Type{Val{_Second}})     = 1
 basefactor(x::Type{Val{_Minute}})     = 60
@@ -220,16 +248,19 @@ basefactor(x::Type{Val{_Ampere}})     = 1
 
 basefactor(x::Type{Val{_Kelvin}})     = 1
 basefactor(x::Type{Val{_Celsius}})    = 1
-basefactor(x::Type{Val{_Rankine}})    = 5//9    # Some special casing needed
-basefactor(x::Type{Val{_Fahrenheit}}) = 5//9    # Some special casing needed
+basefactor(x::Type{Val{_Rankine}})    = 5//9       # Some special casing needed
+basefactor(x::Type{Val{_Fahrenheit}}) = 5//9       # Some special casing needed
 
 basefactor(x::Type{Val{_Candela}})    = 1
 
 basefactor(x::Type{Val{_Mole}})       = 1
 
-basefactor(x::Type{Val{_Degree}})     = pi/180.
+basefactor(x::Type{Val{_Degree}})     = pi/180
 basefactor(x::Type{Val{_Radian}})     = 1
 
+basefactor(x::Type{Val{_Watt}})       = 1
+basefactor(x::Type{Val{_Joule}})      = 1
+basefactor(x::Type{Val{_eV}})         = 1.6021766208e-19  # CODATA 2014
 basefactor(x::Type{Val{_Coulomb}})    = 1
 basefactor(x::Type{Val{_Volt}})       = 1
 
@@ -237,7 +268,9 @@ basefactor(x::Type{Val{_Volt}})       = 1
 `basefactor(x::UnitDatum)`
 
 Specifies how the base factor is computed when 10^x factors and powers of the
-unit are taken into account. Could be improved to enable exact conversions;
+unit are taken into account.
+
+TO DO: Could be improved to enable exact conversions;
 right now there is an explicit floating point conversion because of the 10^x.
 """
 function basefactor(x::UnitDatum)
@@ -448,12 +481,6 @@ end
 
 //(x::Quantity, y::Quantity) = Quantity(x.val // y.val, unit(x) / unit(y))
 
-# function //(x::Quantity, y::Complex)
-#     xr = complex(Rational(real(x).val),Rational(imag(x).val))
-#     yr = complex(Rational(real(y).val),Rational(imag(y).val))
-#     Quantity(xr//yr, unit(x))
-# end
-
 //(x::Quantity, y::Real) = Quantity(x.val // y, unit(x))
 //(x::Real, y::Quantity) = Quantity(x // y.val, inv(unit(y)))
 
@@ -519,7 +546,7 @@ sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
  abs(x::Quantity) = Quantity(abs(x.val),  unit(x))
 
 for y in [:sin, :cos, :tan, :cot, :sec, :csc]
-    @eval ($y){T}(x::Quantity{T,UnitData{(UnitDatum(_Degree,0,1),)}}) = ($y)(x.val*pi/180.)
+    @eval ($y){T}(x::Quantity{T,UnitData{(UnitDatum(_Degree,0,1),)}}) = ($y)(x.val*pi/180)
     @eval ($y){T}(x::Quantity{T,UnitData{(UnitDatum(_Radian,0,1),)}}) = ($y)(x.val)
 end
 
@@ -534,7 +561,7 @@ end
     yunits = y.parameters[2].parameters[1]
 
     factx = mapreduce(*,xunits) do a
-        basefactor(a)      # special case for temperature?
+        basefactor(a)
     end
 
     facty = mapreduce(*,yunits) do b
@@ -555,7 +582,7 @@ end
     yunits = y.parameters[2].parameters[1]
 
     factx = mapreduce(*,xunits) do a
-        basefactor(a)      # special case for temperature?
+        basefactor(a)
     end
 
     facty = mapreduce(*,yunits) do b
@@ -631,12 +658,28 @@ result carries the units of the input.
 """
 frexp(x::FloatQuantity) = map(*, frexp(x.val), (unit(x), one(x.val)))
 
+function linspace{S,T,U}(start::RealQuantity{S,U}, stop::Quantity{T,U},
+        len::Real=50)
+    nums = promote(AbstractFloat(unitless(start)), AbstractFloat(unitless(stop)))
+    quants = map(x->Quantity(x,U()), nums)
 
+    linspace(quants..., len)
+end
 
-function linspace(start::Quantity, stop::Quantity, len::Real=50)
-    nums = promote(AbstractFloat(start), AbstractFloat(stop))
+function linspace{S,T,U}(start::FloatQuantity{S,U}, stop::RealQuantity{T,U},
+        len::Real=50)
+    nums = promote(AbstractFloat(unitless(start)), AbstractFloat(unitless(stop)))
+    quants = map(x->Quantity(x,U()), nums)
 
-    linspace(promote(AbstractFloat(start), AbstractFloat(stop))..., len)
+    linspace(quants..., len)
+end
+
+@generated function linspace(start::Real, stop::Real, len::Real=50)
+    if start <: Quantity || stop <: Quantity
+        :(error("Dimensional mismatch"))
+    else
+        :(linspace(promote(AbstractFloat(start), AbstractFloat(stop))..., len))
+    end
 end
 
 include("Redefinitions.jl")
@@ -664,14 +707,7 @@ function dimension(u::UnitDatum)
     *(DimensionData{(t...)}())
 end
 
-function dimension{N}(u::UnitData{N})
-    dims = dimension(N[1])
-    for i in 2:length(N)
-        dims *= dimension(N[i])
-    end
-    *(dims)
-end
-
+dimension{N}(u::UnitData{N}) = mapreduce(dimension, *, N)
 dimension{S,SUnits}(x::Quantity{S,SUnits}) = dimension(SUnits())
 
 "Format a unitful quantity."
@@ -742,27 +778,14 @@ macro u(x,y)
     end
 end
 
-macro simplify_prefixes()
-    quote
-        @generated function simplify(x::Quantity)
-            tup = u.parameters[1]
-
-        end
-    end
-end
-
-# Conversion
-
-# Some of our `convert` syntax breaks Julia conventions in that the first
-# argument is not a type. This decision is not taken lightly but the result
-# is very convenient.
-
-# "Give an SI unit for a given dimension. Relies on enum ordering..."
-# @generated function baseunit(x::DimensionData)
-#     tup = x.parameters[1]
-#     c = [UnitDatum(Unit(Int(unit(y))), 0, power(y)) for y in tup]
-#     d = (c...)
-#     :(UnitData{$d}())
+# WIP
+# macro simplify_prefixes()
+#     quote
+#         @generated function simplify(x::Quantity)
+#             tup = u.parameters[1]
+#
+#         end
+#     end
 # end
 
 "Strip units and convert to float."
@@ -780,13 +803,43 @@ function convert{T,Units}(::Type{Quantity{T,Units}}, x::Quantity)
     Quantity(T(x.val * conv), Units())
 end
 
+function tscale(x::UnitData)
+    tup = typeof(x).parameters[1]
+    if length(tup) > 1
+        return false
+    end
+    u = unit(tup[1])
+    if u == _Celsius || u == _Kelvin || u == _Rankine || u == _Fahrenheit
+        return true
+    else
+        return false
+    end
+end
+
+offsettemp{T}(::Type{Val{T}}) = 0
+offsettemp(::Type{Val{_Fahrenheit}}) = 459.67
+offsettemp(::Type{Val{_Celsius}}) = 273.15
+
 """
 Convert a unitful quantity to different units.
+
+Is a generated function to allow for special casing, e.g. temperature conversion
 """
-function convert(a::UnitData, x::Quantity)
-    xunits = typeof(x).parameters[2]
-    conv = convert(a, xunits())
-    Quantity(x.val * conv, a)
+@generated function convert(a::UnitData, x::Quantity)
+    xunits = x.parameters[2]
+    aData = a()
+    xData = xunits()
+    conv = convert(aData, xData)
+
+    if tscale(aData)
+        tup0 = xunits.parameters[1]
+        tup1 = a.parameters[1]
+        t0 = offsettemp(Val{unit(tup0[1])})
+        t1 = offsettemp(Val{unit(tup1[1])})
+        :(Quantity(((x.val + $t0) * $conv) - $t1, a))
+    else
+        :(Quantity(x.val * $conv, a))
+    end
 end
 
 """
@@ -809,7 +862,7 @@ Find the conversion factor from unit `t` to unit `s`, e.g.
     # fact2 is what would be multiplied to get from the result to base SI units
 
     fact1 = mapreduce(*,tunits) do x    # x is a UnitDatum
-        basefactor(x)      # special case for temperature?
+        basefactor(x)
     end
     fact2 = mapreduce(*,sunits) do x
         basefactor(x)
@@ -838,6 +891,7 @@ convert(::Type{Complex}, x::Quantity) = Complex(x.val,0)
 
 convert{T,U}(::Type{Rational{BigInt}}, x::FloatQuantity{T,U}) =
     Rational{BigInt}(x.val)
+
 convert{S<:Integer,T,U}(::Type{Rational{S}}, x::FloatQuantity{T,U}) =
     Rational{S}(x.val)
 
