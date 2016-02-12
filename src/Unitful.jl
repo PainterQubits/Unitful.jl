@@ -317,12 +317,17 @@ end
 
 # Addition / subtraction
 for op in [:+, :-]
+
     @eval ($op){S,T,Units}(x::Quantity{S,Units}, y::Quantity{T,Units}) =
         Quantity(($op)(x.val,y.val), Units())
-    @eval function ($op){S,T,SUnits,TUnits}(x::Quantity{S,SUnits}, y::Quantity{T,TUnits})
+
+    # If not generated, there are run-time allocations
+    @eval @generated function ($op){S,T,SUnits,TUnits}(x::Quantity{S,SUnits},
+            y::Quantity{T,TUnits})
         result_units = SUnits() + TUnits()
-        ($op)(convert(result_units, x), convert(result_units, y))
+        :($($op)(convert($result_units, x), convert($result_units, y)))
     end
+
     @eval ($op)(x::Quantity) = Quantity(($op)(x.val),unit(x))
 end
 
@@ -332,12 +337,14 @@ for f in (Base.DotAddFun,
           Base.AddFun,
           Base.SubFun)
 
-    @eval function promote_op{S,SUnits,T,TUnits}(::$f,
+    # If not generated, there are run-time allocations
+    @eval @generated function promote_op{S,SUnits,T,TUnits}(::$f,
         ::Type{Quantity{S,SUnits}}, ::Type{Quantity{T,TUnits}})
 
         numtype = promote_op(($f)(),S,T)
         quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
-        quant{numtype, typeof(+(SUnits(), TUnits()))}
+        resunits = typeof(+(SUnits(), TUnits()))
+        :(($quant){$numtype, $resunits})
 
     end
 end
@@ -356,15 +363,9 @@ applies equally well to `DimensionData` instead of `UnitData`.
 
 Collect `UnitDatum` from the types of the `UnitData` objects. For identical
 units including SI prefixes (i.e. cm ≠ m), collect powers and sort uniquely.
-The unique sorting has some advantages:
+The unique sorting permits easy unit comparisons.
 
-- could reduce compile-time overhead, compared to without sorting
-- unique ordering of units permits easy unit comparisons
-
-You can think of this generated function as mapping a product of units
-to a unique result of units. All computation is done at compile time,
-so at run time this is very fast. It is likely that some compile-time
-optimizations would be good...
+It is likely that some compile-time optimization would be good...
 """
 @generated function *(a0::Unitlike, a::Unitlike...)
 
@@ -373,9 +374,11 @@ optimizations would be good...
 
     D = (issubtype(a0,UnitData) ? UnitDatum : DimensionDatum)
     b = Array{D,1}()
-    push!(b, a0.parameters[1]...)
+    a0p = a0.parameters[1]
+    length(a0p) > 0 && push!(b, a0p...)
     for x in a
-        push!(b, x.parameters[1]...)
+        xp = x.parameters[1]
+        length(xp) > 0 && push!(b, xp...)
     end
 
     sort!(b, by=x->power(x))
