@@ -10,6 +10,10 @@ There should be facilities for dimensional analysis.
 All of this should integrate easily with the usual mathematical operations
 and collections that are found in Julia base.
 
+You will see a lot of warnings when you use this package because I override
+some methods in Base. This is expected and I hope that eventually it will be
+unnecessary.
+
 ## Documentation
 
 Available [here](http://ajkeller34.github.io/Unitful.jl).
