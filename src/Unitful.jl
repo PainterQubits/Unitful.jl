@@ -73,6 +73,8 @@ abbr(::Type{Val{_Acre}})       = "ac"
 abbr(::Type{Val{_Second}})     = "s"
 abbr(::Type{Val{_Minute}})     = "min"
 abbr(::Type{Val{_Hour}})       = "h"
+abbr(::Type{Val{_Day}})        = "d"
+abbr(::Type{Val{_Week}})       = "wk"
 
 # Mass
 abbr(::Type{Val{_Gram}})       = "g"
@@ -117,7 +119,7 @@ for x in [_Are, _Acre]
     @eval dimension(::Type{Val{$x}}) = Dict(_Length=>2)
 end
 
-for x in [_Second, _Minute, _Hour]
+for x in [_Second, _Minute, _Hour, _Day, _Week]
     @eval dimension(::Type{Val{$x}}) = Dict(_Time=>1)
 end
 
@@ -241,6 +243,8 @@ basefactor(x::Type{Val{_Acre}})       = 40468564224//(10^7) # international acre
 basefactor(x::Type{Val{_Second}})     = 1
 basefactor(x::Type{Val{_Minute}})     = 60
 basefactor(x::Type{Val{_Hour}})       = 3600
+basefactor(x::Type{Val{_Day}})        = 86400
+basefactor(x::Type{Val{_Week}})       = 604800
 
 basefactor(x::Type{Val{_Gram}})       = 1//1000    # because of the kg
 
