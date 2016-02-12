@@ -13,3 +13,18 @@ and collections that are found in Julia base.
 ## Documentation
 
 Available [here](http://ajkeller34.github.io/Unitful.jl).
+
+Tested on:
+
+```
+Julia Version 0.5.0-dev+2440
+Commit 2bb94d6 (2016-02-01 02:22 UTC)
+Platform Info:
+  System: Darwin (x86_64-apple-darwin13.4.0)
+  CPU: Intel(R) Core(TM) i7-4870HQ CPU @ 2.50GHz
+  WORD_SIZE: 64
+  BLAS: libopenblas (USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell)
+  LAPACK: libopenblas64_
+  LIBM: libopenlibm
+  LLVM: libLLVM-3.7.1
+```
