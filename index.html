@@ -221,6 +221,11 @@ include(&quot;test/runtests.jl&quot;)
 <h2 id="to-do">To do</h2>
 <ul>
 <li>
+<p>Clean up how units/quantities are displayed.
+I'm waiting on <code>show</code>, <code>print</code>, etc.
+to be cleaned up before I work on this myself (see <a href="https://github.com/JuliaLang/julia/issues/14052">issue #14052</a> and others).</p>
+</li>
+<li>
 <p>Respect exact conversions: Right now if we convert 12 inches to feet the result
 is unnecessarily floating-point based. In whole or part this is because of the method
 <code>basefactor(x::UnitDatum)</code>: right now there is an explicit floating point
@@ -289,5 +294,5 @@ becomes a loaded / ambiguous name.</p>
 
 <!--
 MkDocs version : 0.14.0
-Build Date UTC : 2016-02-12 18:58:38.473351
+Build Date UTC : 2016-02-12 19:37:00.569249
 -->
