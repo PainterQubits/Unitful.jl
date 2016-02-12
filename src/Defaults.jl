@@ -16,6 +16,8 @@ export ha
 @uall s       _Second
 @u    minute  _Minute
 @u    h       _Hour
+@u    d       _Day
+@u    wk      _Week
 
 # Mass
 @uall g       _Gram
