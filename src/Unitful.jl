@@ -515,8 +515,6 @@ end
 
 # Division (rationals)
 
-Rational(x::Quantity) = Quantity(Rational(x.val), unit(x))
-
 //(x::UnitData, y::UnitData) = x/y
 //(x::Real, y::UnitData)   = Rational(x)/y
 //(x::UnitData, y::Real)   = (1//y) * x
@@ -832,12 +830,6 @@ end
 #     end
 # end
 
-"Strip units and convert to float."
-float(x::Quantity) = float(x.val)
-
-"Strip units and convert to an integer."
-Integer(x::Quantity) = Integer(x.val)
-
 """
 Convert a unitful quantity to different units.
 """
@@ -915,6 +907,10 @@ Find the conversion factor from unit `t` to unit `s`, e.g.
     y = fact1 / fact2
     :($y)
 end
+
+float(x::Quantity) = Quantity(float(x.val), unit(x))
+Integer(x::Quantity) = Quantity(Integer(x.val), unit(x))
+Rational(x::Quantity) = Quantity(Rational(x.val), unit(x))
 
 "No conversion factor needed if you already have the right units."
 convert{S}(s::UnitData{S}, t::UnitData{S}) = 1
