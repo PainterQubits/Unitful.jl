@@ -24,7 +24,7 @@ and collections that are found in Julia base.
 
 + Use a recent nightly build of Julia 0.5.
 
-+ `Pkg.clone("www.github.com/ajkeller34/Unitful.jl.git")`
++ `Pkg.clone("https://github.com/ajkeller34/Unitful.jl.git")`
 
 ### In Julia
 
