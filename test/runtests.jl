@@ -32,7 +32,7 @@ using Base.Test
             # When appearing w/ other units, we calculate
             # by converting between temperature intervals (no offsets).
             # e.g. the linear thermal expansion coefficient of glass
-            @test convert(µm/(m*°F), 9µm/(m*°C)) ≈ 5µm/(m*°F)
+            @test convert(μm/(m*°F), 9μm/(m*°C)) ≈ 5μm/(m*°F)
         end
     end
 end
