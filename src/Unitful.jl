@@ -299,7 +299,7 @@ basefactor(x::Type{Val{_Siemens}})    = 1
 basefactor(x::Type{Val{_Farad}})      = 1
 basefactor(x::Type{Val{_Henry}})      = 1
 basefactor(x::Type{Val{_Tesla}})      = 1
-basefactor(x::Type{Val{_Weber})       = 1
+basefactor(x::Type{Val{_Weber}})      = 1
 
 """
 `basefactor(x::UnitDatum)`
