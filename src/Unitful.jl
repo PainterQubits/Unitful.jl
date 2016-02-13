@@ -46,7 +46,7 @@ abbr(::Type{Val{_Angle}})       = "[°]"
 @enum(Unit,
 _Mile, _Yard, _Foot, _Inch, _Meter,
 _Are, _Acre,
-_Second, _Minute, _Hour,
+_Second, _Minute, _Hour, _Day, _Week,
 _Gram,
 _Ampere,
 _Kelvin, _Celsius, _Rankine, _Fahrenheit,
