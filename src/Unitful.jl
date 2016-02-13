@@ -14,6 +14,7 @@ import Base: prevfloat, nextfloat, maxintfloat, rat, step, linspace
 import Base: promote_op, promote_rule, unsafe_getindex, colon
 import Base: length, float, range, start, done, next, last, one, zero
 import Base: getindex, eltype, step, last, first, frexp
+import Base: Rational
 
 export baseunit
 export dimension
@@ -482,10 +483,14 @@ end
 
 # Division (rationals)
 
+Rational(x::Quantity) = Quantity(Rational(x.val), unit(x))
+
 //(x::UnitData, y::UnitData) = x/y
 //(x::Real, y::UnitData)   = Rational(x)/y
 //(x::UnitData, y::Real)   = (1//y) * x
 
+//(x::UnitData, y::Quantity) = Quantity(1//y.val, x / unit(y))
+//(x::Quantity, y::UnitData) = Quantity(x.val, unit(x) / y)
 //(x::Quantity, y::Quantity) = Quantity(x.val // y.val, unit(x) / unit(y))
 
 //(x::Quantity, y::Real) = Quantity(x.val // y, unit(x))

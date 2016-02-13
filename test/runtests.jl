@@ -67,6 +67,8 @@ end
     @testset "Division" begin
         @test 2m // 5s == (2//5)*(m/s)        # Units propagate through rationals
         @test (2//3)*m // 5 == (2//15)*m      # Quantity // Real
+        @test 5.0m // s === 5.0m/s            # Quantity // Unit. Just pass units through
+        @test s//(5m) === (1//5)*s/m          # Unit // Quantity. Will fail if denom is float
         @test (m//2) === 1//2 * m             # Unit // Real
         @test (2//m) === (2//1) / m           # Real // Unit
         @test (m//s) === m/s                  # Unit // Unit
