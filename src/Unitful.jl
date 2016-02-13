@@ -2,7 +2,7 @@
 
 module Unitful
 
-import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, //, ^
+import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, .\, //, ^, .^
 import Base: show, convert
 import Base: abs, float, inv, sqrt
 import Base: sin, cos, tan, cot, sec, csc
@@ -459,17 +459,31 @@ for (f,F) in ((Base.DotMulFun, :*),
     @eval @generated function promote_op{S,SUnits,T,TUnits}(::$f,
         x::TypeQuantity{S,SUnits}, y::TypeQuantity{T,TUnits})
 
-        X = x.parameters[1].parameters[1]
-        Y = y.parameters[1].parameters[1]
-        XUnits = x.parameters[1].parameters[2]
-        YUnits = y.parameters[1].parameters[2]
-
         numtype = promote_op(($f)(),S,T)
         quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
-        unittype = typeof(($F)(XUnits(), YUnits()))
+        unittype = typeof(($F)(SUnits(), TUnits()))
         :(($quant){$numtype, $unittype})
     end
+
+    @eval @generated function promote_op{R<:Number,S,SUnits}(::$f,
+        ::Type{R}, ::TypeQuantity{S,SUnits})
+
+        numtype = promote_op(($f)(),R,S)
+        quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+        :(($quant){$numtype, SUnits})
+    end
+
 end
+
+# see arraymath.jl
+# ./(x::UnitData, Y::AbstractArray) =
+#     reshape([ x ./ y for y in Y ], size(Y))
+# ./(X::AbstractArray, y::UnitData) =
+#     reshape([ x ./ y for x in X ], size(X))
+# .\(x::UnitData, Y::AbstractArray) =
+#     reshape([ x .\ y for y in Y ], size(Y))
+# .\(X::AbstractArray, y::UnitData) =
+#     reshape([ x .\ y for x in X ], size(X))
 
 # Division (floating point)
 
@@ -482,8 +496,6 @@ end
 /(x::Real, y::Quantity)           = Quantity(x / y.val, inv(unit(y)))
 
 # Division (rationals)
-
-Rational(x::Quantity) = Quantity(Rational(x.val), unit(x))
 
 //(x::UnitData, y::UnitData) = x/y
 //(x::Real, y::UnitData)   = Rational(x)/y
@@ -643,10 +655,6 @@ isreal(x::Quantity) = true # isreal(x.val)
 isfinite(x::Quantity) = isfinite(x.val)
 isinf(x::Quantity) = isinf(x.val)
 
-"Needed for array operations to work right."
-promote_op{R<:Real,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
-#promote_op{R<:Real,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
-
 "Forward numeric promotion wherever appropriate."
 promote_rule{S,T,U}(::Type{Quantity{S,U}},::Type{Quantity{T,U}}) =
     Quantity{promote_type(S,T),U}
@@ -800,11 +808,9 @@ end
 #     end
 # end
 
-"Strip units and convert to float."
-float(x::Quantity) = float(x.val)
-
-"Strip units and convert to an integer."
-Integer(x::Quantity) = Integer(x.val)
+float(x::Quantity) = Quantity(float(x.val), unit(x))
+Integer(x::Quantity) = Quantity(Integer(x.val), unit(x))
+Rational(x::Quantity) = Quantity(Rational(x.val), unit(x))
 
 """
 Convert a unitful quantity to different units.

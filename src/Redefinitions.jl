@@ -139,8 +139,9 @@ step{T}(r::LinSpace{T}) = ifelse(r.len <= zero(r.len), convert(T, NaN),
     (r.stop-r.start) / unitless(r.divisor))
 
 # range.jl commit 2bb94d6 l323
-length(r::UnitRange) = Integer(unitless(r.stop) - unitless(r.start) + 1)
-length(r::LinSpace) = Integer(r.len + signbit(unitless(r.len) - 1))
+length(r::UnitRange)  = Integer(unitless(r.stop) - unitless(r.start) + 1)
+length(r::FloatRange) = Integer(unitless(r.len))
+length(r::LinSpace)   = Integer(unitless(r.len) + signbit(unitless(r.len) - 1))
 
 # range.jl commit 2bb94d6 l360
 first{T}(r::LinSpace{T}) = convert(T, (unitless(r.len)-1)*r.start/r.divisor)

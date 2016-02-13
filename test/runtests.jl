@@ -8,8 +8,8 @@ using Base.Test
             Unitful.FloatQuantity{Float64, UnitData{(UnitDatum(Unitful._Meter,0,1),)}}
         @test convert(typeof(3m),1) === 1m
         @test convert(Float64, 3m) === Float64(3.0)
-        @test float(3m) == 3.0
-        @test Integer(3m) == 3
+        @test float(3A) === 3.0A
+        @test Integer(3.0m) === 3m
     end
 
     @testset "Unitful <--> unitful" begin
