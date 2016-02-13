@@ -54,10 +54,18 @@ _Kelvin, _Celsius, _Rankine, _Fahrenheit,
 _Mole,
 _Candela,
 _Degree, _Radian,
+_Newton,
+_Pascal,
 _Watt,
 _Joule, _eV,
 _Coulomb,
-_Volt)
+_Volt,
+_Ohm,
+_Siemens,
+_Farad,
+_Henry,
+_Tesla,
+_Weber)
 
 # Length
 abbr(::Type{Val{_Meter}})      = "m"
@@ -100,11 +108,19 @@ abbr(::Type{Val{_Degree}})     = "°"
 abbr(::Type{Val{_Radian}})     = "rad"
 
 # Derived units
+abbr(::Type{Val{_Newton}})     = "N"
+abbr(::Type{Val{_Pascal}})     = "Pa"
 abbr(::Type{Val{_Watt}})       = "W"
 abbr(::Type{Val{_Joule}})      = "J"
 abbr(::Type{Val{_eV}})         = "eV"
 abbr(::Type{Val{_Coulomb}})    = "C"
 abbr(::Type{Val{_Volt}})       = "V"
+abbr(::Type{Val{_Ohm}})        = "Ω"
+abbr(::Type{Val{_Siemens}})    = "S"
+abbr(::Type{Val{_Farad}})      = "F"
+abbr(::Type{Val{_Henry}})      = "H"
+abbr(::Type{Val{_Tesla}})      = "T"
+abbr(::Type{Val{_Weber}})      = "Wb"
 
 """
 `dimension(x)` specifies a `Dict` containing how many powers of each
@@ -136,11 +152,19 @@ dimension(::Type{Val{_Gram}})    = Dict(_Mass=>1)
 dimension(::Type{Val{_Ampere}})  = Dict(_Current=>1)
 dimension(::Type{Val{_Candela}}) = Dict(_Luminosity=>1)
 dimension(::Type{Val{_Mole}})    = Dict(_Mole=>1)
+dimension(::Type{Val{_Newton}})  = Dict(_Mass=>1, _Length=>1, _Time=>-2)
+dimension(::Type{Val{_Pascal}})  = Dict(_Mass=>1, _Length=>-1, _Time=>-2)
 dimension(::Type{Val{_Watt}})    = Dict(_Mass=>1, _Length=>2, _Time=>-3)
 dimension(::Type{Val{_Joule}})   = Dict(_Mass=>1, _Length=>2, _Time=>-2)
 dimension(::Type{Val{_eV}})      = Dict(_Mass=>1, _Length=>2, _Time=>-2)
 dimension(::Type{Val{_Coulomb}}) = Dict(_Current=>1, _Time=>1)
 dimension(::Type{Val{_Volt}})    = Dict(_Mass=>1, _Length=>2, _Time=>-3, _Current=>-1)
+dimension(::Type{Val{_Ohm}})     = Dict(_Mass=>1, _Length=>2, _Time=>-3, _Current=>-2)
+dimension(::Type{Val{_Siemens}}) = Dict(_Mass=>-1, _Length=>-2, _Time=>3, _Current=>2)
+dimension(::Type{Val{_Farad}})   = Dict(_Mass=>-1, _Length=>-2, _Time=>4, _Current=>2)
+dimension(::Type{Val{_Henry}})   = Dict(_Mass=>1, _Length=>2, _Time=>-2, _Current=>-2)
+dimension(::Type{Val{_Tesla}})   = Dict(_Mass=>1, _Time=>-2, _Current=>-1)
+dimension(::Type{Val{_Weber}})   = Dict(_Mass=>1, _Length=>2, _Time=>-2, _Current=>-1)
 
 """
 Description of a unit, including powers of that unit and any 10^x exponents.
@@ -263,11 +287,19 @@ basefactor(x::Type{Val{_Mole}})       = 1
 basefactor(x::Type{Val{_Degree}})     = pi/180
 basefactor(x::Type{Val{_Radian}})     = 1
 
+basefactor(x::Type{Val{_Newton}})     = 1
+basefactor(x::Type{Val{_Pascal}})     = 1
 basefactor(x::Type{Val{_Watt}})       = 1
 basefactor(x::Type{Val{_Joule}})      = 1
 basefactor(x::Type{Val{_eV}})         = 1.6021766208e-19  # CODATA 2014
 basefactor(x::Type{Val{_Coulomb}})    = 1
 basefactor(x::Type{Val{_Volt}})       = 1
+basefactor(x::Type{Val{_Ohm}})        = 1
+basefactor(x::Type{Val{_Siemens}})    = 1
+basefactor(x::Type{Val{_Farad}})      = 1
+basefactor(x::Type{Val{_Henry}})      = 1
+basefactor(x::Type{Val{_Tesla}})      = 1
+basefactor(x::Type{Val{_Weber}})      = 1
 
 """
 `basefactor(x::UnitDatum)`
