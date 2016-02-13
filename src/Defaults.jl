@@ -36,11 +36,19 @@ export ha
 @u    rad     _Radian
 
 # Derived
+@uall N       _Newton
+@uall Pa      _Pascal
 @uall W       _Watt
 @uall J       _Joule
 @uall eV      _eV
 @uall C       _Coulomb
 @uall V       _Volt
+@uall Ω       _Ohm
+@uall S       _Siemens
+@uall F       _Farad
+@uall H       _Henry
+@uall T       _Tesla
+@uall Wb      _Weber
 
 # Constants
 export k
