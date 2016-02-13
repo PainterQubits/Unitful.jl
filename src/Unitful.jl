@@ -168,7 +168,7 @@ DimensionDatum(a,b,c) = DimensionDatum(a,c)
 @inline power(x) = x.power
 
 "A unit or dimension."
-abstract  Unitlike
+abstract  Unitlike <: Number
 
 "A container for `UnitDatum` objects to be stored in the type signature."
 immutable UnitData{N} <: Unitlike end
@@ -355,6 +355,7 @@ for f in (Base.DotAddFun,
 end
 
 # Multiplication
+*{T<:UnitData}(x::Bool, y::T) = Quantity(x,y)
 
 "Construct a unitful quantity by multiplication."
 *(x::Real, y::UnitData, z::UnitData...) = Quantity(x,*(y,z...))
@@ -475,7 +476,18 @@ for (f,F) in ((Base.DotMulFun, :*),
 
 end
 
-# see arraymath.jl
+# # See operators.jl
+# # Element-wise operations with units
+# for (f,F) in [(:./, :/), (:.*, :*), (:.+, :+), (:.-, :-)]
+#     @eval ($f)(x::UnitData, y::UnitData) = ($F)(x,y)
+#     @eval ($f)(x::Number, y::UnitData)   = ($F)(x,y)
+#     @eval ($f)(x::UnitData, y::Number)   = ($F)(x,y)
+# end
+# .\(x::UnitData, y::UnitData) = y./x
+# .\(x::Number, y::UnitData)   = y./x
+# .\(x::UnitData, y::Number)   = y./x
+#
+# # See arraymath.jl
 # ./(x::UnitData, Y::AbstractArray) =
 #     reshape([ x ./ y for y in Y ], size(Y))
 # ./(X::AbstractArray, y::UnitData) =
@@ -484,6 +496,24 @@ end
 #     reshape([ x .\ y for y in Y ], size(Y))
 # .\(X::AbstractArray, y::UnitData) =
 #     reshape([ x .\ y for x in X ], size(X))
+# for (f,F) in ((:.*, Base.DotMulFun()),)
+#     @eval begin
+#         function ($f){T}(A::UnitData, B::AbstractArray{T})
+#             F = similar(B, Base.promote_array_type($F,typeof(A),T))
+#             for i in eachindex(B)
+#                 @inbounds F[i] = ($f)(A, B[i])
+#             end
+#             return F
+#         end
+#         function ($f){T}(A::AbstractArray{T}, B::UnitData)
+#             F = similar(A, Base.promote_array_type($F,typeof(B),T))
+#             for i in eachindex(A)
+#                 @inbounds F[i] = ($f)(A[i], B)
+#             end
+#             return F
+#         end
+#     end
+# end
 
 # Division (floating point)
 
