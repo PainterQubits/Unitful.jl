@@ -1,6 +1,8 @@
 # Default symbols for refering to a unit in the REPL.
 # Length
 @uall m       _Meter
+const µm = UnitData{(UnitDatum(_Meter,-6,1),)}()    # allow for Mac option-m mu
+export µm
 @u    mi      _Mile
 @u    yd      _Yard
 @u    ft      _Foot
