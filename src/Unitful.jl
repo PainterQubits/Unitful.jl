@@ -2,7 +2,7 @@
 
 module Unitful
 
-import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, //, ^
+import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, .\, //, ^, .^
 import Base: show, convert
 import Base: abs, float, inv, sqrt
 import Base: sin, cos, tan, cot, sec, csc
@@ -387,6 +387,7 @@ for f in (Base.DotAddFun,
 end
 
 # Multiplication
+*{T<:UnitData}(x::Bool, y::T) = Quantity(x,y)
 
 "Construct a unitful quantity by multiplication."
 *(x::Real, y::UnitData, z::UnitData...) = Quantity(x,*(y,z...))
@@ -485,21 +486,118 @@ for (f,F) in ((Base.DotMulFun, :*),
               (Base.MulFun, :*),
               (Base.RDivFun, :/))
 
-    # Tried doing this without @generated and the @inferred macro
-    # failed. The runtime test (numtype <: AbstractFloat)
-    # was likely the source of the problem.
-    @eval @generated function promote_op{S,SUnits,T,TUnits}(::$f,
-        x::TypeQuantity{S,SUnits}, y::TypeQuantity{T,TUnits})
+    # Probably some optimizations to be done here...
+    types = [RealQuantity, FloatQuantity]
 
-        X = x.parameters[1].parameters[1]
-        Y = y.parameters[1].parameters[1]
-        XUnits = x.parameters[1].parameters[2]
-        YUnits = y.parameters[1].parameters[2]
+    for a in types, b in types
+        @eval @generated function promote_op{S,SUnits,T,TUnits}(::$f,
+                ::Type{($a){S,SUnits}}, ::Type{($b){T,TUnits}})
 
-        numtype = promote_op(($f)(),S,T)
-        quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
-        unittype = typeof(($F)(XUnits(), YUnits()))
-        :(($quant){$numtype, $unittype})
+            numtype = promote_op(($f)(),S,T)
+            quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+            unittype = typeof(($F)(SUnits(), TUnits()))
+            :(($quant){$numtype, $unittype})
+        end
+    end
+
+    for a in types
+        @eval begin
+            # number, quantity
+            @generated function promote_op{R<:Real,S,SUnits}(::$f,
+                ::Type{R}, ::Type{($a){S,SUnits}})
+
+                numtype = promote_op(($f)(),R,S)
+                quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+                unittype = typeof(($F)(UnitData{()}(), SUnits()))
+                :(($quant){$numtype, $unittype})
+            end
+
+            # quantity, number
+            @generated function promote_op{R<:Real,S,SUnits}(::$f,
+                ::Type{($a){S,SUnits}}, ::Type{R})
+
+                numtype = promote_op(($f)(),S,R)
+                quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+                unittype = typeof(($F)(SUnits(), UnitData{()}()))
+                :(($quant){$numtype, $unittype})
+            end
+
+            # unit, quantity
+            @generated function promote_op{R<:UnitData,S,SUnits}(::$f,
+                ::Type{($a){S,SUnits}}, ::Type{R})
+
+                numtype = S
+                quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+                unittype = typeof(($F)(SUnits(), R()))
+                :(($quant){$numtype, $unittype})
+            end
+
+            # quantity, unit
+            @generated function promote_op{R<:UnitData,S,SUnits}(::$f,
+                ::Type{R}, ::Type{($a){S,SUnits}})
+
+                numtype = promote_op(($f)(),one(S),S)
+                quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+                unittype = typeof(($F)(R(), SUnits()))
+                :(($quant){$numtype, $unittype})
+            end
+        end
+    end
+
+    @eval begin
+        @generated function promote_op{R<:Real,S<:UnitData}(::$f,
+            x::Type{R}, y::Type{S})
+            quant = R <: AbstractFloat ? FloatQuantity : RealQuantity
+            unittype = typeof(($F)(UnitData{()}(), S()))
+            :(($quant){x, $unittype})
+        end
+
+        @generated function promote_op{R<:Real,S<:UnitData}(::$f,
+            y::Type{S}, x::Type{R})
+            quant = R <: AbstractFloat ? FloatQuantity : RealQuantity
+            unittype = typeof(($F)(S(), UnitData{()}()))
+            :(($quant){x, $unittype})
+        end
+    end
+end
+
+# See operators.jl
+# Element-wise operations with units
+for (f,F) in [(:./, :/), (:.*, :*), (:.+, :+), (:.-, :-)]
+    @eval ($f)(x::UnitData, y::UnitData) = ($F)(x,y)
+    @eval ($f)(x::Number, y::UnitData)   = ($F)(x,y)
+    @eval ($f)(x::UnitData, y::Number)   = ($F)(x,y)
+end
+.\(x::UnitData, y::UnitData) = y./x
+.\(x::Number, y::UnitData)   = y./x
+.\(x::UnitData, y::Number)   = y./x
+
+# See arraymath.jl
+./(x::UnitData, Y::AbstractArray) =
+    reshape([ x ./ y for y in Y ], size(Y))
+./(X::AbstractArray, y::UnitData) =
+    reshape([ x ./ y for x in X ], size(X))
+.\(x::UnitData, Y::AbstractArray) =
+    reshape([ x .\ y for y in Y ], size(Y))
+.\(X::AbstractArray, y::UnitData) =
+    reshape([ x .\ y for x in X ], size(X))
+
+for (f,F) in ((:.*, Base.DotMulFun()),)
+    @eval begin
+        function ($f){T}(A::UnitData, B::AbstractArray{T})
+            F = similar(B, promote_op($F,typeof(A),T))
+            for i in eachindex(B)
+                @inbounds F[i] = ($f)(A, B[i])
+            end
+            return F
+        end
+        function ($f){T}(A::AbstractArray{T}, B::UnitData)
+            F = similar(A, promote_op($F,T,typeof(B)))
+            for i in eachindex(A)
+                @inbounds F[i] = ($f)(A[i], B)
+            end
+            return F
+        end
     end
 end
 
@@ -550,6 +648,7 @@ end
 "Fast inverse units."
 @generated function inv(x::UnitData)
     tup = x.parameters[1]
+    length(tup) == 0 && return :(x)
     tup2 = map(x->x^-1,tup)
     y = *(UnitData{tup2}())
     :($y)
@@ -672,10 +771,6 @@ isinteger(x::Quantity) = isinteger(x.val)
 isreal(x::Quantity) = true # isreal(x.val)
 isfinite(x::Quantity) = isfinite(x.val)
 isinf(x::Quantity) = isinf(x.val)
-
-"Needed for array operations to work right."
-promote_op{R<:Real,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
-#promote_op{R<:Real,S<:Quantity}(::Base.DotMulFun, ::Type{R}, ::Type{S}) = S
 
 "Forward numeric promotion wherever appropriate."
 promote_rule{S,T,U}(::Type{Quantity{S,U}},::Type{Quantity{T,U}}) =
