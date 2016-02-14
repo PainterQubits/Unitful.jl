@@ -8,8 +8,9 @@ using Base.Test
             Unitful.FloatQuantity{Float64, UnitData{(UnitDatum(Unitful._Meter,0,1),)}}
         @test convert(typeof(3m),1) === 1m
         @test convert(Float64, 3m) === Float64(3.0)
-        @test float(3A) === 3.0A
-        @test Integer(3.0m) === 3m
+        @test float(3m) === 3.0m
+        @test Integer(3.0A) === 3A
+        @test Rational(3.0m) === (3//1)*m
     end
 
     @testset "Unitful <--> unitful" begin
@@ -90,9 +91,11 @@ end
     @test isfinite(1.0m)
     @test !isfinite(Inf*m)
 
-    @test frexp(1.5m) == (0.75m, 1.0)
-    @test unit(nextfloat(0.0m)) == m
-    @test unit(prevfloat(0.0m)) == m
+    @testset "Floating point tests" begin
+        @test frexp(1.5m) == (0.75m, 1.0)
+        @test unit(nextfloat(0.0m)) == m
+        @test unit(prevfloat(0.0m)) == m
+    end
 end
 
 @testset "Rounding" begin
@@ -107,6 +110,9 @@ end
 end
 
 @testset "Sgn, abs, &c." begin
+    @test abs(3V+4V*im) == 5V
+    @test norm(3V+4V*im) == 5V
+    @test abs2(3V+4V*im) == 25V^2
     @test abs(-3m) == 3m
     @test abs2(-3m) == 9m^2
     @test sign(-3.3m) == -1.0
@@ -207,11 +213,26 @@ end
     end
 
     @testset "Array math" begin
-        @test @inferred([1m, 2m]' * [3m, 4m]) == [11m^2]
-        @test @inferred([1m, 2m, 3m] .* 5m)   == [5m^2, 10m^2, 15m^2]
-        @test @inferred(5m .* [1m, 2m, 3m])   == [5m^2, 10m^2, 15m^2]
-        @test @inferred(5m .+ [1m, 2m, 3m])   == [6m, 7m, 8m]
-        @test @inferred([1m, 2m] + [3m, 4m])  == [4m, 6m]
+        @testset "Array multiplication" begin
+            @test @inferred([1m, 2m]' * [3m, 4m])    == [11m^2]
+            @test @inferred([1V,2V]*[0.1/m, 0.4/m]') == [0.1V/m 0.4V/m; 0.2V/m 0.8V/m]
+        end
+
+        @testset "Element-wise multiplication" begin
+            @test @inferred([1m, 2m, 3m] .* 5m)      == [5m^2, 10m^2, 15m^2]
+            @test @inferred(5m .* [1m, 2m, 3m])      == [5m^2, 10m^2, 15m^2]
+            @test @inferred(eye(2).*V)               == [1.0V 0.0V; 0.0V 1.0V]
+            @test @inferred(V.*eye(2))               == [1.0V 0.0V; 0.0V 1.0V]
+            @test @inferred([1V 2V; 0V 3V].*2)       == [2V 4V; 0V 6V]
+        end
+
+        @testset "Array addition" begin
+            @test @inferred([1m, 2m] + [3m, 4m])     == [4m, 6m]
+        end
+        
+        @testset "Element-wise addition" begin
+            @test @inferred(5m .+ [1m, 2m, 3m])      == [6m, 7m, 8m]
+        end
     end
 end
 

@@ -54,10 +54,18 @@ _Kelvin, _Celsius, _Rankine, _Fahrenheit,
 _Mole,
 _Candela,
 _Degree, _Radian,
+_Newton,
+_Pascal,
 _Watt,
 _Joule, _eV,
 _Coulomb,
-_Volt)
+_Volt,
+_Ohm,
+_Siemens,
+_Farad,
+_Henry,
+_Tesla,
+_Weber)
 
 # Length
 abbr(::Type{Val{_Meter}})      = "m"
@@ -100,11 +108,19 @@ abbr(::Type{Val{_Degree}})     = "°"
 abbr(::Type{Val{_Radian}})     = "rad"
 
 # Derived units
+abbr(::Type{Val{_Newton}})     = "N"
+abbr(::Type{Val{_Pascal}})     = "Pa"
 abbr(::Type{Val{_Watt}})       = "W"
 abbr(::Type{Val{_Joule}})      = "J"
 abbr(::Type{Val{_eV}})         = "eV"
 abbr(::Type{Val{_Coulomb}})    = "C"
 abbr(::Type{Val{_Volt}})       = "V"
+abbr(::Type{Val{_Ohm}})        = "Ω"
+abbr(::Type{Val{_Siemens}})    = "S"
+abbr(::Type{Val{_Farad}})      = "F"
+abbr(::Type{Val{_Henry}})      = "H"
+abbr(::Type{Val{_Tesla}})      = "T"
+abbr(::Type{Val{_Weber}})      = "Wb"
 
 """
 `dimension(x)` specifies a `Dict` containing how many powers of each
@@ -136,11 +152,19 @@ dimension(::Type{Val{_Gram}})    = Dict(_Mass=>1)
 dimension(::Type{Val{_Ampere}})  = Dict(_Current=>1)
 dimension(::Type{Val{_Candela}}) = Dict(_Luminosity=>1)
 dimension(::Type{Val{_Mole}})    = Dict(_Mole=>1)
+dimension(::Type{Val{_Newton}})  = Dict(_Mass=>1, _Length=>1, _Time=>-2)
+dimension(::Type{Val{_Pascal}})  = Dict(_Mass=>1, _Length=>-1, _Time=>-2)
 dimension(::Type{Val{_Watt}})    = Dict(_Mass=>1, _Length=>2, _Time=>-3)
 dimension(::Type{Val{_Joule}})   = Dict(_Mass=>1, _Length=>2, _Time=>-2)
 dimension(::Type{Val{_eV}})      = Dict(_Mass=>1, _Length=>2, _Time=>-2)
 dimension(::Type{Val{_Coulomb}}) = Dict(_Current=>1, _Time=>1)
 dimension(::Type{Val{_Volt}})    = Dict(_Mass=>1, _Length=>2, _Time=>-3, _Current=>-1)
+dimension(::Type{Val{_Ohm}})     = Dict(_Mass=>1, _Length=>2, _Time=>-3, _Current=>-2)
+dimension(::Type{Val{_Siemens}}) = Dict(_Mass=>-1, _Length=>-2, _Time=>3, _Current=>2)
+dimension(::Type{Val{_Farad}})   = Dict(_Mass=>-1, _Length=>-2, _Time=>4, _Current=>2)
+dimension(::Type{Val{_Henry}})   = Dict(_Mass=>1, _Length=>2, _Time=>-2, _Current=>-2)
+dimension(::Type{Val{_Tesla}})   = Dict(_Mass=>1, _Time=>-2, _Current=>-1)
+dimension(::Type{Val{_Weber}})   = Dict(_Mass=>1, _Length=>2, _Time=>-2, _Current=>-1)
 
 """
 Description of a unit, including powers of that unit and any 10^x exponents.
@@ -168,7 +192,7 @@ DimensionDatum(a,b,c) = DimensionDatum(a,c)
 @inline power(x) = x.power
 
 "A unit or dimension."
-abstract  Unitlike <: Number
+abstract  Unitlike
 
 "A container for `UnitDatum` objects to be stored in the type signature."
 immutable UnitData{N} <: Unitlike end
@@ -263,11 +287,19 @@ basefactor(x::Type{Val{_Mole}})       = 1
 basefactor(x::Type{Val{_Degree}})     = pi/180
 basefactor(x::Type{Val{_Radian}})     = 1
 
+basefactor(x::Type{Val{_Newton}})     = 1
+basefactor(x::Type{Val{_Pascal}})     = 1
 basefactor(x::Type{Val{_Watt}})       = 1
 basefactor(x::Type{Val{_Joule}})      = 1
 basefactor(x::Type{Val{_eV}})         = 1.6021766208e-19  # CODATA 2014
 basefactor(x::Type{Val{_Coulomb}})    = 1
 basefactor(x::Type{Val{_Volt}})       = 1
+basefactor(x::Type{Val{_Ohm}})        = 1
+basefactor(x::Type{Val{_Siemens}})    = 1
+basefactor(x::Type{Val{_Farad}})      = 1
+basefactor(x::Type{Val{_Henry}})      = 1
+basefactor(x::Type{Val{_Tesla}})      = 1
+basefactor(x::Type{Val{_Weber}})      = 1
 
 """
 `basefactor(x::UnitDatum)`
@@ -454,66 +486,120 @@ for (f,F) in ((Base.DotMulFun, :*),
               (Base.MulFun, :*),
               (Base.RDivFun, :/))
 
-    # Tried doing this without @generated and the @inferred macro
-    # failed. The runtime test (numtype <: AbstractFloat)
-    # was likely the source of the problem.
-    @eval @generated function promote_op{S,SUnits,T,TUnits}(::$f,
-        x::TypeQuantity{S,SUnits}, y::TypeQuantity{T,TUnits})
+    # Probably some optimizations to be done here...
+    types = [RealQuantity, FloatQuantity]
 
-        numtype = promote_op(($f)(),S,T)
-        quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
-        unittype = typeof(($F)(SUnits(), TUnits()))
-        :(($quant){$numtype, $unittype})
+    for a in types, b in types
+        @eval @generated function promote_op{S,SUnits,T,TUnits}(::$f,
+                ::Type{($a){S,SUnits}}, ::Type{($b){T,TUnits}})
+
+            numtype = promote_op(($f)(),S,T)
+            quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+            unittype = typeof(($F)(SUnits(), TUnits()))
+            :(($quant){$numtype, $unittype})
+        end
     end
 
-    @eval @generated function promote_op{R<:Number,S,SUnits}(::$f,
-        ::Type{R}, ::TypeQuantity{S,SUnits})
+    for a in types
+        @eval begin
+            # number, quantity
+            @generated function promote_op{R<:Real,S,SUnits}(::$f,
+                ::Type{R}, ::Type{($a){S,SUnits}})
 
-        numtype = promote_op(($f)(),R,S)
-        quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
-        :(($quant){$numtype, SUnits})
+                numtype = promote_op(($f)(),R,S)
+                quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+                unittype = typeof(($F)(UnitData{()}(), SUnits()))
+                :(($quant){$numtype, $unittype})
+            end
+
+            # quantity, number
+            @generated function promote_op{R<:Real,S,SUnits}(::$f,
+                ::Type{($a){S,SUnits}}, ::Type{R})
+
+                numtype = promote_op(($f)(),S,R)
+                quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+                unittype = typeof(($F)(SUnits(), UnitData{()}()))
+                :(($quant){$numtype, $unittype})
+            end
+
+            # unit, quantity
+            @generated function promote_op{R<:UnitData,S,SUnits}(::$f,
+                ::Type{($a){S,SUnits}}, ::Type{R})
+
+                numtype = S
+                quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+                unittype = typeof(($F)(SUnits(), R()))
+                :(($quant){$numtype, $unittype})
+            end
+
+            # quantity, unit
+            @generated function promote_op{R<:UnitData,S,SUnits}(::$f,
+                ::Type{R}, ::Type{($a){S,SUnits}})
+
+                numtype = promote_op(($f)(),one(S),S)
+                quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+                unittype = typeof(($F)(R(), SUnits()))
+                :(($quant){$numtype, $unittype})
+            end
+        end
     end
 
+    @eval begin
+        @generated function promote_op{R<:Real,S<:UnitData}(::$f,
+            x::Type{R}, y::Type{S})
+            quant = R <: AbstractFloat ? FloatQuantity : RealQuantity
+            unittype = typeof(($F)(UnitData{()}(), S()))
+            :(($quant){x, $unittype})
+        end
+
+        @generated function promote_op{R<:Real,S<:UnitData}(::$f,
+            y::Type{S}, x::Type{R})
+            quant = R <: AbstractFloat ? FloatQuantity : RealQuantity
+            unittype = typeof(($F)(S(), UnitData{()}()))
+            :(($quant){x, $unittype})
+        end
+    end
 end
 
-# # See operators.jl
-# # Element-wise operations with units
-# for (f,F) in [(:./, :/), (:.*, :*), (:.+, :+), (:.-, :-)]
-#     @eval ($f)(x::UnitData, y::UnitData) = ($F)(x,y)
-#     @eval ($f)(x::Number, y::UnitData)   = ($F)(x,y)
-#     @eval ($f)(x::UnitData, y::Number)   = ($F)(x,y)
-# end
-# .\(x::UnitData, y::UnitData) = y./x
-# .\(x::Number, y::UnitData)   = y./x
-# .\(x::UnitData, y::Number)   = y./x
-#
-# # See arraymath.jl
-# ./(x::UnitData, Y::AbstractArray) =
-#     reshape([ x ./ y for y in Y ], size(Y))
-# ./(X::AbstractArray, y::UnitData) =
-#     reshape([ x ./ y for x in X ], size(X))
-# .\(x::UnitData, Y::AbstractArray) =
-#     reshape([ x .\ y for y in Y ], size(Y))
-# .\(X::AbstractArray, y::UnitData) =
-#     reshape([ x .\ y for x in X ], size(X))
-# for (f,F) in ((:.*, Base.DotMulFun()),)
-#     @eval begin
-#         function ($f){T}(A::UnitData, B::AbstractArray{T})
-#             F = similar(B, Base.promote_array_type($F,typeof(A),T))
-#             for i in eachindex(B)
-#                 @inbounds F[i] = ($f)(A, B[i])
-#             end
-#             return F
-#         end
-#         function ($f){T}(A::AbstractArray{T}, B::UnitData)
-#             F = similar(A, Base.promote_array_type($F,typeof(B),T))
-#             for i in eachindex(A)
-#                 @inbounds F[i] = ($f)(A[i], B)
-#             end
-#             return F
-#         end
-#     end
-# end
+# See operators.jl
+# Element-wise operations with units
+for (f,F) in [(:./, :/), (:.*, :*), (:.+, :+), (:.-, :-)]
+    @eval ($f)(x::UnitData, y::UnitData) = ($F)(x,y)
+    @eval ($f)(x::Number, y::UnitData)   = ($F)(x,y)
+    @eval ($f)(x::UnitData, y::Number)   = ($F)(x,y)
+end
+.\(x::UnitData, y::UnitData) = y./x
+.\(x::Number, y::UnitData)   = y./x
+.\(x::UnitData, y::Number)   = y./x
+
+# See arraymath.jl
+./(x::UnitData, Y::AbstractArray) =
+    reshape([ x ./ y for y in Y ], size(Y))
+./(X::AbstractArray, y::UnitData) =
+    reshape([ x ./ y for x in X ], size(X))
+.\(x::UnitData, Y::AbstractArray) =
+    reshape([ x .\ y for y in Y ], size(Y))
+.\(X::AbstractArray, y::UnitData) =
+    reshape([ x .\ y for x in X ], size(X))
+
+for (f,F) in ((:.*, Base.DotMulFun()),)
+    @eval begin
+        function ($f){T}(A::UnitData, B::AbstractArray{T})
+            F = similar(B, promote_op($F,typeof(A),T))
+            for i in eachindex(B)
+                @inbounds F[i] = ($f)(A, B[i])
+            end
+            return F
+        end
+        function ($f){T}(A::AbstractArray{T}, B::UnitData)
+            F = similar(A, promote_op($F,T,typeof(B)))
+            for i in eachindex(A)
+                @inbounds F[i] = ($f)(A[i], B)
+            end
+            return F
+        end
+    end
+end
 
 # Division (floating point)
 
@@ -562,6 +648,7 @@ end
 "Fast inverse units."
 @generated function inv(x::UnitData)
     tup = x.parameters[1]
+    length(tup) == 0 && return :(x)
     tup2 = map(x->x^-1,tup)
     y = *(UnitData{tup2}())
     :($y)
