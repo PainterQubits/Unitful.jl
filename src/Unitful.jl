@@ -48,7 +48,7 @@ abbr(::Type{Val{_Angle}})       = "[°]"
 _Mile, _Yard, _Foot, _Inch, _Meter,
 _Are, _Acre,
 _Second, _Minute, _Hour, _Day, _Week,
-_Gram,
+_Kilogram, _Gram,
 _Ampere,
 _Kelvin, _Celsius, _Rankine, _Fahrenheit,
 _Mole,
@@ -86,6 +86,7 @@ abbr(::Type{Val{_Day}})        = "d"
 abbr(::Type{Val{_Week}})       = "wk"
 
 # Mass
+abbr(::Type{Val{_Kilogram}})   = "kg"
 abbr(::Type{Val{_Gram}})       = "g"
 
 # Current
@@ -130,6 +131,10 @@ function dimension end
 
 for x in [_Meter, _Mile, _Yard, _Foot, _Inch]
     @eval dimension(::Type{Val{$x}}) = Dict(_Length=>1)
+end
+
+for x in [_Kilogram, _Gram]
+    @eval dimension(::Type{Val{$x}}) = Dict(_Mass=>1)
 end
 
 for x in [_Are, _Acre]
@@ -271,7 +276,8 @@ basefactor(x::Type{Val{_Hour}})       = 3600
 basefactor(x::Type{Val{_Day}})        = 86400
 basefactor(x::Type{Val{_Week}})       = 604800
 
-basefactor(x::Type{Val{_Gram}})       = 1//1000    # because of the kg
+basefactor(x::Type{Val{_Kilogram}})   = 1
+basefactor(x::Type{Val{_Gram}})       = 1//1000
 
 basefactor(x::Type{Val{_Ampere}})     = 1
 
