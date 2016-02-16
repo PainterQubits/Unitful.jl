@@ -22,7 +22,8 @@ export ha
 @u    wk      _Week
 
 # Mass
-@uall g       _Gram
+@uall kg      _Kilogram
+@u    g       _Gram
 
 # Current
 @uall A       _Ampere
