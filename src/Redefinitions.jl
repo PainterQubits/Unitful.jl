@@ -156,27 +156,66 @@ last{T}(r::LinSpace{T}) = convert(T, (unitless(r.len) - 1)*r.stop/r.divisor)
 next{T}(r::LinSpace{T}, i::Int) =
     (convert(T, ((unitless(r.len)-i)*r.start + (i-1)*r.stop)/r.divisor), i+1)
 
-# range.jl commit 2bb94d6 l426
-unsafe_getindex{T}(r::LinSpace{T}, i::Integer) =
-    convert(T, ((unitless(r.len)-i)*r.start + (i-1)*r.stop)/r.divisor)
+if VERSION >= v"0.5.0-dev+2562"
+    # range.jl commit c8995d1 l433
+    function getindex{T}(r::LinSpace{T}, i::Integer)
+        Base.@_inline_meta
+        @boundscheck checkbounds(r, i);
+        convert(T, ((unitless(r.len)-i)*r.start + (i-1)*r.stop)/r.divisor)
+    end
 
-# range.jl commit 2bb94d6 l432
-function unsafe_getindex{T<:Integer}(r::UnitRange, s::UnitRange{T})
-    st = oftype(r.start, r.start + oftype(r.start, s.start - oftype(s.start,1)))
-    range(st, length(s))
-end
+    # range.jl commit c8995d1 l441
+    function getindex{T<:Integer}(r::UnitRange, s::UnitRange{T})
+        Base.@_inline_meta
+        @boundscheck checkbounds(r, s)
+        st = oftype(r.start, r.start + oftype(r.start, s.start - oftype(s.start,1)))
+        range(st, length(s))
+    end
 
-# range.jl commit 2bb94d6 l438
-function unsafe_getindex{T<:Integer}(r::UnitRange, s::StepRange{T})
-    st = oftype(r.start, r.start + oftype(r.start, s.start - oftype(s.start,1)))
-    range(st, oftype(r.start, step(s)), length(s))
-end
-# range.jl commit 2bb94d6 l455
-function unsafe_getindex{T}(r::LinSpace{T}, s::OrdinalRange)
-    sl::T = length(s)
-    ifirst = first(s)
-    ilast = last(s)
-    vfirst::T = ((length(r) - ifirst) * r.start + (ifirst - 1) * r.stop) / r.divisor
-    vlast::T = ((length(r) - ilast) * r.start + (ilast - 1) * r.stop) / r.divisor
-    return linspace(vfirst, vlast, sl)
+    # range.jl commit c8995d1 l448
+    function getindex{T<:Integer}(r::UnitRange, s::StepRange{T})
+        Base.@_inline_meta
+        @boundscheck checkbounds(r, s)
+        st = oftype(r.start, r.start + oftype(r.start, s.start - oftype(s.start,1)))
+        range(st, oftype(r.start, step(s)), length(s))
+    end
+
+    # range.jl commit c8995d1 l468
+    function getindex{T}(r::LinSpace{T}, s::OrdinalRange)
+        Base.@_inline_meta
+        @boundscheck checkbounds(r, s)
+        sl::T = length(s)
+        ifirst = first(s)
+        ilast = last(s)
+        vfirst::T = ((unitless(r.len) - ifirst) * r.start + (ifirst - 1) * r.stop) / r.divisor
+        vlast::T = ((unitless(r.len) - ilast) * r.start + (ilast - 1) * r.stop) / r.divisor
+        return linspace(vfirst, vlast, sl)
+    end
+else
+    ### Below makes the code work with older versions of 0.5-dev
+
+    # range.jl commit 2bb94d6 l426
+    unsafe_getindex{T}(r::LinSpace{T}, i::Integer) =
+        convert(T, ((unitless(r.len)-i)*r.start + (i-1)*r.stop)/r.divisor)
+
+    # range.jl commit 2bb94d6 l432
+    function unsafe_getindex{T<:Integer}(r::UnitRange, s::UnitRange{T})
+        st = oftype(r.start, r.start + oftype(r.start, s.start - oftype(s.start,1)))
+        range(st, length(s))
+    end
+
+    # range.jl commit 2bb94d6 l438
+    function unsafe_getindex{T<:Integer}(r::UnitRange, s::StepRange{T})
+        st = oftype(r.start, r.start + oftype(r.start, s.start - oftype(s.start,1)))
+        range(st, oftype(r.start, step(s)), length(s))
+    end
+    # range.jl commit 2bb94d6 l455
+    function unsafe_getindex{T}(r::LinSpace{T}, s::OrdinalRange)
+        sl::T = length(s)
+        ifirst = first(s)
+        ilast = last(s)
+        vfirst::T = ((length(r) - ifirst) * r.start + (ifirst - 1) * r.stop) / r.divisor
+        vlast::T = ((length(r) - ilast) * r.start + (ilast - 1) * r.stop) / r.divisor
+        return linspace(vfirst, vlast, sl)
+    end
 end

@@ -194,8 +194,8 @@ end
             @test isa(linspace(1.0m, 10m, 5), LinSpace{typeof(1.0m)})
             @test isa(linspace(1m, 10.0m, 5), LinSpace{typeof(1.0m)})
             @test isa(linspace(1m, 10m, 5), LinSpace{typeof(1.0m)})
-            @test_throws Exception linspace(1m, 10, 5)
-            @test_throws Exception linspace(1, 10m, 5)
+            @test_throws ErrorException linspace(1m, 10, 5)
+            @test_throws ErrorException linspace(1, 10m, 5)
         end
 
         @testset "Range → Range" begin
