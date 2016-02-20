@@ -1,6 +1,8 @@
 # Unitful.jl
 
-A Julia package for physical units. Available
+Note: As this package is targeted to 0.5-dev, breakage may occur occasionally. I will provide a fix for the breaking changes introduced by [#14957](https://github.com/JuliaLang/julia/pull/14957) in the near future.
+
+Unitful is a Julia package for physical units. Available
 [here](https://github.com/ajkeller34/Unitful.jl). Inspired by Keno Fischer's
 very clever package [SIUnits.jl](https://github.com/keno/SIUnits.jl).
 
