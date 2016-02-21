@@ -1,7 +1,5 @@
 # Unitful.jl
 
-Note: As this package is targeted to 0.5-dev, breakage may occur occasionally. I will provide a fix for the breaking changes introduced by [#14957](https://github.com/JuliaLang/julia/pull/14957) in the near future.
-
 Unitful is a Julia package for physical units. Available
 [here](https://github.com/ajkeller34/Unitful.jl). Inspired by Keno Fischer's
 very clever package [SIUnits.jl](https://github.com/keno/SIUnits.jl).
@@ -25,6 +23,12 @@ Tested on:
 ```
 Julia Version 0.5.0-dev+2440
 Commit 2bb94d6 (2016-02-01 02:22 UTC)
+
+Julia Version 0.5.0-dev+2672
+Commit e160742 (2016-02-15 05:07 UTC)
+```
+
+```
 Platform Info:
   System: Darwin (x86_64-apple-darwin13.4.0)
   CPU: Intel(R) Core(TM) i7-4870HQ CPU @ 2.50GHz
@@ -34,3 +38,5 @@ Platform Info:
   LIBM: libopenlibm
   LLVM: libLLVM-3.7.1
 ```
+
+
