@@ -88,10 +88,10 @@ include("test/runtests.jl")
 I'm waiting on `show`, `print`, etc.
 to be cleaned up before I work on this myself (see [issue #14052](https://github.com/JuliaLang/julia/issues/14052) and others).
 
-- Respect exact conversions: Right now if we convert 12 inches to feet the result
+- ~Respect exact conversions: Right now if we convert 12 inches to feet the result
 is unnecessarily floating-point based. In whole or part this is because of the method
 `basefactor(x::UnitDatum)`: right now there is an explicit floating point
-conversion.
+conversion.~ 
 
 - Clean up sin(degrees), etc. (not done nicely)
 
