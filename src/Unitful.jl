@@ -311,7 +311,28 @@ TO DO: Could be improved to enable exact conversions;
 right now there is an explicit floating point conversion because of the 10^x.
 """
 function basefactor(x::UnitDatum)
-    (basefactor(Val{unit(x)}) * 10^float(tens(x)))^power(x)
+    base = basefactor(Val{unit(x)})
+
+    inexact = 10^float(tens(x))
+    can_exact = (10^float(abs(tens(x))) < typemax(Int))
+
+    inexact *= base
+    can_exact &= (inexact < typemax(Int))
+    can_exact &= (1/inexact < typemax(Int))
+
+    inexact ^= power(x)
+    can_exact &= (inexact < typemax(Int))
+    can_exact &= (1/inexact < typemax(Int))
+
+    if can_exact
+        p = power(x)
+        if isinteger(p)
+            p = Integer(p)
+        end
+        (base * (10//1)^tens(x))^p
+    else
+        inexact
+    end
 end
 
 "Map the x in 10^x to an SI prefix."
@@ -948,8 +969,8 @@ function tscale(x::UnitData)
 end
 
 offsettemp{T}(::Type{Val{T}}) = 0
-offsettemp(::Type{Val{_Fahrenheit}}) = 459.67
-offsettemp(::Type{Val{_Celsius}}) = 273.15
+offsettemp(::Type{Val{_Fahrenheit}}) = 45967//100
+offsettemp(::Type{Val{_Celsius}}) = 27315//100
 
 """
 Convert a unitful quantity to different units.
@@ -967,9 +988,17 @@ Is a generated function to allow for special casing, e.g. temperature conversion
         tup1 = a.parameters[1]
         t0 = offsettemp(Val{unit(tup0[1])})
         t1 = offsettemp(Val{unit(tup1[1])})
-        :(Quantity(((x.val + $t0) * $conv) - $t1, a))
+        quote
+            v = ((x.val + $t0) * $conv) - $t1
+            isinteger(v) && (v = Integer(v))
+            Quantity(v, a)
+        end
     else
-        :(Quantity(x.val * $conv, a))
+        quote
+            v = x.val * $conv
+            isinteger(v) && (v = Integer(v))
+            Quantity(v, a)
+        end
     end
 end
 
@@ -998,7 +1027,6 @@ Find the conversion factor from unit `t` to unit `s`, e.g.
     fact2 = mapreduce(*,sunits) do x
         basefactor(x)
     end
-
     y = fact1 / fact2
     :($y)
 end

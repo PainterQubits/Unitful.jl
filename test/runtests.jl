@@ -20,20 +20,20 @@ using Base.Test
             @test 1kg === 1kg                     # ...and these are indistinguishable.
         end
         @testset "Inter-unit conversion" begin
-            @test 1inch == 2.54cm                 # Exact because an SI unit is involved.
-            @test 1ft ≈ 12inch                    # Approx because of an error O(ϵ)...
+            @test 1inch == (254//100)*cm                 # Exact because an SI unit is involved.
+            @test 1ft == 12inch                    # Approx because of an error O(ϵ)...
         end
         @testset "Temperature conversion" begin
             # When converting a pure temperature, offsets in temperature are
             # taken into account. If you like °Ra seek help
             @test convert(°Ra, 4.2K) ≈ 7.56°Ra
-            @test convert(°F, 0°C) ≈ 32°F
-            @test convert(°C, 212°F) ≈ 100°C
+            @test convert(°F, 0°C) == 32°F
+            @test convert(°C, 212°F) == 100°C
 
             # When appearing w/ other units, we calculate
             # by converting between temperature intervals (no offsets).
             # e.g. the linear thermal expansion coefficient of glass
-            @test convert(μm/(m*°F), 9μm/(m*°C)) ≈ 5μm/(m*°F)
+            @test convert(μm/(m*°F), 9μm/(m*°C)) == 5μm/(m*°F)
         end
     end
 end
