@@ -247,92 +247,91 @@ function promote_rule{R,S,T}(x::Type{FloatQuantity{R,S}}, y::Type{RealQuantity{T
 end
 
 """
-`basefactor(x)` specifies a conversion factor to base SI units.
-
-Where possible use an exact factor, e.g.
-```
-basefactor(x::Type{Val{_Inch}}) = 254//10000 # the inch is exactly 0.0254 m
-```
+`basefactor(x)` specifies conversion factors to base SI units.
+It returns a tuple. The first value is any irrational part of the conversion,
+and the second value is a rational component. This segregation permits exact
+conversions within unit systems that have no rational conversion to SI.
 """
 function basefactor end
 
-basefactor(x::Type{Val{_Meter}})      = 1
-basefactor(x::Type{Val{_Mile}})       = 1609344//1000       # English mile
-basefactor(x::Type{Val{_Yard}})       = 9144//10000
-basefactor(x::Type{Val{_Foot}})       = 3048//10000
-basefactor(x::Type{Val{_Inch}})       = 254//10000
+basefactor(x::Type{Val{_Meter}})      = (1.0,1)
+basefactor(x::Type{Val{_Mile}})       = (1.0,201168//125)       # English mile
+basefactor(x::Type{Val{_Yard}})       = (1.0,9144//10000)
+basefactor(x::Type{Val{_Foot}})       = (1.0,3048//10000)
+basefactor(x::Type{Val{_Inch}})       = (1.0,254//10000)
 
-basefactor(x::Type{Val{_Are}})        = 100                 # hectare = 100 ares
-basefactor(x::Type{Val{_Acre}})       = 40468564224//(10^7) # international acre
+basefactor(x::Type{Val{_Are}})        = (1.0,100)                 # hectare = 100 ares
+basefactor(x::Type{Val{_Acre}})       = (1.0,316160658//78125) # international acre
 
-basefactor(x::Type{Val{_Second}})     = 1
-basefactor(x::Type{Val{_Minute}})     = 60
-basefactor(x::Type{Val{_Hour}})       = 3600
-basefactor(x::Type{Val{_Day}})        = 86400
-basefactor(x::Type{Val{_Week}})       = 604800
+basefactor(x::Type{Val{_Second}})     = (1.0,1)
+basefactor(x::Type{Val{_Minute}})     = (1.0,60)
+basefactor(x::Type{Val{_Hour}})       = (1.0,3600)
+basefactor(x::Type{Val{_Day}})        = (1.0,86400)
+basefactor(x::Type{Val{_Week}})       = (1.0,604800)
 
-basefactor(x::Type{Val{_Gram}})       = 1//1000    # because of the kg
+basefactor(x::Type{Val{_Gram}})       = (1.0,1//1000)    # because of the kg
 
-basefactor(x::Type{Val{_Ampere}})     = 1
+basefactor(x::Type{Val{_Ampere}})     = (1.0,1)
 
-basefactor(x::Type{Val{_Kelvin}})     = 1
-basefactor(x::Type{Val{_Celsius}})    = 1
-basefactor(x::Type{Val{_Rankine}})    = 5//9       # Some special casing needed
-basefactor(x::Type{Val{_Fahrenheit}}) = 5//9       # Some special casing needed
+basefactor(x::Type{Val{_Kelvin}})     = (1.0,1)
+basefactor(x::Type{Val{_Celsius}})    = (1.0,1)
+basefactor(x::Type{Val{_Rankine}})    = (1.0,5//9)       # Some special casing needed
+basefactor(x::Type{Val{_Fahrenheit}}) = (1.0,5//9)       # Some special casing needed
 
-basefactor(x::Type{Val{_Candela}})    = 1
+basefactor(x::Type{Val{_Candela}})    = (1.0,1)
 
-basefactor(x::Type{Val{_Mole}})       = 1
+basefactor(x::Type{Val{_Mole}})       = (1.0,1)
 
-basefactor(x::Type{Val{_Degree}})     = pi/180
-basefactor(x::Type{Val{_Radian}})     = 1
+basefactor(x::Type{Val{_Degree}})     = (pi/180,1)
+basefactor(x::Type{Val{_Radian}})     = (1.0,1)
 
-basefactor(x::Type{Val{_Newton}})     = 1
-basefactor(x::Type{Val{_Pascal}})     = 1
-basefactor(x::Type{Val{_Watt}})       = 1
-basefactor(x::Type{Val{_Joule}})      = 1
-basefactor(x::Type{Val{_eV}})         = 1.6021766208e-19  # CODATA 2014
-basefactor(x::Type{Val{_Coulomb}})    = 1
-basefactor(x::Type{Val{_Volt}})       = 1
-basefactor(x::Type{Val{_Ohm}})        = 1
-basefactor(x::Type{Val{_Siemens}})    = 1
-basefactor(x::Type{Val{_Farad}})      = 1
-basefactor(x::Type{Val{_Henry}})      = 1
-basefactor(x::Type{Val{_Tesla}})      = 1
-basefactor(x::Type{Val{_Weber}})      = 1
+basefactor(x::Type{Val{_Newton}})     = (1.0,1)
+basefactor(x::Type{Val{_Pascal}})     = (1.0,1)
+basefactor(x::Type{Val{_Watt}})       = (1.0,1)
+basefactor(x::Type{Val{_Joule}})      = (1.0,1)
+basefactor(x::Type{Val{_eV}})         = (1.6021766208e-19,1)  # CODATA 2014
+basefactor(x::Type{Val{_Coulomb}})    = (1.0,1)
+basefactor(x::Type{Val{_Volt}})       = (1.0,1)
+basefactor(x::Type{Val{_Ohm}})        = (1.0,1)
+basefactor(x::Type{Val{_Siemens}})    = (1.0,1)
+basefactor(x::Type{Val{_Farad}})      = (1.0,1)
+basefactor(x::Type{Val{_Henry}})      = (1.0,1)
+basefactor(x::Type{Val{_Tesla}})      = (1.0,1)
+basefactor(x::Type{Val{_Weber}})      = (1.0,1)
 
 """
 `basefactor(x::UnitDatum)`
 
-Specifies how the base factor is computed when 10^x factors and powers of the
-unit are taken into account.
-
-TO DO: Could be improved to enable exact conversions;
-right now there is an explicit floating point conversion because of the 10^x.
+Powers of ten are not included for overflow reasons. See `tensfactor`
 """
 function basefactor(x::UnitDatum)
-    base = basefactor(Val{unit(x)})
+    inex, ex = basefactor(Val{unit(x)})
+    p = power(x)
+    if isinteger(p)
+        p = Integer(p)
+    end
 
-    inexact = 10^float(tens(x))
-    can_exact = (10^float(abs(tens(x))) < typemax(Int))
+    can_exact = (ex < typemax(Int))
+    can_exact &= (1/ex < typemax(Int))
 
-    inexact *= base
-    can_exact &= (inexact < typemax(Int))
-    can_exact &= (1/inexact < typemax(Int))
-
-    inexact ^= power(x)
-    can_exact &= (inexact < typemax(Int))
-    can_exact &= (1/inexact < typemax(Int))
+    ex2 = float(ex)^p
+    can_exact &= (ex2 < typemax(Int))
+    can_exact &= (1/ex2 < typemax(Int))
+    can_exact &= isinteger(p)
 
     if can_exact
-        p = power(x)
-        if isinteger(p)
-            p = Integer(p)
-        end
-        (base * (10//1)^tens(x))^p
+        (inex^p, (ex//1)^p)
     else
-        inexact
+        ((inex * ex)^p, 1)
     end
+end
+
+function tensfactor(x::UnitDatum)
+    p = power(x)
+    if isinteger(p)
+        p = Integer(p)
+    end
+    tens(x)*p
 end
 
 "Map the x in 10^x to an SI prefix."
@@ -712,50 +711,36 @@ for y in [:sin, :cos, :tan, :cot, :sec, :csc]
     @eval ($y){T}(x::Quantity{T,UnitData{(UnitDatum(_Radian,0,1),)}}) = ($y)(x.val)
 end
 
-@generated function min(x::Quantity, y::Quantity)
-    xdim = dimension(x.parameters[2]())
-    ydim = dimension(y.parameters[2]())
-    if xdim != ydim
-        return :(error("Dimensional mismatch."))
+for (f, F) in [(:min, :<), (:max, :>)]
+    @eval @generated function ($f)(x::Quantity, y::Quantity)
+        xdim = dimension(x.parameters[2]())
+        ydim = dimension(y.parameters[2]())
+        if xdim != ydim
+            return :(error("Dimensional mismatch."))
+        end
+
+        xunits = x.parameters[2].parameters[1]
+        yunits = y.parameters[2].parameters[1]
+
+        factx = mapreduce(.*, xunits) do x
+            vcat(basefactor(x)...)
+        end
+        facty = mapreduce(.*, yunits) do x
+            vcat(basefactor(x)...)
+        end
+
+        tensx = mapreduce(tensfactor, +, xunits)
+        tensy = mapreduce(tensfactor, +, yunits)
+
+        convx = *(factx..., (10.0)^tensx)
+        convy = *(facty..., (10.0)^tensy)
+
+        :($($F)(x.val*$convx, y.val*$convy) ? x : y)
     end
 
-    xunits = x.parameters[2].parameters[1]
-    yunits = y.parameters[2].parameters[1]
-
-    factx = mapreduce(*,xunits) do a
-        basefactor(a)
-    end
-
-    facty = mapreduce(*,yunits) do b
-        basefactor(b)
-    end
-
-    :((x.val*$factx < y.val*$facty) ? x : y)
+    @eval ($f)(x::UnitData, y::UnitData) =
+        unit(($f)(Quantity(1.0, x), Quantity(1.0, y)))
 end
-
-@generated function max(x::Quantity, y::Quantity)
-    xdim = dimension(x.parameters[2]())
-    ydim = dimension(y.parameters[2]())
-    if xdim != ydim
-        return :(error("Dimensional mismatch."))
-    end
-
-    xunits = x.parameters[2].parameters[1]
-    yunits = y.parameters[2].parameters[1]
-
-    factx = mapreduce(*,xunits) do a
-        basefactor(a)
-    end
-
-    facty = mapreduce(*,yunits) do b
-        basefactor(b)
-    end
-
-    :((x.val*$factx > y.val*$facty) ? x : y)
-end
-
-min(x::UnitData, y::UnitData) = unit(min(Quantity(1.0, x), Quantity(1.0, y)))
-max(x::UnitData, y::UnitData) = unit(max(Quantity(1.0, x), Quantity(1.0, y)))
 
 trunc(x::Quantity) = Quantity(trunc(x.val), unit(x))
 round(x::Quantity) = Quantity(round(x.val), unit(x))
@@ -1015,19 +1000,42 @@ Find the conversion factor from unit `t` to unit `s`, e.g.
     tdim = dimension(UnitData{tunits}())
     sdim != tdim && error("Dimensional mismatch.")
 
-    conv = 1.0
-
     # first convert to base SI units.
     # fact1 is what would need to be multiplied to get to base SI units
     # fact2 is what would be multiplied to get from the result to base SI units
 
-    fact1 = mapreduce(*,tunits) do x    # x is a UnitDatum
-        basefactor(x)
+    fact1 = map(basefactor, tunits)
+    fact2 = map(basefactor, sunits)
+
+    inex1 = mapreduce(x->getfield(x,1), *, fact1)
+    inex2 = mapreduce(x->getfield(x,1), *, fact2)
+    ex1   = mapreduce(x->getfield(x,2), *, fact1)
+    ex2   = mapreduce(x->getfield(x,2), *, fact2)
+
+    a = inex1 / inex2
+    ex = ex1 // ex2     # do overflow checking?
+
+    tens1 = mapreduce(+,tunits) do x
+        tensfactor(x)
     end
-    fact2 = mapreduce(*,sunits) do x
-        basefactor(x)
+    tens2 = mapreduce(+,sunits) do x
+        tensfactor(x)
     end
-    y = fact1 / fact2
+    pow = tens1-tens2
+    fpow = 10.0^pow
+    if fpow > typemax(Int) || 1/(fpow) > typemax(Int)
+        a *= fpow
+    else
+        comp = (pow > 0 ? fpow * num(ex) : 1/fpow * den(ex))
+        if comp > typemax(Int)
+            a *= fpow
+        else
+            ex *= (10//1)^pow
+        end
+    end
+
+    a ≈ 1.0 ? (inex = 1) : (inex = a)
+    y = inex * ex
     :($y)
 end
 
