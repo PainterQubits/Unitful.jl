@@ -13,6 +13,7 @@ and collections that are found in Julia base.
 ## Features
 
 - Support for rational exponents. Good for power spectral density, etc.
+- Exact conversions are respected by using Rationals.
 - “Sticky units”: by default, no implicit conversions in multiplication or division
     - We allow for implicit conversions in addition and subtraction
 - Some built-in dimensional analysis
@@ -57,7 +58,7 @@ Some unit abbreviations conflict with Julia definitions or syntax:
 
 # Also true:
 unit(convert(°C, 212°F)) === °C
-unitless(convert(°C, 212°F)) ≈ 100
+unitless(convert(°C, 212°F)) == 100
 # Note: use the \approx tab-completion. Sometimes ≈ is needed if there are tiny
 # floating-point errors (see to-do list note, regarding exact conversions)
 
@@ -71,6 +72,15 @@ linspace(1m, 100m, 20)
 ```
 
 See `test/runtests.jl` for more usage examples.
+
+### Gotchas
+
+One inch is exactly equal to 2.54 cm. However, in Julia, the floating-point 2.54
+is not equal to the Rational 254//100. As a consequence, `1inch != 2.54cm`,
+because Unitful respects exact conversions and 1 inch is really 254//100 cm. To
+test for equivalence, instead use `≈` (backslash approx tab-completion).
+
+The above applies generically to any pair of units, not just inches and centimeters.
 
 ## Testing this package
 

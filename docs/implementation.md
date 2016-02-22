@@ -77,17 +77,20 @@ argument is not a type. For example, `convert(ft, 1m)` converts 1 meter to feet.
 This may rub people the wrong way and could change. A neat alternative would be
 to override other syntax: `3m in cm` would be succinct and intuitive.
 Overriding `in` is simple, but the parsing rules aren't intended for this.
-For example, `0°C in °F ≈ 32°F` fails to evaluate, but `(0°C in °F) ≈ 32°F`
+For example, `0°C in °F == 32°F` fails to evaluate, but `(0°C in °F) == 32°F`
 returns `true`.
+
+Exact conversions between units are respected where possible. If rational
+arithmetic would result in an overflow, then floating-point conversion will
+proceed.
 
 ## Temperature conversion
 
 If a unit is a pure temperature unit, then conversion respects scale offsets.
-For instance, converting 0°C to °F returns the expected result, 32°F (± some
-small floating point discrepancy). If instead temperature appears in
-combination with other units, scale offsets don't make sense and we
-consider temperature *intervals*. This gives the expected behavior most of the
-time.
+For instance, converting 0°C to °F returns the expected result, 32°F.
+If instead temperature appears in combination with other units,
+scale offsets don't make sense and we consider temperature *intervals*.
+This gives the expected behavior most of the time.
 
 ## Discussion
 
