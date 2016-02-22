@@ -153,6 +153,7 @@ and collections that are found in Julia base.</p>
 <h2 id="features">Features</h2>
 <ul>
 <li>Support for rational exponents. Good for power spectral density, etc.</li>
+<li>Exact conversions are respected by using Rationals.</li>
 <li>“Sticky units”: by default, no implicit conversions in multiplication or division<ul>
 <li>We allow for implicit conversions in addition and subtraction</li>
 </ul>
@@ -196,7 +197,7 @@ are exported but not power-of-ten prefixes.</p>
 
 # Also true:
 unit(convert(°C, 212°F)) === °C
-unitless(convert(°C, 212°F)) ≈ 100
+unitless(convert(°C, 212°F)) == 100
 # Note: use the \approx tab-completion. Sometimes ≈ is needed if there are tiny
 # floating-point errors (see to-do list note, regarding exact conversions)
 
@@ -210,6 +211,12 @@ linspace(1m, 100m, 20)
 </code></pre>
 
 <p>See <code>test/runtests.jl</code> for more usage examples.</p>
+<h3 id="gotchas">Gotchas</h3>
+<p>One inch is exactly equal to 2.54 cm. However, in Julia, the floating-point 2.54
+is not equal to the Rational 254//100. As a consequence, <code>1inch != 2.54cm</code>,
+because Unitful respects exact conversions and 1 inch is really 254//100 cm. To
+test for equivalence, instead use <code>≈</code> (backslash approx tab-completion).</p>
+<p>The above applies generically to any pair of units, not just inches and centimeters.</p>
 <h2 id="testing-this-package">Testing this package</h2>
 <p>There are of course subtleties in getting this all to work. To test that
 changes to either Julia or Unitful haven't given rise to undesirable behavior,
@@ -224,12 +231,6 @@ include(&quot;test/runtests.jl&quot;)
 <p>Clean up how units/quantities are displayed.
 I'm waiting on <code>show</code>, <code>print</code>, etc.
 to be cleaned up before I work on this myself (see <a href="https://github.com/JuliaLang/julia/issues/14052">issue #14052</a> and others).</p>
-</li>
-<li>
-<p>Respect exact conversions: Right now if we convert 12 inches to feet the result
-is unnecessarily floating-point based. In whole or part this is because of the method
-<code>basefactor(x::UnitDatum)</code>: right now there is an explicit floating point
-conversion.</p>
 </li>
 <li>
 <p>Clean up sin(degrees), etc. (not done nicely)</p>
@@ -294,5 +295,5 @@ becomes a loaded / ambiguous name.</p>
 
 <!--
 MkDocs version : 0.14.0
-Build Date UTC : 2016-02-13 00:40:23.987147
+Build Date UTC : 2016-02-22 07:26:39.294858
 -->

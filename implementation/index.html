@@ -209,15 +209,17 @@ argument is not a type. For example, <code>convert(ft, 1m)</code> converts 1 met
 This may rub people the wrong way and could change. A neat alternative would be
 to override other syntax: <code>3m in cm</code> would be succinct and intuitive.
 Overriding <code>in</code> is simple, but the parsing rules aren't intended for this.
-For example, <code>0°C in °F ≈ 32°F</code> fails to evaluate, but <code>(0°C in °F) ≈ 32°F</code>
+For example, <code>0°C in °F == 32°F</code> fails to evaluate, but <code>(0°C in °F) == 32°F</code>
 returns <code>true</code>.</p>
+<p>Exact conversions between units are respected where possible. If rational
+arithmetic would result in an overflow, then floating-point conversion will
+proceed.</p>
 <h2 id="temperature-conversion">Temperature conversion</h2>
 <p>If a unit is a pure temperature unit, then conversion respects scale offsets.
-For instance, converting 0°C to °F returns the expected result, 32°F (± some
-small floating point discrepancy). If instead temperature appears in
-combination with other units, scale offsets don't make sense and we
-consider temperature <em>intervals</em>. This gives the expected behavior most of the
-time.</p>
+For instance, converting 0°C to °F returns the expected result, 32°F.
+If instead temperature appears in combination with other units,
+scale offsets don't make sense and we consider temperature <em>intervals</em>.
+This gives the expected behavior most of the time.</p>
 <h2 id="discussion">Discussion</h2>
 <ul>
 <li>
