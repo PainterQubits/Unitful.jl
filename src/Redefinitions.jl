@@ -1,20 +1,12 @@
-# Apart from the functions `unit(x)` and `unitless(x)`, which for unitless
-# numbers return one(x) and x respectively, the redefinitions that follow
-# could perhaps be drop-in replacements for the definitions in Base.
-# Some benchmarking and testing should be done to confirm they have no ill
-# effect for unitless numeric operations.
-
+# By inlining the unit, unitless methods I don't expect a performance penalty...
 @inline unitless(x) = x
-@inline unitless(x::Quantity) = x.val
+@inline unit(x) = one(x)
 
 # We override the `rat` function in Base, which is not exported.
-
 # We allow ourselves to be a little sloppy and strip units.
 # Probably for unitful quantities, units should be on the first member of the
 # output tuple, if we're entirely consistent. It is however much more convenient
 # to have this act the same way for unitful and unitless quantities.
-
-# By inlining the unitless statements I don't think there should be a penalty...
 
 # range.jl commit 2bb94d6 l116
 function rat(x)

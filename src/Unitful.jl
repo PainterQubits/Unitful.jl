@@ -184,13 +184,6 @@ immutable DimensionDatum
 end
 DimensionDatum(a,b,c) = DimensionDatum(a,c)
 
-@inline unit(x) = one(x)
-@inline unit(x::UnitDatum) = x.unit
-@inline unit(x::DimensionDatum) = x.unit
-@inline tens(x::UnitDatum) = x.tens
-@inline tens(x::DimensionDatum) = 0
-@inline power(x) = x.power
-
 "A unit or dimension."
 abstract  Unitlike
 
@@ -227,6 +220,13 @@ typealias TypeQuantity{T,U} Union{Type{RealQuantity{T,U}},
 
 "Simple constructors for the appropriate `Quantity` type."
 function Quantity end
+
+@inline unit(x::UnitDatum) = x.unit
+@inline unit(x::DimensionDatum) = x.unit
+@inline unitless(x::Quantity) = x.val
+@inline tens(x::UnitDatum) = x.tens
+@inline tens(x::DimensionDatum) = 0
+@inline power(x) = x.power
 
 @inline Quantity(x::AbstractFloat, y::UnitData{()}) = x
 @inline Quantity(x::AbstractFloat, y) = FloatQuantity{typeof(x), typeof(y)}(x)
