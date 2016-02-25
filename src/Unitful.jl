@@ -14,7 +14,7 @@ import Base: prevfloat, nextfloat, maxintfloat, rat, step, linspace
 import Base: promote_op, promote_rule, unsafe_getindex, colon
 import Base: length, float, range, start, done, next, last, one, zero
 import Base: getindex, eltype, step, last, first, frexp
-import Base: Rational
+import Base: Rational, typemin, typemax
 
 export baseunit
 export dimension
@@ -44,28 +44,64 @@ abbr(::Type{Val{_Luminosity}})  = "[J]"
 abbr(::Type{Val{_Angle}})       = "[°]"
 
 # Units
-@enum(Unit,
-_Mile, _Yard, _Foot, _Inch, _Meter,
-_Are, _Acre,
-_Second, _Minute, _Hour, _Day, _Week,
-_Gram,
-_Ampere,
-_Kelvin, _Celsius, _Rankine, _Fahrenheit,
-_Mole,
-_Candela,
-_Degree, _Radian,
-_Newton,
-_Pascal,
-_Watt,
-_Joule, _eV,
-_Coulomb,
-_Volt,
-_Ohm,
-_Siemens,
-_Farad,
-_Henry,
-_Tesla,
-_Weber)
+
+bitstype 32 Unit end
+unitorder = Symbol[
+    :_Meter,
+    :_Second,
+    :_Gram,
+    :_Ampere,
+    :_Kelvin,
+    :_Mole,
+    :_Candela,
+    :_Radian
+]
+# :_Mile, :_Yard, :_Foot, :_Inch,
+# :_Are, :_Acre,
+# :_Minute, :_Hour, :_Day, :_Week,
+# :_Gram,
+# :_Ampere,
+# :_Kelvin, :_Celsius, :_Rankine, :_Fahrenheit,
+# :_Mole,
+# :_Candela,
+# :_Degree, :_Radian,
+# :_Newton,
+# :_Pascal,
+# :_Watt,
+# :_Joule, :_eV,
+# :_Coulomb,
+# :_Volt,
+# :_Ohm,
+# :_Siemens,
+# :_Farad,
+# :_Henry,
+# :_Tesla,
+# :_Weber]
+
+convert{T<:Integer}(::Type{T}, x::Unit) = convert(T, Intrinsics.box(Int32, x))
+function convert(::Type{Unit}, x36::Integer)
+    (1 <= x36 <= length()) || Base.Enums.enum_argument_error(:Unit,x36)
+    box(Unit, convert(Int32, x36))
+end
+
+typemin(x37::Type{Unit}) = length(unitorder) != 0 ? Unit(1) : error("No units")
+typemax(x38::Type{Unit}) = length(unitorder) != 0 ?
+    Unit(length(unitorder)) : error("No units")
+isless(x39::Unit, y40::Unit) = isless(Int32(x39), Int32(y40))
+
+macro newunit(name,abbr,equals)
+    # name is a symbol
+    # abbr is a string
+    quote
+        abbr(::Type{Val{$name}}) = $abbr
+        dimension(::Type{Val{$name}}) = dimension($equals)
+        
+    end
+end
+
+macro newtemp(name,abbr,expr)
+
+end
 
 # Length
 abbr(::Type{Val{_Meter}})      = "m"
