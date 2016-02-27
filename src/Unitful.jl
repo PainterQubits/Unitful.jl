@@ -44,119 +44,62 @@ abbr(::Type{Val{_Luminosity}})  = "[J]"
 abbr(::Type{Val{_Angle}})       = "[°]"
 
 # Units
+abstract Unit
+bitstype 32 NormalUnit      <: Unit
+bitstype 32 TemperatureUnit <: Unit
 
-bitstype 32 Unit end
-unitorder = Symbol[
-    :_Meter,
-    :_Second,
-    :_Gram,
-    :_Ampere,
-    :_Kelvin,
-    :_Mole,
-    :_Candela,
-    :_Radian
-]
-# :_Mile, :_Yard, :_Foot, :_Inch,
-# :_Are, :_Acre,
-# :_Minute, :_Hour, :_Day, :_Week,
-# :_Gram,
-# :_Ampere,
-# :_Kelvin, :_Celsius, :_Rankine, :_Fahrenheit,
-# :_Mole,
-# :_Candela,
-# :_Degree, :_Radian,
-# :_Newton,
-# :_Pascal,
-# :_Watt,
-# :_Joule, :_eV,
-# :_Coulomb,
-# :_Volt,
-# :_Ohm,
-# :_Siemens,
-# :_Farad,
-# :_Henry,
-# :_Tesla,
-# :_Weber]
-
+global unitcount = 0
 convert{T<:Integer}(::Type{T}, x::Unit) = convert(T, Intrinsics.box(Int32, x))
-function convert(::Type{Unit}, x36::Integer)
-    (1 <= x36 <= length()) || Base.Enums.enum_argument_error(:Unit,x36)
-    box(Unit, convert(Int32, x36))
-end
-
-typemin(x37::Type{Unit}) = length(unitorder) != 0 ? Unit(1) : error("No units")
-typemax(x38::Type{Unit}) = length(unitorder) != 0 ?
-    Unit(length(unitorder)) : error("No units")
+convert{T<:Unit}(::Type{T}, x36::Integer) = Intrinsics.box(T, convert(Int32, x36))
 isless(x39::Unit, y40::Unit) = isless(Int32(x39), Int32(y40))
 
-macro newunit(name,abbr,equals)
-    # name is a symbol
-    # abbr is a string
+function nextunit{T<:Unit}(::Type{T})
+    global unitcount
+    x = T(unitcount + 1)
+    unitcount += 1
+    x
+end
+
+macro baseunit(name,abbr,dimension)
     quote
-        abbr(::Type{Val{$name}}) = $abbr
-        dimension(::Type{Val{$name}}) = dimension($equals)
-        
+        T = ($dimension == _Temperature ? TemperatureUnit : NormalUnit)
+        unit = nextunit(T)
+        Unitful.abbr(::Type{Val{unit}})       = $abbr
+        Unitful.dimension(::Type{Val{unit}})  = Dict($dimension=>1)
+        Unitful.basefactor(::Type{Val{unit}}) = (1.0, 1)
+        @uall $(esc(name)) unit
     end
 end
 
-macro newtemp(name,abbr,expr)
-
+function dimhelper(x)
+    d = Dict{Dimension,Rational{Int}}()
+    tup = typeof(dimension(x)).parameters[1]
+    for y in tup
+        d[unit(y)]=power(y)
+    end
+    d
 end
 
-# Length
-abbr(::Type{Val{_Meter}})      = "m"
-abbr(::Type{Val{_Mile}})       = "mi"
-abbr(::Type{Val{_Yard}})       = "yd"
-abbr(::Type{Val{_Foot}})       = "ft"
-abbr(::Type{Val{_Inch}})       = "in"
-
-# Area
-abbr(::Type{Val{_Are}})        = "a"
-abbr(::Type{Val{_Acre}})       = "ac"
-
-# Time
-abbr(::Type{Val{_Second}})     = "s"
-abbr(::Type{Val{_Minute}})     = "min"
-abbr(::Type{Val{_Hour}})       = "h"
-abbr(::Type{Val{_Day}})        = "d"
-abbr(::Type{Val{_Week}})       = "wk"
-
-# Mass
-abbr(::Type{Val{_Gram}})       = "g"
-
-# Current
-abbr(::Type{Val{_Ampere}})     = "A"
-
-# Temperature
-abbr(::Type{Val{_Kelvin}})     = "K"
-abbr(::Type{Val{_Celsius}})    = "°C"
-abbr(::Type{Val{_Rankine}})    = "°Ra"
-abbr(::Type{Val{_Fahrenheit}}) = "°F"
-
-# Amount
-abbr(::Type{Val{_Mole}})       = "mol"
-
-# Luminosity
-abbr(::Type{Val{_Candela}})    = "cd"
-
-# Angle
-abbr(::Type{Val{_Degree}})     = "°"
-abbr(::Type{Val{_Radian}})     = "rad"
-
-# Derived units
-abbr(::Type{Val{_Newton}})     = "N"
-abbr(::Type{Val{_Pascal}})     = "Pa"
-abbr(::Type{Val{_Watt}})       = "W"
-abbr(::Type{Val{_Joule}})      = "J"
-abbr(::Type{Val{_eV}})         = "eV"
-abbr(::Type{Val{_Coulomb}})    = "C"
-abbr(::Type{Val{_Volt}})       = "V"
-abbr(::Type{Val{_Ohm}})        = "Ω"
-abbr(::Type{Val{_Siemens}})    = "S"
-abbr(::Type{Val{_Farad}})      = "F"
-abbr(::Type{Val{_Henry}})      = "H"
-abbr(::Type{Val{_Tesla}})      = "T"
-abbr(::Type{Val{_Weber}})      = "Wb"
+macro unit(name,abbr,equals,tf)
+    # name is a symbol
+    # abbr is a string
+    quote
+        T = (dimension($equals) == Dict(_Temperature=>1) ?
+            TemperatureUnit : NormalUnit)
+        unit = Unitful.nextunit(T)
+        Unitful.abbr(::Type{Val{unit}}) = $abbr
+        Unitful.dimension(::Type{Val{unit}}) = dimhelper($equals)
+        inex, ex = Unitful.basefactor(Unitful.unit($equals))
+        eq = Unitful.unitless($equals)
+        Base.isa(eq, Base.AbstractFloat) ? (inex *= eq) : (ex *= eq)
+        Unitful.basefactor(::Type{Val{unit}}) = (inex, ex)
+        if $tf
+            @uall $(esc(name)) unit
+        else
+            @u $(esc(name)) unit
+        end
+    end
+end
 
 """
 `dimension(x)` specifies a `Dict` containing how many powers of each
@@ -164,49 +107,11 @@ dimension correspond to a given unit. It should be implemented for all units.
 """
 function dimension end
 
-for x in [_Meter, _Mile, _Yard, _Foot, _Inch]
-    @eval dimension(::Type{Val{$x}}) = Dict(_Length=>1)
-end
-
-for x in [_Are, _Acre]
-    @eval dimension(::Type{Val{$x}}) = Dict(_Length=>2)
-end
-
-for x in [_Second, _Minute, _Hour, _Day, _Week]
-    @eval dimension(::Type{Val{$x}}) = Dict(_Time=>1)
-end
-
-for x in [_Kelvin, _Celsius, _Rankine, _Fahrenheit]
-    @eval dimension(::Type{Val{$x}}) = Dict(_Temperature=>1)
-end
-
-for x in [_Degree, _Radian]
-    @eval dimension(::Type{Val{$x}}) = Dict(_Angle=>1)
-end
-
-dimension(::Type{Val{_Gram}})    = Dict(_Mass=>1)
-dimension(::Type{Val{_Ampere}})  = Dict(_Current=>1)
-dimension(::Type{Val{_Candela}}) = Dict(_Luminosity=>1)
-dimension(::Type{Val{_Mole}})    = Dict(_Mole=>1)
-dimension(::Type{Val{_Newton}})  = Dict(_Mass=>1, _Length=>1, _Time=>-2)
-dimension(::Type{Val{_Pascal}})  = Dict(_Mass=>1, _Length=>-1, _Time=>-2)
-dimension(::Type{Val{_Watt}})    = Dict(_Mass=>1, _Length=>2, _Time=>-3)
-dimension(::Type{Val{_Joule}})   = Dict(_Mass=>1, _Length=>2, _Time=>-2)
-dimension(::Type{Val{_eV}})      = Dict(_Mass=>1, _Length=>2, _Time=>-2)
-dimension(::Type{Val{_Coulomb}}) = Dict(_Current=>1, _Time=>1)
-dimension(::Type{Val{_Volt}})    = Dict(_Mass=>1, _Length=>2, _Time=>-3, _Current=>-1)
-dimension(::Type{Val{_Ohm}})     = Dict(_Mass=>1, _Length=>2, _Time=>-3, _Current=>-2)
-dimension(::Type{Val{_Siemens}}) = Dict(_Mass=>-1, _Length=>-2, _Time=>3, _Current=>2)
-dimension(::Type{Val{_Farad}})   = Dict(_Mass=>-1, _Length=>-2, _Time=>4, _Current=>2)
-dimension(::Type{Val{_Henry}})   = Dict(_Mass=>1, _Length=>2, _Time=>-2, _Current=>-2)
-dimension(::Type{Val{_Tesla}})   = Dict(_Mass=>1, _Time=>-2, _Current=>-1)
-dimension(::Type{Val{_Weber}})   = Dict(_Mass=>1, _Length=>2, _Time=>-2, _Current=>-1)
-
 """
 Description of a unit, including powers of that unit and any 10^x exponents.
 """
-immutable UnitDatum
-    unit::Unit
+immutable UnitDatum{T<:Unit}
+    unit::T
     tens::Int
     power::Rational{Int}
 end
@@ -290,51 +195,6 @@ conversions within unit systems that have no rational conversion to SI.
 """
 function basefactor end
 
-basefactor(x::Type{Val{_Meter}})      = (1.0,1)
-basefactor(x::Type{Val{_Mile}})       = (1.0,201168//125)       # English mile
-basefactor(x::Type{Val{_Yard}})       = (1.0,9144//10000)
-basefactor(x::Type{Val{_Foot}})       = (1.0,3048//10000)
-basefactor(x::Type{Val{_Inch}})       = (1.0,254//10000)
-
-basefactor(x::Type{Val{_Are}})        = (1.0,100)                 # hectare = 100 ares
-basefactor(x::Type{Val{_Acre}})       = (1.0,316160658//78125) # international acre
-
-basefactor(x::Type{Val{_Second}})     = (1.0,1)
-basefactor(x::Type{Val{_Minute}})     = (1.0,60)
-basefactor(x::Type{Val{_Hour}})       = (1.0,3600)
-basefactor(x::Type{Val{_Day}})        = (1.0,86400)
-basefactor(x::Type{Val{_Week}})       = (1.0,604800)
-
-basefactor(x::Type{Val{_Gram}})       = (1.0,1//1000)    # because of the kg
-
-basefactor(x::Type{Val{_Ampere}})     = (1.0,1)
-
-basefactor(x::Type{Val{_Kelvin}})     = (1.0,1)
-basefactor(x::Type{Val{_Celsius}})    = (1.0,1)
-basefactor(x::Type{Val{_Rankine}})    = (1.0,5//9)       # Some special casing needed
-basefactor(x::Type{Val{_Fahrenheit}}) = (1.0,5//9)       # Some special casing needed
-
-basefactor(x::Type{Val{_Candela}})    = (1.0,1)
-
-basefactor(x::Type{Val{_Mole}})       = (1.0,1)
-
-basefactor(x::Type{Val{_Degree}})     = (pi/180,1)
-basefactor(x::Type{Val{_Radian}})     = (1.0,1)
-
-basefactor(x::Type{Val{_Newton}})     = (1.0,1)
-basefactor(x::Type{Val{_Pascal}})     = (1.0,1)
-basefactor(x::Type{Val{_Watt}})       = (1.0,1)
-basefactor(x::Type{Val{_Joule}})      = (1.0,1)
-basefactor(x::Type{Val{_eV}})         = (1.6021766208e-19,1)  # CODATA 2014
-basefactor(x::Type{Val{_Coulomb}})    = (1.0,1)
-basefactor(x::Type{Val{_Volt}})       = (1.0,1)
-basefactor(x::Type{Val{_Ohm}})        = (1.0,1)
-basefactor(x::Type{Val{_Siemens}})    = (1.0,1)
-basefactor(x::Type{Val{_Farad}})      = (1.0,1)
-basefactor(x::Type{Val{_Henry}})      = (1.0,1)
-basefactor(x::Type{Val{_Tesla}})      = (1.0,1)
-basefactor(x::Type{Val{_Weber}})      = (1.0,1)
-
 """
 `basefactor(x::UnitDatum)`
 
@@ -360,6 +220,20 @@ function basefactor(x::UnitDatum)
     else
         ((inex * ex)^p, 1)
     end
+end
+
+"""
+`basefactor(x::UnitData)`
+
+Calls `basefactor` on each of the UnitDatum and multiplies together.
+Needs some overflow checking?
+"""
+@generated function basefactor(x::UnitData)
+    tunits = x.parameters[1]
+    fact1 = map(basefactor, tunits)
+    inex1 = mapreduce(x->getfield(x,1), *, fact1)
+    ex1   = mapreduce(x->getfield(x,2), *, fact1)
+    :(($inex1,$ex1))
 end
 
 function tensfactor(x::UnitDatum)
@@ -743,8 +617,8 @@ sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
  abs(x::Quantity) = Quantity(abs(x.val),  unit(x))
 
 for y in [:sin, :cos, :tan, :cot, :sec, :csc]
-    @eval ($y){T}(x::Quantity{T,UnitData{(UnitDatum(_Degree,0,1),)}}) = ($y)(x.val*pi/180)
-    @eval ($y){T}(x::Quantity{T,UnitData{(UnitDatum(_Radian,0,1),)}}) = ($y)(x.val)
+    # @eval ($y){T}(x::Quantity{T,UnitData{(UnitDatum(_Degree,0,1),)}}) = ($y)(x.val*pi/180)
+    # @eval ($y){T}(x::Quantity{T,UnitData{(UnitDatum(_Radian,0,1),)}}) = ($y)(x.val)
 end
 
 for (f, F) in [(:min, :<), (:max, :>)]
@@ -934,7 +808,7 @@ macro uall(x,y)
     for (k,v) in prefixdict
         s = symbol(v,x)
         ea = quote
-            const $(esc(s)) = UnitData{(UnitDatum($y,$k,1),)}()
+            const $(esc(s)) = UnitData{(UnitDatum($y,$k,1//1),)}()
             export $(esc(s))
         end
         push!(expr.args, ea)
@@ -952,20 +826,10 @@ e.g. ft gets defined but not kft when `@u ft _Foot` is typed.
 macro u(x,y)
     s = symbol(x)
     quote
-        const $(esc(s)) = UnitData{(UnitDatum($y,0,1),)}()
+        const $(esc(s)) = UnitData{(UnitDatum($y,0,1//1),)}()
         export $(esc(s))
     end
 end
-
-# WIP
-# macro simplify_prefixes()
-#     quote
-#         @generated function simplify(x::Quantity)
-#             tup = u.parameters[1]
-#
-#         end
-#     end
-# end
 
 """
 Convert a unitful quantity to different units.
@@ -982,7 +846,7 @@ function tscale(x::UnitData)
         return false
     end
     u = unit(tup[1])
-    if u == _Celsius || u == _Kelvin || u == _Rankine || u == _Fahrenheit
+    if isa(u, TemperatureUnit)
         return true
     else
         return false
@@ -990,8 +854,6 @@ function tscale(x::UnitData)
 end
 
 offsettemp{T}(::Type{Val{T}}) = 0
-offsettemp(::Type{Val{_Fahrenheit}}) = 45967//100
-offsettemp(::Type{Val{_Celsius}}) = 27315//100
 
 """
 Convert a unitful quantity to different units.
@@ -1040,17 +902,14 @@ Find the conversion factor from unit `t` to unit `s`, e.g.
     # fact1 is what would need to be multiplied to get to base SI units
     # fact2 is what would be multiplied to get from the result to base SI units
 
-    fact1 = map(basefactor, tunits)
-    fact2 = map(basefactor, sunits)
-
-    inex1 = mapreduce(x->getfield(x,1), *, fact1)
-    inex2 = mapreduce(x->getfield(x,1), *, fact2)
-    ex1   = mapreduce(x->getfield(x,2), *, fact1)
-    ex2   = mapreduce(x->getfield(x,2), *, fact2)
+    inex1, ex1 = basefactor(t())
+    inex2, ex2 = basefactor(s())
 
     a = inex1 / inex2
     ex = ex1 // ex2     # do overflow checking?
 
+    println(a)
+    println(ex)
     tens1 = mapreduce(+,tunits) do x
         tensfactor(x)
     end
@@ -1058,6 +917,7 @@ Find the conversion factor from unit `t` to unit `s`, e.g.
         tensfactor(x)
     end
     pow = tens1-tens2
+    println(pow)
     fpow = 10.0^pow
     if fpow > typemax(Int) || 1/(fpow) > typemax(Int)
         a *= fpow
@@ -1069,7 +929,8 @@ Find the conversion factor from unit `t` to unit `s`, e.g.
             ex *= (10//1)^pow
         end
     end
-
+    println(a)
+    println(ex)
     a ≈ 1.0 ? (inex = 1) : (inex = a)
     y = inex * ex
     :($y)
