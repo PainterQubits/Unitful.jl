@@ -15,7 +15,7 @@ export µm
 x = nextunit(NormalUnit)
 abbr(::Type{Val{x}})       = "g"
 dimension(::Type{Val{x}})  = Dict(_Mass => 1)
-basefactor(::Type{Val{x}}) = (1.0, 1//1000)
+basefactor(::Type{Val{x}}) = (1.0, 1//1)
 @uall g NormalUnit(unitcount)
 
 # Default symbols for refering to a unit in the REPL.
