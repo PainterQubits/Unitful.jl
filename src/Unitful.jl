@@ -21,6 +21,7 @@ export dimension
 export power
 export tens
 export unit, unitless
+export @newunit
 
 export Quantity, FloatQuantity, RealQuantity
 export UnitDatum, UnitData
@@ -80,18 +81,20 @@ function dimhelper(x)
     d
 end
 
-macro unit(name,abbr,equals,tf)
+macro newunit(name,abbr,equals,tf)
     # name is a symbol
     # abbr is a string
     quote
-        T = (dimension($equals) == Dict(_Temperature=>1) ?
+        inex, ex = basefactor(Unitful.unit($equals))
+        eq = unitless($equals)
+        Base.isa(eq, Base.Complex) && error("Cannot define complex units.")
+        Base.isa(eq, Base.Integer) || Base.isa(eq, Base.Rational) ?
+             (ex *= eq) : (inex *= eq)
+        T = (dimhelper($equals) == Dict(_Temperature=>1) ?
             TemperatureUnit : NormalUnit)
-        unit = Unitful.nextunit(T)
+        unit = nextunit(T)
         Unitful.abbr(::Type{Val{unit}}) = $abbr
         Unitful.dimension(::Type{Val{unit}}) = dimhelper($equals)
-        inex, ex = Unitful.basefactor(Unitful.unit($equals))
-        eq = Unitful.unitless($equals)
-        Base.isa(eq, Base.AbstractFloat) ? (inex *= eq) : (ex *= eq)
         Unitful.basefactor(::Type{Val{unit}}) = (inex, ex)
         if $tf
             @uall $(esc(name)) unit
@@ -161,6 +164,13 @@ typealias TypeQuantity{T,U} Union{Type{RealQuantity{T,U}},
 
 "Simple constructors for the appropriate `Quantity` type."
 function Quantity end
+
+@generated function unit(x::UnitData)
+    tup = x.parameters[1]
+    length(tup) > 1 && error("Call on a UnitDatum object.")
+    y = tup[1]
+    :(unit($y))
+end
 
 @inline unit(x::UnitDatum) = x.unit
 @inline unit(x::DimensionDatum) = x.unit
@@ -241,7 +251,8 @@ function tensfactor(x::UnitDatum)
     if isinteger(p)
         p = Integer(p)
     end
-    tens(x)*p
+    abc = (unit(x) == unit(kg) ? 3 : 0)
+    tens(x)*p - abc
 end
 
 "Map the x in 10^x to an SI prefix."
@@ -280,7 +291,6 @@ Unnecessary generated function to make the code easy to maintain.
         :(error("Invalid prefix"))
     end
 end
-
 
 # Addition / subtraction
 for op in [:+, :-]
@@ -616,11 +626,6 @@ end
 sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
  abs(x::Quantity) = Quantity(abs(x.val),  unit(x))
 
-for y in [:sin, :cos, :tan, :cot, :sec, :csc]
-    # @eval ($y){T}(x::Quantity{T,UnitData{(UnitDatum(_Degree,0,1),)}}) = ($y)(x.val*pi/180)
-    # @eval ($y){T}(x::Quantity{T,UnitData{(UnitDatum(_Radian,0,1),)}}) = ($y)(x.val)
-end
-
 for (f, F) in [(:min, :<), (:max, :>)]
     @eval @generated function ($f)(x::Quantity, y::Quantity)
         xdim = dimension(x.parameters[2]())
@@ -808,7 +813,7 @@ macro uall(x,y)
     for (k,v) in prefixdict
         s = symbol(v,x)
         ea = quote
-            const $(esc(s)) = UnitData{(UnitDatum($y,$k,1//1),)}()
+            const $(esc(s)) = UnitData{(UnitDatum($(esc(y)),$k,1//1),)}()
             export $(esc(s))
         end
         push!(expr.args, ea)
@@ -826,7 +831,7 @@ e.g. ft gets defined but not kft when `@u ft _Foot` is typed.
 macro u(x,y)
     s = symbol(x)
     quote
-        const $(esc(s)) = UnitData{(UnitDatum($y,0,1//1),)}()
+        const $(esc(s)) = UnitData{(UnitDatum($(esc(y)),0,1//1),)}()
         export $(esc(s))
     end
 end
@@ -840,16 +845,16 @@ function convert{T,Units}(::Type{Quantity{T,Units}}, x::Quantity)
     Quantity(T(x.val * conv), Units())
 end
 
-function tscale(x::UnitData)
-    tup = typeof(x).parameters[1]
+@generated function tscale(x::UnitData)
+    tup = x.parameters[1]
     if length(tup) > 1
-        return false
+        return :(false)
     end
     u = unit(tup[1])
     if isa(u, TemperatureUnit)
-        return true
+        return :(true)
     else
-        return false
+        return :(false)
     end
 end
 
@@ -908,8 +913,6 @@ Find the conversion factor from unit `t` to unit `s`, e.g.
     a = inex1 / inex2
     ex = ex1 // ex2     # do overflow checking?
 
-    println(a)
-    println(ex)
     tens1 = mapreduce(+,tunits) do x
         tensfactor(x)
     end
@@ -917,7 +920,7 @@ Find the conversion factor from unit `t` to unit `s`, e.g.
         tensfactor(x)
     end
     pow = tens1-tens2
-    println(pow)
+
     fpow = 10.0^pow
     if fpow > typemax(Int) || 1/(fpow) > typemax(Int)
         a *= fpow
@@ -929,8 +932,7 @@ Find the conversion factor from unit `t` to unit `s`, e.g.
             ex *= (10//1)^pow
         end
     end
-    println(a)
-    println(ex)
+
     a ≈ 1.0 ? (inex = 1) : (inex = a)
     y = inex * ex
     :($y)

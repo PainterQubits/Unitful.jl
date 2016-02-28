@@ -5,7 +5,7 @@ using Base.Test
 @testset "Conversion" begin
     @testset "Unitless <--> unitful" begin
         @test typeof(1.0m) ==
-            Unitful.FloatQuantity{Float64, UnitData{(UnitDatum(Unitful._Meter,0,1),)}}
+            Unitful.FloatQuantity{Float64, UnitData{(UnitDatum(unit(m), 0, 1//1),)}}
         @test convert(typeof(3m),1) === 1m
         @test convert(Float64, 3m) === Float64(3.0)
         @test float(3m) === 3.0m
