@@ -154,6 +154,7 @@ and collections that are found in Julia base.</p>
 <ul>
 <li>Support for rational exponents. Good for power spectral density, etc.</li>
 <li>Exact conversions are respected by using Rationals.</li>
+<li>Can make new units using the <code>@unit</code> macro without digging through the code.</li>
 <li>“Sticky units”: by default, no implicit conversions in multiplication or division<ul>
 <li>We allow for implicit conversions in addition and subtraction</li>
 </ul>
@@ -236,9 +237,6 @@ to be cleaned up before I work on this myself (see <a href="https://github.com/J
 <p>Clean up sin(degrees), etc. (not done nicely)</p>
 </li>
 <li>
-<p>Add more units (easy pull request for someone interested)</p>
-</li>
-<li>
 <p>Benchmarking needed!</p>
 </li>
 <li>
@@ -295,5 +293,5 @@ becomes a loaded / ambiguous name.</p>
 
 <!--
 MkDocs version : 0.14.0
-Build Date UTC : 2016-02-22 07:26:39.294858
+Build Date UTC : 2016-02-28 18:26:14.788308
 -->
