@@ -175,6 +175,8 @@ end
 @inline unit(x::UnitDatum) = x.unit
 @inline unit(x::DimensionDatum) = x.unit
 @inline unitless(x::Quantity) = x.val
+unitless{T<:Quantity}(x::Complex{T}) = unitless(real(x))+unitless(imag(x))*im
+
 @inline tens(x::UnitDatum) = x.tens
 @inline tens(x::DimensionDatum) = 0
 @inline power(x) = x.power
