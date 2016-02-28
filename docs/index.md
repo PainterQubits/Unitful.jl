@@ -14,6 +14,7 @@ and collections that are found in Julia base.
 
 - Support for rational exponents. Good for power spectral density, etc.
 - Exact conversions are respected by using Rationals.
+- Can make new units using the `@unit` macro without digging through the code.
 - “Sticky units”: by default, no implicit conversions in multiplication or division
     - We allow for implicit conversions in addition and subtraction
 - Some built-in dimensional analysis

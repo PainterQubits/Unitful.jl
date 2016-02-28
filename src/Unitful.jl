@@ -21,7 +21,7 @@ export dimension
 export power
 export tens
 export unit, unitless
-export @newunit
+export @unit
 
 export Quantity, FloatQuantity, RealQuantity
 export UnitDatum, UnitData
@@ -81,7 +81,7 @@ function dimhelper(x)
     d
 end
 
-macro newunit(name,abbr,equals,tf)
+macro unit(name,abbr,equals,tf)
     # name is a symbol
     # abbr is a string
     quote
@@ -790,12 +790,18 @@ function show(io::IO,x::Unitlike)
     nothing
 end
 
-"Prefix the unit with any decimal prefix and append the exponent."
+"Show the unit, prefixing with any decimal prefix and appending the exponent."
 function show(io::IO, x::UnitDatum)
     print(io, prefix(Val{tens(x)}()))
     print(io, abbr(Val{unit(x)}))
     print(io, (power(x) == 1//1 ? "" : superscript(power(x))))
     nothing
+end
+
+"Show the dimension, appending any exponent."
+function show(io::IO, x::DimensionDatum)
+    print(io, abbr(Val{unit(x)}))
+    print(io, (power(x) == 1//1 ? "" : superscript(power(x))))
 end
 
 "Prints exponents nicely with Unicode."
