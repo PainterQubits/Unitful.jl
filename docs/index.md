@@ -101,8 +101,6 @@ to be cleaned up before I work on this myself (see [issue #14052](https://github
 
 - Clean up sin(degrees), etc. (not done nicely)
 
-- Add more units (easy pull request for someone interested)
-
 - Benchmarking needed!
 
 - More tests would be nice

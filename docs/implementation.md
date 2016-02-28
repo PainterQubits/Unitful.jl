@@ -47,6 +47,9 @@ Usage example:
 convert(m, 1pim) # evaluates to 3.14159... m
 ```
 
+You can look at `Defaults.jl` in the package to see what units are there by
+default.
+
 Note for the experts: Some care should be taken if explicitly making `UnitData` objects.
 The ordering of `UnitDatum` inside a tuple matters for type comparisons. Using the
 unary multiplication operator on the `UnitData` object will return a "canonically
