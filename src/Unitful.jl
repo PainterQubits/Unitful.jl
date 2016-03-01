@@ -886,13 +886,11 @@ Is a generated function to allow for special casing, e.g. temperature conversion
         t1 = offsettemp(Val{unit(tup1[1])})
         quote
             v = ((x.val + $t0) * $conv) - $t1
-            isinteger(v) && (v = Integer(v))
             Quantity(v, a)
         end
     else
         quote
             v = x.val * $conv
-            isinteger(v) && (v = Integer(v))
             Quantity(v, a)
         end
     end
