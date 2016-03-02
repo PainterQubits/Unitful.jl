@@ -47,7 +47,13 @@ end
         @test 1 != 1m
         @test min(1h, 1s) == 1s               # take scale of units into account
         @test max(1ft, 1m) == 1m
-        @test max(km, m) == km        # implicit ones to compare units directly
+        @test max(km, m) == km          # implicit ones to compare units directly
+        @test (3V+4V*im) != (3m+4m*im)
+        @test (3V+4V*im) != (3+4im)
+        @test (3+4im)*V == (3V+4V*im)
+        @test V*(3+4im) == (3V+4V*im)
+        @test (3.0+4.0im)*V == (3+4im)*V
+        @test im*V == Complex(0V,1V)
     end
 
     @testset "Addition and subtraction" begin
@@ -81,15 +87,19 @@ end
         @test inv(s) == s^-1
     end
 
-    @test sqrt(4m^2) == 2m                # sqrt works
-    @test sqrt(4m^(2//3)) == 2m^(1//3)    # less trivial example
-    @test sin(90°) == 1                   # sin(degrees) works
-    @test cos(π*rad) == -1                # ...radians work
+    @testset "Miscellaneous math" begin
+        @test sqrt(4m^2) == 2m                # sqrt works
+        @test sqrt(4m^(2//3)) == 2m^(1//3)    # less trivial example
+        @test sin(90°) == 1                   # sin(degrees) works
+        @test cos(π*rad) == -1                # ...radians work
+    end
 
-    @test isinteger(1.0m)
-    @test !isinteger(1.4m)
-    @test isfinite(1.0m)
-    @test !isfinite(Inf*m)
+    @testset "Is functions" begin
+        @test isinteger(1.0m)
+        @test !isinteger(1.4m)
+        @test isfinite(1.0m)
+        @test !isfinite(Inf*m)
+    end
 
     @testset "Floating point tests" begin
         @test frexp(1.5m) == (0.75m, 1.0)

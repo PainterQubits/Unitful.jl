@@ -148,6 +148,30 @@ last{T}(r::LinSpace{T}) = convert(T, (unitless(r.len) - 1)*r.stop/r.divisor)
 next{T}(r::LinSpace{T}, i::Int) =
     (convert(T, ((unitless(r.len)-i)*r.start + (i-1)*r.stop)/r.divisor), i+1)
 
+function show(io::IO, z::Complex)
+    if unitless(z) != z
+        print(io, "(")
+    end
+    r, i = reim(unitless(z))
+    compact = limit_output(io)
+    Base.showcompact_lim(io, r)
+    if signbit(i) && !isnan(i)
+        i = -i
+        print(io, compact ? "-" : " - ")
+    else
+        print(io, compact ? "+" : " + ")
+    end
+    Base.showcompact_lim(io, i)
+    if !(isa(i,Integer) && !isa(i,Bool) || isa(i,AbstractFloat) && isfinite(i))
+        print(io, "*")
+    end
+    print(io, "im")
+    if unitless(z) != z
+        print(io, ") ")
+        print(io, unit(z))
+    end
+end
+
 if VERSION >= v"0.5.0-dev+2562"
     # range.jl commit c8995d1 l433
     function getindex{T}(r::LinSpace{T}, i::Integer)

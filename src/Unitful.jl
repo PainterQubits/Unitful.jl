@@ -14,7 +14,7 @@ import Base: prevfloat, nextfloat, maxintfloat, rat, step, linspace
 import Base: promote_op, promote_rule, unsafe_getindex, colon
 import Base: length, float, range, start, done, next, last, one, zero
 import Base: getindex, eltype, step, last, first, frexp
-import Base: Rational, typemin, typemax
+import Base: Rational, Complex, typemin, typemax
 
 export baseunit
 export dimension
@@ -187,6 +187,8 @@ unitless{T<:Quantity}(x::Complex{T}) = unitless(real(x))+unitless(imag(x))*im
 @inline Quantity(x, y) = RealQuantity{typeof(x), typeof(y)}(x)
 
 unit{T,Units}(x::Quantity{T,Units}) = Units()
+unit{T,Units}(x::Complex{FloatQuantity{T,Units}}) = Units()
+unit{T,Units}(x::Complex{RealQuantity{T,Units}}) = Units()
 unit{T,Units}(x::Type{Quantity{T,Units}}) = Units()
 
 """
@@ -422,6 +424,22 @@ end
     ifelse(x, y, ifelse(signbit(y), -zero(y), zero(y)))
 *(y::Real, x::Quantity) = *(x,y)
 *(x::Quantity, y::Real) = Quantity(x.val*y, unit(x))
+
+function *(x::Complex, y::UnitData)
+    a,b = reim(x)
+    Complex(a*y,b*y)
+end
+
+function *(y::UnitData, x::Complex)
+    a,b = reim(x)
+    Complex(a*y,b*y)
+end
+
+"Necessary to enable expressions like Complex(1V,1mV)."
+@generated function Complex{S,T,U,V}(x::Quantity{S,T}, y::Quantity{U,V})
+    resulttype = typeof(x(1)+y(1))
+    :(Complex{$resulttype}(convert($resulttype,x),convert($resulttype,y)))
+end
 
 for (f,F) in ((Base.DotMulFun, :*),
               (Base.DotRDivFun, :/),
@@ -771,7 +789,7 @@ dimension{N}(u::UnitData{N}) = mapreduce(dimension, *, N)
 dimension{S,SUnits}(x::Quantity{S,SUnits}) = dimension(SUnits())
 
 "Format a unitful quantity."
-function show{T,Units}(io::IO,x::Quantity{T,Units})
+function show{T,Units}(io::IO, x::Quantity{T,Units})
     show(io,x.val)
     print(io," ")
     show(io,Units())
@@ -842,15 +860,6 @@ macro u(x,y)
         const $(esc(s)) = UnitData{(UnitDatum($(esc(y)),0,1//1),)}()
         export $(esc(s))
     end
-end
-
-"""
-Convert a unitful quantity to different units.
-"""
-function convert{T,Units}(::Type{Quantity{T,Units}}, x::Quantity)
-    xunits = typeof(x).parameters[2]
-    conv = convert(Units(), xunits())
-    Quantity(T(x.val * conv), Units())
 end
 
 @generated function tscale(x::UnitData)
@@ -971,10 +980,23 @@ convert{T,U}(::Type{Rational{BigInt}}, x::FloatQuantity{T,U}) =
 convert{S<:Integer,T,U}(::Type{Rational{S}}, x::FloatQuantity{T,U}) =
     Rational{S}(x.val)
 
-convert{R,S,T,U}(::Type{FloatQuantity{R,S}}, x::Quantity{T,U}) =
-    Quantity(R(x.val),convert(S,U()))
-convert{R,S,T,U}(::Type{RealQuantity{R,S}}, x::Quantity{T,U}) =
-    Quantity(R(x.val),convert(S,U()))
+# """
+# Convert a unitful quantity to different units.
+# """
+# function convert{T,Units}(::Type{Quantity{T,Units}}, x::Quantity)
+#     xunits = typeof(x).parameters[2]
+#     conv = convert(Units(), xunits())
+#     Quantity(T(x.val * conv), Units())
+# end
+
+@generated function convert{R,S,T,U}(::Type{FloatQuantity{R,S}}, x::Quantity{T,U})
+    conv = convert(S(),U())
+    :(Quantity(R(x.val*$conv),S()))
+end
+@generated function convert{R,S,T,U}(::Type{RealQuantity{R,S}}, x::Quantity{T,U})
+    conv = convert(S(),U())
+    :(Quantity(R(x.val*$conv),S()))
+end
 
 "Strip units from a number."
 convert{S<:Number}(::Type{S}, x::Quantity) = convert(S, x.val)
