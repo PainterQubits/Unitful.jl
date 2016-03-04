@@ -1,12 +1,10 @@
 # By inlining the unit, unitless methods I don't expect a performance penalty...
-@inline unitless(x) = x
-@inline unit(x) = one(x)
 
-# We override the `rat` function in Base, which is not exported.
-# We allow ourselves to be a little sloppy and strip units.
-# Probably for unitful quantities, units should be on the first member of the
-# output tuple, if we're entirely consistent. It is however much more convenient
-# to have this act the same way for unitful and unitless quantities.
+# Fallback methods for unit support
+# For numbers without units, return the number as is
+@inline unitless(x::Number) = x
+# For numbers without units, we think of the unit as multiplicative identity
+@inline unit(x::Number) = one(x)
 
 # range.jl commit 2bb94d6 l116
 function rat(x)
@@ -23,7 +21,7 @@ function rat(x)
         oftype(unitless(x),a)/oftype(unitless(x),b) == unitless(x) && break
         y = inv(y)
     end
-    return a, b
+    return a*unit(x), b
 end
 
 # range.jl commit 2bb94d6 l85
@@ -118,10 +116,7 @@ function linspace{T<:AbstractFloat}(start::T, stop::T, len::Real)
 end
 
 # range.jl commit 2bb94d6 l315
-@generated function step(r::UnitRange)
-    v = 1*unit(r.parameters[1])
-    :($v)
-end
+step(r::UnitRange) = one(r.start)
 
 # range.jl commit 2bb94d6 l316
 step(r::FloatRange) = r.step / unitless(r.divisor)
