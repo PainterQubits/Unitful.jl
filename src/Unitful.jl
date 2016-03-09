@@ -734,7 +734,11 @@ nextfloat(x::Quantity) = Quantity(nextfloat(x.val), unit(x))
 Same as for a unitless `AbstractFloat`, but the first number in the
 result carries the units of the input.
 """
-frexp(x::FloatQuantity) = map(*, frexp(x.val), (unit(x), one(x.val)))
+function frexp(x::FloatQuantity)
+    a,b = frexp(x.val)
+    a *= unit(x)
+    a,b
+end
 
 function linspace{S,T,U}(start::RealQuantity{S,U}, stop::Quantity{T,U},
         len::Real=50)
