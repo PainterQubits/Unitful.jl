@@ -704,10 +704,12 @@ end
 
 <=(x::Quantity, y::Quantity) = <(x,y) || x==y
 
-for f in [:one, :zero, :floor, :ceil]
+for f in [:zero, :floor, :ceil]
     @eval ($f)(x::Quantity) = Quantity(($f)(x.val), unit(x))
 end
 
+one(x::Quantity) = one(x.val)
+one{T,U}(x::TypeQuantity{T,U}) = one(T)
 isinteger(x::Quantity) = isinteger(x.val)
 isreal(x::Quantity) = true # isreal(x.val)
 isfinite(x::Quantity) = isfinite(x.val)
