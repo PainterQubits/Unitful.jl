@@ -6,6 +6,56 @@
 # For numbers without units, we think of the unit as multiplicative identity
 @inline unit(x::Number) = one(x)
 
+# range.jl l25
+function steprange_last{T}(start::T, step, stop)
+    if isa(start,AbstractFloat) || isa(step,AbstractFloat)
+        throw(ArgumentError("StepRange should not be used with floating point"))
+    end
+    z = zero(step)
+    step == z && throw(ArgumentError("step cannot be zero"))
+
+    if stop == start
+        last = stop
+    else
+        if (step > z) != (stop > start)
+            # empty range has a special representation where stop = start-1
+            # this is needed to avoid the wrap-around that can happen computing
+            # start - step, which leads to a range that looks very large instead
+            # of empty.
+            if step > z
+                last = start - oftype(stop-start,1)
+            else
+                last = start + oftype(stop-start,1)
+            end
+        else
+            diff = stop - start
+            if T<:Signed && (diff > zero(diff)) != (stop > start)
+                # handle overflowed subtraction with unsigned rem
+                if diff > zero(diff)
+                    remain = -convert(T, unsigned(-diff) % step)
+                else
+                    remain = convert(T, unsigned(diff) % step)
+                end
+            else
+                remain = Base.steprem(start,stop,step)
+            end
+            last = stop - remain
+        end
+    end
+    last
+end
+
+# range.jl l74
+unitrange_last{T<:Integer}(start::T, stop::T) =
+    ifelse(stop >= start, stop, convert(T,start-oftype(stop-start,1)))
+unitrange_last{T}(start::T, stop::T) =
+    ifelse(stop >= start, convert(T,start+floor(stop-start)),
+                          convert(T,start-oftype(stop-start,1)))
+
+# range.jl commit 2bb94d6 l85
+range(a::Real, len::Integer) =
+    UnitRange{typeof(a)}(a, oftype(a, oftype(a, unitless(a)+len-1)))
+
 # range.jl commit 2bb94d6 l116
 function rat(x)
     y = unitless(x)
@@ -23,10 +73,6 @@ function rat(x)
     end
     return a*unit(x), b
 end
-
-# range.jl commit 2bb94d6 l85
-range(a::Real, len::Integer) =
-    UnitRange{typeof(a)}(a, oftype(a, oftype(a, unitless(a)+len-1)))
 
 # range.jl commit 2bb94d6 l133
 function colon{T<:AbstractFloat}(start::T, step::T, stop::T)

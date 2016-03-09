@@ -15,6 +15,7 @@ import Base: promote_op, promote_rule, unsafe_getindex, colon
 import Base: length, float, range, start, done, next, last, one, zero
 import Base: getindex, eltype, step, last, first, frexp
 import Base: Rational, Complex, typemin, typemax
+import Base: steprange_last, unitrange_last
 
 export baseunit
 export dimension
