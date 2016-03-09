@@ -108,6 +108,12 @@ end
 # range.jl l166
 colon{T<:AbstractFloat}(a::T, b::T) = colon(a, oftype(a,1), b)
 
+# range.jl l169
+range(a::AbstractFloat, len::Integer) = FloatRange(a,oftype(a,1),len,oftype(a,1))
+range(a::AbstractFloat, st::AbstractFloat, len::Integer) = FloatRange(a,st,len,oftype(a,1))
+range(a::Real, st::AbstractFloat, len::Integer) = FloatRange(float(a), st, len, oftype(st,1))
+range(a::AbstractFloat, st::Real, len::Integer) = FloatRange(a, float(st), len, oftype(a,1))
+
 # range.jl commit 2bb94d6 l183
 function linspace{T<:AbstractFloat}(start::T, stop::T, len::T)
     len == round(len) || throw(InexactError())
@@ -191,11 +197,11 @@ last{T}(r::LinSpace{T}) = convert(T, (unitless(r.len) - 1)*r.stop/r.divisor)
 # range.jl commit 2bb94d6 l388
 next{T}(r::LinSpace{T}, i::Int) =
     (convert(T, ((unitless(r.len)-i)*r.start + (i-1)*r.stop)/r.divisor), i+1)
-# 
+#
 # # range.jl l397
-# start{T}(r::UnitRange{T}) = oftype(r.start + T(1), r.start)
-# next{T}(r::UnitRange{T}, i) = (convert(T, i), i + one(T))
-# done{T}(r::UnitRange{T}, i) = i == oftype(i, r.stop) + one(T)
+start{T}(r::UnitRange{T}) = oftype(r.start + T(1), r.start)
+next{T}(r::UnitRange{T}, i) = (convert(T, i), i + T(1))
+done{T}(r::UnitRange{T}, i) = i == oftype(i, r.stop) + T(1)
 
 function show(io::IO, z::Complex)
     if unitless(z) != z
