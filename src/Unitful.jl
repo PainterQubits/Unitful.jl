@@ -51,8 +51,8 @@ bitstype 32 NormalUnit      <: Unit
 bitstype 32 TemperatureUnit <: Unit
 
 global unitcount = 0
-convert{T<:Integer}(::Type{T}, x::Unit) = convert(T, Intrinsics.box(Int32, x))
-convert{T<:Unit}(::Type{T}, x36::Integer) = Intrinsics.box(T, convert(Int32, x36))
+convert{T<:Integer}(::Type{T}, x::Unit) = convert(T, Core.Intrinsics.box(Int32, x))
+convert{T<:Unit}(::Type{T}, x36::Integer) = Core.Intrinsics.box(T, convert(Int32, x36))
 isless(x39::Unit, y40::Unit) = isless(Int32(x39), Int32(y40))
 
 function nextunit{T<:Unit}(::Type{T})
