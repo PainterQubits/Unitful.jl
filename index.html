@@ -1,185 +1,271 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="Unitful.jl for units in Julia">
-        
-        
-        <link rel="shortcut icon" href="./img/favicon.ico">
-
-	<title>Unitful.jl</title>
-
-        <link href="./css/bootstrap-custom.min.css" rel="stylesheet">
-        <link href="./css/font-awesome-4.0.3.css" rel="stylesheet">
-        <link href="./css/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="./css/highlight.css">
-
-        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!--[if lt IE 9]>
-            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-        <![endif]-->
-
-        
-    </head>
-
-    <body class="homepage">
-
-        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-    <div class="container">
-
-        <!-- Collapsed navigation -->
-        <div class="navbar-header">
-            
-            <!-- Expander button -->
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            
-
-            <!-- Main title -->
-            <a class="navbar-brand" href=".">Unitful.jl</a>
-        </div>
-
-        <!-- Expanded navigation -->
-        <div class="navbar-collapse collapse">
-            
-                <!-- Main navigation -->
-                <ul class="nav navbar-nav">
-                
-                
-                    <li class="active">
-                        <a href=".">Home</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="implementation/">Design and implementation</a>
-                    </li>
-                
-                
-                
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Miscellaneous <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                        
-                            
-<li >
-    <a href="releases/">Release notes</a>
-</li>
-
-                        
-                            
-<li >
-    <a href="LICENSE/">License</a>
-</li>
-
-                        
-                        </ul>
-                    </li>
-                
-                
-                </ul>
-            
-
-            <ul class="nav navbar-nav navbar-right">
-                <li>
-                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
-                        <i class="fa fa-search"></i> Search
-                    </a>
-                </li>
-                
-                    <li class="disabled">
-                        <a rel="next" >
-                            <i class="fa fa-arrow-left"></i> Previous
-                        </a>
-                    </li>
-                    <li >
-                        <a rel="prev" href="implementation/">
-                            Next <i class="fa fa-arrow-right"></i>
-                        </a>
-                    </li>
-                
-                
-                    <li>
-                        <a href="https://github.com/ajkeller34/Unitful.jl/">
-                            
-                                <i class="fa fa-github"></i>
-                            
-                            GitHub
-                        </a>
-                    </li>
-                
-            </ul>
-        </div>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Unitful.jl - Package for units.</title>
+      
+      
+        <meta name="description" content="Package for units.">
+      
+      
+      
+        <meta name="author" content="Andrew Keller">
+      
+    
+    <meta property="og:url" content="None">
+    <meta property="og:title" content="Unitful.jl">
+    <meta property="og:image" content="None/./">
+    <meta name="apple-mobile-web-app-title" content="Unitful.jl">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="./None">
+    <link rel="icon" type="image/x-icon" href="./None">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('./assets/fonts/icon.eot?52m981');
+      	src: url('./assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('./assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('./assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('./assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="./assets/stylesheets/application-54f87043f3.css">
+    
+      <link rel="stylesheet" href="./assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <style>
+        body, input {
+          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="./assets/Documenter.css">
+    
+    <script src="./assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-indigo palette-accent-blue">
+    
+      
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
     </div>
-</div>
-
-        <div class="container">
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
             
-                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
-    <ul class="nav bs-sidenav">
+          </span>
+        
+        Unitful.jl
+      </div>
+    </div>
     
-        <li class="main active"><a href="#unitfuljl">Unitful.jl</a></li>
-        
-            <li><a href="#features">Features</a></li>
-        
-            <li><a href="#quick-start">Quick start</a></li>
-        
-            <li><a href="#testing-this-package">Testing this package</a></li>
-        
-            <li><a href="#to-do">To do</a></li>
-        
     
-    </ul>
-</div></div>
-                <div class="col-md-9" role="main">
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/ajkeller34/Unitful.jl" class="project">
+    <div class="banner">
+      
+      <div class="name">
+        <strong>
+          Unitful.jl
+          <span class="version">
+            
+          </span>
+        </strong>
+        
+          <br>
+          ajkeller34/Unitful.jl
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/ajkeller34/Unitful.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/ajkeller34/Unitful.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="current" title="Home" href=".">
+      Home
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="Features" href="#features">
+                Features
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Quick start" href="#quick-start">
+                Quick start
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Testing this package" href="#testing-this-package">
+                Testing this package
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="To do" href="#to-do">
+                To do
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
 
+          
+            
+  <li>
+    <a class="" title="Implementation" href="implementation/">
+      Implementation
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="License" href="LICENSE/">
+      License
+    </a>
+    
+  </li>
+
+          
+        </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <p><a id='Unitful.jl-1'></a></p>
 <h1 id="unitfuljl">Unitful.jl</h1>
-<p>A Julia package for physical units. Available
-<a href="https://github.com/ajkeller34/Unitful.jl">here</a>. Inspired by Keno Fischer's
-very clever package <a href="https://github.com/keno/SIUnits.jl">SIUnits.jl</a>.</p>
-<p>We want to support not only SI units but also any other unit system. We also
-want to minimize or in some cases eliminate the run-time penalty of units.
-There should be facilities for dimensional analysis.
-All of this should integrate easily with the usual mathematical operations
-and collections that are found in Julia base.</p>
+<p>A Julia package for physical units. Available <a href="https://github.com/ajkeller34/Unitful.jl">here</a>. Inspired by Keno Fischer's very clever package <a href="https://github.com/keno/SIUnits.jl">SIUnits.jl</a>.</p>
+<p>We want to support not only SI units but also any other unit system. We also want to minimize or in some cases eliminate the run-time penalty of units. There should be facilities for dimensional analysis. All of this should integrate easily with the usual mathematical operations and collections that are found in Julia base.</p>
+<p><a id='Features-1'></a></p>
 <h2 id="features">Features</h2>
 <ul>
 <li>Support for rational exponents. Good for power spectral density, etc.</li>
 <li>Exact conversions are respected by using Rationals.</li>
 <li>Can make new units using the <code>@unit</code> macro without digging through the code.</li>
-<li>“Sticky units”: by default, no implicit conversions in multiplication or division<ul>
-<li>We allow for implicit conversions in addition and subtraction</li>
-</ul>
-</li>
+<li>“Sticky units”: by default, no implicit conversions in multiplication or division   - We allow for implicit conversions in addition and subtraction</li>
 <li>Some built-in dimensional analysis</li>
 <li>Support for various <code>Range</code> types, including <code>LinSpace</code></li>
 </ul>
+<p><a id='Quick-start-1'></a></p>
 <h2 id="quick-start">Quick start</h2>
+<p><a id='Installation-1'></a></p>
 <h3 id="installation">Installation</h3>
 <ul>
-<li>
-<p>Use a recent nightly build of Julia 0.5.</p>
-</li>
-<li>
-<p><code>Pkg.clone("https://github.com/ajkeller34/Unitful.jl.git")</code></p>
-</li>
+<li>Use a recent nightly build of Julia 0.5.</li>
+<li><code>Pkg.clone("https://github.com/ajkeller34/Unitful.jl.git")</code></li>
 </ul>
+<p><a id='In-Julia-1'></a></p>
 <h3 id="in-julia">In Julia</h3>
-<pre><code class="jl">using Unitful
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Unitful</span>
+</pre></div>
 
-<p><em>Cautiously disregard the several warnings about overwriting methods in Base,
-which are expected.</em></p>
-<p>By default, SI units and their power-of-ten prefixes are exported. Other units
-are exported but not power-of-ten prefixes.</p>
+
+<p><em>Cautiously disregard the several warnings about overwriting methods in Base, which are expected.</em></p>
+<p>By default, SI units and their power-of-ten prefixes are exported. Other units are exported but not power-of-ten prefixes.</p>
 <ul>
 <li><code>m</code>, <code>km</code>, <code>cm</code>, etc. are exported.</li>
 <li><code>nft</code> for nano-foot is not exported.</li>
@@ -189,109 +275,116 @@ are exported but not power-of-ten prefixes.</p>
 <li><code>inch</code> is used instead of <code>in</code></li>
 <li><code>minute</code> is used instead of <code>min</code></li>
 </ul>
+<p><a id='Usage-examples-1'></a></p>
 <h3 id="usage-examples">Usage examples</h3>
-<pre><code class="jl">
-# The following are true:
-1kg == 1000g                    # Equivalence implies unit conversion
-!(1kg === 1000g)                # ...and yet we can distinguish these...
-1kg === 1kg                     # ...and these are indistinguishable.
+<div class="codehilite"><pre><span></span><span class="c"># The following are true:</span>
+<span class="mi">1</span><span class="n">kg</span> <span class="o">==</span> <span class="mi">1000</span><span class="n">g</span>                    <span class="c"># Equivalence implies unit conversion</span>
+<span class="o">!</span><span class="p">(</span><span class="mi">1</span><span class="n">kg</span> <span class="o">===</span> <span class="mi">1000</span><span class="n">g</span><span class="p">)</span>                <span class="c"># ...and yet we can distinguish these...</span>
+<span class="mi">1</span><span class="n">kg</span> <span class="o">===</span> <span class="mi">1</span><span class="n">kg</span>                     <span class="c"># ...and these are indistinguishable.</span>
 
-# Also true:
-unit(convert(°C, 212°F)) === °C
-unitless(convert(°C, 212°F)) == 100
-# Note: use the \approx tab-completion. Sometimes ≈ is needed if there are tiny
-# floating-point errors (see to-do list note, regarding exact conversions)
+<span class="c"># Also true:</span>
+<span class="n">unit</span><span class="p">(</span><span class="nb">convert</span><span class="p">(</span><span class="n">°C</span><span class="p">,</span> <span class="mi">212</span><span class="n">°F</span><span class="p">))</span> <span class="o">===</span> <span class="n">°C</span>
+<span class="n">unitless</span><span class="p">(</span><span class="nb">convert</span><span class="p">(</span><span class="n">°C</span><span class="p">,</span> <span class="mi">212</span><span class="n">°F</span><span class="p">))</span> <span class="o">==</span> <span class="mi">100</span>
+<span class="c"># Note: use the \approx tab-completion. Sometimes ≈ is needed if there are tiny</span>
+<span class="c"># floating-point errors (see to-do list note, regarding exact conversions)</span>
 
-# Also true:
-convert(µm/(m*°F), 9µm/(m*°C)) ≈ 5µm/(m*°F)
-mod(1h+3minute+5s, 24s) == 17s
+<span class="c"># Also true:</span>
+<span class="nb">convert</span><span class="p">(</span><span class="n">µm</span><span class="o">/</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">°F</span><span class="p">),</span> <span class="mi">9</span><span class="n">µm</span><span class="o">/</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">°C</span><span class="p">))</span> <span class="n">≈</span> <span class="mi">5</span><span class="n">µm</span><span class="o">/</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">°F</span><span class="p">)</span>
+<span class="n">mod</span><span class="p">(</span><span class="mi">1</span><span class="n">h</span><span class="o">+</span><span class="mi">3</span><span class="n">minute</span><span class="o">+</span><span class="mi">5</span><span class="n">s</span><span class="p">,</span> <span class="mi">24</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">17</span><span class="n">s</span>
 
-linspace(1m, 100m, 20)
-# 20-element LinSpace{Unitful.FloatQuantity{Float64,Unitful.UnitData{(m,)}}}:
-# 1.0 m, 6.21053 m, ...
-</code></pre>
+<span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="n">m</span><span class="p">,</span> <span class="mi">100</span><span class="n">m</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="c"># 20-element LinSpace{Unitful.FloatQuantity{Float64,Unitful.UnitData{(m,)}}}:</span>
+<span class="c"># 1.0 m, 6.21053 m, ...</span>
+</pre></div>
+
 
 <p>See <code>test/runtests.jl</code> for more usage examples.</p>
+<p><a id='Gotchas-1'></a></p>
 <h3 id="gotchas">Gotchas</h3>
-<p>One inch is exactly equal to 2.54 cm. However, in Julia, the floating-point 2.54
-is not equal to the Rational 254//100. As a consequence, <code>1inch != 2.54cm</code>,
-because Unitful respects exact conversions and 1 inch is really 254//100 cm. To
-test for equivalence, instead use <code>≈</code> (backslash approx tab-completion).</p>
+<p>One inch is exactly equal to 2.54 cm. However, in Julia, the floating-point 2.54 is not equal to the Rational 254//100. As a consequence, <code>1inch != 2.54cm</code>, because Unitful respects exact conversions and 1 inch is really 254//100 cm. To test for equivalence, instead use <code>≈</code> (backslash approx tab-completion).</p>
 <p>The above applies generically to any pair of units, not just inches and centimeters.</p>
+<p><a id='Testing-this-package-1'></a></p>
 <h2 id="testing-this-package">Testing this package</h2>
-<p>There are of course subtleties in getting this all to work. To test that
-changes to either Julia or Unitful haven't given rise to undesirable behavior,
-run the test suite in Julia:</p>
-<pre><code class="jl">cd(Pkg.dir(&quot;Unitful&quot;))
-include(&quot;test/runtests.jl&quot;)
-</code></pre>
+<p>There are of course subtleties in getting this all to work. To test that changes to either Julia or Unitful haven't given rise to undesirable behavior, run the test suite in Julia:</p>
+<div class="codehilite"><pre><span></span><span class="n">cd</span><span class="p">(</span><span class="n">Pkg</span><span class="o">.</span><span class="n">dir</span><span class="p">(</span><span class="s">&quot;Unitful&quot;</span><span class="p">))</span>
+<span class="n">include</span><span class="p">(</span><span class="s">&quot;test/runtests.jl&quot;</span><span class="p">)</span>
+</pre></div>
 
+
+<p><a id='To-do-1'></a></p>
 <h2 id="to-do">To do</h2>
 <ul>
-<li>
-<p>Clean up how units/quantities are displayed.
-I'm waiting on <code>show</code>, <code>print</code>, etc.
-to be cleaned up before I work on this myself (see <a href="https://github.com/JuliaLang/julia/issues/14052">issue #14052</a> and others).</p>
-</li>
-<li>
-<p>Clean up sin(degrees), etc. (not done nicely)</p>
-</li>
-<li>
-<p>Benchmarking needed!</p>
-</li>
-<li>
-<p>More tests would be nice</p>
-</li>
-<li>
-<p>Add support for uncertainties? For quantities with uncertainty, <code>isapprox</code>
-becomes a loaded / ambiguous name.</p>
-</li>
-</ul></div>
+<li>Clean up how units/quantities are displayed.</li>
+</ul>
+<p>I'm waiting on <code>show</code>, <code>print</code>, etc. to be cleaned up before I work on this myself (see <a href="https://github.com/JuliaLang/julia/issues/14052">issue #14052</a> and others).</p>
+<ul>
+<li>Clean up sin(degrees), etc. (not done nicely)</li>
+<li>Benchmarking needed!</li>
+<li>More tests would be nice</li>
+<li>Add support for uncertainties? For quantities with uncertainty, <code>isapprox</code></li>
+</ul>
+<p>becomes a loaded / ambiguous name.</p>
+          <aside class="copyright" role="note">
             
-        </div>
-
-        <footer class="col-md-12">
-            <hr>
-            
-            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
-        </footer>
-
-        <script src="./js/jquery-1.10.2.min.js"></script>
-        <script src="./js/bootstrap-3.0.3.min.js"></script>
-        <script src="./js/highlight.pack.js"></script>
-        <script>var base_url = '.';</script>
-        <script data-main="./mkdocs/js/search.js" src="./mkdocs/js/require.js"></script>
-        <script src="./js/base.js"></script>
-
-        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                        <h4 class="modal-title" id="exampleModalLabel">Search</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>
-                            From here you can search these documents. Enter
-                            your search terms below.
-                        </p>
-                        <form role="form">
-                            <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
-                            </div>
-                        </form>
-                        <div id="mkdocs-search-results"></div>
-                    </div>
-                    <div class="modal-footer">
-                    </div>
-                </div>
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+    </div>
+    <div class="next">
+      
+        <a href="implementation/" title="Implementation">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                Implementation
+              </div>
             </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
         </div>
-
-    </body>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '.';
+      var repo_id  = 'ajkeller34/Unitful.jl';
+    </script>
+    <script src="./assets/javascripts/application-997097ee0c.js"></script>
+    
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+    
+      <script src="./assets/mathjaxhelper.js"></script>
+    
+    
+  </body>
 </html>
-
-<!--
-MkDocs version : 0.14.0
-Build Date UTC : 2016-02-28 18:26:14.788308
--->

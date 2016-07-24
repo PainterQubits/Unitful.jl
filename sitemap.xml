@@ -4,7 +4,7 @@
     
     <url>
      <loc>None/</loc>
-     <lastmod>2016-02-28</lastmod>
+     <lastmod>2016-07-23</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -12,25 +12,17 @@
     
     <url>
      <loc>None/implementation/</loc>
-     <lastmod>2016-02-28</lastmod>
+     <lastmod>2016-07-23</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
 
     
-        
-    <url>
-     <loc>None/releases/</loc>
-     <lastmod>2016-02-28</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-        
     <url>
      <loc>None/LICENSE/</loc>
-     <lastmod>2016-02-28</lastmod>
+     <lastmod>2016-07-23</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     
 
 </urlset>
