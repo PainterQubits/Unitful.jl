@@ -209,18 +209,6 @@
               </a>
             </li>
           
-            <li class="anchor">
-              <a title="Discussion" href="#discussion">
-                Discussion
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Potential improvements to Base" href="#potential-improvements-to-base">
-                Potential improvements to Base
-              </a>
-            </li>
-          
         </ul>
       
     
@@ -250,7 +238,7 @@
 <h1 id="design-and-implementation">Design and implementation</h1>
 <p><a id='A-view-from-30000-ft-(or-9144-m)-1'></a></p>
 <h2 id="a-view-from-30000-ft-or-9144-m">A view from 30000 ft (or 9144 m)</h2>
-<p>Like SIUnits.jl, units are part of the type signature of a quantity. From there, the implementations diverge. Unitful.jl uses generated functions to enable more flexibility than found in SIUnits.jl. Support is targeted to Julia 0.5+ because of some limitations in how <code>promote_op</code> is used in Julia 0.4. See <a href="https://github.com/julialang/Julia/issues/13803">issue #13803</a>.</p>
+<p>Like SIUnits.jl, units are part of the type signature of a quantity. From there, the implementations diverge. Unitful.jl uses generated functions to enable more flexibility than found in SIUnits.jl. Support is targeted to Julia 0.5 and up.</p>
 <p>We make an immutable <code>UnitDatum</code> that stores a base unit (expressed a bits type, either <code>NormalUnit</code> or <code>TemperatureUnit</code>), a rational exponent, and a prefix. We don't allow arbitrary floating point exponents of units because they probably aren't very useful. The prefixes on units (e.g. <code>nm</code> or <code>km</code>) may help to avoid overflow issues and general ugliness.</p>
 <p>We define the immutable singleton <code>UnitData{T}</code>, where <code>T</code> is always a tuple of <code>UnitDatum</code> (variable number of arguments). Usually, the user interacts only with <code>UnitData{T}</code> objects, not <code>UnitDatum</code>.</p>
 <p>We define methods <code>dimension</code> that turn, for example, <code>acre^2</code> into <code>[L]^4</code>. We can in principle add quantities with the same dimension (<code>acre [L]^2 + ft^2 [L]^2</code>), provided some "promotion" rules are given (see below). Note that dimensions cannot be determined by powers of the units: <code>ft^2</code> is an area, but so is <code>acre^1</code>.</p>
@@ -277,20 +265,6 @@
 <p><a id='Temperature-conversion-1'></a></p>
 <h2 id="temperature-conversion">Temperature conversion</h2>
 <p>If a unit is a pure temperature unit, then conversion respects scale offsets. For instance, converting 0°C to °F returns the expected result, 32°F. If instead temperature appears in combination with other units, scale offsets don't make sense and we consider temperature <em>intervals</em>. This gives the expected behavior most of the time.</p>
-<p><a id='Discussion-1'></a></p>
-<h2 id="discussion">Discussion</h2>
-<ul>
-<li>If there is a need for complex numbers to have units, please implement that</li>
-</ul>
-<p>and submit a PR, adding tests where appropriate.</p>
-<ul>
-<li><a href="https://github.com/Keno/SIUnits.jl/issues/18">SIUnits issue 18</a>: Some discussion</li>
-</ul>
-<p>regarding how to define <code>one(x)</code> and <code>zero(x)</code> for quantities with units. Right now <code>one(x)</code> returns no units, but <code>zero(x)</code> returns units. This is consistent with Julia documentation; <code>one(x)</code> should be multiplicative identity and <code>zero(x)</code> should be additive identity.</p>
-<p><a id='Potential-improvements-to-Base-1'></a></p>
-<h2 id="potential-improvements-to-base">Potential improvements to Base</h2>
-<p>In writing this package I’ve noticed a few places where changes to Base could be helpful. I keep redefinitions of methods found in Base in <code>Redefinitions.jl</code>. If I receive some encouraging feedback from a Julia contributor, maybe I’ll submit a PR. In the meantime, try not to be annoyed by the redefinition warnings.</p>
-<p>To give a flavor of the kind of changes I suggest, here is an example. According to the documentation, <code>one(x)</code> is supposed to be the multiplicative identity for the type of x. There are several places in <code>base/range.jl</code>, for example, where <code>one(x)</code> is being used instead of <code>oftype(x,1)</code>. This distinction could be important for types with units: <code>(1m) * one(1m) == 1m</code>, but <code>1m+oftype(1m, 1) == 2m</code>, and <code>1m+one(1m)</code> is invalid since we cannot add unitful and unitless quantities.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
