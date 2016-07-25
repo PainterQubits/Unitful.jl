@@ -10,12 +10,12 @@ import Base: min, max, floor, ceil
 
 import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isinf, isfinite
-import Base: prevfloat, nextfloat, maxintfloat, rat, step, linspace
-import Base: promote_op, promote_rule, unsafe_getindex, colon
-import Base: length, float, range, start, done, next, last, one, zero
+import Base: prevfloat, nextfloat, maxintfloat, rat, step #, linspace
+import Base: promote_op, promote_array_type, promote_rule, unsafe_getindex
+import Base: length, float, start, done, next, last, one, zero#, colon, range
 import Base: getindex, eltype, step, last, first, frexp
 import Base: Rational, Complex, typemin, typemax
-import Base: steprange_last, unitrange_last
+# import Base: steprange_last, unitrange_last
 
 export baseunit
 export dimension
@@ -155,11 +155,11 @@ immutable FloatQuantity{T<:AbstractFloat, Units} <: AbstractFloat
     val::T
 end
 
-"Sometimes we don't care what kind of quantity we are dealing with."
+# Sometimes we don't care what kind of quantity we are dealing with.
 typealias Quantity{T,U} Union{RealQuantity{T,U},
                               FloatQuantity{T,U}}
 
-"Shorthand to simplify some promotion rules."
+# Shorthand to simplify some promotion rules.
 typealias TypeQuantity{T,U} Union{Type{RealQuantity{T,U}},
                                   Type{FloatQuantity{T,U}}}
 
@@ -191,6 +191,8 @@ unit{T,Units}(x::Quantity{T,Units}) = Units()
 unit{T,Units}(x::Complex{FloatQuantity{T,Units}}) = Units()
 unit{T,Units}(x::Complex{RealQuantity{T,Units}}) = Units()
 unit{T,Units}(x::Type{Quantity{T,Units}}) = Units()
+
+quantity_type_symbols = (:RealQuantity, :FloatQuantity)
 
 """
 All units being the same, specifies how to promote
@@ -313,21 +315,14 @@ for op in [:+, :-]
     @eval ($op)(x::Quantity) = Quantity(($op)(x.val),unit(x))
 end
 
-# Addition / subtraction for arrays
-for f in (Base.DotAddFun,
-          Base.DotSubFun,
-          Base.AddFun,
-          Base.SubFun)
+for x in quantity_type_symbols, y in quantity_type_symbols
+    @eval @generated function promote_op{S,SUnits,T,TUnits}(op,
+    ::Type{$x{S,SUnits}}, ::Type{$y{T,TUnits}})
 
-    # If not generated, there are run-time allocations
-    @eval @generated function promote_op{S,SUnits,T,TUnits}(::$f,
-        ::Type{Quantity{S,SUnits}}, ::Type{Quantity{T,TUnits}})
-
-        numtype = promote_op(($f)(),S,T)
+        numtype = promote_op(op(), S, T)
         quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
-        resunits = typeof(+(SUnits(), TUnits()))
+        resunits = typeof(op()(SUnits(), TUnits()))
         :(($quant){$numtype, $resunits})
-
     end
 end
 
@@ -420,9 +415,11 @@ end
     end
 end
 
-# Next line resolves some method ambiguity:
+# Next two lines resolves some method ambiguity:
 *{T<:Quantity}(x::Bool, y::T) =
     ifelse(x, y, ifelse(signbit(y), -zero(y), zero(y)))
+*(x::Quantity, y::Bool) = Quantity(x.val*y, unit(x))
+
 *(y::Real, x::Quantity) = *(x,y)
 *(x::Quantity, y::Real) = Quantity(x.val*y, unit(x))
 
@@ -442,83 +439,63 @@ end
     :(Complex{$resulttype}(convert($resulttype,x),convert($resulttype,y)))
 end
 
-for (f,F) in ((Base.DotMulFun, :*),
-              (Base.DotRDivFun, :/),
-              (Base.MulFun, :*),
-              (Base.RDivFun, :/))
+for a in quantity_type_symbols
+    @eval begin
+        # number, quantity
+        @generated function promote_op{R<:Real,S,SUnits}(op,
+            ::Type{R}, ::Type{($a){S,SUnits}})
 
-    # Probably some optimizations to be done here...
-    types = [RealQuantity, FloatQuantity]
-
-    for a in types, b in types
-        @eval @generated function promote_op{S,SUnits,T,TUnits}(::$f,
-                ::Type{($a){S,SUnits}}, ::Type{($b){T,TUnits}})
-
-            numtype = promote_op(($f)(),S,T)
+            numtype = promote_op(op(),R,S)
             quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
-            unittype = typeof(($F)(SUnits(), TUnits()))
+            unittype = typeof(op()(UnitData{()}(), SUnits()))
+            :(($quant){$numtype, $unittype})
+        end
+
+        # quantity, number
+        @generated function promote_op{R<:Real,S,SUnits}(op,
+            ::Type{($a){S,SUnits}}, ::Type{R})
+
+            numtype = promote_op(op(),S,R)
+            quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+            unittype = typeof(op()(SUnits(), UnitData{()}()))
+            :(($quant){$numtype, $unittype})
+        end
+
+        # unit, quantity
+        @generated function promote_op{R<:UnitData,S,SUnits}(op,
+            ::Type{($a){S,SUnits}}, ::Type{R})
+
+            numtype = S
+            quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+            unittype = typeof(op()(SUnits(), R()))
+            :(($quant){$numtype, $unittype})
+        end
+
+        # quantity, unit
+        @generated function promote_op{R<:UnitData,S,SUnits}(op,
+            ::Type{R}, ::Type{($a){S,SUnits}})
+
+            numtype = promote_op(op(),one(S),S)
+            quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
+            unittype = typeof(op()(R(), SUnits()))
             :(($quant){$numtype, $unittype})
         end
     end
+end
 
-    for a in types
-        @eval begin
-            # number, quantity
-            @generated function promote_op{R<:Real,S,SUnits}(::$f,
-                ::Type{R}, ::Type{($a){S,SUnits}})
-
-                numtype = promote_op(($f)(),R,S)
-                quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
-                unittype = typeof(($F)(UnitData{()}(), SUnits()))
-                :(($quant){$numtype, $unittype})
-            end
-
-            # quantity, number
-            @generated function promote_op{R<:Real,S,SUnits}(::$f,
-                ::Type{($a){S,SUnits}}, ::Type{R})
-
-                numtype = promote_op(($f)(),S,R)
-                quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
-                unittype = typeof(($F)(SUnits(), UnitData{()}()))
-                :(($quant){$numtype, $unittype})
-            end
-
-            # unit, quantity
-            @generated function promote_op{R<:UnitData,S,SUnits}(::$f,
-                ::Type{($a){S,SUnits}}, ::Type{R})
-
-                numtype = S
-                quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
-                unittype = typeof(($F)(SUnits(), R()))
-                :(($quant){$numtype, $unittype})
-            end
-
-            # quantity, unit
-            @generated function promote_op{R<:UnitData,S,SUnits}(::$f,
-                ::Type{R}, ::Type{($a){S,SUnits}})
-
-                numtype = promote_op(($f)(),one(S),S)
-                quant = numtype <: AbstractFloat ? FloatQuantity : RealQuantity
-                unittype = typeof(($F)(R(), SUnits()))
-                :(($quant){$numtype, $unittype})
-            end
-        end
+@eval begin
+    @generated function promote_op{R<:Real,S<:UnitData}(op,
+        x::Type{R}, y::Type{S})
+        quant = R <: AbstractFloat ? FloatQuantity : RealQuantity
+        unittype = typeof(op()(UnitData{()}(), S()))
+        :(($quant){x, $unittype})
     end
 
-    @eval begin
-        @generated function promote_op{R<:Real,S<:UnitData}(::$f,
-            x::Type{R}, y::Type{S})
-            quant = R <: AbstractFloat ? FloatQuantity : RealQuantity
-            unittype = typeof(($F)(UnitData{()}(), S()))
-            :(($quant){x, $unittype})
-        end
-
-        @generated function promote_op{R<:Real,S<:UnitData}(::$f,
-            y::Type{S}, x::Type{R})
-            quant = R <: AbstractFloat ? FloatQuantity : RealQuantity
-            unittype = typeof(($F)(S(), UnitData{()}()))
-            :(($quant){x, $unittype})
-        end
+    @generated function promote_op{R<:Real,S<:UnitData}(op,
+        y::Type{S}, x::Type{R})
+        quant = R <: AbstractFloat ? FloatQuantity : RealQuantity
+        unittype = typeof(op()(S(), UnitData{()}()))
+        :(($quant){x, $unittype})
     end
 end
 
@@ -543,19 +520,19 @@ end
 .\(X::AbstractArray, y::UnitData) =
     reshape([ x .\ y for x in X ], size(X))
 
-for (f,F) in ((:.*, Base.DotMulFun()),)
+for f in (:.*,)
     @eval begin
         function ($f){T}(A::UnitData, B::AbstractArray{T})
-            F = similar(B, promote_op($F,typeof(A),T))
-            for i in eachindex(B)
-                @inbounds F[i] = ($f)(A, B[i])
+            F = similar(B, promote_op($f,typeof(A),typeof(B)))
+            for (iF, iB) in zip(eachindex(F), eachindex(B))
+                @inbounds F[iF] = ($f)(A, B[iB])
             end
             return F
         end
         function ($f){T}(A::AbstractArray{T}, B::UnitData)
-            F = similar(A, promote_op($F,T,typeof(B)))
-            for i in eachindex(A)
-                @inbounds F[i] = ($f)(A[i], B)
+            F = similar(A, promote_op($f,typeof(A),typeof(B)))
+            for (iF, iA) in zip(eachindex(F), eachindex(A))
+                @inbounds F[iF] = ($f)(A[iA], B)
             end
             return F
         end
@@ -743,31 +720,31 @@ function frexp(x::FloatQuantity)
     a,b
 end
 
-function linspace{S,T,U}(start::RealQuantity{S,U}, stop::Quantity{T,U},
-        len::Real=50)
-    nums = promote(AbstractFloat(unitless(start)), AbstractFloat(unitless(stop)))
-    quants = map(x->Quantity(x,U()), nums)
+# function linspace{S,T,U}(start::RealQuantity{S,U}, stop::Quantity{T,U},
+#         len::Real=50)
+#     nums = promote(AbstractFloat(unitless(start)), AbstractFloat(unitless(stop)))
+#     quants = map(x->Quantity(x,U()), nums)
+#
+#     linspace(quants..., len)
+# end
+#
+# function linspace{S,T,U}(start::FloatQuantity{S,U}, stop::RealQuantity{T,U},
+#         len::Real=50)
+#     nums = promote(AbstractFloat(unitless(start)), AbstractFloat(unitless(stop)))
+#     quants = map(x->Quantity(x,U()), nums)
+#
+#     linspace(quants..., len)
+# end
 
-    linspace(quants..., len)
-end
+# @generated function linspace(start::Real, stop::Real, len::Real=50)
+#     if start <: Quantity || stop <: Quantity
+#         :(error("Dimensional mismatch"))
+#     else
+#         :(linspace(promote(AbstractFloat(start), AbstractFloat(stop))..., len))
+#     end
+# end
 
-function linspace{S,T,U}(start::FloatQuantity{S,U}, stop::RealQuantity{T,U},
-        len::Real=50)
-    nums = promote(AbstractFloat(unitless(start)), AbstractFloat(unitless(stop)))
-    quants = map(x->Quantity(x,U()), nums)
-
-    linspace(quants..., len)
-end
-
-@generated function linspace(start::Real, stop::Real, len::Real=50)
-    if start <: Quantity || stop <: Quantity
-        :(error("Dimensional mismatch"))
-    else
-        :(linspace(promote(AbstractFloat(start), AbstractFloat(stop))..., len))
-    end
-end
-
-include("Redefinitions.jl")
+# include("Redefinitions.jl")
 
 """
 Merge the keys of two dictionaries, adding the values if the keys were shared.
@@ -844,7 +821,7 @@ macro uall(x,y)
     expr = Expr(:block)
 
     for (k,v) in prefixdict
-        s = symbol(v,x)
+        s = Symbol(v,x)
         ea = quote
             const $(esc(s)) = UnitData{(UnitDatum($(esc(y)),$k,1//1),)}()
             export $(esc(s))
@@ -862,7 +839,7 @@ Given a unit abbreviation and a `Unit` object, will define and export
 e.g. ft gets defined but not kft when `@u ft _Foot` is typed.
 """
 macro u(x,y)
-    s = symbol(x)
+    s = Symbol(x)
     quote
         const $(esc(s)) = UnitData{(UnitDatum($(esc(y)),0,1//1),)}()
         export $(esc(s))

@@ -1,4 +1,4 @@
-# By inlining the unit, unitless methods I don't expect a performance penalty...
+# THIS FILE IS NO LONGER USED
 
 # Fallback methods for unit support
 # For numbers without units, return the number as is
