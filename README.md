@@ -10,9 +10,7 @@ There should be facilities for dimensional analysis.
 All of this should integrate easily with the usual mathematical operations
 and collections that are found in Julia base.
 
-You will see a lot of warnings when you use this package because I override
-some methods in Base. This is expected and I hope that eventually it will be
-unnecessary.
+*Ranges are not supported at the moment.* This will improve in the future.
 
 ## Documentation
 
@@ -21,14 +19,8 @@ Available [here](http://ajkeller34.github.io/Unitful.jl).
 Tested on:
 
 ```
-Julia Version 0.5.0-dev+2440
-Commit 2bb94d6 (2016-02-01 02:22 UTC)
-
-Julia Version 0.5.0-dev+2672
-Commit e160742 (2016-02-15 05:07 UTC)
-```
-
-```
+Julia Version 0.5.0-pre+5651
+Commit 17c34e7* (2016-07-23 19:42 UTC)
 Platform Info:
   System: Darwin (x86_64-apple-darwin13.4.0)
   CPU: Intel(R) Core(TM) i7-4870HQ CPU @ 2.50GHz
@@ -36,7 +28,5 @@ Platform Info:
   BLAS: libopenblas (USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell)
   LAPACK: libopenblas64_
   LIBM: libopenlibm
-  LLVM: libLLVM-3.7.1
+  LLVM: libLLVM-3.7.1 (ORCJIT, haswell)
 ```
-
-

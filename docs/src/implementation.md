@@ -4,9 +4,7 @@
 
 Like SIUnits.jl, units are part of the type signature of a quantity. From there,
 the implementations diverge. Unitful.jl uses generated functions to enable more
-flexibility than found in SIUnits.jl. Support is targeted to Julia 0.5+
-because of some limitations in how `promote_op` is used in Julia 0.4. See
-[issue #13803](https://github.com/julialang/Julia/issues/13803).
+flexibility than found in SIUnits.jl. Support is targeted to Julia 0.5 and up.
 
 We make an immutable `UnitDatum` that stores a base unit (expressed a bits type,
 either `NormalUnit` or `TemperatureUnit`), a rational exponent, and a prefix.
@@ -95,23 +93,3 @@ For instance, converting 0°C to °F returns the expected result, 32°F.
 If instead temperature appears in combination with other units,
 scale offsets don't make sense and we consider temperature *intervals*.
 This gives the expected behavior most of the time.
-
-## Discussion
-
-- If there is a need for complex numbers to have units, please implement that
-and submit a PR, adding tests where appropriate.
-
-- [SIUnits issue 18](https://github.com/Keno/SIUnits.jl/issues/18): Some discussion
-regarding how to define `one(x)` and `zero(x)` for quantities with units. Right now
-`one(x)` returns no units, but `zero(x)` returns units. This is consistent with
-Julia documentation; `one(x)` should be multiplicative identity and `zero(x)`
-should be additive identity.
-
-## Potential improvements to Base
-
-In writing this package I’ve noticed a few places where changes to Base could be helpful. I keep redefinitions of methods found in Base in `Redefinitions.jl`. If I receive some encouraging feedback from a Julia contributor, maybe I’ll submit a PR. In the meantime, try not to be annoyed by the redefinition warnings.
-
-To give a flavor of the kind of changes I suggest, here is an example.
-According to the documentation, `one(x)` is supposed to be the multiplicative identity for the type of x. There are several places in `base/range.jl`, for example, where `one(x)` is being used instead of `oftype(x,1)`. This distinction could be important for types with units:
-`(1m) * one(1m) == 1m`, but `1m+oftype(1m, 1) == 2m`, and `1m+one(1m)` is invalid
-since we cannot add unitful and unitless quantities.

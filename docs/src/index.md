@@ -18,7 +18,6 @@ and collections that are found in Julia base.
 - “Sticky units”: by default, no implicit conversions in multiplication or division
     - We allow for implicit conversions in addition and subtraction
 - Some built-in dimensional analysis
-- Support for various `Range` types, including `LinSpace`
 
 ## Quick start
 
@@ -66,10 +65,6 @@ unitless(convert(°C, 212°F)) == 100
 # Also true:
 convert(µm/(m*°F), 9µm/(m*°C)) ≈ 5µm/(m*°F)
 mod(1h+3minute+5s, 24s) == 17s
-
-linspace(1m, 100m, 20)
-# 20-element LinSpace{Unitful.FloatQuantity{Float64,Unitful.UnitData{(m,)}}}:
-# 1.0 m, 6.21053 m, ...
 ```
 
 See `test/runtests.jl` for more usage examples.
@@ -83,14 +78,17 @@ test for equivalence, instead use `≈` (backslash approx tab-completion).
 
 The above applies generically to any pair of units, not just inches and centimeters.
 
+Ranges were once supported by overriding base. Somehow, they will be supported
+again at some point. I have stopped overriding base to reduce warnings and
+encourage broader package adoption.
+
 ## Testing this package
 
 There are of course subtleties in getting this all to work. To test that
 changes to either Julia or Unitful haven't given rise to undesirable behavior,
 run the test suite in Julia:
 ```jl
-cd(Pkg.dir("Unitful"))
-include("test/runtests.jl")
+Pkg.test("Unitful")
 ```
 
 ## To do
