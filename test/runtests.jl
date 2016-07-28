@@ -137,19 +137,17 @@ end
 @testset "Collections" begin
 
     @testset "> Ranges" begin
-    #
-    #     @testset ">> Some of test/ranges.jl, with units" begin
-    #         @test size(10m:1m:0m) == (0,)
-    #         @test length(1m:.2m:2m) == 6
-    #         @test length(1.0m:.2m:2.0m) == 6
-    #         @test length(2m:-.2m:1m) == 6
-    #         @test length(2.0m:-.2m:1.0m) == 6
-    #         @test length(2m:.2m:1m) == 0
-    #         @test length(2.0m:.2m:1.0m) == 0
-    #
-    #         @test length(1m:0m) == 0
-    #         @test length(0.0m:-0.5m) == 0
-    #         @test length(1m:2m:0m) == 0
+
+        @testset ">> Some of test/ranges.jl, with units" begin
+            @test size(10m:1m:0m) == (0,)
+            # @test length(1m:.2m:2m) == 6
+            # @test length(1.0m:.2m:2.0m) == 6
+            # @test length(2m:-.2m:1m) == 6
+            # @test length(2.0m:-.2m:1.0m) == 6
+            @test length(2m:.2m:1m) == 0
+            @test length(2.0m:.2m:1.0m) == 0
+
+            @test length(1m:2m:0m) == 0
     #         L32 = linspace(Int32(1)*m, Int32(4)*m, 4)
     #         L64 = linspace(Int64(1)*m, Int64(4)*m, 4)
     #         @test L32[1] == 1m && L64[1] == 1m
@@ -157,47 +155,38 @@ end
     #         @test L32[3] == 3m && L64[3] == 3m
     #         @test L32[4] == 4m && L64[4] == 4m
     #
-    #         r = 5m:-1m:1m
-    #         @test r[1]==5m
-    #         @test r[2]==4m
-    #         @test r[3]==3m
-    #         @test r[4]==2m
-    #         @test r[5]==1m
-    #
-    #         @test length(.1m:.1m:.3m) == 3
-    #         @test length(1.1m:1.1m:3.3m) == 3
-    #         @test length(1.1m:1.3m:3m) == 2
-    #         @test length(1m:1m:1.8m) == 1
-    #
-    #         @test (1m:5m)[1:4] == 1m:4m
-    #         @test (2m:6m)[1:4] == 2m:5m
-    #         @test (1m:6m)[2:5] == 2m:5m
-    #         @test typeof((1m:6m)[2:5]) == typeof(2m:5m)
-    #         @test (1m:6m)[2:2:5] == 2m:2m:4m
-    #         @test typeof((1m:6m)[2:2:5]) == typeof(2m:2m:4m)
-    #         @test (1m:2m:13m)[2:6] == 3m:2m:11m
-    #         @test typeof((1m:2m:13m)[2:6]) == typeof(3m:2m:11m)
-    #         @test (1m:2m:13m)[2:3:7] == 3m:6m:13m
-    #         @test typeof((1m:2m:13m)[2:3:7]) == typeof(3m:6m:13m)
-    #     end
-    #
-    #     @testset ">> UnitRange" begin
-    #         @test isa((1m:5m), UnitRange{typeof(1m)})
-    #         @test length(1m:5m) === 5
-    #         @test step(1m:5m) === 1m
-    #     end
-    #
-        @testset ">> StepRange" begin
-            @test isa((1m:1m:5m), StepRange)
-            @test length(1m:1m:5m) === 5
-            @test step(1m:1m:5m) === 1m
+            r = 5m:-1m:1m
+            @test r[1]==5m
+            @test r[2]==4m
+            @test r[3]==3m
+            @test r[4]==2m
+            @test r[5]==1m
+
+            # @test length(.1m:.1m:.3m) == 3
+            # @test length(1.1m:1.1m:3.3m) == 3
+            @test length(1.1m:1.3m:3m) == 2
+            @test length(1m:1m:1.8m) == 1
+
+            @test (1m:2m:13m)[2:6] == 3m:2m:11m
+            @test typeof((1m:2m:13m)[2:6]) == typeof(3m:2m:11m)
+            @test (1m:2m:13m)[2:3:7] == 3m:6m:13m
+            @test typeof((1m:2m:13m)[2:3:7]) == typeof(3m:6m:13m)
         end
-    #
-    #     @testset ">> FloatRange" begin
-    #         @test isa((1.0m:1m:5m), FloatRange{typeof(1.0m)})
-    #         @test length(1.0m:1m:5m) === 5
-    #         @test step(1.0m:1m:5m) === 1.0m
-    #     end
+
+        @testset ">> StepRange" begin
+            r = 1m:1m:5m
+            @test isa(r, StepRange)
+            @test length(r) === 5
+            @test step(r) === 1m
+        end
+
+        @testset ">> Float StepRange" begin
+            @test isa((1.0m:1m:5m), StepRange{typeof(1.0m)})
+            @test length(1.0m:1m:5m) === 5
+            @test step(1.0m:1m:5m) === 1.0m
+
+            @test_throws ArgumentError 1.0m:0.0m:5.0m
+        end
     #
     #     @testset ">> LinSpace" begin
     #         @test isa(linspace(1.0m, 3.0m, 5), LinSpace{typeof(1.0m)})
