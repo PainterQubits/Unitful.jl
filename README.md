@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ajkeller34/Unitful.jl.svg?branch=master)](https://travis-ci.org/ajkeller34/Unitful.jl)
+
 # Unitful.jl
 
 Unitful is a Julia package for physical units. Available
