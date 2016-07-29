@@ -12,7 +12,7 @@ import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isinf, isfinite
 import Base: prevfloat, nextfloat, maxintfloat, rat, step #, linspace
 import Base: promote_op, promote_array_type, promote_rule, unsafe_getindex
-import Base: length, float, start, done, next, last, one, zero#, colon, range
+import Base: length, float, start, done, next, last, one, zero, colon#, range
 import Base: getindex, eltype, step, last, first, frexp
 import Base: Rational, Complex, typemin, typemax
 # import Base: steprange_last, unitrange_last
@@ -718,6 +718,35 @@ function frexp(x::FloatQuantity)
     a,b = frexp(x.val)
     a *= unit(x)
     a,b
+end
+
+colon(start::Quantity, step::Quantity, stop::Quantity) =
+    StepRange(promote(start, step, stop)...)
+
+function Base.steprange_last{T<:Quantity}(start::T, step, stop)
+    z = zero(step)
+    step == z && throw(ArgumentError("step cannot be zero"))
+    if stop == start
+        last = stop
+    else
+        if (step > z) != (stop > start)
+            last = start - step
+        else
+            diff = stop - start
+            if T<:Signed && (diff > zero(diff)) != (stop > start)
+                # handle overflowed subtraction with unsigned rem
+                if diff > zero(diff)
+                    remain = -convert(T, unsigned(-diff) % step)
+                else
+                    remain = convert(T, unsigned(diff) % step)
+                end
+            else
+                remain = Base.steprem(start,stop,step)
+            end
+            last = stop - remain
+        end
+    end
+    last
 end
 
 # function linspace{S,T,U}(start::RealQuantity{S,U}, stop::Quantity{T,U},
