@@ -4,18 +4,19 @@ module Unitful
 
 import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, .\, //, ^, .^
 import Base: show, convert
-import Base: abs, float, inv, sqrt
+import Base: abs, abs2, float, inv, sqrt
 import Base: sin, cos, tan, cot, sec, csc
 import Base: min, max, floor, ceil
 
 import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isinf, isfinite
+import Base: copysign, flipsign
 import Base: prevfloat, nextfloat, maxintfloat, rat, step #, linspace
 import Base: promote_op, promote_array_type, promote_rule, unsafe_getindex
 import Base: length, float, start, done, next, last, one, zero, colon#, range
 import Base: getindex, eltype, step, last, first, frexp
 import Base: Rational, Complex, typemin, typemax
-# import Base: steprange_last, unitrange_last
+import Base: steprange_last, unitrange_last
 
 export baseunit
 export dimension
@@ -257,14 +258,14 @@ end
         :(true) : :(false)
 end
 
-offsettemp{T}(::Type{Val{T}}) = 0
+offsettemp(::Unit) = 0
 
 """
 ```
 macro baseunit(symb, name, abbr, dimension)
 ```
 
-Define a base unit, typically but not necessarily SI. `symb` is t
+Define a base unit, typically but not necessarily SI.
 """
 macro baseunit(symb, abbr, name, dimension)
     x = Expr(:quote, name)
@@ -277,6 +278,13 @@ macro baseunit(symb, abbr, name, dimension)
     end
 end
 
+"""
+```
+macro unit(symb,abbr,name,equals,tf)
+```
+
+Define a unit.
+"""
 macro unit(symb,abbr,name,equals,tf)
     # name is a symbol
     # abbr is a string
@@ -287,8 +295,8 @@ macro unit(symb,abbr,name,equals,tf)
         Base.isa(eq, Base.Integer) || Base.isa(eq, Base.Rational) ?
              (ex *= eq) : (inex *= eq)
         Unitful.abbr(::Unitful.Unit{$x}) = $abbr
-        Unitful.dimension(::Unitful.Unit{$x}) =
-            Unitful.dimension($equals)
+        Unitful.dimension(y::Unitful.Unit{$x}) =
+            Unitful.dimension($equals)^y.power
         Unitful.basefactor(::Unitful.Unit{$x}) = (inex, ex)
         if $tf
             Unitful.@prefixed_unit_symbols $symb $name
@@ -305,6 +313,7 @@ dimension correspond to a given unit. It should be implemented for all units.
 function dimension end
 
 @inline unitless(x::Quantity) = x.val
+@inline unitless(x::Number) = x
 
 unit{S}(x::Unit{S}) = S
 unit{S}(x::Dimension{S}) = S
@@ -395,7 +404,7 @@ for op in [:+, :-]
     # If not generated, there are run-time allocations
     @eval @generated function ($op){S,T,D,SU,TU}(x::Quantity{S,D,SU},
             y::Quantity{T,D,TU})
-        result_units = SU + TU
+        result_units = SU() + TU()
         :($($op)(convert($result_units, x), convert($result_units, y)))
     end
 
@@ -417,10 +426,10 @@ end
 # *{T<:Units}(x::Bool, y::T) = Quantity(x,y)
 
 "Construct a unitful quantity by multiplication."
-*(x::Real, y::Units, z::Units...) = Quantity(x,*(y,z...))
+*(x::Number, y::Units, z::Units...) = Quantity(x,*(y,z...))
 
 "Kind of weird but okay, sure"
-*(x::Units, y::Real) = *(y,x)
+*(x::Units, y::Number) = *(y,x)
 
 """
 Given however many unit-like objects, multiply them together. The following
@@ -507,8 +516,8 @@ end
     ifelse(x, y, ifelse(signbit(y), -zero(y), zero(y)))
 *(x::Quantity, y::Bool) = Quantity(x.val*y, unit(x))
 
-*(y::Real, x::Quantity) = *(x,y)
-*(x::Quantity, y::Real) = Quantity(x.val*y, unit(x))
+*(y::Number, x::Quantity) = *(x,y)
+*(x::Quantity, y::Number) = Quantity(x.val*y, unit(x))
 
 # function *(x::Complex, y::Units)
 #     a,b = reim(x)
@@ -628,13 +637,13 @@ end
 
 # Division (floating point)
 
-/(x::Units, y::Units)       = *(x,inv(y))
+/(x::Units, y::Units)          = *(x,inv(y))
 /(x::Real, y::Units)           = Quantity(x,inv(y))
 /(x::Units, y::Real)           = (1/y) * x
 /(x::Quantity, y::Units)       = Quantity(x.val, unit(x) / y)
-/(x::Quantity, y::Quantity)       = Quantity(x.val / y.val, unit(x) / unit(y))
-/(x::Quantity, y::Real)           = Quantity(x.val / y, unit(x))
-/(x::Real, y::Quantity)           = Quantity(x / y.val, inv(unit(y)))
+/(x::Quantity, y::Quantity)    = Quantity(x.val / y.val, unit(x) / unit(y))
+/(x::Quantity, y::Real)        = Quantity(x.val / y, unit(x))
+/(x::Real, y::Quantity)        = Quantity(x / y.val, inv(unit(y)))
 
 # Division (rationals)
 
@@ -743,9 +752,13 @@ end
 
 sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
 abs(x::Quantity) = Quantity(abs(x.val),  unit(x))
+abs2(x::Quantity) = Quantity(abs2(x.val), unit(x)*unit(x))
 
 trunc(x::Quantity) = Quantity(trunc(x.val), unit(x))
 round(x::Quantity) = Quantity(round(x.val), unit(x))
+
+copysign(x::Quantity, y::Number) = Quantity(copysign(x.val,unitless(y)), unit(x))
+flipsign(x::Quantity, y::Number) = Quantity(flipsign(x.val,unitless(y)), unit(x))
 
 isless{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = isless(x.val, y.val)
 isless(x::Quantity, y::Quantity) = isless(convert(unit(y), x).val,y.val)
@@ -888,10 +901,10 @@ Is a generated function to allow for special casing, e.g. temperature conversion
     xData = xunits()
     conv = convert(aData, xData)
 
-    tup0 = xunits.parameters[1]
-    tup1 = a.parameters[1]
-    t0 = offsettemp(Val{unit(tup0[1])})
-    t1 = offsettemp(Val{unit(tup1[1])})
+    xtup = xunits.parameters[1]
+    atup = a.parameters[1]
+    t0 = offsettemp(xtup[1])
+    t1 = offsettemp(atup[1])
     quote
         v = ((x.val + $t0) * $conv) - $t1
         Quantity(v, a)

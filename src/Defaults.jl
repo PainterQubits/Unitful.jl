@@ -66,11 +66,11 @@ end
 #
 @unit °Ra    "°Ra"      Rankine     (5//9)*K                false
 
-# @unit °C     "°C"       Celsius     1K                      false
-# offsettemp(::Type{Val{TemperatureUnit(unitcount)}}) = 27315//100
-#
-# @unit °F     "°F"       Fahrenheit  (5//9)*K                false
-# offsettemp(::Type{Val{TemperatureUnit(unitcount)}}) = 45967//100
+@unit °C     "°C"       Celsius     1K                      false
+offsettemp(::Unit{:Celsius}) = 27315//100
+
+@unit °F     "°F"       Fahrenheit  (5//9)*K                false
+offsettemp(::Unit{:Fahrenheit}) = 45967//100
 
 # Constants
 const  k = 1.38064852e-23*(J/K)  # 2014 CODATA value
