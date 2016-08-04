@@ -887,8 +887,10 @@ dimension{T,D,U}(x::Quantity{T,D,U}) = D()
 include("Display.jl")
 
 "Forward numeric promotion wherever appropriate."
-promote_rule{S,T,D,U}(::Type{Quantity{S,D,U}},::Type{Quantity{T,D,U}}) =
-    Quantity{promote_type(S,T),D,U}
+promote_rule{S,T,D,U}(::Type{NormalQuantity{S,D,U}},::Type{NormalQuantity{T,D,U}}) =
+    NormalQuantity{promote_type(S,T),D,U}
+promote_rule{S,T,D,U}(::Type{TemperatureQuantity{S,D,U}},::Type{TemperatureQuantity{T,D,U}}) =
+    TemperatureQuantity{promote_type(S,T),D,U}
 
 """
 Convert a unitful quantity to different units.
@@ -978,15 +980,10 @@ Rational(x::Quantity) = Quantity(Rational(x.val), unit(x))
 "No conversion factor needed if you already have the right units."
 convert{S}(s::Units{S}, t::Units{S}) = 1
 
-"Needed to avoid complaints about ambiguous methods"
-convert(::Type{Bool}, x::Quantity)    = Bool(x.val)
-"Needed to avoid complaints about ambiguous methods"
-convert(::Type{Integer}, x::Quantity) = Integer(x.val)
-"Needed to avoid complaints about ambiguous methods"
-convert(::Type{Complex}, x::Quantity) = Complex(x.val,0)
-
-"Strip units from a number."
-convert{S<:Number}(::Type{S}, x::Quantity) = convert(S, x.val)
+for Q in (:NormalQuantity, :TemperatureQuantity)
+    @eval convert{S,T,U,V,W}(::Type{$Q{S,U,V}}, y::$Q{T,U,W}) =
+        Quantity(S(convert(V(),W())*y.val),V())
+end
 
 include("Defaults.jl")
 
