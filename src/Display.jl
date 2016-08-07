@@ -1,4 +1,60 @@
-"Format a unitful quantity."
+# Convenient dictionary for mapping powers of ten to an SI prefix.
+const prefixdict = Dict(
+    -24 => "y",
+    -21 => "z",
+    -18 => "a",
+    -15 => "f",
+    -12 => "p",
+    -9  => "n",
+    -6  => "μ",     # tab-complete \mu, not option-m on a Mac!
+    -3  => "m",
+    -2  => "c",
+    -1  => "d",
+    0   => "",
+    1   => "da",
+    2   => "h",
+    3   => "k",
+    6   => "M",
+    9   => "G",
+    12  => "T",
+    15  => "P",
+    18  => "E",
+    21  => "Z",
+    24  => "Y"
+)
+
+"""
+`abbr(x)` provides abbreviations for units or dimensions. Since a method should
+always be defined for each unit and dimension type, absence of a method for a
+specific unit or dimension type is likely an error. Consequently, we return ❓
+for generic arguments to flag unexpected behavior.
+"""
+abbr(x) = "❓"     # Indicate missing abbreviations
+
+"""
+```
+prefix(x::Unit)
+```
+
+Returns a string representing the SI prefix for the power-of-ten held by
+this particular unit.
+"""
+function prefix(x::Unit)
+    if haskey(prefixdict, tens(x))
+        return prefixdict[tens(x)]
+    else
+        error("Invalid power-of-ten prefix.")
+    end
+end
+
+"""
+```
+show{T,D,U}(io::IO, x::Quantity{T,D,U})
+```
+
+Show a unitful quantity by calling `show` on the numeric value, appending a
+space, and then calling `show` on a units object `U()`.
+"""
 function show{T,D,U}(io::IO, x::Quantity{T,D,U})
     show(io,x.val)
     print(io," ")
@@ -6,7 +62,14 @@ function show{T,D,U}(io::IO, x::Quantity{T,D,U})
     nothing
 end
 
-"Call `show` on each `UnitDatum` in the tuple held by `Units`."
+"""
+```
+show(io::IO,x::Unitlike)
+```
+
+Call `show` on each object in the tuple that is the type variable of a
+[`Unitful.Units`](@ref) or [`Unitful.Dimensions`](@ref) object.
+"""
 function show(io::IO,x::Unitlike)
     first = ""
     tup = typeof(x).parameters[1]
@@ -18,21 +81,41 @@ function show(io::IO,x::Unitlike)
     nothing
 end
 
-"Show the unit, prefixing with any decimal prefix and appending the exponent."
+"""
+```
+show(io::IO, x::Unit)
+```
+
+Show the unit, prefixing with any decimal prefix and appending the exponent as
+formatted by [`Unitful.superscript`](@ref).
+"""
 function show(io::IO, x::Unit)
-    print(io, prefix(Val{tens(x)}()))
+    print(io, prefix(x))
     print(io, abbr(x))
     print(io, (power(x) == 1//1 ? "" : superscript(power(x))))
     nothing
 end
 
-"Show the dimension, appending any exponent."
+"""
+```
+show(io::IO, x::Dimension)
+```
+
+Show the dimension, appending any exponent as formatted by
+[`Unitful.superscript`](@ref).
+"""
 function show(io::IO, x::Dimension)
     print(io, abbr(x))
     print(io, (power(x) == 1//1 ? "" : superscript(power(x))))
 end
 
-"Prints exponents nicely with Unicode."
-superscript(i::Rational) = begin
+"""
+```
+superscript(i::Rational)
+```
+
+Prints exponents.
+"""
+function superscript(i::Rational)
     i.den == 1 ? "^"*string(i.num) : "^"*replace(string(i),"//","/")
 end

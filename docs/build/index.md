@@ -15,6 +15,7 @@ We want to support not only SI units but also any other unit system. We also wan
 ## Features
 
 
+  * Dispatch on dimensions: `radius(x::Area) = sqrt(x/π)`, etc.
   * Support for rational exponents. Good for power spectral density, etc.
   * Exact conversions are respected by using Rationals.
   * Can make new units using the `@unit` macro without digging through the code.
@@ -32,7 +33,7 @@ We want to support not only SI units but also any other unit system. We also wan
 ### Installation
 
 
-  * Use a recent nightly build of Julia 0.5.
+  * This package requires Julia 0.5. Older versions will not be supported.
   * `Pkg.clone("https://github.com/ajkeller34/Unitful.jl.git")`
 
 
@@ -41,15 +42,16 @@ We want to support not only SI units but also any other unit system. We also wan
 ### In Julia
 
 
+First load the package:
+
+
 ```jl
 using Unitful
+Unitful.defaults()
 ```
 
 
-*Cautiously disregard the several warnings about overwriting methods in Base, which are expected.*
-
-
-By default, SI units and their power-of-ten prefixes are exported. Other units are exported but not power-of-ten prefixes.
+By default, SI units and their power-of-ten prefixes are given. Other units are exported but not power-of-ten prefixes.
 
 
   * `m`, `km`, `cm`, etc. are exported.
@@ -101,38 +103,14 @@ One inch is exactly equal to 2.54 cm. However, in Julia, the floating-point 2.54
 The above applies generically to any pair of units, not just inches and centimeters.
 
 
-Ranges were once supported by overriding base. Somehow, they will be supported again at some point. I have stopped overriding base to reduce warnings and encourage broader package adoption.
-
-
-<a id='Testing-this-package-1'></a>
-
-## Testing this package
-
-
-There are of course subtleties in getting this all to work. To test that changes to either Julia or Unitful haven't given rise to undesirable behavior, run the test suite in Julia:
-
-
-```jl
-Pkg.test("Unitful")
-```
-
-
 <a id='To-do-1'></a>
 
 ## To do
 
 
   * Clean up how units/quantities are displayed.
-
-
-I'm waiting on `show`, `print`, etc. to be cleaned up before I work on this myself (see [issue #14052](https://github.com/JuliaLang/julia/issues/14052) and others).
-
-
-  * Clean up sin(degrees), etc. (not done nicely)
-  * Benchmarking needed!
-  * More tests would be nice
-  * Add support for uncertainties? For quantities with uncertainty, `isapprox`
-
-
-becomes a loaded / ambiguous name.
+  * Clean up `sin(degrees)`, etc. (not done nicely)
+  * Benchmarking needed.
+  * More tests are always appreciated and necessary.
+  * Add support for uncertainties? For quantities with uncertainty, `isapprox` becomes a loaded / ambiguous name.
 

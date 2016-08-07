@@ -1,30 +1,45 @@
 using Unitful
 using Base.Test
+Unitful.defaults()
 
-# Conversion
-@testset "Conversion" begin
-    @testset "> Unitless <--> unitful" begin
+@testset "Types" begin
+    @testset "> Quantity type construction" begin
         @test typeof(1.0m) ==
-            Unitful.NormalQuantity{Float64,
+            Unitful.Quantity{Float64,
                 Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)},
                 Unitful.Units{(Unitful.Unit{:Meter}(0, 1),)}}
-        @test isa(1.0m, Length)
-        # @test convert(typeof(3m),1) === 1m
-        # @test convert(Float64, 3m) === Float64(3.0)
-        @test float(3m) === 3.0m
-        @test Integer(3.0A) === 3A
-        @test Rational(3.0m) === (3//1)*m
+        @test typeof(1m^2) ==
+            Unitful.Quantity{Int,
+                Unitful.Dimensions{(Unitful.Dimension{:Length}(2),)},
+                Unitful.Units{(Unitful.Unit{:Meter}(0, 2),)}}
+        @test typeof(1ac) ==
+            Unitful.Quantity{Int,
+                Unitful.Dimensions{(Unitful.Dimension{:Length}(2),)},
+                Unitful.Units{(Unitful.Unit{:Acre}(0, 1),)}}
     end
 
-    @testset "> Unitful <--> unitful" begin
+    @testset "> Unitless ↔ unitful conversion" begin
+        @test_throws MethodError convert(typeof(3m),1)
+        @test_throws MethodError convert(Float64, 3m)
+        @test unitless(3m) == 3
+        @test unitless(3.0g) == 3.0
+    end
+
+    @testset "> Unitful ↔ unitful conversion" begin
+        @testset ">> Numeric conversion" begin
+            @test float(3m) === 3.0m
+            @test Integer(3.0A) === 3A
+            @test Rational(3.0m) === (3//1)*m
+        end
         @testset ">> Intra-unit conversion" begin
             @test 1kg == 1000g           # Equivalence implies unit conversion
             @test !(1kg === 1000g)       # ...and yet we can distinguish these
             @test 1kg === 1kg            # ...and these are indistinguishable.
         end
         @testset ">> Inter-unit conversion" begin
-            @test 1inch == (254//100)*cm # Exact because an SI unit is involved.
-            @test 1ft == 12inch          # Approx because of an error O(ϵ)...
+            @test 1inch == (254//100)*cm
+            @test 1ft == 12inch
+            @test 1/mi == 1//(5280ft)
         end
         @testset ">> Temperature conversion" begin
             # When converting a pure temperature, offsets in temperature are
@@ -36,11 +51,32 @@ using Base.Test
             # When appearing w/ other units, we calculate
             # by converting between temperature intervals (no offsets).
             # e.g. the linear thermal expansion coefficient of glass
-            # @test convert(μm/(m*°F), 9μm/(m*°C)) == 5μm/(m*°F)
-
-            # NEED a test for 1 µm K / m being a NormalQuantity
+            @test convert(μm/(m*°F), 9μm/(m*°C)) == 5μm/(m*°F)
         end
     end
+end
+
+@testset "Dimensional analysis" begin
+    @test dimension(1m^2) == 𝐋^2
+    @test dimension(m^2) == 𝐋^2
+    @test dimension(1m/s) == 𝐋/𝐓
+    @test dimension(m/s) == 𝐋/𝐓
+    @test dimension(μm/m) == Unitful.Dimensions{()}()
+    @test (𝐋/𝐓)^2 == 𝐋^2 / 𝐓^2
+    @test isa(1m, Length)
+    @test !isa(1m, Area)
+    @test !isa(1m, Luminosity)
+    @test isa(1ft, Length)
+    @test isa(1m^2, Area)
+    @test isa(1inch^3, Volume)
+    @test isa(1/s, Frequency)
+    @test isa(1kg, Mass)
+    @test isa(1s, Time)
+    @test isa(1A, Current)
+    @test isa(1K, Temperature)
+    @test isa(1mol, Amount)
+    @test isa(1cd, Luminosity)
+    @test isa(1rad, Angle)
 end
 
 @testset "Mathematics" begin
@@ -159,7 +195,7 @@ end
     #         @test L32[2] == 2m && L64[2] == 2m
     #         @test L32[3] == 3m && L64[3] == 3m
     #         @test L32[4] == 4m && L64[4] == 4m
-    #
+
             r = 5m:-1m:1m
             @test r[1]==5m
             @test r[2]==4m
@@ -192,7 +228,6 @@ end
 
             @test_throws ArgumentError 1.0m:0.0m:5.0m
         end
-    #
     #     @testset ">> LinSpace" begin
     #         @test isa(linspace(1.0m, 3.0m, 5), LinSpace{typeof(1.0m)})
     #         @test isa(linspace(1.0m, 10m, 5), LinSpace{typeof(1.0m)})
