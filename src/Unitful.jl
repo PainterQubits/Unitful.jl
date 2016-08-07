@@ -32,8 +32,6 @@ conversions within unit systems that have no rational conversion to the base uni
 """
 function basefactor end
 
-
-
 """
 ```
 macro prefixed_unit_symbols(sym, unit)
@@ -275,22 +273,6 @@ end
 
 *(y::Number, x::Quantity) = *(x,y)
 *(x::Quantity, y::Number) = Quantity(x.val*y, unit(x))
-
-# function *(x::Complex, y::Units)
-#     a,b = reim(x)
-#     Complex(a*y,b*y)
-# end
-#
-# function *(y::Units, x::Complex)
-#     a,b = reim(x)
-#     Complex(a*y,b*y)
-# end
-#
-# "Necessary to enable expressions like Complex(1V,1mV)."
-# @generated function Complex{S,T,U,V}(x::Quantity{S,T}, y::Quantity{U,V})
-#     resulttype = typeof(x(1)+y(1))
-#     :(Complex{$resulttype}(convert($resulttype,x),convert($resulttype,y)))
-# end
 
 @eval begin
     # number, quantity
