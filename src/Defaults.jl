@@ -18,14 +18,14 @@
 # Define base units. This is not to imply g is the base SI unit instead of kg.
 # See the documentation for further details.
 # #key:   Symbol  Display  Name      Dimension
-@baseunit m       "m"      Meter     𝐋
-@baseunit s       "s"      Second    𝐓
-@baseunit A       "A"      Ampere    𝐈
-@baseunit K       "K"      Kelvin    𝚯
-@baseunit cd      "cd"     Candela   𝐉
-@baseunit mol     "mol"    Mole      𝐍
-@baseunit g       "g"      Gram      𝐌
-@baseunit rad     "rad"    Radian    ∠
+@refunit  m       "m"      Meter     𝐋
+@refunit  s       "s"      Second    𝐓
+@refunit  A       "A"      Ampere    𝐈
+@refunit  K       "K"      Kelvin    𝚯
+@refunit  cd      "cd"     Candela   𝐉
+@refunit  mol     "mol"    Mole      𝐍
+@refunit  g       "g"      Gram      𝐌
+@refunit  rad     "rad"    Radian    ∠
 
 # These lines allow for μ to be typed with option-m on a Mac.
 # The character encodings are different here so this is less crazy than it looks

@@ -29,5 +29,6 @@ pages:
 - Types: types.md
 - Defining new units: newunits.md
 - Conversion: conversion.md
+- Manipulations: manipulations.md
 - How units are displayed: display.md
 - License: LICENSE.md
