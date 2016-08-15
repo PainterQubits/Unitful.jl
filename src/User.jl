@@ -8,7 +8,7 @@ parameter for a [`Unitful.Dimension`](@ref) object. `symb` will be a symbol
 defined in the namespace from which this macro is called that is bound to a
 [`Unitful.Dimensions`](@ref) object. For most intents and purposes it is this
 object that the user would manipulate in doing dimensional analysis. The symbol
-is exported.
+is not exported.
 
 This macro extends [`Unitful.abbr`](@ref) to display the new dimension in an
 abbreviated format using the string `abbr`.
@@ -25,10 +25,8 @@ macro dimension(symb, abbr, name)
     esc(quote
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
         const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
-        export $s
         typealias $(name){T,U}
             Quantity{T,Unitful.Dimensions{(Unitful.Dimension{$x}(1),)},U}
-        export $(name)
     end)
 end
 
@@ -39,7 +37,7 @@ macro derived_dimension(symb, dims)
 
 Creates type aliases to allow dispatch on [`Unitful.Quantity`](@ref) objects
 of a derived dimension, like area, which is just length squared. The type
-aliases are exported. `symb` is the name of the derived dimension and `dims`
+aliases are not exported. `symb` is the name of the derived dimension and `dims`
 is a [`Unitful.Dimensions`](@ref) object.
 
 Usage examples:
@@ -51,7 +49,6 @@ macro derived_dimension(symb, dims)
     esc(quote
         typealias ($symb){T,U}
             Quantity{T,typeof($dims),U}
-        export $(symb)
     end)
 end
 
@@ -127,11 +124,10 @@ macro prefixed_unit_symbols(symb,name)
 ```
 
 Not called directly by the user. Given a unit symbol and a unit's name,
-will define and export units for each possible SI power-of-ten prefix on that
-unit.
+will define units for each possible SI power-of-ten prefix on that unit.
 
 Example: `@prefixed_unit_symbols m Meter` results in nm, cm, m, km, ...
-all getting defined and exported in the calling namespace.
+all getting defined in the calling namespace.
 """
 macro prefixed_unit_symbols(symb,name)
     expr = Expr(:block)
@@ -141,7 +137,6 @@ macro prefixed_unit_symbols(symb,name)
         s = Symbol(v,symb)
         ea = esc(quote
             const $s = Unitful.Units{(Unitful.Unit{$z}($k,1//1),)}()
-            export $s
         end)
         push!(expr.args, ea)
     end
@@ -155,7 +150,7 @@ macro unit_symbols(symb,name)
 ```
 
 Not called directly by the user. Given a unit symbol and a unit's name,
-will define and export units without SI power-of-ten prefixes.
+will define units without SI power-of-ten prefixes.
 
 Example: `@unit_symbols ft Foot` results in `ft` getting defined but not `kft`.
 """
@@ -164,7 +159,6 @@ macro unit_symbols(symb,name)
     z = Expr(:quote, name)
     esc(quote
         const $s = Unitful.Units{(Unitful.Unit{$z}(0,1//1),)}()
-        export $s
     end)
 end
 
@@ -176,7 +170,45 @@ defaults()
 Includes the file `deps/Defaults.jl` from the Unitful package. This results in
 common units and dimensions being generated in the `Unitful` module.
 """
-defaults() = include(joinpath(Pkg.dir("Unitful"),"deps","Defaults.jl"))
+function defaults()
+    defpath = joinpath(Pkg.dir("Unitful"),"deps","Defaults.jl")
+    include(defpath)
+end
+
+"""
+```
+macro u_str(unit)
+```
+
+String macro to easily recall units, dimensions, or quantities defined in the
+Unitful module, which does not export such things to avoid namespace pollution.
+For those unfamiliar with string macros, see the following example.
+
+Example: `1.0u"m/s"` returns 1.0 m/s.
+"""
+macro u_str(unit)
+    ex = parse(unit)
+    replace_value(ex)
+end
+
+const allowed_funcs = [:*, :/, :^, :sqrt, :√, :+, :-, ://]
+function replace_value(ex::Expr)
+    ex.head != :call && error("$(ex.head) != :call")
+    ex.args[1] in allowed_funcs ||
+        error("""$(ex.args[1]) is not a valid function call when parsing a unit.
+         Only the following functions are allowed: $allowed_funcs""")
+    for i=2:length(ex.args)
+        if typeof(ex.args[i])==Symbol || typeof(ex.args[i])==Expr
+            ex.args[i]=replace_value(ex.args[i])
+        end
+    end
+    ex
+end
+
+replace_value(sym::Symbol) = :(ustrcheck($sym))
+ustrcheck(x::Unitlike) = x
+ustrcheck(x::Quantity) = x
+ustrcheck(x) = error("Unexpected symbol in unit macro.")
 
 """
 ```

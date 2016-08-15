@@ -1,6 +1,7 @@
 The Unitful.jl package is licensed under the MIT "Expat" License:
 
-> Copyright (c) 2016: Andrew Keller.
+> Copyright (c) 2016: Andrew Keller. Portions borrow from EngUnits.jl, which is
+> (c) 2016: Daniel Høegh.
 >
 > Permission is hereby granted, free of charge, to any person obtaining
 > a copy of this software and associated documentation files (the

@@ -18,7 +18,7 @@ import Base: Rational, Complex, typemin, typemax
 import Base: steprange_last, unitrange_last
 
 export unit, unitless, dimension
-export @dimension, @derived_dimension, @refunit, @unit
+export @dimension, @derived_dimension, @refunit, @unit, @u_str
 export Quantity
 
 include("Types.jl")
@@ -506,10 +506,5 @@ include("Display.jl")
 include("Promotion.jl")
 include("Conversion.jl")
 
-# Default rules for addition and subtraction.
-for op in [:+, :-]
-    # Can change to min(x,y), x, or y
-    @eval ($op)(x::Unitful.Units, y::Units) = max(x,y)
-end
-
+defaults()
 end

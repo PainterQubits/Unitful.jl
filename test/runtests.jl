@@ -1,6 +1,20 @@
 using Unitful
 using Base.Test
-Unitful.defaults()
+
+import Unitful: m, ac, g, A, kg, cm, inch, mi, ft, °Ra, °F, °C, μm,
+    s, A, K, mol, cd, rad, V, cm, h, mm, km, minute, °
+
+import Unitful: 𝐋, 𝐓
+
+import Unitful:
+    Length, Area, Volume,
+    Luminosity,
+    Time, Frequency,
+    Mass,
+    Current,
+    Temperature,
+    Amount,
+    Angle
 
 @testset "Types" begin
     @testset "> Quantity type construction" begin
