@@ -1,8 +1,11 @@
 # Unitful.jl
 
 A Julia package for physical units. Available
-[here](https://github.com/ajkeller34/Unitful.jl). Inspired by Keno Fischer's
-very clever package [SIUnits.jl](https://github.com/keno/SIUnits.jl).
+[here](https://github.com/ajkeller34/Unitful.jl). Inspired by:
+
+- [SIUnits.jl](https://github.com/keno/SIUnits.jl)
+- [EngUnits.jl](https://github.com/dhoegh/EngUnits.jl)
+- [Units.jl](https://github.com/timholy/Units.jl)
 
 We want to support not only SI units but also any other unit system. We also
 want to minimize or in some cases eliminate the run-time penalty of units.
@@ -12,7 +15,7 @@ and collections that are found in Julia base.
 
 ## Features
 
-- Dispatch on dimensions: `radius(x::Area) = sqrt(x/π)`, etc.
+- Dispatch on dimensions: `radius(x::Unitful.Area) = sqrt(x/π)`, etc.
 - Support for rational exponents. Good for power spectral density, etc.
 - Exact conversions are respected by using Rationals.
 - Can make new units using the `@unit` macro without digging through the code.
@@ -33,28 +36,46 @@ First load the package:
 
 ```jl
 using Unitful
-Unitful.defaults()
 ```
 
-By default, SI units and their power-of-ten prefixes are given. Other units are
-exported but not power-of-ten prefixes.
+If you encounter errors you may want to try `Pkg.build("Unitful")`.
 
-- `m`, `km`, `cm`, etc. are exported.
-- `nft` for nano-foot is not exported.
+In `deps/Defaults.jl` of the package directory, you see what is defined by
+default. Feel free to edit this file to suit your needs. The Unitful package
+will need to be reloaded for changes to take place.
+
+Here is a summary of the defaults:
+
+- SI units and their power-of-ten prefixes are defined.
+- Some other units (imperial units) are defined, without power-of-ten prefixes.
+- Dimensions are also defined.
 
 Some unit abbreviations conflict with Julia definitions or syntax:
 
 - `inch` is used instead of `in`
 - `minute` is used instead of `min`
 
+Units, dimensions, and fundamental constants are not exported from Unitful.
+This is to avoid proliferating symbols in your namespace unnecessarily. You can
+retrieve them using the [`@u_str`](@ref) string macro for convenience.
+
 ### Usage examples
 
 ```jl
 
-# The following are true:
-1kg == 1000g                    # Equivalence implies unit conversion
-!(1kg === 1000g)                # ...and yet we can distinguish these...
-1kg === 1kg                     # ...and these are indistinguishable.
+1u"kg" == 1000u"g"                    # Equivalence implies unit conversion
+!(1u"kg" === 1000u"g")                # ...and yet we can distinguish these...
+1u"kg" === 1u"kg"                     # ...and these are indistinguishable.
+
+# In the next examples let's bring some units into our namespace:
+
+°C = u"°C"
+°F = u"°F"
+μm = u"μm"
+m = u"m"
+h = u"h"
+minute = u"minute"
+s = u"s"
 
 # Also true:
 unit(convert(°C, 212°F)) === °C
@@ -63,7 +84,7 @@ unitless(convert(°C, 212°F)) == 100
 # floating-point errors (see to-do list note, regarding exact conversions)
 
 # Also true:
-convert(µm/(m*°F), 9µm/(m*°C)) ≈ 5µm/(m*°F)
+convert(μm/(m*°F), 9μm/(m*°C)) ≈ 5μm/(m*°F)
 mod(1h+3minute+5s, 24s) == 17s
 ```
 

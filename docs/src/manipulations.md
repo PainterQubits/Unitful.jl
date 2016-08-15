@@ -1,4 +1,5 @@
 ```@docs
+Unitful.@u_str
 Unitful.unit
 Unitful.unitless
 Unitful.dimension(::Number)

@@ -7,7 +7,7 @@ on looking at the unit types only. We can't take runtime values into account
 without compromising runtime performance. By default, if we
 have `x (A) + y (B) = z (C)` where `x,y,z` are numbers and `A,B,C` are units,
 then `C = max(1A, 1B)`. This is an arbitrary choice and can be changed at the
-end of `src/Unitful.jl` (although the package will become dirty). For example,
+end of `deps/Unitful.jl` (although the package will become dirty). For example,
 `101cm + 1m = 2.01m` because `1m > 1cm`.
 
 Although quantities could be integrated with Julia's promotion mechanisms, we
