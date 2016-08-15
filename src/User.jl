@@ -173,10 +173,10 @@ end
 defaults()
 ```
 
-Includes the file `src/Defaults.jl` from the Unitful package. This results in
-common units and dimensions being generated in the `Main` module.
+Includes the file `deps/Defaults.jl` from the Unitful package. This results in
+common units and dimensions being generated in the `Unitful` module.
 """
-defaults() = include(joinpath(Pkg.dir("Unitful"),"src","Defaults.jl"))
+defaults() = include(joinpath(Pkg.dir("Unitful"),"deps","Defaults.jl"))
 
 """
 ```
