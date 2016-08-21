@@ -2,7 +2,7 @@ using Unitful
 using Base.Test
 
 import Unitful: m, ac, g, A, kg, cm, inch, mi, ft, °Ra, °F, °C, μm,
-    s, A, K, mol, cd, rad, V, cm, h, mm, km, minute, °
+    s, A, K, mol, cd, rad, V, cm, hr, mm, km, minute, °
 
 import Unitful: 𝐋, 𝐓
 
@@ -35,8 +35,9 @@ import Unitful:
     @testset "> Unitless ↔ unitful conversion" begin
         @test_throws MethodError convert(typeof(3m),1)
         @test_throws MethodError convert(Float64, 3m)
-        @test unitless(3m) == 3
-        @test unitless(3.0g) == 3.0
+        @test 3m/unit(3m) === 3
+        @test 3.0g/unit(3.0g) === 3.0
+        
     end
 
     @testset "> Unitful ↔ unitful conversion" begin
@@ -58,14 +59,14 @@ import Unitful:
         @testset ">> Temperature conversion" begin
             # When converting a pure temperature, offsets in temperature are
             # taken into account. If you like °Ra seek help
-            @test convert(°Ra, 4.2K) ≈ 7.56°Ra
-            @test convert(°F, 0°C) == 32°F
-            @test convert(°C, 212°F) == 100°C
+            @test uconvert(°Ra, 4.2K) ≈ 7.56°Ra
+            @test uconvert(°F, 0°C) == 32°F
+            @test uconvert(°C, 212°F) == 100°C
 
             # When appearing w/ other units, we calculate
             # by converting between temperature intervals (no offsets).
             # e.g. the linear thermal expansion coefficient of glass
-            @test convert(μm/(m*°F), 9μm/(m*°C)) == 5μm/(m*°F)
+            @test uconvert(μm/(m*°F), 9μm/(m*°C)) == 5μm/(m*°F)
         end
     end
 end
@@ -100,7 +101,7 @@ end
         @test 3*(m*m) != 3mm
         @test 1m != 1                         # w/ units distinct from w/o units
         @test 1 != 1m
-        @test min(1h, 1s) == 1s               # take scale of units into account
+        @test min(1hr, 1s) == 1s              # take scale of units into account
         @test max(1ft, 1m) == 1m
         @test max(km, m) == km         # implicit ones to compare units directly
         @test (3V+4V*im) != (3m+4m*im)
@@ -138,7 +139,7 @@ end
         @test fld(10m, -3cm) == -334.0
         @test rem(10m, -3cm) == 1.0cm
         @test mod(10m, -3cm) == -2.0cm
-        @test mod(1h+3minute+5s, 24s) == 17s
+        @test mod(1hr+3minute+5s, 24s) == 17s
         @test inv(s) == s^-1
     end
 

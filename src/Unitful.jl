@@ -17,30 +17,12 @@ import Base: getindex, eltype, step, last, first, frexp
 import Base: Rational, Complex, typemin, typemax
 import Base: steprange_last, unitrange_last
 
-export unit, unitless, dimension
+export unit, dimension, uconvert
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
 export Quantity
 
 include("Types.jl")
 include("User.jl")
-
-"""
-```
-unitless(x::Quantity)
-```
-
-Strip units from a quantity and return the numeric value.
-"""
-unitless(x::Quantity) = x.val
-
-"""
-```
-unitless(x::Number)
-```
-
-Returns `x`, since ordinary numbers have no units.
-"""
-unitless(x::Number) = x
 
 """
 ```
@@ -136,7 +118,7 @@ for op in [:+, :-]
     @eval @generated function ($op){S,T,D,SU,TU}(x::Quantity{S,D,SU},
             y::Quantity{T,D,TU})
         result_units = SU() + TU()
-        :($($op)(convert($result_units, x), convert($result_units, y)))
+        :($($op)(uconvert($result_units, x), uconvert($result_units, y)))
     end
 
     @eval ($op)(x::Quantity) = Quantity(($op)(x.val),unit(x))
@@ -313,14 +295,14 @@ end
 
 for f in (:div, :fld, :cld)
     @eval function ($f)(x::Quantity, y::Quantity)
-        z = convert(unit(y), x)
+        z = uconvert(unit(y), x)
         ($f)(z.val,y.val)
     end
 end
 
 for f in (:mod, :rem)
     @eval function ($f)(x::Quantity, y::Quantity)
-        z = convert(unit(y), x)
+        z = uconvert(unit(y), x)
         Quantity(($f)(z.val,y.val), unit(y))
     end
 end
@@ -409,21 +391,21 @@ abs2(x::Quantity) = Quantity(abs2(x.val), unit(x)*unit(x))
 trunc(x::Quantity) = Quantity(trunc(x.val), unit(x))
 round(x::Quantity) = Quantity(round(x.val), unit(x))
 
-copysign(x::Quantity, y::Number) = Quantity(copysign(x.val,unitless(y)), unit(x))
-flipsign(x::Quantity, y::Number) = Quantity(flipsign(x.val,unitless(y)), unit(x))
+copysign(x::Quantity, y::Number) = Quantity(copysign(x.val,y/unit(y)), unit(x))
+flipsign(x::Quantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
 
 isless{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = isless(x.val, y.val)
-isless(x::Quantity, y::Quantity) = isless(convert(unit(y), x).val,y.val)
+isless(x::Quantity, y::Quantity) = isless(uconvert(unit(y), x).val,y.val)
 <{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = (x.val < y.val)
-<(x::Quantity, y::Quantity) = <(convert(unit(y), x).val,y.val)
+<(x::Quantity, y::Quantity) = <(uconvert(unit(y), x).val,y.val)
 
 isapprox{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = isapprox(x.val, y.val)
-isapprox(x::Quantity, y::Quantity) = isapprox(convert(unit(y), x).val, y.val)
+isapprox(x::Quantity, y::Quantity) = isapprox(uconvert(unit(y), x).val, y.val)
 
 =={S,T,D,U}(x::Quantity{S,D,U}, y::Quantity{T,D,U}) = (x.val == y.val)
 function ==(x::Quantity, y::Quantity)
     dimension(x) != dimension(y) && return false
-    convert(unit(y), x).val == y.val
+    uconvert(unit(y), x).val == y.val
 end
 
 ==(x::Quantity, y::Complex) = false

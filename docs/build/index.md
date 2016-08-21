@@ -20,12 +20,12 @@ We want to support not only SI units but also any other unit system. We also wan
 ## Features
 
 
-  * Dispatch on dimensions: `radius(x::Unitful.Area) = sqrt(x/π)`, etc.
-  * Support for rational exponents. Good for power spectral density, etc.
-  * Exact conversions are respected by using Rationals.
+  * Can dispatch on dimensions: `radius(x::Unitful.Area) = sqrt(x/π)`
+  * Units may have rational exponents.
+  * Exact conversions are respected by using `Rational`s where possible.
   * Can make new units using the `@unit` macro without digging through the code.
-  * “Sticky units”: by default, no implicit conversions in multiplication or division   - We allow for implicit conversions in addition and subtraction
-  * Some built-in dimensional analysis
+  * Units are sticky. Although `1.0 J` and `1.0 N m` are equivalent quantities, they are represented distinctly, so further manipulations on `1.0 J` can leave the `J` intact.
+  * Some built-in dimensional analysis.
 
 
 <a id='Quick-start-1'></a>
@@ -40,6 +40,7 @@ We want to support not only SI units but also any other unit system. We also wan
 
   * This package requires Julia 0.5. Older versions will not be supported.
   * `Pkg.clone("https://github.com/ajkeller34/Unitful.jl.git")`
+  * `Pkg.build("Unitful")`
 
 
 <a id='In-Julia-1'></a>
@@ -69,19 +70,20 @@ Here is a summary of the defaults:
   * Dimensions are also defined.
 
 
-Some unit abbreviations conflict with Julia definitions or syntax:
+Some unit abbreviations conflict with other definitions or syntax:
 
 
-  * `inch` is used instead of `in`
-  * `minute` is used instead of `min`
-
-
-Units, dimensions, and fundamental constants are not exported from Unitful. This is to avoid proliferating symbols in your namespace unnecessarily. You can retrieve them using the [`@u_str`](manipulations.md#Unitful.@u_str) string macro for convenience.
+  * `inch` is used instead of `in`, since `in` conflicts with Julia syntax
+  * `minute` is used instead of `min`, since `min` is a commonly used function
+  * `hr` is used instead of `h`, since `h` is revered as the Planck constant
 
 
 <a id='Usage-examples-1'></a>
 
 ### Usage examples
+
+
+Units, dimensions, and fundamental constants are not exported from Unitful. This is to avoid proliferating symbols in your namespace unnecessarily. You can retrieve them using the [`@u_str`](manipulations.md#Unitful.@u_str) string macro for convenience, or import them from the `Unitful` package to bring them into the namespace.
 
 
 ```jl
@@ -100,9 +102,8 @@ h = u"h"
 minute = u"minute"
 s = u"s"
 
-# Also true:
-unit(convert(°C, 212°F)) === °C
-unitless(convert(°C, 212°F)) == 100
+uconvert(°C, 212°F) === 100°C        # returns true
+unit(uconvert(°C, 212°F))/°C == 100
 # Note: use the \approx tab-completion. Sometimes ≈ is needed if there are tiny
 # floating-point errors (see to-do list note, regarding exact conversions)
 

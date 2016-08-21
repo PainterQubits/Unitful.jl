@@ -1,14 +1,38 @@
 """
-Convert a unitful quantity to different units.
+```
+uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
+```
 
-Is a generated function to allow for special casing, e.g. temperature conversion
+Unit-convert a quantity to different units of the same dimension.
 """
-@generated function convert{T,U}(a::Units,
+@generated function uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
+    xunits = x.parameters[3]
+    aData = a()
+    xData = xunits()
+    conv = convfact(aData, xData)
+
+    quote
+        v = x.val * $conv
+        Quantity(v, a)
+    end
+end
+
+"""
+```
+uconvert{T,U}(a::Units,
+x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},U})
+```
+
+Unit-convert a quantity to different units of the same dimension. In this case,
+we are special-casing temperature to respect scale offsets if not combined
+with other dimensions.
+"""
+@generated function uconvert{T,U}(a::Units,
         x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},U})
     xunits = x.parameters[3]
     aData = a()
     xData = xunits()
-    conv = convert(aData, xData)
+    conv = convfact(aData, xData)
 
     xtup = xunits.parameters[1]
     atup = a.parameters[1]
@@ -20,23 +44,14 @@ Is a generated function to allow for special casing, e.g. temperature conversion
     end
 end
 
-@generated function convert{T,D,U}(a::Units, x::Quantity{T,D,U})
-    xunits = x.parameters[3]
-    aData = a()
-    xData = xunits()
-    conv = convert(aData, xData)
-
-    quote
-        v = x.val * $conv
-        Quantity(v, a)
-    end
-end
-
 """
-Find the conversion factor from unit `t` to unit `s`, e.g.
-`convert(m,cm) = 0.01`.
+```
+convfact(s::Units, t::Units)
+```
+
+Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.01`.
 """
-@generated function convert(s::Units, t::Units)
+@generated function convfact(s::Units, t::Units)
     sunits = s.parameters[1]
     tunits = t.parameters[1]
 
@@ -80,7 +95,21 @@ Find the conversion factor from unit `t` to unit `s`, e.g.
     :($y)
 end
 
-convert{S}(s::Units{S}, t::Units{S}) = 1
+"""
+```
+convfact{S}(s::Units{S}, t::Units{S})
+```
 
+Returns 1. (Avoid effort when unnecessary.)
+"""
+convfact{S}(s::Units{S}, t::Units{S}) = 1
+
+"""
+```
+convert{S,T,U,V,W}(::Type{Quantity{S,U,V}}, y::Quantity{T,U,W})
+```
+
+Extends `Base.convert` for unitful quantities.
+"""
 convert{S,T,U,V,W}(::Type{Quantity{S,U,V}}, y::Quantity{T,U,W}) =
-    Quantity(S(convert(V(),W())*y.val),V())
+    Quantity(S(convfact(V(),W())*y.val),V())

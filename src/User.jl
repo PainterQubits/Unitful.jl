@@ -102,7 +102,7 @@ macro unit(symb,abbr,name,equals,tf)
     x = Expr(:quote, name)
     quote
         inex, ex = Unitful.basefactor(Unitful.unit($(esc(equals))))
-        eq = Unitful.unitless($(esc(equals)))
+        eq = ($(esc(equals)))/Unitful.unit($(esc(equals)))
         Base.isa(eq, Base.Integer) || Base.isa(eq, Base.Rational) ?
              (ex *= eq) : (inex *= eq)
         Unitful.abbr(::Unitful.Unit{$(esc(x))}) = $abbr

@@ -99,7 +99,11 @@ determining the dimensions of a given set of units each time a new quantity is
 made.
 """
 @generated function Quantity(x::Number, y::Units)
-    u = y()
-    d = dimension(u)
-    :(Quantity{typeof(x), typeof($d), typeof($u)}(x))
+    if y == Units{()}
+        :(x)
+    else
+        u = y()
+        d = dimension(u)
+        :(Quantity{typeof(x), typeof($d), typeof($u)}(x))
+    end
 end

@@ -55,7 +55,7 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
 
         # Time
         @unit minute "min"      Minute      60s                     false
-        @unit h      "hr"       Hour        3600s                   false
+        @unit hr     "hr"       Hour        3600s                   false
         @unit d      "dy"       Day         86400s                  false
         @unit wk     "wk"       Week        604800s                 false
 
@@ -91,8 +91,28 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         @unit T      "T"        Tesla       1kg/(A*s^2)             true
         @unit Wb     "Wb"       Weber       1kg*m^2/(A*s^2)         true
 
-        # Constants
-        const  k = 1.38064852e-23*(J/K)  # 2014 CODATA value
+        # Constants (2014 CODATA values)    (uncertainties in final digits)
+        const c0 = 299_792_458*m/s          # exact
+        const c  = c0
+        const μ0 = 4π*(1//10)^7*H/m         # exact (but gets promoted to Float64...)
+        const µ0 = μ0                       # magnetic constant
+        const ɛ0 = 1/(μ0*c^2)               # exact, electric constant
+        const ϵ0 = ɛ0
+        const Z0 = μ0*c                     # exact, impedance of free space
+        const G  = 6.674_08e-11*m^3/kg/s^2  # (31) gravitational constant
+        const h  = 6.626_070_040e-34*J*s    # (81) Planck constant
+        const ħ  = h/2π                     # hbar
+        const q  = 1.602_176_620_8e-19*C    # (98)  `e` means 2.718... so we use q
+                                            # elementary charge
+        const Φ0 = h/(2q)                   # Superconducting magnetic flux quantum
+        const me = 9.109_383_56e-31*kg      # (11) electron rest mass
+        const mn = 1.674_927_471e-27*kg     # (21) neutron rest mass
+        const mp = 1.672_621_898e-27*kg     # (21) proton rest mass
+        const μB = e*ħ/(2*me)               # Bohr magneton
+        const Na = 6.022_140_857e23/mol     # (74) Avogadro constant
+        const R  = 8.314_459_8*J/(mol*K)    # (48) molar gass constant
+        const k  = 1.380_648_52e-23*(J/K)   # (79) Boltzmann constant
+        const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
 
         # Default rules for addition and subtraction.
         for op in [:+, :-]
