@@ -20,7 +20,15 @@ We want to support not only SI units but also any other unit system. We also wan
 ## Features
 
 
-  * Can dispatch on dimensions: `radius(x::Unitful.Area) = sqrt(x/π)`
+  * Can dispatch on dimensions. Consider the following conversion from voltage or power ratios to decibels (for given ratio `num/den`):
+
+
+```
+Unitful.dB(num::Unitful.Voltage, den::Unitful.Voltage) = 20*log10(num/den)
+Unitful.dB(num::Unitful.Power, den::Unitful.Power) = 10*log10(num/den)
+```
+
+
   * Units may have rational exponents.
   * Exact conversions are respected by using `Rational`s where possible.
   * Can make new units using the `@unit` macro without digging through the code.

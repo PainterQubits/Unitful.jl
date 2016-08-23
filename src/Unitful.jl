@@ -15,7 +15,7 @@ import Base: promote_op, promote_array_type, promote_rule, unsafe_getindex
 import Base: length, float, start, done, next, last, one, zero, colon#, range
 import Base: getindex, eltype, step, last, first, frexp
 import Base: Rational, Complex, typemin, typemax
-import Base: steprange_last, unitrange_last
+import Base: steprange_last, unitrange_last, unsigned
 
 export unit, dimension, uconvert
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
@@ -62,6 +62,7 @@ Returns a [`Unitful.Dimensions`](@ref) object corresponding to the dimensions
 of the units.
 """
 dimension{N}(u::Units{N}) = mapreduce(dimension, *, N)
+dimension(u::Units{()}) = Dimensions{()}()
 
 """
 ```
@@ -96,8 +97,8 @@ end
 @generated function basefactor(x::Units)
     tunits = x.parameters[1]
     fact1 = map(basefactor, tunits)
-    inex1 = mapreduce(x->getfield(x,1), *, fact1)
-    ex1   = mapreduce(x->getfield(x,2), *, fact1)
+    inex1 = mapreduce(x->getfield(x,1), *, 1.0, fact1)
+    ex1   = mapreduce(x->getfield(x,2), *, 1, fact1)
     :(($inex1,$ex1))
 end
 
@@ -428,6 +429,7 @@ isreal(x::Quantity) = isreal(x.val)
 isfinite(x::Quantity) = isfinite(x.val)
 isinf(x::Quantity) = isinf(x.val)
 
+unsigned(x::Quantity) = Quantity(unsigned(x.val), unit(x))
 sign(x::Quantity) = sign(x.val)
 signbit(x::Quantity) = signbit(x.val)
 
@@ -449,7 +451,7 @@ Rational(x::Quantity) = Quantity(Rational(x.val), unit(x))
 colon(start::Quantity, step::Quantity, stop::Quantity) =
     StepRange(promote(start, step, stop)...)
 
-function Base.steprange_last{T<:Quantity}(start::T, step, stop)
+function Base.steprange_last{T<:Number,U,V}(start::Quantity{T,U,V}, step, stop)
     z = zero(step)
     step == z && throw(ArgumentError("step cannot be zero"))
     if stop == start
@@ -462,9 +464,9 @@ function Base.steprange_last{T<:Quantity}(start::T, step, stop)
             if T<:Signed && (diff > zero(diff)) != (stop > start)
                 # handle overflowed subtraction with unsigned rem
                 if diff > zero(diff)
-                    remain = -convert(T, unsigned(-diff) % step)
+                    remain = -convert(typeof(start), unsigned(-diff) % step)
                 else
-                    remain = convert(T, unsigned(diff) % step)
+                    remain = convert(typeof(start), unsigned(diff) % step)
                 end
             else
                 remain = Base.steprem(start,stop,step)

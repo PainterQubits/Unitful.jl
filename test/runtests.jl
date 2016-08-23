@@ -37,7 +37,7 @@ import Unitful:
         @test_throws MethodError convert(Float64, 3m)
         @test 3m/unit(3m) === 3
         @test 3.0g/unit(3.0g) === 3.0
-        
+
     end
 
     @testset "> Unitful ↔ unitful conversion" begin

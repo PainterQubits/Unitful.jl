@@ -22,6 +22,8 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         @derived_dimension Force        𝐌*𝐋/𝐓^2
         @derived_dimension Energy       𝐌*𝐋^2/𝐓^2
         @derived_dimension Momentum     𝐌*𝐋/𝐓
+        @derived_dimension Power        𝐋^2*𝐌*𝐓^-3
+        @derived_dimension Voltage      𝐈^-1*𝐋^2*𝐌*𝐓^-3
 
         # Define base units. This is not to imply g is the base SI unit instead of kg.
         # See the documentation for further details.
@@ -118,6 +120,28 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         for op in [:+, :-]
             # Can change to min(x,y), x, or y
             @eval (\$op)(x::Unitful.Units, y::Unitful.Units) = max(x,y)
+        end
+
+        \"\"\"
+        ```
+        dB(numerator::Voltage, denominator::Voltage)
+        ```
+
+        Give the ratio of two voltages in dB.
+        \"\"\"
+        function dB(numerator::Voltage, denominator::Voltage)
+            20*log10(numerator/denominator)
+        end
+
+        \"\"\"
+        ```
+        dB(numerator::Power, denominator::Power)
+        ```
+
+        Give the ratio of two powers in dB.
+        \"\"\"
+        function dB(numerator::Power, denominator::Power)
+            10*log10(numerator/denominator)
         end
         """)
     end

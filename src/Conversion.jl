@@ -70,10 +70,10 @@ Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.0
     a = inex1 / inex2
     ex = ex1 // ex2     # do overflow checking?
 
-    tens1 = mapreduce(+,tunits) do x
+    tens1 = mapreduce(+,0,tunits) do x
         tensfactor(x)
     end
-    tens2 = mapreduce(+,sunits) do x
+    tens2 = mapreduce(+,0,sunits) do x
         tensfactor(x)
     end
     pow = tens1-tens2
