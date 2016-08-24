@@ -94,45 +94,36 @@ Some unit abbreviations conflict with other definitions or syntax:
 Units, dimensions, and fundamental constants are not exported from Unitful. This is to avoid proliferating symbols in your namespace unnecessarily. You can retrieve them using the [`@u_str`](manipulations.md#Unitful.@u_str) string macro for convenience, or import them from the `Unitful` package to bring them into the namespace.
 
 
-```jl
 
-1u"kg" == 1000u"g"                    # Equivalence implies unit conversion
-!(1u"kg" === 1000u"g")                # ...and yet we can distinguish these...
-1u"kg" === 1u"kg"                     # ...and these are indistinguishable.
 
-# In the next examples let's bring some units into our namespace:
+```jlcon
+julia> 1u"kg" == 1000u"g"             # Equivalence implies unit conversion
+true
 
-°C = u"°C"
-°F = u"°F"
-μm = u"μm"
-m = u"m"
-h = u"h"
-minute = u"minute"
-s = u"s"
+julia> !(1u"kg" === 1000u"g")         # ...and yet we can distinguish these...
+true
 
-uconvert(°C, 212°F) === 100°C        # returns true
-unit(uconvert(°C, 212°F))/°C == 100
-# Note: use the \approx tab-completion. Sometimes ≈ is needed if there are tiny
-# floating-point errors (see to-do list note, regarding exact conversions)
+julia> 1u"kg" === 1u"kg"              # ...and these are indistinguishable.
+true
+```
 
-# Also true:
-convert(μm/(m*°F), 9μm/(m*°C)) ≈ 5μm/(m*°F)
-mod(1h+3minute+5s, 24s) == 17s
+
+In the next examples we assume we have brought some units into our namespace, e.g. using `m = u"m"`, etc.
+
+
+```jlcon
+julia> uconvert(°C, 212°F)
+100//1 °C
+
+julia> uconvert(μm/(m*°F), 9μm/(m*°C))
+5//1 °F^-1 μm m^-1
+
+julia> mod(1hr+3minute+5s, 24s)
+17//1 s
 ```
 
 
 See `test/runtests.jl` for more usage examples.
-
-
-<a id='Gotchas-1'></a>
-
-### Gotchas
-
-
-One inch is exactly equal to 2.54 cm. However, in Julia, the floating-point 2.54 is not equal to the Rational 254//100. As a consequence, `1inch != 2.54cm`, because Unitful respects exact conversions and 1 inch is really 254//100 cm. To test for equivalence, instead use `≈` (backslash approx tab-completion).
-
-
-The above applies generically to any pair of units, not just inches and centimeters.
 
 
 <a id='To-do-1'></a>

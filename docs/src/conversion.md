@@ -1,33 +1,63 @@
-## Conversion and promotions
+```@meta
+DocTestSetup = quote
+    using Unitful
+end
+```
 
-Conversions between units are rejected if the units have different dimensions.
+## Converting between units
+
+Since `convert` in Julia already means something specific (conversion between
+Julia types), we define `uconvert` for conversion between units. Typically
+this will also involve a conversion between types, but this function takes care
+of figuring out which type is appropriate for representing the desired units.
+
+```@docs
+uconvert
+```
+
+## Conversion and promotion mechanisms
 
 We decide the result units for addition and subtraction operations based
-on looking at the unit types only. We can't take runtime values into account
-without compromising runtime performance. By default, if we
-have `x (A) + y (B) = z (C)` where `x,y,z` are numbers and `A,B,C` are units,
+on looking at the types only. We can't take runtime values into account
+without compromising runtime performance. By default, if we have
+`x (A) + y (B) = z (C)` where `x,y,z` are numbers and `A,B,C` are units,
 then `C = max(1A, 1B)`. This is an arbitrary choice and can be changed at the
-end of `deps/Unitful.jl` (although the package will become dirty). For example,
-`101cm + 1m = 2.01m` because `1m > 1cm`.
+end of `deps/Defaults.jl`. For example, `101cm + 1m = 2.01m` because `1m > 1cm`.
 
-Although quantities could be integrated with Julia's promotion mechanisms, we
-instead simply define how to add or subtract the units themselves, and have
-addition of quantities rely on those definitions. The concern is that implicit
-promotion operations that were written with pure numbers in mind may give rise
-to surprising behavior without returning errors. The operations on the numeric
-values of quantities of course utilize Julia's promotion mechanisms.
+Ultimately we hope to have this package play nicely with Julia's promotion mechanisms.
+A concern is that implicit promotion operations that were written with
+pure numbers in mind may give rise to surprising behavior without returning errors.
+We of course utilize Julia's promotion mechanisms for the numeric backing:
+adding an integer with units to a float with units produces the expected result.
 
-Some of our `convert` syntax breaks Julia conventions in that the first
-argument is not a type. For example, `convert(ft, 1m)` converts 1 meter to feet.
-This may rub people the wrong way and could change. A neat alternative would be
-to override other syntax: `3m in cm` would be succinct and intuitive.
-Overriding `in` is simple, but the parsing rules aren't intended for this.
-For example, `0°C in °F == 32°F` fails to evaluate, but `(0°C in °F) == 32°F`
-returns `true`.
+```jldoctest
+julia> 1.0u"m"+1u"m"
+2.0 m
+```
 
 Exact conversions between units are respected where possible. If rational
-arithmetic would result in an overflow, then floating-point conversion will
+arithmetic would result in an overflow, then floating-point conversion should
 proceed.
+
+For dimensionless quantities, the usual `convert` methods can be
+used to strip the units without losing power-of-ten information:
+
+```jldoctest
+julia> convert(Float64, 1.0u"μm/m")
+1.0e-6
+
+julia> convert(Complex{Float64}, 1.0u"μm/m")
+1.0e-6 + 0.0im
+
+julia> convert(Float64, 1.0u"m")
+ERROR: MethodError
+```
+
+```@docs
+convert{R<:Real,S,T}(::Type{R}, ::Quantity{S,Unitful.Dimensions{()},T})
+convert{C<:Complex,S,T}(::Type{C}, ::Quantity{S,Unitful.Dimensions{()},T})
+convert{T1,T2,D,U1,U2}(::Type{Quantity{T1,D,U1}}, ::Quantity{T2,D,U2})
+```
 
 ## Temperature conversion
 

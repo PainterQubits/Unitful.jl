@@ -182,9 +182,24 @@ macro u_str(unit)
 
 String macro to easily recall units, dimensions, or quantities defined in the
 Unitful module, which does not export such things to avoid namespace pollution.
-For those unfamiliar with string macros, see the following example.
 
-Example: `1.0u"m/s"` returns 1.0 m/s.
+Examples:
+
+```jldoctest
+1.0u"m/s"
+# output
+1.0 m s^-1
+```
+```jldoctest
+typeof(1.0u"m/s")
+# output
+Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋,𝐓^-1)},Unitful.Units{(m,s^-1)}}
+```
+```jldoctest
+u"ħ"
+# output
+1.0545718001391127e-34 J s
+```
 """
 macro u_str(unit)
     ex = parse(unit)

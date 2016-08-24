@@ -30,6 +30,16 @@ unit{T,D,U}(x::Quantity{T,D,U})
 ```
 
 Returns the units associated with a quantity, `U()`.
+
+Examples:
+
+```jldoctest
+julia> unit(1.0u"m") == u"m"
+true
+
+julia> typeof(u"m")
+Unitful.Units{(m,)}
+```
 """
 unit{T,D,U}(x::Quantity{T,D,U}) = U()
 
@@ -39,7 +49,14 @@ unit(x::Number)
 ```
 
 Returns a `Unitful.Units{()}` object to indicate that ordinary
-numbers have no units.
+numbers have no units. The unit is displayed as an empty string.
+
+Examples:
+
+```jldoctest
+julia> typeof(unit(1.0))
+Unitful.Units{()}
+```
 """
 unit(x::Number) = Units{()}()
 
@@ -49,7 +66,14 @@ dimension(x::Number)
 ```
 
 Returns a `Unitful.Dimensions{()}` object to indicate that ordinary
-numbers are dimensionless.
+numbers are dimensionless. The dimension is displayed as an empty string.
+
+Examples:
+
+```jldoctest
+julia> typeof(dimension(1.0))
+Unitful.Dimensions{()}
+```
 """
 dimension(x::Number) = Dimensions{()}()
 
@@ -59,7 +83,21 @@ dimension{N}(u::Units{N})
 ```
 
 Returns a [`Unitful.Dimensions`](@ref) object corresponding to the dimensions
-of the units.
+of the units. For a dimensionless combination of units, a
+`Unitful.Dimensions{()}` object is returned.
+
+Examples:
+
+```jldoctest
+julia> dimension(u"m")
+𝐋
+
+julia> typeof(dimension(u"m"))
+Unitful.Dimensions{(𝐋,)}
+
+julia> typeof(dimension(u"m/km"))
+Unitful.Dimensions{()}
+```
 """
 dimension{N}(u::Units{N}) = mapreduce(dimension, *, N)
 dimension(u::Units{()}) = Dimensions{()}()
@@ -70,7 +108,18 @@ dimension{T,D,U}(x::Quantity{T,D,U})
 ```
 
 Returns a [`Unitful.Dimensions`](@ref) object `D()` corresponding to the
-dimensions of quantity `x`.
+dimensions of quantity `x`. For a dimensionless [`Unitful.Quantity`](@ref), a
+`Unitful.Dimensions{()}` object is returned.
+
+Examples:
+
+```jldoctest
+julia> dimension(1.0u"m")
+𝐋
+
+julia> typeof(dimension(1.0u"m/μm"))
+Unitful.Dimensions{()}
+```
 """
 dimension{T,D,U}(x::Quantity{T,D,U}) = D()
 
@@ -143,13 +192,32 @@ power(x::Dimension) = x.power
 *(a0::Unitlike, a::Unitlike...)
 ```
 
-Given however many unit-like objects, multiply them together. The following
-applies equally well to `Dimensions` instead of `Units`.
+Given however many unit-like objects, multiply them together. Both
+[`Unitful.Dimensions`](@ref) and [`Unitful.Units`](@ref) objects are considered
+to be `Unitlike` in the sense that you can multiply them, divide them, and
+collect powers. This function will fail if there is an attempt to multiply a
+unit by a dimension or vice versa.
 
 Collect [`Unitful.Unit`](@ref) objects from the type parameter of the
 [`Unitful.Units`](@ref) objects. For identical units including SI prefixes
-(i.e. cm ≠ m), collect powers and sort uniquely by the name of the unit.
+(i.e. cm ≠ m), collect powers and sort uniquely by the name of the `Unit`.
 The unique sorting permits easy unit comparisons.
+
+Examples:
+
+```jldoctest
+julia> u"kg*m/s^2"
+kg m s^-2
+
+julia> u"m/s*kg/s"
+kg m s^-2
+
+julia> typeof(u"kg*m/s^2")
+Unitful.Units{(kg,m,s^-2)}
+
+julia> typeof(u"m/s*kg/s") == typeof(u"kg*m/s^2")
+true
+```
 """
 @generated function *(a0::Unitlike, a::Unitlike...)
 
@@ -196,18 +264,14 @@ The unique sorting permits easy unit comparisons.
     # results in:
     # nm cm^6 m^6 µs^3 s
 
-    d = (c...)
     T = (issubtype(a0,Units) ? Units : Dimensions)
+    d = (c...)
     :(($T){$d}())
 end
 
 @generated function *{T,D,U}(x::Quantity{T,D,U}, y::Units, z::Units...)
     result_units = *(U(),y(),map(x->x(),z)...)
-    if isa(result_units,Units{()})
-        :(x.val)
-    else
-        :(Quantity(x.val,$result_units))
-    end
+    :(Quantity(x.val,$result_units))
 end
 
 @generated function *(x::Quantity, y::Quantity)

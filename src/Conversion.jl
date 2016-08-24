@@ -3,7 +3,19 @@
 uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
 ```
 
-Unit-convert a quantity to different units of the same dimension.
+Convert a [`Unitful.Quantity`](@ref) to different units. The conversion will
+fail if the target units `a` have a different dimension than the dimension of
+the quantity `x`. You can use this method to switch between equivalent
+representations of the same unit, like `N m` and `J`.
+
+Example:
+
+```jldoctest
+julia> uconvert(u"hr",3602u"s")
+1801//1800 hr
+julia> uconvert(u"J",1.0u"N*m")
+1.0 J
+```
 """
 @generated function uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
     xunits = x.parameters[3]
@@ -19,13 +31,11 @@ end
 
 """
 ```
-uconvert{T,U}(a::Units,
-x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},U})
+uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},U})
 ```
 
-Unit-convert a quantity to different units of the same dimension. In this case,
-we are special-casing temperature to respect scale offsets if not combined
-with other dimensions.
+In this method, we are special-casing temperature conversion to respect scale
+offsets, if they do not appear in combination with other dimensions.
 """
 @generated function uconvert{T,U}(a::Units,
         x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},U})
@@ -100,16 +110,37 @@ end
 convfact{S}(s::Units{S}, t::Units{S})
 ```
 
-Returns 1. (Avoid effort when unnecessary.)
+Returns 1. (Avoids effort when unnecessary.)
 """
 convfact{S}(s::Units{S}, t::Units{S}) = 1
 
 """
 ```
-convert{S,T,U,V,W}(::Type{Quantity{S,U,V}}, y::Quantity{T,U,W})
+convert{T1,T2,D,U1,U2}(::Type{Quantity{T1,D,U1}}, y::Quantity{T2,D,U2})
 ```
 
-Extends `Base.convert` for unitful quantities.
+Direct type conversion using `convert` is permissible provided conversion
+is between two quantities of the same dimension.
 """
 convert{S,T,U,V,W}(::Type{Quantity{S,U,V}}, y::Quantity{T,U,W}) =
-    Quantity(S(convfact(V(),W())*y.val),V())
+    Quantity(S(uconvert(V(),y).val), V())
+
+"""
+```
+convert{R<:Real,S,T}(::Type{R}, y::Quantity{S,Dimensions{()},T})
+```
+
+Allow converting a dimensionless `Quantity` to type `R<:Real`.
+"""
+convert{R<:Real,S,T}(::Type{R}, y::Quantity{S,Dimensions{()},T}) =
+    R(uconvert(Units{()}(), y))
+
+"""
+```
+convert{C<:Complex,S,T}(::Type{C}, y::Quantity{S,Dimensions{()},T})
+```
+
+Allow converting a dimensionless `Quantity` to a type `C<:Complex`.
+"""
+convert{C<:Complex,S,T}(::Type{C}, y::Quantity{S,Dimensions{()},T}) =
+    C(uconvert(Units{()}(), y))

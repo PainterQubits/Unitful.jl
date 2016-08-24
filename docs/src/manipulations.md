@@ -1,3 +1,9 @@
+```@meta
+DocTestSetup = quote
+    using Unitful
+end
+```
+
 ```@docs
 Unitful.@u_str
 Unitful.unit
