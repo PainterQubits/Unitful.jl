@@ -19,7 +19,7 @@ import Base: steprange_last, unitrange_last, unsigned
 
 export unit, dimension, uconvert
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
-export Quantity
+export AbstractQuantity, UnitlessQuantity, Quantity
 
 include("Types.jl")
 include("User.jl")
@@ -224,7 +224,7 @@ true
     # Sort the units uniquely. This is a generated function so that we
     # don't have to figure out the units each time.
 
-    D = (issubtype(a0,Units) ? Unit : Dimension)
+    D = a0 <: Units ? Unit : Dimension
     b = Array{D,1}()
     a0p = a0.parameters[1]
     length(a0p) > 0 && append!(b, a0p)
@@ -233,36 +233,41 @@ true
         length(xp) > 0 && append!(b, xp)
     end
 
+    # b is an Array containing all of the Unit or Dimension objects that were
+    # found in the type parameters of the Units or Dimensions object (a0, a...)
+
     sort!(b, by=x->power(x))
     D == Unit && sort!(b, by=x->tens(x))
     sort!(b, by=x->unit(x))
 
-    # Units(m,m,cm,cm^2,cm^3,nm,m^4,µs,µs^2,s)
-    # ordered as:
-    # nm cm cm^2 cm^3 m m m^4 µs µs^2 s
+    # Units[m,m,cm,cm^2,cm^3,nm,m^4,µs,µs^2,s]
+    # reordered as:
+    # Units[nm,cm,cm^2,cm^3,m,m,m^4,µs,µs^2,s]
 
     # Collect powers of a given unit
     c = Array{D,1}()
-    i = start(b)
-    oldstate = b[i]
-    p=0//1
-    while !done(b, i)
-        (state, i) = next(b, i)
-        if tens(state) == tens(oldstate) && unit(state) == unit(oldstate)
-            p += power(state)
-        else
-            if p != 0
-                push!(c, D{unit(oldstate)}(tens(oldstate),p))
+    if !isempty(b)
+        i = start(b)
+        oldstate = b[i]
+        p=0//1
+        while !done(b, i)
+            (state, i) = next(b, i)
+            if tens(state) == tens(oldstate) && unit(state) == unit(oldstate)
+                p += power(state)
+            else
+                if p != 0
+                    push!(c, D{unit(oldstate)}(tens(oldstate),p))
+                end
+                p = power(state)
             end
-            p = power(state)
+            oldstate = state
         end
-        oldstate = state
-    end
-    if p != 0
-        push!(c, D{unit(oldstate)}(tens(oldstate),p))
+        if p != 0
+            push!(c, D{unit(oldstate)}(tens(oldstate),p))
+        end
     end
     # results in:
-    # nm cm^6 m^6 µs^3 s
+    # Units[nm,cm^6,m^6,µs^3,s]
 
     T = (issubtype(a0,Units) ? Units : Dimensions)
     d = (c...)
@@ -466,6 +471,8 @@ isless(x::Quantity, y::Quantity) = isless(uconvert(unit(y), x).val,y.val)
 
 isapprox{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = isapprox(x.val, y.val)
 isapprox(x::Quantity, y::Quantity) = isapprox(uconvert(unit(y), x).val, y.val)
+isapprox(x::Quantity, y::Number) = isapprox(uconvert(Units{()}(), x).val, y)
+isapprox(x::Number, y::Quantity) = isapprox(y,x)
 
 =={S,T,D,U}(x::Quantity{S,D,U}, y::Quantity{T,D,U}) = (x.val == y.val)
 function ==(x::Quantity, y::Quantity)
@@ -473,12 +480,14 @@ function ==(x::Quantity, y::Quantity)
     uconvert(unit(y), x).val == y.val
 end
 
-==(x::Quantity, y::Complex) = false
-==(x::Quantity, y::Irrational) = false
-==(x::Quantity, y::Number) = false
-==(y::Complex, x::Quantity) = false
-==(y::Irrational, x::Quantity) = false
-==(y::Number, x::Quantity) = false
+function ==(x::Quantity, y::Number)
+    if dimension(x) == Dimensions{()}()
+        uconvert(Units{()}(), x) == y
+    else
+        false
+    end
+end
+==(x::Number, y::Quantity) = ==(y,x)
 <=(x::Quantity, y::Quantity) = <(x,y) || x==y
 
 for f in (:zero, :floor, :ceil)

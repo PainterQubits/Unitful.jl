@@ -16,28 +16,27 @@ import Unitful:
     Amount,
     Angle
 
-@testset "Types" begin
-    @testset "> Quantity type construction" begin
-        @test typeof(1.0m) ==
-            Unitful.Quantity{Float64,
-                Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)},
-                Unitful.Units{(Unitful.Unit{:Meter}(0, 1),)}}
-        @test typeof(1m^2) ==
-            Unitful.Quantity{Int,
-                Unitful.Dimensions{(Unitful.Dimension{:Length}(2),)},
-                Unitful.Units{(Unitful.Unit{:Meter}(0, 2),)}}
-        @test typeof(1ac) ==
-            Unitful.Quantity{Int,
-                Unitful.Dimensions{(Unitful.Dimension{:Length}(2),)},
-                Unitful.Units{(Unitful.Unit{:Acre}(0, 1),)}}
-    end
+@testset "Type construction" begin
+    @test typeof(1.0m) ==
+        Unitful.Quantity{Float64,
+            Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)},
+            Unitful.Units{(Unitful.Unit{:Meter}(0, 1),)}}
+    @test typeof(1m^2) ==
+        Unitful.Quantity{Int,
+            Unitful.Dimensions{(Unitful.Dimension{:Length}(2),)},
+            Unitful.Units{(Unitful.Unit{:Meter}(0, 2),)}}
+    @test typeof(1ac) ==
+        Unitful.Quantity{Int,
+            Unitful.Dimensions{(Unitful.Dimension{:Length}(2),)},
+            Unitful.Units{(Unitful.Unit{:Acre}(0, 1),)}}
+end
 
+@testset "Conversion" begin
     @testset "> Unitless ↔ unitful conversion" begin
         @test_throws MethodError convert(typeof(3m),1)
-        @test_throws MethodError convert(Float64, 3m)
+        @test_throws ErrorException convert(Float64, 3m)
         @test 3m/unit(3m) === 3
         @test 3.0g/unit(3.0g) === 3.0
-
     end
 
     @testset "> Unitful ↔ unitful conversion" begin
@@ -68,6 +67,24 @@ import Unitful:
             # e.g. the linear thermal expansion coefficient of glass
             @test uconvert(μm/(m*°F), 9μm/(m*°C)) == 5μm/(m*°F)
         end
+    end
+end
+
+@testset "Promotion" begin
+    @testset "> Simple promotion" begin
+        @test promote(1.0m, 1m) == (1.0m, 1.0m)
+        @test promote(1m, 1.0m) == (1.0m, 1.0m)
+        @test promote(1.0m, 1kg) == (1.0m, 1.0kg)
+        @test promote(1kg, 1.0m) == (1.0kg, 1.0m)
+        @test promote(1.0m, 1) == (1.0m, UnitlessQuantity(1.0))
+    end
+
+    @testset "> Promotion during array creation" begin
+        @test typeof([1.0m,1.0m]) == Array{typeof(1.0m),1}
+        @test typeof([1.0m,1m]) == Array{typeof(1.0m),1}
+        @test typeof([1.0m,1]) == Array{AbstractQuantity{Float64},1}
+        @test typeof([1.0m,1kg]) == Array{AbstractQuantity{Float64},1}
+        @test typeof([1.0m/s 1; 1 0]) == Array{AbstractQuantity{Float64},2}
     end
 end
 
@@ -270,6 +287,9 @@ end
         @testset ">> Array multiplication" begin
             @test @inferred([1m, 2m]' * [3m, 4m])    == [11m^2]
             @test @inferred([1V,2V]*[0.1/m, 0.4/m]') == [0.1V/m 0.4V/m; 0.2V/m 0.8V/m]
+            @test @inferred([1m, 2m]' * [3/m, 4/m])  == [11]
+            @test @inferred([1m, 2V]' * [3/m, 4/V])  == [11]
+            @test @inferred([1m, 2V] * [3/m, 4/V]')  == [3 4u"m*V^-1"; 6u"V*m^-1" 8]
         end
 
         @testset ">> Element-wise multiplication" begin
@@ -282,6 +302,7 @@ end
 
         @testset ">> Array addition" begin
             @test @inferred([1m, 2m] + [3m, 4m])     == [4m, 6m]
+            @test_throws ErrorException [1m] + [2V]
         end
 
         @testset ">> Element-wise addition" begin

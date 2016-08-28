@@ -76,7 +76,18 @@ immutable Dimensions{N} <: Unitlike end
 
 """
 ```
-immutable Quantity{T<:Number,D,U} <: Number
+abstract AbstractQuantity{T<:Number} <: Number
+```
+
+Super-type of [`Unitful.Quantity`](@ref) types. Used in promotion when making
+arrays of quantities with differing dimensions (or when combining with unitless
+numbers).
+"""
+abstract AbstractQuantity{T<:Number} <: Number
+
+"""
+```
+immutable Quantity{T,D,U} <: AbstractQuantity{T}
 ```
 
 A physical quantity, which is dimensionful and has units. The type parameter `T`
@@ -85,9 +96,26 @@ represents the numeric backing type. The type parameters
 Of course, the dimensions follow from the units, but the type parameters are
 kept separate to permit convenient dispatch on dimensions.
 """
-immutable Quantity{T<:Number,D,U} <: Number
+immutable Quantity{T,D,U} <: AbstractQuantity{T}
     val::T
 end
+
+"""
+```
+typealias UnitlessQuantity{T} Quantity{T, Dimensions{()}, Units{()}}
+```
+
+When [`Unitful.Quantity`](@ref) objects are combined with unitless numbers in a
+matrix or vector as is sometimes encountered in general relativity, we wrap
+the unitless numbers in a `UnitlessQuantity{T}` type. This way, the array can
+specialize on the numeric backing type. Otherwise, the most specific container
+would be something like `AbstractArray{Number}`.
+"""
+typealias UnitlessQuantity{T} Quantity{T, Dimensions{()}, Units{()}}
+
+UnitlessQuantity{T<:Quantity}(x::T) =
+    error("To strip units from a quantity `x`, divide out by `unit(x)`.")
+UnitlessQuantity{T<:Number}(x::T) = UnitlessQuantity{T}(x)
 
 """
 ```

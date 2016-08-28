@@ -116,31 +116,60 @@ convfact{S}(s::Units{S}, t::Units{S}) = 1
 
 """
 ```
-convert{T1,T2,D,U1,U2}(::Type{Quantity{T1,D,U1}}, y::Quantity{T2,D,U2})
+convert{T,D,U}(::Type{Quantity{T,D,U}}, y::Quantity)
 ```
 
 Direct type conversion using `convert` is permissible provided conversion
 is between two quantities of the same dimension.
 """
-convert{S,T,U,V,W}(::Type{Quantity{S,U,V}}, y::Quantity{T,U,W}) =
-    Quantity(S(uconvert(V(),y).val), V())
+function convert{T,D,U}(::Type{Quantity{T,D,U}}, y::Quantity)
+    if dimension(y) == D()
+        if U == Units{()}   # catch UnitlessQuantity
+            return UnitlessQuantity{T}(y.val)
+        else
+            return Quantity(T(uconvert(U(),y).val), U())
+        end
+    else
+        error("Cannot convert between quantities of differing dimension.")
+    end
+end
+
+function convert{S}(::Type{Quantity{S,Dimensions{()},Units{()}}}, x::Quantity)
+    if isa(x, UnitlessQuantity)
+        UnitlessQuantity{S}(x.val)
+    else
+        error("Cannot convert between quantities of differing dimension.")
+    end
+end
+
+convert{T}(::Type{Quantity{T,Dimensions{()},Units{()}}}, x::Number) =
+    UnitlessQuantity{T}(x)
+
+convert{T}(::Type{AbstractQuantity{T}}, x::Quantity) =
+    Quantity(T(x.val), unit(x))
+
+convert{S,T,U}(::Type{AbstractQuantity{S}}, y::Quantity{T,Dimensions{()},U}) =
+    Quantity{S,Dimensions{()},U}(y.val)
+
+convert{T}(::Type{AbstractQuantity{T}}, x::Number) =
+    Quantity{T, Dimensions{()}, Units{()}}(x)
+
+convert(::Type{AbstractQuantity}, x::Quantity) = x
+
+convert(::Type{AbstractQuantity}, x::Number) =
+    Quantity{typeof(x), Dimensions{()}, Units{()}}(x)
 
 """
 ```
-convert{R<:Real,S,T}(::Type{R}, y::Quantity{S,Dimensions{()},T})
+convert{N<:Number,S,T}(::Type{N}, y::Quantity{S,Dimensions{()},T})
 ```
 
-Allow converting a dimensionless `Quantity` to type `R<:Real`.
+Allow converting a dimensionless `Quantity` to type `N<:Number`.
 """
-convert{R<:Real,S,T}(::Type{R}, y::Quantity{S,Dimensions{()},T}) =
-    R(uconvert(Units{()}(), y))
-
-"""
-```
-convert{C<:Complex,S,T}(::Type{C}, y::Quantity{S,Dimensions{()},T})
-```
-
-Allow converting a dimensionless `Quantity` to a type `C<:Complex`.
-"""
-convert{C<:Complex,S,T}(::Type{C}, y::Quantity{S,Dimensions{()},T}) =
-    C(uconvert(Units{()}(), y))
+function convert{N<:Number}(::Type{N}, y::Quantity)
+    if dimension(y) == Dimensions{()}()
+        N(uconvert(Units{()}(), y))
+    else
+        error("Cannot convert a dimensionful quantity to a pure number.")
+    end
+end
