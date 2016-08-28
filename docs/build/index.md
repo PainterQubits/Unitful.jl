@@ -1,4 +1,6 @@
 
+
+
 <a id='Unitful.jl-1'></a>
 
 # Unitful.jl
@@ -29,10 +31,19 @@ Unitful.dB(num::Unitful.Power, den::Unitful.Power) = 10*log10(num/den)
 ```
 
 
+```jlcon
+julia> Unitful.dB(1u"mV", 1u"V")
+-60.0
+julia> Unitful.dB(1u"mW", 1u"W")
+-30.0
+```
+
+
   * Units may have rational exponents.
+  * Arrays can hold quantities with different units or even different dimensions. This is done efficiently using the [`Unitful.AbstractQuantity{T}`](types.md#Unitful.AbstractQuantity) type.
   * Exact conversions are respected by using `Rational`s where possible.
   * Can make new units using the `@unit` macro without digging through the code.
-  * Units are sticky. Although `1.0 J` and `1.0 N m` are equivalent quantities, they are represented distinctly, so further manipulations on `1.0 J` can leave the `J` intact.
+  * Units are sticky. Although `1.0 J` and `1.0 N m` are equivalent quantities, they are represented distinctly, so further manipulations on `1.0 J` can leave the `J` intact. Furthermore, units are only canceled out if they are exactly the same, including power-of-ten prefixes. `1.0 mV/V` is possible.
   * Some built-in dimensional analysis.
 
 

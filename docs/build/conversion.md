@@ -29,7 +29,7 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0be4d1a9b61ebcd0256f280c5f056b6d0512b69f/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/2582febc968663b28c7fa61619337f29af297a76/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 ```
@@ -39,7 +39,7 @@ uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},
 In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0be4d1a9b61ebcd0256f280c5f056b6d0512b69f/src/Conversion.jl#L32-L39' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/2582febc968663b28c7fa61619337f29af297a76/src/Conversion.jl#L32-L39' class='documenter-source'>source</a><br>
 
 
 <a id='Conversion-and-promotion-mechanisms-1'></a>
@@ -73,7 +73,7 @@ julia> convert(Complex{Float64}, 1.0u"μm/m")
 1.0e-6 + 0.0im
 
 julia> convert(Float64, 1.0u"m")
-ERROR: MethodError
+ERROR: Cannot convert a dimensionful quantity to a pure number.
 ```
 
 <a id='Base.convert-Tuple{Type{R<:Real},Unitful.Quantity{S,Unitful.Dimensions{()},T}}' href='#Base.convert-Tuple{Type{R<:Real},Unitful.Quantity{S,Unitful.Dimensions{()},T}}'>#</a>
@@ -82,13 +82,13 @@ ERROR: MethodError
 
 
 ```
-convert{R<:Real,S,T}(::Type{R}, y::Quantity{S,Dimensions{()},T})
+convert{N<:Number,S,T}(::Type{N}, y::Quantity{S,Dimensions{()},T})
 ```
 
-Allow converting a dimensionless `Quantity` to type `R<:Real`.
+Convert a dimensionless `Quantity` `y` to type `N<:Number`.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0be4d1a9b61ebcd0256f280c5f056b6d0512b69f/src/Conversion.jl#L128-L134' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/2582febc968663b28c7fa61619337f29af297a76/src/Conversion.jl#L213-L219' class='documenter-source'>source</a><br>
 
 <a id='Base.convert-Tuple{Type{C<:Complex},Unitful.Quantity{S,Unitful.Dimensions{()},T}}' href='#Base.convert-Tuple{Type{C<:Complex},Unitful.Quantity{S,Unitful.Dimensions{()},T}}'>#</a>
 **`Base.convert`** &mdash; *Method*.
@@ -96,13 +96,13 @@ Allow converting a dimensionless `Quantity` to type `R<:Real`.
 
 
 ```
-convert{C<:Complex,S,T}(::Type{C}, y::Quantity{S,Dimensions{()},T})
+convert{N<:Number,S,T}(::Type{N}, y::Quantity{S,Dimensions{()},T})
 ```
 
-Allow converting a dimensionless `Quantity` to a type `C<:Complex`.
+Convert a dimensionless `Quantity` `y` to type `N<:Number`.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0be4d1a9b61ebcd0256f280c5f056b6d0512b69f/src/Conversion.jl#L138-L144' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/2582febc968663b28c7fa61619337f29af297a76/src/Conversion.jl#L213-L219' class='documenter-source'>source</a><br>
 
 <a id='Base.convert-Tuple{Type{Unitful.Quantity{T1,D,U1}},Unitful.Quantity{T2,D,U2}}' href='#Base.convert-Tuple{Type{Unitful.Quantity{T1,D,U1}},Unitful.Quantity{T2,D,U2}}'>#</a>
 **`Base.convert`** &mdash; *Method*.
@@ -110,13 +110,13 @@ Allow converting a dimensionless `Quantity` to a type `C<:Complex`.
 
 
 ```
-convert{T1,T2,D,U1,U2}(::Type{Quantity{T1,D,U1}}, y::Quantity{T2,D,U2})
+convert{T,D,U}(::Type{Quantity{T,D,U}}, y::Quantity)
 ```
 
 Direct type conversion using `convert` is permissible provided conversion is between two quantities of the same dimension.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0be4d1a9b61ebcd0256f280c5f056b6d0512b69f/src/Conversion.jl#L117-L124' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/2582febc968663b28c7fa61619337f29af297a76/src/Conversion.jl#L117-L124' class='documenter-source'>source</a><br>
 
 
 <a id='Temperature-conversion-1'></a>

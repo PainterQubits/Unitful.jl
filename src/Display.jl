@@ -49,16 +49,18 @@ end
 
 """
 ```
-show{T,D,U}(io::IO, x::Quantity{T,D,U})
+show(io::IO, x::Quantity)
 ```
 
 Show a unitful quantity by calling `show` on the numeric value, appending a
 space, and then calling `show` on a units object `U()`.
 """
-function show{T,D,U}(io::IO, x::Quantity{T,D,U})
+function show(io::IO, x::Quantity)
     show(io,x.val)
-    print(io," ")
-    show(io,U())
+    if unit(x) != Units{()}()
+        print(io," ")
+        show(io, unit(x))
+    end
     nothing
 end
 

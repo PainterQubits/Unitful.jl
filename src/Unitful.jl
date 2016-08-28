@@ -5,7 +5,7 @@ import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, .\, //, ^, .^
 import Base: show, convert
 import Base: abs, abs2, float, inv, sqrt
 import Base: sin, cos, tan, cot, sec, csc
-import Base: min, max, floor, ceil
+import Base: min, max, floor, ceil, log, log10
 
 import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isinf, isfinite
@@ -19,7 +19,7 @@ import Base: steprange_last, unitrange_last, unsigned
 
 export unit, dimension, uconvert
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
-export AbstractQuantity, UnitlessQuantity, Quantity
+export AbstractQuantity, UnitlessQuantity, DimensionlessQuantity, Quantity
 
 include("Types.jl")
 include("User.jl")
@@ -519,7 +519,22 @@ for f in (:zero, :floor, :ceil)
     @eval ($f)(x::Quantity) = Quantity(($f)(x.val), unit(x))
 end
 
+"""
+```
+one(x::Quantity)
+```
+
+Returns the multiplicative identity for `x`.
+"""
 one(x::Quantity) = one(x.val)
+
+"""
+```
+one{T,D,U}(x::Type{Quantity{T,D,U}})
+```
+
+Returns the multiplicative identity for this type (it's `one(T)`).
+"""
 one{T,D,U}(x::Type{Quantity{T,D,U}}) = one(T)
 
 isinteger(x::Quantity) = isinteger(x.val)
@@ -528,7 +543,26 @@ isfinite(x::Quantity) = isfinite(x.val)
 isinf(x::Quantity) = isinf(x.val)
 
 unsigned(x::Quantity) = Quantity(unsigned(x.val), unit(x))
+
+log(x::DimensionlessQuantity) = log(uconvert(Units{()}(), x))
+log10(x::DimensionlessQuantity) = log10(uconvert(Units{()}(), x))
+
+"""
+```
+sign(x::Quantity)
+```
+
+Returns the sign of `x`.
+"""
 sign(x::Quantity) = sign(x.val)
+
+"""
+```
+signbit(x::Quantity)
+```
+
+Returns the sign bit of the underlying numeric value of `x`.
+"""
 signbit(x::Quantity) = signbit(x.val)
 
 prevfloat{T<:AbstractFloat,D,U}(x::Quantity{T,D,U}) =
@@ -542,8 +576,34 @@ function frexp{T<:AbstractFloat,D,U}(x::Quantity{T,D,U})
     a,b
 end
 
+"""
+```
+float(x::Quantity)
+```
+
+Convert the numeric backing type of `x` to a floating-point representation.
+Returns a `Quantity` with the same units.
+"""
 float(x::Quantity) = Quantity(float(x.val), unit(x))
+
+"""
+```
+Integer(x::Quantity)
+```
+
+Convert the numeric backing type of `x` to an integer representation.
+Returns a `Quantity` with the same units.
+"""
 Integer(x::Quantity) = Quantity(Integer(x.val), unit(x))
+
+"""
+```
+Rational(x::Quantity)
+```
+
+Convert the numeric backing type of `x` to a rational number representation.
+Returns a `Quantity` with the same units.
+"""
 Rational(x::Quantity) = Quantity(Rational(x.val), unit(x))
 
 colon(start::Quantity, step::Quantity, stop::Quantity) =

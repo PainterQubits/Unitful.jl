@@ -50,7 +50,7 @@ julia> convert(Complex{Float64}, 1.0u"μm/m")
 1.0e-6 + 0.0im
 
 julia> convert(Float64, 1.0u"m")
-ERROR: MethodError
+ERROR: Cannot convert a dimensionful quantity to a pure number.
 ```
 
 ```@docs

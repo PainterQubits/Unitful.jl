@@ -68,17 +68,21 @@ of ten of the unit, using the standard SI prefixes. A `dimension` must be given
 ([`Unitful.Dimensions`](@ref) object) that specifies the dimension of the
 reference unit.
 
-Usage example: `@refunit m "m" Meter 𝐋`
+Usage example: `@refunit m "m" Meter 𝐋 true`
 
 This will generate `km`, `m`, `cm`, ...
 """
-macro refunit(symb, abbr, name, dimension)
+macro refunit(symb, abbr, name, dimension, tf)
     x = Expr(:quote, name)
     esc(quote
         Unitful.abbr(::Unitful.Unit{$x}) = $abbr
         Unitful.dimension(y::Unitful.Unit{$x}) = $dimension^y.power
         Unitful.basefactor(y::Unitful.Unit{$x}) = (1.0, 1)
-        Unitful.@prefixed_unit_symbols $symb $name
+        if $tf
+            Unitful.@prefixed_unit_symbols $symb $name
+        else
+            Unitful.@unit_symbols $symb $name
+        end
     end)
 end
 

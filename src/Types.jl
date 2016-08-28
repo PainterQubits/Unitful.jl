@@ -106,7 +106,7 @@ typealias UnitlessQuantity{T} Quantity{T, Dimensions{()}, Units{()}}
 ```
 
 When [`Unitful.Quantity`](@ref) objects are combined with unitless numbers in a
-matrix or vector as is sometimes encountered in general relativity, we wrap
+matrix or vector, e.g. as is sometimes encountered in general relativity, we wrap
 the unitless numbers in a `UnitlessQuantity{T}` type. This way, the array can
 specialize on the numeric backing type. Otherwise, the most specific container
 would be something like `AbstractArray{Number}`.
@@ -116,6 +116,23 @@ typealias UnitlessQuantity{T} Quantity{T, Dimensions{()}, Units{()}}
 UnitlessQuantity{T<:Quantity}(x::T) =
     error("To strip units from a quantity `x`, divide out by `unit(x)`.")
 UnitlessQuantity{T<:Number}(x::T) = UnitlessQuantity{T}(x)
+
+"""
+```
+typealias DimensionlessQuantity{T,U} Quantity{T, Dimensions{()}, U}
+```
+
+Useful for dispatching on [`Unitful.Quantity`](@ref) types that may have units
+but no dimensions. (Units with differing power-of-ten prefixes are not canceled
+out.)
+
+Example:
+```jldoctest
+julia> isa(1.0u"mV/V", DimensionlessQuantity)
+true
+```
+"""
+typealias DimensionlessQuantity{T,U} Quantity{T, Dimensions{()}, U}
 
 """
 ```

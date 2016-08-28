@@ -1,3 +1,8 @@
+```@meta
+DocTestSetup = quote
+    using Unitful
+end
+```
 We define a [`Unitful.Unit{U}`](@ref) type to represent a unit (`U` is a symbol,
 like `:Meter`). `Unit`s keep track of a rational exponents and a power-of-ten
 prefix. We don't allow arbitrary floating point exponents of units because they
@@ -22,7 +27,10 @@ explicitly in the type signature, dispatch can be done on dimensions:
 some subset of `Quantity` subtypes.
 
 ```@docs
+    Unitful.AbstractQuantity{T}
     Unitful.Quantity{T,D,U}
+    Unitful.DimensionlessQuantity{T,U}
+    Unitful.UnitlessQuantity{T}
     Unitful.Unitlike
     Unitful.Units{N}
     Unitful.Dimensions{N}

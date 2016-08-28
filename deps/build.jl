@@ -27,15 +27,15 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
 
         # Define base units. This is not to imply g is the base SI unit instead of kg.
         # See the documentation for further details.
-        # #key:   Symbol  Display  Name      Dimension
-        @refunit  m       "m"      Meter     𝐋
-        @refunit  s       "s"      Second    𝐓
-        @refunit  A       "A"      Ampere    𝐈
-        @refunit  K       "K"      Kelvin    𝚯
-        @refunit  cd      "cd"     Candela   𝐉
-        @refunit  mol     "mol"    Mole      𝐍
-        @refunit  g       "g"      Gram      𝐌
-        @refunit  rad     "rad"    Radian    ∠
+        # #key:   Symbol  Display  Name      Dimension  Prefixes?
+        @refunit  m       "m"      Meter     𝐋          true
+        @refunit  s       "s"      Second    𝐓          true
+        @refunit  A       "A"      Ampere    𝐈          true
+        @refunit  K       "K"      Kelvin    𝚯          true
+        @refunit  cd      "cd"     Candela   𝐉          true
+        @refunit  mol     "mol"    Mole      𝐍          true
+        @refunit  g       "g"      Gram      𝐌          true
+        @refunit  rad     "rad"    Radian    ∠          true
 
         # These lines allow for μ to be typed with option-m on a Mac.
         # The character encodings are different here so this is less crazy than it looks

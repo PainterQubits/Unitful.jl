@@ -134,6 +134,13 @@ function convert{T,D,U}(::Type{Quantity{T,D,U}}, y::Quantity)
     end
 end
 
+"""
+```
+convert{S}(::Type{Quantity{S,Dimensions{()},Units{()}}}, x::Quantity)
+```
+
+Attempt conversion of `x` to a unitless `Quantity` type.
+"""
 function convert{S}(::Type{Quantity{S,Dimensions{()},Units{()}}}, x::Quantity)
     if isa(x, UnitlessQuantity)
         UnitlessQuantity{S}(x.val)
@@ -142,20 +149,64 @@ function convert{S}(::Type{Quantity{S,Dimensions{()},Units{()}}}, x::Quantity)
     end
 end
 
+"""
+```
+convert{T}(::Type{Quantity{T,Dimensions{()},Units{()}}}, x::Number)
+```
+
+Convert `x` to a dimensionless `Quantity`.
+"""
 convert{T}(::Type{Quantity{T,Dimensions{()},Units{()}}}, x::Number) =
     UnitlessQuantity{T}(x)
 
+"""
+```
+convert{T}(::Type{AbstractQuantity{T}}, x::Quantity)
+```
+
+Converts the numeric backing type of `x` to type `T`. Units of `x` remain
+unchanged.
+"""
 convert{T}(::Type{AbstractQuantity{T}}, x::Quantity) =
     Quantity(T(x.val), unit(x))
 
-convert{S,T,U}(::Type{AbstractQuantity{S}}, y::Quantity{T,Dimensions{()},U}) =
-    Quantity{S,Dimensions{()},U}(y.val)
+"""
+```
+convert{S,T,U}(::Type{AbstractQuantity{S}}, x::Quantity{T,Dimensions{()},U})
+```
 
+Converts the numeric backing type of dimensionless quantity `x` to type `T`.
+Units of `x` remain unchanged.
+"""
+convert{S,T,U}(::Type{AbstractQuantity{S}}, x::Quantity{T,Dimensions{()},U}) =
+    Quantity{S,Dimensions{()},U}(x.val)
+
+"""
+```
+convert{T}(::Type{AbstractQuantity{T}}, x::Number)
+```
+
+Converts `x` to type `T` and then makes a unitless, dimensionless `Quantity`.
+"""
 convert{T}(::Type{AbstractQuantity{T}}, x::Number) =
     Quantity{T, Dimensions{()}, Units{()}}(x)
 
+"""
+```
+convert(::Type{AbstractQuantity}, x::Quantity) = x
+```
+
+Pass through the `Quantity` `x`.
+"""
 convert(::Type{AbstractQuantity}, x::Quantity) = x
 
+"""
+```
+convert(::Type{AbstractQuantity}, x::Number)
+```
+
+Convert `x` to a dimensionless, unitless `Quantity`.
+"""
 convert(::Type{AbstractQuantity}, x::Number) =
     Quantity{typeof(x), Dimensions{()}, Units{()}}(x)
 
@@ -164,7 +215,7 @@ convert(::Type{AbstractQuantity}, x::Number) =
 convert{N<:Number,S,T}(::Type{N}, y::Quantity{S,Dimensions{()},T})
 ```
 
-Allow converting a dimensionless `Quantity` to type `N<:Number`.
+Convert a dimensionless `Quantity` `y` to type `N<:Number`.
 """
 function convert{N<:Number}(::Type{N}, y::Quantity)
     if dimension(y) == Dimensions{()}()
