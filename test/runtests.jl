@@ -2,7 +2,7 @@ using Unitful
 using Base.Test
 
 import Unitful: m, ac, g, A, kg, cm, inch, mi, ft, °Ra, °F, °C, μm,
-    s, A, K, mol, cd, rad, V, cm, hr, mm, km, minute, °
+    s, A, K, mol, cd, rad, V, cm, hr, mm, km, minute, °, J
 
 import Unitful: 𝐋, 𝐓
 
@@ -54,6 +54,7 @@ end
             @test 1inch == (254//100)*cm
             @test 1ft == 12inch
             @test 1/mi == 1//(5280ft)
+            @test 1J == 1u"kg*m^2/s^2"
         end
         @testset ">> Temperature conversion" begin
             # When converting a pure temperature, offsets in temperature are
@@ -288,7 +289,9 @@ end
             @test @inferred([1m, 2m]' * [3m, 4m])    == [11m^2]
             @test @inferred([1V,2V]*[0.1/m, 0.4/m]') == [0.1V/m 0.4V/m; 0.2V/m 0.8V/m]
             @test @inferred([1m, 2m]' * [3/m, 4/m])  == [11]
+            @test typeof([1m, 2m]' * [3/m, 4/m])     == Array{Int,1}
             @test @inferred([1m, 2V]' * [3/m, 4/V])  == [11]
+            @test typeof([1m, 2V]' * [3/m, 4/V])     == Array{Int,1}
             @test @inferred([1m, 2V] * [3/m, 4/V]')  == [3 4u"m*V^-1"; 6u"V*m^-1" 8]
         end
 
@@ -307,6 +310,7 @@ end
 
         @testset ">> Element-wise addition" begin
             @test @inferred(5m .+ [1m, 2m, 3m])      == [6m, 7m, 8m]
+
         end
     end
 end

@@ -14,7 +14,7 @@ import Base: prevfloat, nextfloat, maxintfloat, rat, step #, linspace
 import Base: promote_op, promote_array_type, promote_rule, unsafe_getindex
 import Base: length, float, start, done, next, last, one, zero, colon#, range
 import Base: getindex, eltype, step, last, first, frexp
-import Base: Rational, Complex, typemin, typemax
+import Base: Rational, typemin, typemax
 import Base: steprange_last, unitrange_last, unsigned
 
 export unit, dimension, uconvert
@@ -123,7 +123,25 @@ Unitful.Dimensions{()}
 """
 dimension{T,D,U}(x::Quantity{T,D,U}) = D()
 
-function basefactorhelper(inex, ex, p)
+"""
+```
+dimension{T<:AbstractQuantity}(x::AbstractArray{T})
+```
+
+Just calls `map(dimension, x)`.
+"""
+dimension{T<:AbstractQuantity}(x::AbstractArray{T}) = map(dimension, x)
+
+"""
+```
+dimension{T<:Units}(x::AbstractArray{T})
+```
+
+Just calls `map(dimension, x)`.
+"""
+dimension{T<:Units}(x::AbstractArray{T}) = map(dimension, x)
+
+function basefactorhelper(inex, ex, t, p)
     if isinteger(p)
         p = Integer(p)
     end
@@ -131,15 +149,15 @@ function basefactorhelper(inex, ex, p)
     can_exact = (ex < typemax(Int))
     can_exact &= (1/ex < typemax(Int))
 
-    ex2 = float(ex)^p
+    ex2 = 10.0^t*float(ex)^p
     can_exact &= (ex2 < typemax(Int))
     can_exact &= (1/ex2 < typemax(Int))
     can_exact &= isinteger(p)
 
     if can_exact
-        (inex^p, (ex//1)^p)
+        (inex^p, (ex//1*10^t)^p)
     else
-        ((inex * ex)^p, 1)
+        ((inex * ex * 10.0^t)^p, 1)
     end
 end
 
@@ -157,6 +175,12 @@ function tensfactor(x::Unit)
         p = Integer(p)
     end
     tens(x)*p
+end
+
+@generated function tensfactor(x::Units)
+    tunits = x.parameters[1]
+    a = mapreduce(tensfactor, +, 0, tunits)
+    :($a)
 end
 
 # Addition / subtraction
@@ -304,9 +328,9 @@ for (f,F) in [(:./, :/), (:.*, :*), (:.+, :+), (:.-, :-)]
     @eval ($f)(x::Number, y::Units)   = ($F)(x,y)
     @eval ($f)(x::Units, y::Number)   = ($F)(x,y)
 end
-.\(x::Units, y::Units) = y./x
-.\(x::Number, y::Units)   = y./x
-.\(x::Units, y::Number)   = y./x
+.\(x::Unitlike, y::Unitlike) = y./x
+.\(x::Number, y::Units) = y./x
+.\(x::Units, y::Number) = y./x
 
 # See arraymath.jl
 ./(x::Units, Y::AbstractArray) =
@@ -337,29 +361,29 @@ for f in (:.*,)
     end
 end
 
-# Division (floating point)
+# Division (units)
 
-/(x::Units, y::Units)           = *(x,inv(y))
-/(x::Dimensions, y::Dimensions) = *(x,inv(y))
-/(x::Real, y::Units)            = Quantity(x,inv(y))
-/(x::Units, y::Real)            = (1/y) * x
-/(x::Quantity, y::Units)        = Quantity(x.val, unit(x) / y)
-/(x::Quantity, y::Quantity)     = Quantity(x.val / y.val, unit(x) / unit(y))
-/(x::Quantity, y::Real)         = Quantity(x.val / y, unit(x))
-/(x::Real, y::Quantity)         = Quantity(x / y.val, inv(unit(y)))
+/(x::Unitlike, y::Unitlike) = *(x,inv(y))
+/(x::Quantity, y::Units) = Quantity(x.val, unit(x) / y)
+/(x::Units, y::Quantity) = Quantity(1/y.val, x / unit(y))
+/(x::Number, y::Units) = Quantity(x,inv(y))
+/(x::Units, y::Number) = (1/y) * x
 
-# Division (rationals)
-
-//(x::Units, y::Units)  = x/y
-//(x::Real, y::Units)   = Rational(x)/y
-//(x::Units, y::Real)   = (1//y) * x
-
-//(x::Units, y::Quantity) = Quantity(1//y.val, x / unit(y))
+//(x::Unitlike, y::Unitlike)  = x/y
 //(x::Quantity, y::Units) = Quantity(x.val, unit(x) / y)
-//(x::Quantity, y::Quantity) = Quantity(x.val // y.val, unit(x) / unit(y))
+//(x::Units, y::Quantity) = Quantity(1//y.val, x / unit(y))
+//(x::Number, y::Units) = Rational(x)/y
+//(x::Units, y::Number) = (1//y) * x
 
-//(x::Quantity, y::Real) = Quantity(x.val // y, unit(x))
-//(x::Real, y::Quantity) = Quantity(x // y.val, inv(unit(y)))
+# Division (quantities)
+
+for op in (:/, ://)
+    @eval begin
+        ($op)(x::Quantity, y::Quantity) = Quantity(($op)(x.val, y.val), unit(x) / unit(y))
+        ($op)(x::Quantity, y::Number) = Quantity(($op)(x.val, y), unit(x))
+        ($op)(x::Number, y::Quantity) = Quantity(($op)(x, y.val), inv(unit(y)))
+    end
+end
 
 # Division (other functions)
 
@@ -415,6 +439,8 @@ end
 
 # Other mathematical functions
 
+sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
+
 # This is a generated function to ensure type stability and keep `sqrt` fast.
 @generated function sqrt(x::Units)
     tup = x.parameters[1]
@@ -454,7 +480,6 @@ for (f, F) in [(:min, :<), (:max, :>)]
         unit(($f)(Quantity(1.0, x), Quantity(1.0, y)))
 end
 
-sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
 abs(x::Quantity) = Quantity(abs(x.val),  unit(x))
 abs2(x::Quantity) = Quantity(abs2(x.val), unit(x)*unit(x))
 

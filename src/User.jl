@@ -77,7 +77,7 @@ macro refunit(symb, abbr, name, dimension)
     esc(quote
         Unitful.abbr(::Unitful.Unit{$x}) = $abbr
         Unitful.dimension(y::Unitful.Unit{$x}) = $dimension^y.power
-        Unitful.basefactor(::Unitful.Unit{$x}) = (1.0, 1)
+        Unitful.basefactor(y::Unitful.Unit{$x}) = (1.0, 1)
         Unitful.@prefixed_unit_symbols $symb $name
     end)
 end
@@ -102,6 +102,7 @@ macro unit(symb,abbr,name,equals,tf)
     x = Expr(:quote, name)
     quote
         inex, ex = Unitful.basefactor(Unitful.unit($(esc(equals))))
+        t = Unitful.tensfactor(Unitful.unit($(esc(equals))))
         eq = ($(esc(equals)))/Unitful.unit($(esc(equals)))
         Base.isa(eq, Base.Integer) || Base.isa(eq, Base.Rational) ?
              (ex *= eq) : (inex *= eq)
@@ -109,7 +110,7 @@ macro unit(symb,abbr,name,equals,tf)
         Unitful.dimension(y::Unitful.Unit{$(esc(x))}) =
             Unitful.dimension($(esc(equals)))^y.power
         Unitful.basefactor(y::Unitful.Unit{$(esc(x))}) =
-            Unitful.basefactorhelper(inex, ex, y.power)
+            Unitful.basefactorhelper(inex, ex, t, y.power)
         if $tf
             Unitful.@prefixed_unit_symbols $(esc(symb)) $(esc(name))
         else

@@ -118,6 +118,3 @@ promote_rule{S,T<:Number}(::Type{AbstractQuantity{S}}, ::Type{T}) =
 
 promote_rule{S,T<:Number}(x::Type{T}, y::Type{AbstractQuantity{S}}) =
     promote_rule(y,x)
-# ------
-
-prefer_number(x) = x
