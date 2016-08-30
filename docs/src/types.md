@@ -3,6 +3,7 @@ DocTestSetup = quote
     using Unitful
 end
 ```
+## Overview
 We define a [`Unitful.Unit{U}`](@ref) type to represent a unit (`U` is a symbol,
 like `:Meter`). `Unit`s keep track of a rational exponents and a power-of-ten
 prefix. We don't allow arbitrary floating point exponents of units because they
@@ -23,14 +24,20 @@ We define physical quantity types as [`Quantity{T<:Number, D, U}`](@ref), where
 quantity, staged functions can be used to offload as much of the unit
 computation to compile-time as is possible. By also having the dimensions
 explicitly in the type signature, dispatch can be done on dimensions:
-`isa(1m, Length) == true`. This works because `Length{T,U}` is a type alias for
-some subset of `Quantity` subtypes.
+`isa(1m, Length) == true`. This works because `Length{T}` is a type alias for
+some subset of [`Unitful.DimensionedQuantity`](@ref) subtypes.
 
+## Quantities
 ```@docs
     Unitful.AbstractQuantity{T}
+    Unitful.DimensionedQuantity{T,D}
     Unitful.Quantity{T,D,U}
     Unitful.DimensionlessQuantity{T,U}
     Unitful.UnitlessQuantity{T}
+```
+
+## Units and dimensions
+```@docs
     Unitful.Unitlike
     Unitful.Units{N}
     Unitful.Dimensions{N}

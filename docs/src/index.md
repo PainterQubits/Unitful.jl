@@ -20,25 +20,53 @@ that are found in Julia base.
 
 ## Features
 
-- Can dispatch on dimensions. Consider the following conversion from voltage
-  or power ratios to decibels (for given ratio `num/den`):
+- Can dispatch on the dimensions of a quantity. Consider the following
+  toy example, converting from voltage or power ratios to decibels
+  and assuming a 50 Ohm load:
 
-```
-Unitful.dB(num::Unitful.Voltage, den::Unitful.Voltage) = 20*log10(num/den)
-Unitful.dB(num::Unitful.Power, den::Unitful.Power) = 10*log10(num/den)
-```
 ```jldoctest
-julia> Unitful.dB(1u"mV", 1u"V")
+julia> dB(num::Unitful.Voltage, den::Unitful.Voltage) = 20*log10(num/den)
+ dB (generic function with 1 method)
+
+julia> dB(num::Unitful.Power, den::Unitful.Power) = 10*log10(num/den)
+ dB (generic function with 2 methods)
+
+julia> dB(1u"mV", 1u"V")
 -60.0
-julia> Unitful.dB(1u"mW", 1u"W")
+
+julia> dB(1u"mW", 1u"W")
 -30.0
 ```
 
+- Can specify the dimensions of a quantity in a type definition, while still
+  maintaining information about the size of the fields in the type:
+
+```
+type Person
+    height::Unitful.Length{Float64}
+    mass::Unitful.Mass{Float64}
+end
+```
+- Can make new units using the [`@unit`](@ref) macro without digging through the code.
+- Arrays can hold quantities with different units, different dimensions, even
+  mixed with unitless numbers.
+  This is done efficiently using the [`Unitful.AbstractQuantity{T}`](@ref) type,
+  and could be useful in [general relativity](https://en.wikipedia.org/wiki/Metric_tensor_(general_relativity)):
+
+```
+julia> @unit c "c" SpeedOfLight 299792458u"m/s" false
+c
+
+julia> Diagonal([-1.0c^2, 1.0, 1.0, 1.0])
+4×4 Diagonal{Unitful.AbstractQuantity{Float64}}:
+ -1.0 c^2   ⋅    ⋅    ⋅
+       ⋅   1.0   ⋅    ⋅
+       ⋅    ⋅   1.0   ⋅
+       ⋅    ⋅    ⋅   1.0
+```
+
 - Units may have rational exponents.
-- Arrays can hold quantities with different units or even different dimensions.
-  This is done efficiently using the [`Unitful.AbstractQuantity{T}`](@ref) type.
 - Exact conversions are respected by using `Rational`s where possible.
-- Can make new units using the `@unit` macro without digging through the code.
 - Units are sticky. Although `1.0 J` and `1.0 N m` are equivalent quantities,
   they are represented distinctly, so further manipulations on `1.0 J` can leave
   the `J` intact. Furthermore, units are only canceled out if they are exactly

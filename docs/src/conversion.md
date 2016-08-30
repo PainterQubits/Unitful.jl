@@ -54,9 +54,15 @@ ERROR: Cannot convert a dimensionful quantity to a pure number.
 ```
 
 ```@docs
-convert{R<:Real,S,T}(::Type{R}, ::Quantity{S,Unitful.Dimensions{()},T})
-convert{C<:Complex,S,T}(::Type{C}, ::Quantity{S,Unitful.Dimensions{()},T})
-convert{T1,T2,D,U1,U2}(::Type{Quantity{T1,D,U1}}, ::Quantity{T2,D,U2})
+convert{T,D,U}(::Type{Quantity{T,D,U}}, ::Quantity)
+convert{T}(::Type{UnitlessQuantity{T}}, ::Quantity)
+convert{T}(::Type{UnitlessQuantity{T}}, ::Number)
+convert{T}(::Type{AbstractQuantity{T}}, ::Quantity)
+convert{S}(::Type{AbstractQuantity{S}}, ::DimensionlessQuantity)
+convert{T}(::Type{AbstractQuantity{T}}, ::Number)
+convert(::Type{AbstractQuantity}, ::Quantity)
+convert(::Type{AbstractQuantity}, ::Number)
+convert{N<:Number,S,T}(::Type{N}, ::Quantity)
 ```
 
 ## Temperature conversion

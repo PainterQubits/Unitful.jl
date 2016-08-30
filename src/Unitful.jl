@@ -19,7 +19,8 @@ import Base: steprange_last, unitrange_last, unsigned
 
 export unit, dimension, uconvert
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
-export AbstractQuantity, UnitlessQuantity, DimensionlessQuantity, Quantity
+export AbstractQuantity, DimensionedQuantity, Quantity
+export UnitlessQuantity, DimensionlessQuantity
 
 include("Types.jl")
 include("User.jl")
@@ -423,7 +424,7 @@ end
 
 for z in (:Units, :Dimensions)
     @eval begin
-        function ^{T}(x::$z{T}, y::Integer)
+        function ^{T}(x::$z{T}, y::Integer)   # needed for ambiguity resolution
             *($z{map(a->a^y, T)}())
         end
 
@@ -433,19 +434,44 @@ for z in (:Units, :Dimensions)
     end
 end
 
+"""
+```
+^{T}(x::Units{T}, y)
+```
+"""
+^{T}(::Units{T}, ::Any)
+
+"""
+```
+^{T}(x::Dimensions{T}, y)
+```
+"""
+^{T}(::Dimensions{T}, ::Any)
+
+# All of these are needed for ambiguity resolution
 ^{T,D,U}(x::Quantity{T,D,U}, y::Integer) = Quantity((x.val)^y, U()^y)
 ^{T,D,U}(x::Quantity{T,D,U}, y::Rational) = Quantity((x.val)^y, U()^y)
 ^{T,D,U}(x::Quantity{T,D,U}, y::Real) = Quantity((x.val)^y, U()^y)
 
 # Other mathematical functions
-
+"""
+```
+sqrt(x::Quantity)
+```
+"""
 sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
 
 # This is a generated function to ensure type stability and keep `sqrt` fast.
-@generated function sqrt(x::Units)
+"""
+```
+sqrt(x::Unitlike)
+```
+"""
+@generated function sqrt(x::Unitlike)
     tup = x.parameters[1]
     tup2 = map(x->x^(1//2),tup)
-    y = *(Units{tup2}())
+    T = (x <: Units ? Units : Dimensions)
+    y = *(T{tup2}())    # sort appropriately
     :($y)
 end
 
@@ -476,9 +502,12 @@ for (f, F) in [(:min, :<), (:max, :>)]
         :($($F)(x.val*$convx, y.val*$convy) ? x : y)
     end
 
-    @eval ($f)(x::Units, y::Units) =
+    @eval ($f)(x::Units, y::Units) =        # TODO remove
         unit(($f)(Quantity(1.0, x), Quantity(1.0, y)))
 end
+
+@vectorize_2arg Quantity max
+@vectorize_2arg Quantity min
 
 abs(x::Quantity) = Quantity(abs(x.val),  unit(x))
 abs2(x::Quantity) = Quantity(abs2(x.val), unit(x)*unit(x))

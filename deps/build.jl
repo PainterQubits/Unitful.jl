@@ -11,9 +11,9 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         @dimension 𝐓 "𝐓" Time
         @dimension 𝐈 "𝐈" Current
         @dimension 𝚯 "𝚯" Temperature    # This one is \\mbfTheta
-        @dimension 𝐍 "𝐍" Amount
         @dimension 𝐉 "𝐉" Luminosity
         @dimension ∠ "∠" Angle          # This one is just \\angle
+        @dimension 𝐍 "𝐍" Amount
 
         # Define derived dimensions.
         @derived_dimension Area         𝐋^2
@@ -27,15 +27,15 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
 
         # Define base units. This is not to imply g is the base SI unit instead of kg.
         # See the documentation for further details.
-        # #key:   Symbol  Display  Name      Dimension  Prefixes?
-        @refunit  m       "m"      Meter     𝐋          true
-        @refunit  s       "s"      Second    𝐓          true
-        @refunit  A       "A"      Ampere    𝐈          true
-        @refunit  K       "K"      Kelvin    𝚯          true
-        @refunit  cd      "cd"     Candela   𝐉          true
-        @refunit  mol     "mol"    Mole      𝐍          true
-        @refunit  g       "g"      Gram      𝐌          true
-        @refunit  rad     "rad"    Radian    ∠          true
+        # #key:   Symbol  Display  Name      Dimension      Prefixes?
+        @refunit  m       "m"      Meter     𝐋                 true
+        @refunit  s       "s"      Second    𝐓                 true
+        @refunit  A       "A"      Ampere    𝐈                 true
+        @refunit  K       "K"      Kelvin    𝚯                 true
+        @refunit  cd      "cd"     Candela   𝐉                  true
+        @refunit  g       "g"      Gram      𝐌                 true
+        @refunit  rad     "rad"    Radian    ∠                 true
+        @refunit  mol     "mol"    Mole      𝐍                 true
 
         # These lines allow for μ to be typed with option-m on a Mac.
         # The character encodings are different here so this is less crazy than it looks
@@ -111,7 +111,7 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         const mn = 1.674_927_471e-27*kg     # (21) neutron rest mass
         const mp = 1.672_621_898e-27*kg     # (21) proton rest mass
         const μB = e*ħ/(2*me)               # Bohr magneton
-        const Na = 6.022_140_857e23/mol     # (74) Avogadro constant
+        const Na = 6.022_140_857e23/mol       # (74) Avogadro constant
         const R  = 8.314_459_8*J/(mol*K)    # (48) molar gass constant
         const k  = 1.380_648_52e-23*(J/K)   # (79) Boltzmann constant
         const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
@@ -120,28 +120,6 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         for op in [:+, :-]
             # Can change to min(x,y), x, or y
             @eval (\$op)(x::Unitful.Units, y::Unitful.Units) = max(x,y)
-        end
-
-        \"\"\"
-        ```
-        dB(numerator::Voltage, denominator::Voltage)
-        ```
-
-        Give the ratio of two voltages in dB.
-        \"\"\"
-        function dB(numerator::Voltage, denominator::Voltage)
-            20*log10(numerator/denominator)
-        end
-
-        \"\"\"
-        ```
-        dB(numerator::Power, denominator::Power)
-        ```
-
-        Give the ratio of two powers in dB.
-        \"\"\"
-        function dB(numerator::Power, denominator::Power)
-            10*log10(numerator/denominator)
         end
         """)
     end

@@ -4,7 +4,7 @@ using Base.Test
 import Unitful: m, ac, g, A, kg, cm, inch, mi, ft, °Ra, °F, °C, μm,
     s, A, K, mol, cd, rad, V, cm, hr, mm, km, minute, °, J
 
-import Unitful: 𝐋, 𝐓
+import Unitful: 𝐋, 𝐓, 𝐍
 
 import Unitful:
     Length, Area, Volume,
@@ -13,7 +13,6 @@ import Unitful:
     Mass,
     Current,
     Temperature,
-    Amount,
     Angle
 
 @testset "Type construction" begin
@@ -29,6 +28,7 @@ import Unitful:
         Unitful.Quantity{Int,
             Unitful.Dimensions{(Unitful.Dimension{:Length}(2),)},
             Unitful.Units{(Unitful.Unit{:Acre}(0, 1),)}}
+    @test isa(1J//10, AbstractQuantity{Rational{Int}}) == true
 end
 
 @testset "Conversion" begin
@@ -94,20 +94,24 @@ end
     @test dimension(m^2) == 𝐋^2
     @test dimension(1m/s) == 𝐋/𝐓
     @test dimension(m/s) == 𝐋/𝐓
+    @test dimension(1u"mol") == 𝐍
     @test dimension(μm/m) == Unitful.Dimensions{()}()
+    @test dimension([1u"m", 1u"s"]) == [𝐋, 𝐓]
     @test (𝐋/𝐓)^2 == 𝐋^2 / 𝐓^2
     @test isa(1m, Length)
+    @test isa(1m, Length{Int})
+    @test !isa(1m, Length{Float64})
     @test !isa(1m, Area)
     @test !isa(1m, Luminosity)
     @test isa(1ft, Length)
     @test isa(1m^2, Area)
+    @test !isa(1m^2, Length)
     @test isa(1inch^3, Volume)
     @test isa(1/s, Frequency)
     @test isa(1kg, Mass)
     @test isa(1s, Time)
     @test isa(1A, Current)
     @test isa(1K, Temperature)
-    @test isa(1mol, Amount)
     @test isa(1cd, Luminosity)
     @test isa(1rad, Angle)
 end
@@ -121,7 +125,8 @@ end
         @test 1 != 1m
         @test min(1hr, 1s) == 1s              # take scale of units into account
         @test max(1ft, 1m) == 1m
-        @test max(km, m) == km         # implicit ones to compare units directly
+        @test max(10J, 1kg*m^2/s^2) === 10J
+        @test max(1J//10, 1kg*m^2/s^2) === 1kg*m^2/s^2
         @test (3V+4V*im) != (3m+4m*im)
         @test (3V+4V*im) != (3+4im)
         @test (3+4im)*V == (3V+4V*im)
@@ -161,9 +166,18 @@ end
         @test inv(s) == s^-1
     end
 
-    @testset "> Miscellaneous math" begin
+    @testset "> Exponentiation" begin
+        @test m^3/m == m^2
+        @test 𝐋^3/𝐋 == 𝐋^2
         @test sqrt(4m^2) == 2m                # sqrt works
         @test sqrt(4m^(2//3)) == 2m^(1//3)    # less trivial example
+        @test sqrt(𝐋^2) == 𝐋
+        @test sqrt(m^2) == m
+        @test (2m)^3 == 8*m^3
+        @test (8m)^(1//3) == 2*m^(1//3)
+    end
+
+    @testset "> Trigonometry" begin
         @test sin(90°) == 1                   # sin(degrees) works
         @test cos(π*rad) == -1                # ...radians work
     end
@@ -310,7 +324,6 @@ end
 
         @testset ">> Element-wise addition" begin
             @test @inferred(5m .+ [1m, 2m, 3m])      == [6m, 7m, 8m]
-
         end
     end
 end

@@ -79,24 +79,38 @@ immutable Dimensions{N} <: Unitlike end
 abstract AbstractQuantity{T<:Number} <: Number
 ```
 
-Super-type of [`Unitful.Quantity`](@ref) types. Used in promotion when making
-arrays of quantities with differing dimensions (or when combining with unitless
-numbers).
+Super-type of [`Unitful.DimensionedQuantity`](@ref) types. Used in promotion when
+making arrays of quantities with differing dimensions (or when combining with unitless
+numbers). The type parameter `T` is the numeric backing type.
 """
 abstract AbstractQuantity{T<:Number} <: Number
 
 """
 ```
-immutable Quantity{T,D,U} <: AbstractQuantity{T}
+abstract DimensionedQuantity{T,D} <: AbstractQuantity{T}
 ```
 
-A physical quantity, which is dimensionful and has units. The type parameter `T`
-represents the numeric backing type. The type parameters
+Super-type of [`Unitful.Quantity`](@ref) types. Used in dispatch on quantities
+of a particular dimension, without having to specify the units. The type
+parameter `T` is the numeric backing type, and `D <: ` [`Unitful.Dimensions`](@ref).
+"""
+abstract DimensionedQuantity{T,D} <: AbstractQuantity{T}
+
+"""
+```
+immutable Quantity{T,D,U} <: DimensionedQuantity{T,D}
+```
+
+A quantity, which has dimensions and units specified in the type signature.
+The dimensions and units are allowed to be the empty set, in which case a
+dimensionless, unitless number results.
+
+The type parameter `T` represents the numeric backing type. The type parameters
 `D <: ` [`Unitful.Dimensions`](@ref) and `U <: ` [`Unitful.Units`](@ref).
 Of course, the dimensions follow from the units, but the type parameters are
 kept separate to permit convenient dispatch on dimensions.
 """
-immutable Quantity{T,D,U} <: AbstractQuantity{T}
+immutable Quantity{T,D,U} <: DimensionedQuantity{T,D}
     val::T
 end
 
@@ -114,12 +128,12 @@ would be something like `AbstractArray{Number}`.
 typealias UnitlessQuantity{T} Quantity{T, Dimensions{()}, Units{()}}
 
 UnitlessQuantity{T<:Quantity}(x::T) =
-    error("To strip units from a quantity `x`, divide out by `unit(x)`.")
+    error("To strip units, divide out by `unit(x)`.")
 UnitlessQuantity{T<:Number}(x::T) = UnitlessQuantity{T}(x)
 
 """
 ```
-typealias DimensionlessQuantity{T,U} Quantity{T, Dimensions{()}, U}
+typealias DimensionlessQuantity{T,U} Quantity{T, Dimensions{()},U}
 ```
 
 Useful for dispatching on [`Unitful.Quantity`](@ref) types that may have units
