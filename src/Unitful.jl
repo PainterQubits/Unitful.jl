@@ -318,19 +318,17 @@ true
     :(($T){$d}())
 end
 
-@generated function *{T,D,U}(x::Quantity{T,D,U}, y::Units, z::Units...)
-    result_units = *(U(),y(),map(x->x(),z)...)
-    :(Quantity(x.val,$result_units))
+function *{T,D,U}(x::Quantity{T,D,U}, y::Units, z::Units...)
+    result_units = *(U(),y,z...)
+    Quantity(x.val,result_units)
 end
 
-@generated function *(x::Quantity, y::Quantity)
-    xunits = x.parameters[3]()
-    yunits = y.parameters[3]()
+function *(x::Quantity, y::Quantity)
+    xunits = unit(x)
+    yunits = unit(y)
     result_units = xunits*yunits
-    quote
-        z = x.val*y.val
-        Quantity(z,$result_units)
-    end
+    z = x.val*y.val
+    Quantity(z,result_units)
 end
 
 # Next two lines resolves some method ambiguity:
