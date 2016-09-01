@@ -46,6 +46,23 @@ unit{T,D,U}(x::Quantity{T,D,U}) = U()
 
 """
 ```
+unit{T,D,U}(x::Type{Quantity{T,D,U}})
+```
+
+Returns the units associated with a quantity type, `U()`.
+
+Examples:
+
+```jldoctest
+julia> unit(typeof(1.0u"m")) == u"m"
+true
+```
+"""
+unit{T,D,U}(::Type{Quantity{T,D,U}}) = U()
+
+
+"""
+```
 unit(x::Number)
 ```
 
@@ -105,7 +122,7 @@ dimension(u::Units{()}) = Dimensions{()}()
 
 """
 ```
-dimension{T,D,U}(x::Quantity{T,D,U})
+dimension{T,D}(x::DimensionedQuantity{T,D})
 ```
 
 Returns a [`Unitful.Dimensions`](@ref) object `D()` corresponding to the
@@ -122,7 +139,9 @@ julia> typeof(dimension(1.0u"m/μm"))
 Unitful.Dimensions{()}
 ```
 """
-dimension{T,D,U}(x::Quantity{T,D,U}) = D()
+dimension{T,D}(x::DimensionedQuantity{T,D}) = D()
+dimension{T,D}(x::Type{DimensionedQuantity{T,D}}) = D()
+dimension{T,D,U}(::Type{Quantity{T,D,U}}) = D()
 
 """
 ```

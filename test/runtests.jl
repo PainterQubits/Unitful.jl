@@ -89,8 +89,11 @@ end
     end
 end
 
-@testset "Dimensional analysis" begin
+@testset "Unit and dimensional analysis" begin
+    @test unit(1m^2) == m^2
+    @test unit(typeof(1m^2)) == m^2
     @test dimension(1m^2) == 𝐋^2
+    @test dimension(typeof(1m^2)) == 𝐋^2
     @test dimension(m^2) == 𝐋^2
     @test dimension(1m/s) == 𝐋/𝐓
     @test dimension(m/s) == 𝐋/𝐓
