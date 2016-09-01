@@ -21,8 +21,7 @@ that are found in Julia base.
 ## Features
 
 - Can dispatch on the dimensions of a quantity. Consider the following
-  toy example, converting from voltage or power ratios to decibels
-  and assuming a 50 Ohm load:
+  toy example, converting from voltage or power ratios to decibels:
 
 ```jldoctest
 julia> dB(num::Unitful.Voltage, den::Unitful.Voltage) = 20*log10(num/den)

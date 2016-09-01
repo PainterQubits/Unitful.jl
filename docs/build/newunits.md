@@ -30,7 +30,7 @@ Finally, a type alias is created that allows to dispatch on [`Unitful.Quantity`]
 Usage example: `@dimension 𝐋 "L" Length` (see `src/Defaults.jl`.)
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/User.jl#L1-L21' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/User.jl#L1-L21' class='documenter-source'>source</a><br>
 
 <a id='Unitful.@derived_dimension' href='#Unitful.@derived_dimension'>#</a>
 **`Unitful.@derived_dimension`** &mdash; *Macro*.
@@ -49,7 +49,7 @@ Usage examples:
   * `@derived_dimension Speed 𝐋/𝐓`
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/User.jl#L33-L47' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/User.jl#L33-L47' class='documenter-source'>source</a><br>
 
 <a id='Unitful.@refunit' href='#Unitful.@refunit'>#</a>
 **`Unitful.@refunit`** &mdash; *Macro*.
@@ -69,7 +69,7 @@ Usage example: `@refunit m "m" Meter 𝐋 true`
 This will generate `km`, `m`, `cm`, ...
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/User.jl#L55-L73' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/User.jl#L55-L73' class='documenter-source'>source</a><br>
 
 <a id='Unitful.@unit' href='#Unitful.@unit'>#</a>
 **`Unitful.@unit`** &mdash; *Macro*.
@@ -87,7 +87,7 @@ Usage example: `@unit mi "mi" Mile (201168//125)*m false`
 This will *not* generate `kmi` (kilomiles).
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/User.jl#L88-L101' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/User.jl#L88-L101' class='documenter-source'>source</a><br>
 
 <a id='Unitful.offsettemp' href='#Unitful.offsettemp'>#</a>
 **`Unitful.offsettemp`** &mdash; *Function*.
@@ -101,7 +101,7 @@ offsettemp(::Unit)
 For temperature units, this function is used to set the scale offset.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Unitful.jl#L667-L673' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Unitful.jl#L686-L692' class='documenter-source'>source</a><br>
 
 
 <a id='Internals-1'></a>
@@ -122,7 +122,7 @@ Not called directly by the user. Given a unit symbol and a unit's name, will def
 Example: `@prefixed_unit_symbols m Meter` results in nm, cm, m, km, ... all getting defined in the calling namespace.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/User.jl#L125-L135' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/User.jl#L125-L135' class='documenter-source'>source</a><br>
 
 <a id='Unitful.@unit_symbols' href='#Unitful.@unit_symbols'>#</a>
 **`Unitful.@unit_symbols`** &mdash; *Macro*.
@@ -138,7 +138,7 @@ Not called directly by the user. Given a unit symbol and a unit's name, will def
 Example: `@unit_symbols ft Foot` results in `ft` getting defined but not `kft`.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/User.jl#L151-L160' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/User.jl#L151-L160' class='documenter-source'>source</a><br>
 
 <a id='Unitful.basefactor' href='#Unitful.basefactor'>#</a>
 **`Unitful.basefactor`** &mdash; *Function*.
@@ -152,5 +152,5 @@ basefactor(x::Unit)
 Specifies conversion factors to reference units. It returns a tuple. The first value is any irrational part of the conversion, and the second value is a rational component. This segregation permits exact conversions within unit systems that have no rational conversion to the reference units.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/User.jl#L232-L242' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/User.jl#L232-L242' class='documenter-source'>source</a><br>
 

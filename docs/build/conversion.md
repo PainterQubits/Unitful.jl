@@ -29,7 +29,7 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 ```
@@ -39,7 +39,7 @@ uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},
 In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Conversion.jl#L32-L39' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L24-L31' class='documenter-source'>source</a><br>
 
 
 <a id='Conversion-and-promotion-mechanisms-1'></a>
@@ -73,7 +73,7 @@ julia> convert(Complex{Float64}, 1.0u"μm/m")
 1.0e-6 + 0.0im
 
 julia> convert(Float64, 1.0u"m")
-ERROR: Cannot convert a dimensionful quantity to a pure number.
+ERROR: Dimensional mismatch.
 ```
 
 <a id='Base.convert-Tuple{Type{Unitful.Quantity{T,D,U}},Unitful.Quantity}' href='#Base.convert-Tuple{Type{Unitful.Quantity{T,D,U}},Unitful.Quantity}'>#</a>
@@ -82,13 +82,13 @@ ERROR: Cannot convert a dimensionful quantity to a pure number.
 
 
 ```
-convert{T,D,U}(::Type{Quantity{T,D,U}}, y::Quantity)
+convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Quantity)
 ```
 
 Direct type conversion using `convert` is permissible provided conversion is between two quantities of the same dimension.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Conversion.jl#L114-L121' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L114-L121' class='documenter-source'>source</a><br>
 
 <a id='Base.convert-Tuple{Type{Unitful.Quantity{T,Unitful.Dimensions{()},Unitful.Units{()}}},Unitful.Quantity}' href='#Base.convert-Tuple{Type{Unitful.Quantity{T,Unitful.Dimensions{()},Unitful.Units{()}}},Unitful.Quantity}'>#</a>
 **`Base.convert`** &mdash; *Method*.
@@ -102,7 +102,7 @@ convert{T}(::Type{UnitlessQuantity{T}}, x::Quantity)
 Attempt conversion of `x` to a [`Unitful.UnitlessQuantity`](types.md#Unitful.UnitlessQuantity) type.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Conversion.jl#L134-L140' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L142-L148' class='documenter-source'>source</a><br>
 
 <a id='Base.convert-Tuple{Type{Unitful.Quantity{T,Unitful.Dimensions{()},Unitful.Units{()}}},Number}' href='#Base.convert-Tuple{Type{Unitful.Quantity{T,Unitful.Dimensions{()},Unitful.Units{()}}},Number}'>#</a>
 **`Base.convert`** &mdash; *Method*.
@@ -110,13 +110,13 @@ Attempt conversion of `x` to a [`Unitful.UnitlessQuantity`](types.md#Unitful.Uni
 
 
 ```
-convert{T}(::Type{Quantity{T}}, x::Number)
+convert{T}(::Type{UnitlessQuantity{T}}, x::Number)
 ```
 
 Convert `x` to a [`Unitful.UnitlessQuantity`](types.md#Unitful.UnitlessQuantity) type.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Conversion.jl#L149-L155' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L157-L163' class='documenter-source'>source</a><br>
 
 <a id='Base.convert-Tuple{Type{Unitful.AbstractQuantity{T}},Unitful.Quantity}' href='#Base.convert-Tuple{Type{Unitful.AbstractQuantity{T}},Unitful.Quantity}'>#</a>
 **`Base.convert`** &mdash; *Method*.
@@ -130,7 +130,7 @@ convert{T}(::Type{AbstractQuantity{T}}, x::Quantity)
 Converts the numeric backing type of `x` to type `T`. Units of `x` remain unchanged.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Conversion.jl#L159-L166' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L167-L174' class='documenter-source'>source</a><br>
 
 <a id='Base.convert-Tuple{Type{Unitful.AbstractQuantity{S}},Unitful.Quantity{T,Unitful.Dimensions{()},U}}' href='#Base.convert-Tuple{Type{Unitful.AbstractQuantity{S}},Unitful.Quantity{T,Unitful.Dimensions{()},U}}'>#</a>
 **`Base.convert`** &mdash; *Method*.
@@ -144,7 +144,7 @@ convert{S,T,U}(::Type{AbstractQuantity{S}}, x::DimensionlessQuantity{T,U})
 Converts the numeric backing type of [`Unitful.DimensionlessQuantity`](types.md#Unitful.DimensionlessQuantity) `x` to type `T`. Units of `x` remain unchanged.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Conversion.jl#L170-L177' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L178-L185' class='documenter-source'>source</a><br>
 
 <a id='Base.convert-Tuple{Type{Unitful.AbstractQuantity{T}},Number}' href='#Base.convert-Tuple{Type{Unitful.AbstractQuantity{T}},Number}'>#</a>
 **`Base.convert`** &mdash; *Method*.
@@ -158,7 +158,7 @@ convert{T}(::Type{AbstractQuantity{T}}, x::Number)
 Converts `x` to type `T` and then makes a [`Unitful.UnitlessQuantity`](types.md#Unitful.UnitlessQuantity) object.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Conversion.jl#L181-L188' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L189-L196' class='documenter-source'>source</a><br>
 
 <a id='Base.convert-Tuple{Type{Unitful.AbstractQuantity},Unitful.Quantity}' href='#Base.convert-Tuple{Type{Unitful.AbstractQuantity},Unitful.Quantity}'>#</a>
 **`Base.convert`** &mdash; *Method*.
@@ -172,7 +172,7 @@ convert(::Type{AbstractQuantity}, x::Quantity) = x
 Pass through the `Quantity` `x`.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Conversion.jl#L192-L198' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L200-L206' class='documenter-source'>source</a><br>
 
 <a id='Base.convert-Tuple{Type{Unitful.AbstractQuantity},Number}' href='#Base.convert-Tuple{Type{Unitful.AbstractQuantity},Number}'>#</a>
 **`Base.convert`** &mdash; *Method*.
@@ -186,7 +186,7 @@ convert(::Type{AbstractQuantity}, x::Number)
 Convert `x` to a [`Unitful.UnitlessQuantity`](types.md#Unitful.UnitlessQuantity).
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Conversion.jl#L201-L207' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L209-L215' class='documenter-source'>source</a><br>
 
 <a id='Base.convert-Tuple{Type{N<:Number},Unitful.Quantity}' href='#Base.convert-Tuple{Type{N<:Number},Unitful.Quantity}'>#</a>
 **`Base.convert`** &mdash; *Method*.
@@ -200,7 +200,7 @@ convert{N<:Number}(::Type{N}, y::Quantity)
 Convert a dimensionless `Quantity` `y` to type `N<:Number`.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Conversion.jl#L211-L217' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L219-L225' class='documenter-source'>source</a><br>
 
 
 <a id='Temperature-conversion-1'></a>

@@ -22,7 +22,7 @@ We want to support not only SI units but also any other unit system. We also wan
 ## Features
 
 
-  * Can dispatch on the dimensions of a quantity. Consider the following toy example, converting from voltage or power ratios to decibels and assuming a 50 Ohm load:
+  * Can dispatch on the dimensions of a quantity. Consider the following toy example, converting from voltage or power ratios to decibels:
 
 
 ```jlcon

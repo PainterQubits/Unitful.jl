@@ -2,6 +2,10 @@
 
 # Unitful.jl
 
+**This package has recently undergone major changes. Existing users
+are advised to read the documentation. Unitful will be published
+and tagged shortly after Julia 0.5.0 is released.**
+
 Unitful is a Julia package for physical units. Available
 [here](https://github.com/ajkeller34/Unitful.jl). Inspired by:
 

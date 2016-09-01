@@ -32,7 +32,7 @@ u"ħ"
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/User.jl#L182-L207' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/User.jl#L182-L207' class='documenter-source'>source</a><br>
 
 <a id='Unitful.unit' href='#Unitful.unit'>#</a>
 **`Unitful.unit`** &mdash; *Function*.
@@ -56,7 +56,24 @@ Unitful.Units{(m,)}
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Unitful.jl#L28-L44' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Unitful.jl#L28-L44' class='documenter-source'>source</a><br>
+
+
+```
+unit{T,D,U}(x::Type{Quantity{T,D,U}})
+```
+
+Returns the units associated with a quantity type, `U()`.
+
+Examples:
+
+```jlcon
+julia> unit(typeof(1.0u"m")) == u"m"
+true
+```
+
+
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Unitful.jl#L47-L60' class='documenter-source'>source</a><br>
 
 
 ```
@@ -73,7 +90,7 @@ Unitful.Units{()}
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Unitful.jl#L47-L61' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Unitful.jl#L64-L78' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{Number}' href='#Unitful.dimension-Tuple{Number}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -94,7 +111,7 @@ Unitful.Dimensions{()}
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Unitful.jl#L64-L78' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Unitful.jl#L81-L95' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{Unitful.Units{N}}' href='#Unitful.dimension-Tuple{Unitful.Units{N}}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -121,7 +138,7 @@ Unitful.Dimensions{()}
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Unitful.jl#L81-L102' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Unitful.jl#L98-L119' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{Unitful.Quantity{T,D,U}}' href='#Unitful.dimension-Tuple{Unitful.Quantity{T,D,U}}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -129,7 +146,24 @@ Unitful.Dimensions{()}
 
 
 ```
-dimension{T,D,U}(x::Quantity{T,D,U})
+dimension(x::Number)
+```
+
+Returns a `Unitful.Dimensions{()}` object to indicate that ordinary numbers are dimensionless. The dimension is displayed as an empty string.
+
+Examples:
+
+```jlcon
+julia> typeof(dimension(1.0))
+Unitful.Dimensions{()}
+```
+
+
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Unitful.jl#L81-L95' class='documenter-source'>source</a><br>
+
+
+```
+dimension{T,D}(x::DimensionedQuantity{T,D})
 ```
 
 Returns a [`Unitful.Dimensions`](types.md#Unitful.Dimensions) object `D()` corresponding to the dimensions of quantity `x`. For a dimensionless [`Unitful.Quantity`](types.md#Unitful.Quantity), a `Unitful.Dimensions{()}` object is returned.
@@ -145,7 +179,7 @@ Unitful.Dimensions{()}
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Unitful.jl#L106-L124' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Unitful.jl#L123-L141' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{AbstractArray{T<:Unitful.Units,N}}' href='#Unitful.dimension-Tuple{AbstractArray{T<:Unitful.Units,N}}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -159,7 +193,7 @@ dimension{T<:Units}(x::AbstractArray{T})
 Just calls `map(dimension, x)`.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Unitful.jl#L136-L142' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Unitful.jl#L155-L161' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{AbstractArray{T<:Unitful.AbstractQuantity,N}}' href='#Unitful.dimension-Tuple{AbstractArray{T<:Unitful.AbstractQuantity,N}}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -173,7 +207,7 @@ dimension{T<:AbstractQuantity}(x::AbstractArray{T})
 Just calls `map(dimension, x)`.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Unitful.jl#L127-L133' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Unitful.jl#L146-L152' class='documenter-source'>source</a><br>
 
 <a id='Base.:*-Tuple{Unitful.Unitlike,Vararg{Unitful.Unitlike,N}}' href='#Base.:*-Tuple{Unitful.Unitlike,Vararg{Unitful.Unitlike,N}}'>#</a>
 **`Base.:*`** &mdash; *Method*.
@@ -205,5 +239,5 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c59bdb11355e215802e9746e8f67e07164437cce/src/Unitful.jl#L215-L246' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Unitful.jl#L236-L267' class='documenter-source'>source</a><br>
 
