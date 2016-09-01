@@ -215,6 +215,8 @@ for op in [:+, :-]
         :($($op)(uconvert($result_units, x), uconvert($result_units, y)))
     end
 
+    @eval ($op)(::Quantity, ::Quantity) = error("Dimensional mismatch.")
+
     @eval ($op)(x::Quantity) = Quantity(($op)(x.val),unit(x))
 end
 

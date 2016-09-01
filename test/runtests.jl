@@ -322,6 +322,7 @@ end
 
         @testset ">> Array addition" begin
             @test @inferred([1m, 2m] + [3m, 4m])     == [4m, 6m]
+            @test @inferred([1m] + [1cm])            == [(101//100)*m]
             @test_throws ErrorException [1m] + [2V]
         end
 

@@ -1,7 +1,10 @@
 # quantity, quantity
-function promote_op{T1,D1,U1,T2,D2,U2}(op, ::Type{Quantity{T1,D1,U1}}, ::Type{Quantity{T2,D2,U2}})
-    numtype = promote_op(op, T1, T2)
-    unittype = typeof(op(U1(), U2()))
+function promote_op{T1,D1,U1,T2,D2,U2}(op, x::Type{Quantity{T1,D1,U1}}, y::Type{Quantity{T2,D2,U2}})
+    # figuring out numeric type can be subtle if D1 == D2 but U1 != U2.
+    q1,q2 = one(T1)*U1(), one(T2)*U2()
+    qr = op(q1,q2)
+    unittype = typeof(unit(qr))
+    numtype = typeof(qr/unit(qr))
     if unittype == Units{()}
         numtype
     else
