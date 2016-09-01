@@ -113,19 +113,27 @@ convfact{S}(s::Units{S}, t::Units{S}) = 1
 
 """
 ```
-convert{T,D,U}(::Type{Quantity{T,D,U}}, y::Quantity)
+convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Quantity)
 ```
 
 Direct type conversion using `convert` is permissible provided conversion
 is between two quantities of the same dimension.
 """
-function convert{T,D,U}(::Type{Quantity{T,D,U}}, y::Quantity)
-    if dimension(y) == D()
+function convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Quantity)
+    if dimension(x) == D()
         if U == Units{()}   # catch UnitlessQuantity
-            return UnitlessQuantity{T}(y.val)
+            return UnitlessQuantity{T}(x.val)
         else
-            return Quantity(T(uconvert(U(),y).val), U())
+            return Quantity(T(uconvert(U(),x).val), U())
         end
+    else
+        error("Dimensional mismatch.")
+    end
+end
+
+function convert{T,D}(::Type{DimensionedQuantity{T,D}}, x::Quantity)
+    if dimension(x) == D()
+        return Quantity(T(x.val), unit(x))
     else
         error("Dimensional mismatch.")
     end
