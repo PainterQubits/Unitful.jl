@@ -100,7 +100,7 @@ julia> typeof(dimension(u"m/km"))
 Unitful.Dimensions{()}
 ```
 """
-dimension{N}(u::Units{N}) = mapreduce(dimension, *, N)
+@generated dimension{N}(u::Units{N}) = mapreduce(dimension, *, N)
 dimension(u::Units{()}) = Dimensions{()}()
 
 """
@@ -343,17 +343,17 @@ end
 .\(X::AbstractArray, y::Units) =
     reshape([ x .\ y for x in X ], size(X))
 
-for f in (:.*,)
+for f in (:.*,) # looked in arraymath.jl for similar code
     @eval begin
         function ($f){T}(A::Units, B::AbstractArray{T})
-            F = similar(B, promote_op($f,typeof(A),typeof(B)))
+            F = similar(B, promote_op($f,typeof(A),T))
             for (iF, iB) in zip(eachindex(F), eachindex(B))
                 @inbounds F[iF] = ($f)(A, B[iB])
             end
             return F
         end
         function ($f){T}(A::AbstractArray{T}, B::Units)
-            F = similar(A, promote_op($f,typeof(A),typeof(B)))
+            F = similar(A, promote_op($f,T,typeof(B)))
             for (iF, iA) in zip(eachindex(F), eachindex(A))
                 @inbounds F[iF] = ($f)(A[iA], B)
             end
