@@ -17,63 +17,6 @@ A Julia package for physical units. Available [here](https://github.com/ajkeller
 We want to support not only SI units but also any other unit system. We also want to minimize or in some cases eliminate the run-time penalty of units. There should be facilities for dimensional analysis. All of this should integrate easily with the usual mathematical operations and collections that are found in Julia base.
 
 
-<a id='Features-1'></a>
-
-## Features
-
-
-  * Can dispatch on the dimensions of a quantity. Consider the following toy example, converting from voltage or power ratios to decibels:
-
-
-```jlcon
-julia> dB(num::Unitful.Voltage, den::Unitful.Voltage) = 20*log10(num/den)
- dB (generic function with 1 method)
-
-julia> dB(num::Unitful.Power, den::Unitful.Power) = 10*log10(num/den)
- dB (generic function with 2 methods)
-
-julia> dB(1u"mV", 1u"V")
--60.0
-
-julia> dB(1u"mW", 1u"W")
--30.0
-```
-
-
-  * Can specify the dimensions of a quantity in a type definition, while still maintaining information about the size of the fields in the type:
-
-
-```
-type Person
-    height::Unitful.Length{Float64}
-    mass::Unitful.Mass{Float64}
-end
-```
-
-
-  * Can make new units using the [`@unit`](newunits.md#Unitful.@unit) macro without digging through the code.
-  * Arrays can hold quantities with different units, different dimensions, even mixed with unitless numbers. This is done efficiently using the [`Unitful.AbstractQuantity{T}`](types.md#Unitful.AbstractQuantity) type, and could be useful in [general relativity](https://en.wikipedia.org/wiki/Metric_tensor_(general_relativity)):
-
-
-```
-julia> @unit c "c" SpeedOfLight 299792458u"m/s" false
-c
-
-julia> Diagonal([-1.0c^2, 1.0, 1.0, 1.0])
-4×4 Diagonal{Unitful.AbstractQuantity{Float64}}:
- -1.0 c^2   ⋅    ⋅    ⋅
-       ⋅   1.0   ⋅    ⋅
-       ⋅    ⋅   1.0   ⋅
-       ⋅    ⋅    ⋅   1.0
-```
-
-
-  * Units may have rational exponents.
-  * Exact conversions are respected by using `Rational`s where possible.
-  * Units are sticky. Although `1.0 J` and `1.0 N m` are equivalent quantities, they are represented distinctly, so further manipulations on `1.0 J` can leave the `J` intact. Furthermore, units are only canceled out if they are exactly the same, including power-of-ten prefixes. `1.0 mV/V` is possible.
-  * Some built-in dimensional analysis.
-
-
 <a id='Quick-start-1'></a>
 
 ## Quick start
@@ -174,4 +117,5 @@ See `test/runtests.jl` for more usage examples.
   * Benchmarking needed.
   * More tests are always appreciated and necessary.
   * Add support for uncertainties? For quantities with uncertainty, `isapprox` becomes a loaded / ambiguous name.
+  * Specialized exceptions for dimensional mismatches, other unit-related troubles?
 

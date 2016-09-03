@@ -83,7 +83,7 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         @unit W      "W"        Watt        1J/s                    true
         @unit C      "C"        Coulomb     1A*s                    true
         @unit V      "V"        Volt        1W/A                    true
-
+        @unit Hz     "Hz"       Hertz       1/s                     true
         const q = 1.6021766208e-19*C        # CODATA 2014; `e` means 2.718...
         @unit eV     "eV"       eV          q*V                     true
         @unit Ω      "Ω"        Ohm         1V/A                    true

@@ -15,7 +15,7 @@ of figuring out which type is appropriate for representing the desired units.
 uconvert
 ```
 
-## Conversion and promotion mechanisms
+## Basic conversion and promotion mechanisms
 
 We decide the result units for addition and subtraction operations based
 on looking at the types only. We can't take runtime values into account
@@ -24,20 +24,9 @@ without compromising runtime performance. By default, if we have
 then `C = max(1A, 1B)`. This is an arbitrary choice and can be changed at the
 end of `deps/Defaults.jl`. For example, `101cm + 1m = 2.01m` because `1m > 1cm`.
 
-Ultimately we hope to have this package play nicely with Julia's promotion mechanisms.
-A concern is that implicit promotion operations that were written with
-pure numbers in mind may give rise to surprising behavior without returning errors.
-We of course utilize Julia's promotion mechanisms for the numeric backing:
-adding an integer with units to a float with units produces the expected result.
-
-```jldoctest
-julia> 1.0u"m"+1u"m"
-2.0 m
-```
-
 Exact conversions between units are respected where possible. If rational
 arithmetic would result in an overflow, then floating-point conversion should
-proceed.
+proceed. File an issue if this does not work properly.
 
 For dimensionless quantities, the usual `convert` methods can be
 used to strip the units without losing power-of-ten information:
@@ -53,17 +42,57 @@ julia> convert(Float64, 1.0u"m")
 ERROR: Dimensional mismatch.
 ```
 
-```@docs
-convert{T,D,U}(::Type{Quantity{T,D,U}}, ::Quantity)
-convert{T}(::Type{UnitlessQuantity{T}}, ::Quantity)
-convert{T}(::Type{UnitlessQuantity{T}}, ::Number)
-convert{T}(::Type{AbstractQuantity{T}}, ::Quantity)
-convert{S}(::Type{AbstractQuantity{S}}, ::DimensionlessQuantity)
-convert{T}(::Type{AbstractQuantity{T}}, ::Number)
-convert(::Type{AbstractQuantity}, ::Quantity)
-convert(::Type{AbstractQuantity}, ::Number)
-convert{N<:Number,S,T}(::Type{N}, ::Quantity)
+## Array promotion
+
+Arrays are typed with as much specificity as possible upon creation. consider
+the following three cases:
+
+```jldoctest
+julia> [1.0u"m", 2.0u"m"]
+2-element Array{Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋,)},Unitful.Units{(m,)}},1}:
+ 1.0 m
+ 2.0 m
+
+julia> [1.0u"m", 2.0u"cm"]
+2-element Array{Unitful.DimensionedQuantity{Float64,Unitful.Dimensions{(𝐋,)}},1}:
+  1.0 m
+ 2.0 cm
+
+julia> [1.0u"m", 2.0]
+2-element Array{Unitful.AbstractQuantity{Float64},1}:
+ 1.0 m
+   2.0
 ```
+
+In the first case, an array with a concrete type can be created. Good
+performance should be attainable. The second and third cases fall back to
+increasingly abstract types, which cannot be stored efficiently and will
+incur a performance penalty. The second case at least provides enough information
+to permit dispatch on the dimensions of the array's elements:
+
+```jldoctest
+julia> f{T<:Unitful.Length}(x::AbstractArray{T}) = sum(x)
+f (generic function with 1 method)
+
+julia> f([1.0u"m", 2.0u"cm"])
+1.02 m
+
+julia> f([1.0u"g", 2.0u"cm"])
+ERROR: MethodError: no method matching f(::Array{Unitful.AbstractQuantity{Float64},1})
+```
+
+In addition to the performance hit, having an array of
+[`DimensionedQuantity{T,D}`](@ref) or [`AbstractQuantity{T}`](@ref) has
+another limitation. Since the units of the quantities held in the array are not
+all the same, when two such arrays are added or subtracted, unit promotion will
+have to take place. The conversion factor between a given pair of units may be
+an `AbstractFloat`, `Rational`, etc. Therefore, a resulting numeric type
+following unit promotion, when the units are not specified outright,
+cannot be determined.
+
+<!-- ```jldoctest
+julia> Unitful.Length{Float64}[1u"m"] + Unitful.Length{Float64}[1u"cm"]
+``` -->
 
 ## Temperature conversion
 

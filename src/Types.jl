@@ -76,29 +76,18 @@ immutable Dimensions{N} <: Unitlike end
 
 """
 ```
-abstract AbstractQuantity{T<:Number} <: Number
-```
-
-Super-type of [`Unitful.DimensionedQuantity`](@ref) types. Used in promotion when
-making arrays of quantities with differing dimensions (or when combining with unitless
-numbers). The type parameter `T` is the numeric backing type.
-"""
-abstract AbstractQuantity{T<:Number} <: Number
-
-"""
-```
-abstract DimensionedQuantity{T,D} <: AbstractQuantity{T}
+abstract DimensionedQuantity{D} <: Number
 ```
 
 Super-type of [`Unitful.Quantity`](@ref) types. Used in dispatch on quantities
 of a particular dimension, without having to specify the units. The type
-parameter `T` is the numeric backing type, and `D <: ` [`Unitful.Dimensions`](@ref).
+parameter `D <: ` [`Unitful.Dimensions`](@ref).
 """
-abstract DimensionedQuantity{T,D} <: AbstractQuantity{T}
+abstract DimensionedQuantity{D} <: Number
 
 """
 ```
-immutable Quantity{T,D,U} <: DimensionedQuantity{T,D}
+immutable Quantity{T,D,U} <: DimensionedQuantity{D}
 ```
 
 A quantity, which has dimensions and units specified in the type signature.
@@ -110,7 +99,7 @@ The type parameter `T` represents the numeric backing type. The type parameters
 Of course, the dimensions follow from the units, but the type parameters are
 kept separate to permit convenient dispatch on dimensions.
 """
-immutable Quantity{T,D,U} <: DimensionedQuantity{T,D}
+immutable Quantity{T,D,U} <: DimensionedQuantity{D}
     val::T
 end
 

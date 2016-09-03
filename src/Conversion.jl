@@ -18,7 +18,11 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 """
 function uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
-    Quantity(x.val * convfact(a, U()), a)
+    if typeof(a) == U
+        Quantity(x.val, a)    # preserves numeric type if convfact is 1
+    else
+        Quantity(x.val * convfact(a, U()), a)
+    end
 end
 
 """
@@ -31,18 +35,22 @@ offsets, if they do not appear in combination with other dimensions.
 """
 @generated function uconvert{T,U}(a::Units,
         x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},U})
-    xunits = x.parameters[3]
-    aData = a()
-    xData = xunits()
-    conv = convfact(aData, xData)
+    if a == U
+        :(Quantity(x.val, a))
+    else
+        xunits = x.parameters[3]
+        aData = a()
+        xData = xunits()
+        conv = convfact(aData, xData)
 
-    xtup = xunits.parameters[1]
-    atup = a.parameters[1]
-    t0 = offsettemp(xtup[1])
-    t1 = offsettemp(atup[1])
-    quote
-        v = ((x.val + $t0) * $conv) - $t1
-        Quantity(v, a)
+        xtup = xunits.parameters[1]
+        atup = a.parameters[1]
+        t0 = offsettemp(xtup[1])
+        t1 = offsettemp(atup[1])
+        quote
+            v = ((x.val + $t0) * $conv) - $t1
+            Quantity(v, a)
+        end
     end
 end
 
@@ -131,9 +139,9 @@ function convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Quantity)
     end
 end
 
-function convert{T,D}(::Type{DimensionedQuantity{T,D}}, x::Quantity)
+function convert{D}(::Type{DimensionedQuantity{D}}, x::Quantity)
     if dimension(x) == D()
-        return Quantity(T(x.val), unit(x))
+        return x
     else
         error("Dimensional mismatch.")
     end
@@ -162,71 +170,6 @@ convert{T}(::Type{UnitlessQuantity{T}}, x::Number)
 Convert `x` to a [`Unitful.UnitlessQuantity`](@ref) type.
 """
 convert{T}(::Type{UnitlessQuantity{T}}, x::Number) =
-    UnitlessQuantity{T}(x)
+    UnitlessQuantity{T}(x)us
 
-"""
-```
-convert{T}(::Type{AbstractQuantity{T}}, x::Quantity)
-```
-
-Converts the numeric backing type of `x` to type `T`. Units of `x` remain
-unchanged.
-"""
-convert{T}(::Type{AbstractQuantity{T}}, x::Quantity) =
-    Quantity(T(x.val), unit(x))
-
-"""
-```
-convert{S,T,U}(::Type{AbstractQuantity{S}}, x::DimensionlessQuantity{T,U})
-```
-
-Converts the numeric backing type of [`Unitful.DimensionlessQuantity`](@ref) `x`
-to type `T`. Units of `x` remain unchanged.
-"""
-convert{S,T,U}(::Type{AbstractQuantity{S}}, x::DimensionlessQuantity{T,U}) =
-    DimensionlessQuantity{S,U}(x.val)
-
-"""
-```
-convert{T}(::Type{AbstractQuantity{T}}, x::Number)
-```
-
-Converts `x` to type `T` and then makes a [`Unitful.UnitlessQuantity`](@ref)
-object.
-"""
-convert{T}(::Type{AbstractQuantity{T}}, x::Number) =
-    UnitlessQuantity{T}(x)
-
-"""
-```
-convert(::Type{AbstractQuantity}, x::Quantity) = x
-```
-
-Pass through the `Quantity` `x`.
-"""
-convert(::Type{AbstractQuantity}, x::Quantity) = x
-
-"""
-```
-convert(::Type{AbstractQuantity}, x::Number)
-```
-
-Convert `x` to a [`Unitful.UnitlessQuantity`](@ref).
-"""
-convert(::Type{AbstractQuantity}, x::Number) =
-    UnitlessQuantity{typeof(x)}(x)
-
-"""
-```
-convert{N<:Number}(::Type{N}, y::Quantity)
-```
-
-Convert a dimensionless `Quantity` `y` to type `N<:Number`.
-"""
-function convert{N<:Number}(::Type{N}, y::Quantity)
-    if dimension(y) == Dimensions{()}()
-        N(uconvert(Units{()}(), y))
-    else
-        error("Dimensional mismatch.")
-    end
-end
+convert(::Type{Number}, y::Quantity) = y

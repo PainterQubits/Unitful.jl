@@ -29,7 +29,7 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/34085a079f619d84ee1ab2250377a406c9942fd6/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 ```
@@ -39,27 +39,18 @@ uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},
 In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L24-L31' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/34085a079f619d84ee1ab2250377a406c9942fd6/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
 
 
-<a id='Conversion-and-promotion-mechanisms-1'></a>
+<a id='Basic-conversion-and-promotion-mechanisms-1'></a>
 
-## Conversion and promotion mechanisms
+## Basic conversion and promotion mechanisms
 
 
 We decide the result units for addition and subtraction operations based on looking at the types only. We can't take runtime values into account without compromising runtime performance. By default, if we have `x (A) + y (B) = z (C)` where `x,y,z` are numbers and `A,B,C` are units, then `C = max(1A, 1B)`. This is an arbitrary choice and can be changed at the end of `deps/Defaults.jl`. For example, `101cm + 1m = 2.01m` because `1m > 1cm`.
 
 
-Ultimately we hope to have this package play nicely with Julia's promotion mechanisms. A concern is that implicit promotion operations that were written with pure numbers in mind may give rise to surprising behavior without returning errors. We of course utilize Julia's promotion mechanisms for the numeric backing: adding an integer with units to a float with units produces the expected result.
-
-
-```jlcon
-julia> 1.0u"m"+1u"m"
-2.0 m
-```
-
-
-Exact conversions between units are respected where possible. If rational arithmetic would result in an overflow, then floating-point conversion should proceed.
+Exact conversions between units are respected where possible. If rational arithmetic would result in an overflow, then floating-point conversion should proceed. File an issue if this does not work properly.
 
 
 For dimensionless quantities, the usual `convert` methods can be used to strip the units without losing power-of-ten information:
@@ -76,131 +67,52 @@ julia> convert(Float64, 1.0u"m")
 ERROR: Dimensional mismatch.
 ```
 
-<a id='Base.convert-Tuple{Type{Unitful.Quantity{T,D,U}},Unitful.Quantity}' href='#Base.convert-Tuple{Type{Unitful.Quantity{T,D,U}},Unitful.Quantity}'>#</a>
-**`Base.convert`** &mdash; *Method*.
+
+<a id='Array-promotion-1'></a>
+
+## Array promotion
 
 
-
-```
-convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Quantity)
-```
-
-Direct type conversion using `convert` is permissible provided conversion is between two quantities of the same dimension.
+Arrays are typed with as much specificity as possible upon creation. consider the following three cases:
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L114-L121' class='documenter-source'>source</a><br>
+```jlcon
+julia> [1.0u"m", 2.0u"m"]
+2-element Array{Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋,)},Unitful.Units{(m,)}},1}:
+ 1.0 m
+ 2.0 m
 
-<a id='Base.convert-Tuple{Type{Unitful.Quantity{T,Unitful.Dimensions{()},Unitful.Units{()}}},Unitful.Quantity}' href='#Base.convert-Tuple{Type{Unitful.Quantity{T,Unitful.Dimensions{()},Unitful.Units{()}}},Unitful.Quantity}'>#</a>
-**`Base.convert`** &mdash; *Method*.
+julia> [1.0u"m", 2.0u"cm"]
+2-element Array{Unitful.DimensionedQuantity{Float64,Unitful.Dimensions{(𝐋,)}},1}:
+  1.0 m
+ 2.0 cm
 
-
-
-```
-convert{T}(::Type{UnitlessQuantity{T}}, x::Quantity)
-```
-
-Attempt conversion of `x` to a [`Unitful.UnitlessQuantity`](types.md#Unitful.UnitlessQuantity) type.
-
-
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L142-L148' class='documenter-source'>source</a><br>
-
-<a id='Base.convert-Tuple{Type{Unitful.Quantity{T,Unitful.Dimensions{()},Unitful.Units{()}}},Number}' href='#Base.convert-Tuple{Type{Unitful.Quantity{T,Unitful.Dimensions{()},Unitful.Units{()}}},Number}'>#</a>
-**`Base.convert`** &mdash; *Method*.
-
-
-
-```
-convert{T}(::Type{UnitlessQuantity{T}}, x::Number)
+julia> [1.0u"m", 2.0]
+2-element Array{Unitful.AbstractQuantity{Float64},1}:
+ 1.0 m
+   2.0
 ```
 
-Convert `x` to a [`Unitful.UnitlessQuantity`](types.md#Unitful.UnitlessQuantity) type.
+
+In the first case, an array with a concrete type can be created. Good performance should be attainable. The second and third cases fall back to increasingly abstract types, which cannot be stored efficiently and will incur a performance penalty. The second case at least provides enough information to permit dispatch on the dimensions of the array's elements:
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L157-L163' class='documenter-source'>source</a><br>
+```jlcon
+julia> f{T<:Unitful.Length}(x::AbstractArray{T}) = sum(x)
+f (generic function with 1 method)
 
-<a id='Base.convert-Tuple{Type{Unitful.AbstractQuantity{T}},Unitful.Quantity}' href='#Base.convert-Tuple{Type{Unitful.AbstractQuantity{T}},Unitful.Quantity}'>#</a>
-**`Base.convert`** &mdash; *Method*.
+julia> f([1.0u"m", 2.0u"cm"])
+1.02 m
 
-
-
-```
-convert{T}(::Type{AbstractQuantity{T}}, x::Quantity)
-```
-
-Converts the numeric backing type of `x` to type `T`. Units of `x` remain unchanged.
-
-
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L167-L174' class='documenter-source'>source</a><br>
-
-<a id='Base.convert-Tuple{Type{Unitful.AbstractQuantity{S}},Unitful.Quantity{T,Unitful.Dimensions{()},U}}' href='#Base.convert-Tuple{Type{Unitful.AbstractQuantity{S}},Unitful.Quantity{T,Unitful.Dimensions{()},U}}'>#</a>
-**`Base.convert`** &mdash; *Method*.
-
-
-
-```
-convert{S,T,U}(::Type{AbstractQuantity{S}}, x::DimensionlessQuantity{T,U})
+julia> f([1.0u"g", 2.0u"cm"])
+ERROR: MethodError: no method matching f(::Array{Unitful.AbstractQuantity{Float64},1})
 ```
 
-Converts the numeric backing type of [`Unitful.DimensionlessQuantity`](types.md#Unitful.DimensionlessQuantity) `x` to type `T`. Units of `x` remain unchanged.
+
+In addition to the performance hit, having an array of [`DimensionedQuantity{T,D}`](types.md#Unitful.DimensionedQuantity) or [`AbstractQuantity{T}`](types.md#Unitful.AbstractQuantity) has another limitation. Since the units of the quantities held in the array are not all the same, when two such arrays are added or subtracted, unit promotion will have to take place. The conversion factor between a given pair of units may be an `AbstractFloat`, `Rational`, etc. Therefore, a resulting numeric type following unit promotion, when the units are not specified outright, cannot be determined.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L178-L185' class='documenter-source'>source</a><br>
-
-<a id='Base.convert-Tuple{Type{Unitful.AbstractQuantity{T}},Number}' href='#Base.convert-Tuple{Type{Unitful.AbstractQuantity{T}},Number}'>#</a>
-**`Base.convert`** &mdash; *Method*.
-
-
-
-```
-convert{T}(::Type{AbstractQuantity{T}}, x::Number)
-```
-
-Converts `x` to type `T` and then makes a [`Unitful.UnitlessQuantity`](types.md#Unitful.UnitlessQuantity) object.
-
-
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L189-L196' class='documenter-source'>source</a><br>
-
-<a id='Base.convert-Tuple{Type{Unitful.AbstractQuantity},Unitful.Quantity}' href='#Base.convert-Tuple{Type{Unitful.AbstractQuantity},Unitful.Quantity}'>#</a>
-**`Base.convert`** &mdash; *Method*.
-
-
-
-```
-convert(::Type{AbstractQuantity}, x::Quantity) = x
-```
-
-Pass through the `Quantity` `x`.
-
-
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L200-L206' class='documenter-source'>source</a><br>
-
-<a id='Base.convert-Tuple{Type{Unitful.AbstractQuantity},Number}' href='#Base.convert-Tuple{Type{Unitful.AbstractQuantity},Number}'>#</a>
-**`Base.convert`** &mdash; *Method*.
-
-
-
-```
-convert(::Type{AbstractQuantity}, x::Number)
-```
-
-Convert `x` to a [`Unitful.UnitlessQuantity`](types.md#Unitful.UnitlessQuantity).
-
-
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L209-L215' class='documenter-source'>source</a><br>
-
-<a id='Base.convert-Tuple{Type{N<:Number},Unitful.Quantity}' href='#Base.convert-Tuple{Type{N<:Number},Unitful.Quantity}'>#</a>
-**`Base.convert`** &mdash; *Method*.
-
-
-
-```
-convert{N<:Number}(::Type{N}, y::Quantity)
-```
-
-Convert a dimensionless `Quantity` `y` to type `N<:Number`.
-
-
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/0e6f3c6c986c4165fa5e1a66b9efaa72d0ea194d/src/Conversion.jl#L219-L225' class='documenter-source'>source</a><br>
+<!– `jldoctest julia> Unitful.Length{Float64}[1u"m"] + Unitful.Length{Float64}[1u"cm"]` –>
 
 
 <a id='Temperature-conversion-1'></a>

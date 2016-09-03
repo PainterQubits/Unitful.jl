@@ -26,6 +26,7 @@ docs_dir: 'build'
 
 pages:
 - Home: index.md
+- Highlighted features: highlights.md
 - Types: types.md
 - Defining new units: newunits.md
 - Conversion: conversion.md

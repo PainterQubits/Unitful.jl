@@ -19,7 +19,7 @@ import Base: steprange_last, unitrange_last, unsigned
 
 export unit, dimension, uconvert
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
-export AbstractQuantity, DimensionedQuantity, Quantity
+export DimensionedQuantity, Quantity
 export UnitlessQuantity, DimensionlessQuantity
 
 include("Types.jl")
@@ -122,7 +122,7 @@ dimension(u::Units{()}) = Dimensions{()}()
 
 """
 ```
-dimension{T,D}(x::DimensionedQuantity{T,D})
+dimension{D}(x::DimensionedQuantity{D})
 ```
 
 Returns a [`Unitful.Dimensions`](@ref) object `D()` corresponding to the
@@ -139,18 +139,18 @@ julia> typeof(dimension(1.0u"m/μm"))
 Unitful.Dimensions{()}
 ```
 """
-dimension{T,D}(x::DimensionedQuantity{T,D}) = D()
-dimension{T,D}(x::Type{DimensionedQuantity{T,D}}) = D()
+dimension{D}(x::DimensionedQuantity{D}) = D()
+dimension{D}(x::Type{DimensionedQuantity{D}}) = D()
 dimension{T,D,U}(::Type{Quantity{T,D,U}}) = D()
 
 """
 ```
-dimension{T<:AbstractQuantity}(x::AbstractArray{T})
+dimension{T<:Number}(x::AbstractArray{T})
 ```
 
 Just calls `map(dimension, x)`.
 """
-dimension{T<:AbstractQuantity}(x::AbstractArray{T}) = map(dimension, x)
+dimension{T<:Number}(x::AbstractArray{T}) = map(dimension, x)
 
 """
 ```

@@ -28,13 +28,14 @@ import Unitful:
         Unitful.Quantity{Int,
             Unitful.Dimensions{(Unitful.Dimension{:Length}(2),)},
             Unitful.Units{(Unitful.Unit{:Acre}(0, 1),)}}
-    @test isa(1J//10, AbstractQuantity{Rational{Int}}) == true
+    # @test isa(1J//10, Unitful.Quantity{Rational{Int},
+    #         Unitful.Dimensions{(Unitful.Dimension{:})}}) == true
 end
 
 @testset "Conversion" begin
     @testset "> Unitless ↔ unitful conversion" begin
         @test_throws MethodError convert(typeof(3m),1)
-        @test_throws ErrorException convert(Float64, 3m)
+        @test_throws MethodError convert(Float64, 3m)
         @test 3m/unit(3m) === 3
         @test 3.0g/unit(3.0g) === 3.0
     end
@@ -46,11 +47,16 @@ end
             @test Rational(3.0m) === (3//1)*m
         end
         @testset ">> Intra-unit conversion" begin
-            @test 1kg == 1000g           # Equivalence implies unit conversion
-            @test !(1kg === 1000g)       # ...and yet we can distinguish these
-            @test 1kg === 1kg            # ...and these are indistinguishable.
+            @test uconvert(g,1g) == 1g
+            # an essentially no-op uconvert should not disturb numeric type
+            @test uconvert(m,0x01*m) == 0x01*m
+            # test special case of temperature
+            @test uconvert(°C, 0x01*°C) == 0x01*°C
+            @test 1kg === 1kg
         end
         @testset ">> Inter-unit conversion" begin
+            @test 1kg == 1000g
+            @test !(1kg === 1000g)
             @test 1inch == (254//100)*cm
             @test 1ft == 12inch
             @test 1/mi == 1//(5280ft)
@@ -83,9 +89,11 @@ end
     @testset "> Promotion during array creation" begin
         @test typeof([1.0m,1.0m]) == Array{typeof(1.0m),1}
         @test typeof([1.0m,1m]) == Array{typeof(1.0m),1}
-        @test typeof([1.0m,1]) == Array{AbstractQuantity{Float64},1}
-        @test typeof([1.0m,1kg]) == Array{AbstractQuantity{Float64},1}
-        @test typeof([1.0m/s 1; 1 0]) == Array{AbstractQuantity{Float64},2}
+        @test typeof([1.0m,1cm]) == Array{Length,1}
+        @test typeof([1kg,1g]) == Array{Mass,1}
+        @test typeof([1.0m,1]) == Array{Number,1}
+        @test typeof([1.0m,1kg]) == Array{Number,1}
+        @test typeof([1.0m/s 1; 1 0]) == Array{Number,2}
     end
 end
 
@@ -102,8 +110,6 @@ end
     @test dimension([1u"m", 1u"s"]) == [𝐋, 𝐓]
     @test (𝐋/𝐓)^2 == 𝐋^2 / 𝐓^2
     @test isa(1m, Length)
-    @test isa(1m, Length{Int})
-    @test !isa(1m, Length{Float64})
     @test !isa(1m, Area)
     @test !isa(1m, Luminosity)
     @test isa(1ft, Length)
@@ -322,6 +328,7 @@ end
 
         @testset ">> Array addition" begin
             @test @inferred([1m, 2m] + [3m, 4m])     == [4m, 6m]
+            @test @inferred([1m, 2m] + [1m, 1cm])    == [2m, 201m//100]
             @test @inferred([1m] + [1cm])            == [(101//100)*m]
             @test_throws ErrorException [1m] + [2V]
         end

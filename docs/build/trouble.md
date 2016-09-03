@@ -40,6 +40,25 @@ Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋^3,)},Unitful.Units{(m^3,)}}
 Because the functions `inv` and `sqrt` are raising a `Quantity` to a fixed power (-1 and 1/2, respectively), we can use a generated function to ensure type stability in these cases. Also note that squaring a `Quantity` will be type-stable if done as `x*x` but not as `x^2`.
 
 
+<a id='Other-random-problems-1'></a>
+
+## Other random problems
+
+
+If using units with some of the unsigned types... well, I'm not sure what you are doing, but you should be aware of this:
+
+
+```jlcon
+julia> using Unitful: m,cm
+
+julia> uconvert(m,0x01cm)   # the user means cm, not 0x01c*m
+0x001c m
+```
+
+
+This behavior is a consequence of [a Julia issue](https://github.com/JuliaLang/julia/issues/16356).
+
+
 <a id='I-have-a-different-problem-1'></a>
 
 ## I have a different problem

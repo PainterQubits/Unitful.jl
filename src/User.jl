@@ -25,8 +25,8 @@ macro dimension(symb, abbr, name)
     esc(quote
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
         const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
-        typealias $(name){T}
-            DimensionedQuantity{T,Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}}
+        typealias $(name)
+            DimensionedQuantity{Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}}
     end)
 end
 
@@ -47,7 +47,7 @@ Usage examples:
 """
 macro derived_dimension(symb, dims)
     esc(quote
-        typealias ($symb){T} DimensionedQuantity{T,typeof($dims)}
+        typealias ($symb) DimensionedQuantity{typeof($dims)}
     end)
 end
 
