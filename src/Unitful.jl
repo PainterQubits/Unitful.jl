@@ -66,17 +66,17 @@ unit{T,D,U}(::Type{Quantity{T,D,U}}) = U()
 unit(x::Number)
 ```
 
-Returns a `Unitful.Units{()}` object to indicate that ordinary
+Returns a `Unitful.Units{(), Dimensions{()}}` object to indicate that ordinary
 numbers have no units. The unit is displayed as an empty string.
 
 Examples:
 
 ```jldoctest
 julia> typeof(unit(1.0))
-Unitful.Units{()}
+Unitful.Units{(), Dimensions{()}}
 ```
 """
-unit(x::Number) = Units{()}()
+unit(x::Number) = Units{(), Dimensions{()}}()
 
 """
 ```
@@ -117,8 +117,7 @@ julia> typeof(dimension(u"m/km"))
 Unitful.Dimensions{()}
 ```
 """
-@generated dimension{N}(u::Units{N}) = mapreduce(dimension, *, N)
-dimension(u::Units{()}) = Dimensions{()}()
+dimension{U,D}(u::Units{U,D}) = D()
 
 """
 ```
@@ -141,7 +140,7 @@ Unitful.Dimensions{()}
 """
 dimension{D}(x::DimensionedQuantity{D}) = D()
 dimension{D}(x::Type{DimensionedQuantity{D}}) = D()
-dimension{T,D,U}(::Type{Quantity{T,D,U}}) = D()
+dimension{T,D,U}(::Type{Quantity{T,D,Units{U,D}}}) = D()
 
 """
 ```
@@ -315,9 +314,16 @@ true
     # results in:
     # Units[nm,cm^6,m^6,µs^3,s]
 
-    T = (issubtype(a0,Units) ? Units : Dimensions)
-    d = (c...)
-    :(($T){$d}())
+    if a0 <: Units
+        T = Units
+        d = (c...)
+        f = typeof(mapreduce(dimension,*,Dimensions{()}(),c))
+        :(($T){$d,$f}())
+    else
+        T = Dimensions
+        d = (c...)
+        :(($T){$d}())
+    end
 end
 
 function *{T,D,U}(x::Quantity{T,D,U}, y::Units, z::Units...)
@@ -424,15 +430,21 @@ end
 # Exponentiation is not type stable.
 # For now we define a special `inv` method to at least
 # enable division to be fast.
+@generated function inv(x::Dimensions)
+    tup = x.parameters[1]
+    length(tup) == 0 && return :(x)
+    tup2 = map(x->x^-1,tup)
+    y = *(Dimensions{tup2}())
+    :($y)
+end
 
-for T in (:Units, :Dimensions)
-    @eval @generated function inv(x::$T)
-        tup = x.parameters[1]
-        length(tup) == 0 && return :(x)
-        tup2 = map(x->x^-1,tup)
-        y = *($T{tup2}())
-        :($y)
-    end
+@generated function inv(x::Units)
+    tup = x.parameters[1]
+    length(tup) == 0 && return :(x)
+    tup2 = map(x->x^-1,tup)
+    D = typeof(mapreduce(dimension, *, Dimensions{()}(), tup2))
+    y = *(Units{tup2, D}())
+    :($y)
 end
 
 ^{T}(x::Unit{T}, y::Integer) = Unit{T}(tens(x),power(x)*y)
@@ -441,31 +453,24 @@ end
 ^{T}(x::Dimension{T}, y::Integer) = Dimension{T}(power(x)*y)
 ^{T}(x::Dimension{T}, y) = Dimension{T}(power(x)*y)
 
-for z in (:Units, :Dimensions)
-    @eval begin
-        function ^{T}(x::$z{T}, y::Integer)   # needed for ambiguity resolution
-            *($z{map(a->a^y, T)}())
-        end
-
-        function ^{T}(x::$z{T}, y)
-            *($z{map(a->a^y, T)}())
-        end
-    end
+function ^{T}(x::Dimensions{T}, y::Integer)   # needed for ambiguity resolution
+    *(Dimensions{map(a->a^y, T)}())
 end
 
-"""
-```
-^{T}(x::Units{T}, y)
-```
-"""
-^{T}(::Units{T}, ::Any)
+function ^{T}(x::Dimensions{T}, y)
+    *(Dimensions{map(a->a^y, T)}())
+end
 
-"""
-```
-^{T}(x::Dimensions{T}, y)
-```
-"""
-^{T}(::Dimensions{T}, ::Any)
+function ^{U,D}(x::Units{U,D}, y::Integer)
+    utup = map(a->a^y, U)
+    *(Units{utup, ()}()) # dimensions get reconstructed anyway
+    # would use mapreduce(dimension, *, Dimensions{()}(), utup)
+end
+
+function ^{U,D}(x::Units{U,D}, y)
+    utup = map(a->a^y, U)
+    *(Units{utup, ()}())
+end
 
 # All of these are needed for ambiguity resolution
 ^{T,D,U}(x::Quantity{T,D,U}, y::Integer) = Quantity((x.val)^y, U()^y)
@@ -481,16 +486,18 @@ sqrt(x::Quantity)
 sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
 
 # This is a generated function to ensure type stability and keep `sqrt` fast.
-"""
-```
-sqrt(x::Unitlike)
-```
-"""
-@generated function sqrt(x::Unitlike)
+@generated function sqrt(x::Dimensions)
     tup = x.parameters[1]
     tup2 = map(x->x^(1//2),tup)
-    T = (x <: Units ? Units : Dimensions)
-    y = *(T{tup2}())    # sort appropriately
+    y = *(Dimensions{tup2}())    # sort appropriately
+    :($y)
+end
+
+# This is a generated function to ensure type stability and keep `sqrt` fast.
+@generated function sqrt(x::Units)
+    tup = x.parameters[1]
+    tup2 = map(x->x^(1//2),tup)
+    y = *(Units{tup2,()}())    # sort appropriately
     :($y)
 end
 
@@ -538,13 +545,13 @@ copysign(x::Quantity, y::Number) = Quantity(copysign(x.val,y/unit(y)), unit(x))
 flipsign(x::Quantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
 
 isless{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = isless(x.val, y.val)
-isless(x::Quantity, y::Quantity) = isless(uconvert(unit(y), x).val,y.val)
+isless(x::Quantity, y::Quantity) = isless(uconvert(unit(y), x).val, y.val)
 <{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = (x.val < y.val)
 <(x::Quantity, y::Quantity) = <(uconvert(unit(y), x).val,y.val)
 
 isapprox{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = isapprox(x.val, y.val)
 isapprox(x::Quantity, y::Quantity) = isapprox(uconvert(unit(y), x).val, y.val)
-isapprox(x::Quantity, y::Number) = isapprox(uconvert(Units{()}(), x).val, y)
+isapprox(x::Quantity, y::Number) = isapprox(uconvert(Units{(), Dimensions{()}}(), x).val, y)
 isapprox(x::Number, y::Quantity) = isapprox(y,x)
 
 =={S,T,D,U}(x::Quantity{S,D,U}, y::Quantity{T,D,U}) = (x.val == y.val)
@@ -555,7 +562,7 @@ end
 
 function ==(x::Quantity, y::Number)
     if dimension(x) == Dimensions{()}()
-        uconvert(Units{()}(), x) == y
+        uconvert(Units{(), Dimensions{()}}(), x) == y
     else
         false
     end
@@ -578,7 +585,7 @@ one(x::Quantity) = one(x.val)
 
 """
 ```
-one{T,D,U}(x::Type{Quantity{T,D,U}})
+one{T,D,U}(x::Type{Quantity{T,U}})
 ```
 
 Returns the multiplicative identity for this type (it's `one(T)`).
@@ -592,8 +599,8 @@ isinf(x::Quantity) = isinf(x.val)
 
 unsigned(x::Quantity) = Quantity(unsigned(x.val), unit(x))
 
-log(x::DimensionlessQuantity) = log(uconvert(Units{()}(), x))
-log10(x::DimensionlessQuantity) = log10(uconvert(Units{()}(), x))
+log(x::DimensionlessQuantity) = log(uconvert(Units{(), Dimensions{()}}(), x))
+log10(x::DimensionlessQuantity) = log10(uconvert(Units{(), Dimensions{()}}(), x))
 
 """
 ```
@@ -657,7 +664,7 @@ Rational(x::Quantity) = Quantity(Rational(x.val), unit(x))
 colon(start::Quantity, step::Quantity, stop::Quantity) =
     StepRange(promote(start, step, stop)...)
 
-function Base.steprange_last{T<:Number,U,V}(start::Quantity{T,U,V}, step, stop)
+function Base.steprange_last{T<:Number,D,U}(start::Quantity{T,D,U}, step, stop)
     z = zero(step)
     step == z && throw(ArgumentError("step cannot be zero"))
     if stop == start

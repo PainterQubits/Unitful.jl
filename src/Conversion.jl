@@ -1,6 +1,6 @@
 """
 ```
-uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
+uconvert{T,U}(a::Units, x::Quantity{T,U})
 ```
 
 Convert a [`Unitful.Quantity`](@ref) to different units. The conversion will
@@ -33,8 +33,8 @@ uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},
 In this method, we are special-casing temperature conversion to respect scale
 offsets, if they do not appear in combination with other dimensions.
 """
-@generated function uconvert{T,U}(a::Units,
-        x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},U})
+@generated function uconvert{T,D,U}(a::Units,
+        x::Quantity{T,D,Units{U,Dimensions{(Dimension{:Temperature}(1),)}}})
     if a == U
         :(Quantity(x.val, a))
     else
@@ -56,7 +56,7 @@ end
 
 function uconvert(a::Units, x::Number)
     if dimension(a) == Dimensions{()}()
-        Quantity(x * convfact(a, Units{()}()), a)
+        Quantity(x * convfact(a, Units{(), Dimensions{()}}()), a)
     else
         error("Dimensional mismatch.")
     end
@@ -129,7 +129,7 @@ is between two quantities of the same dimension.
 """
 function convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Quantity)
     if dimension(x) == D()
-        if U == Units{()}   # catch UnitlessQuantity
+        if U == Units{(), Dimensions{()}}   # catch UnitlessQuantity
             return UnitlessQuantity{T}(x.val)
         else
             return Quantity(T(uconvert(U(),x).val), U())

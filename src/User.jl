@@ -22,11 +22,12 @@ Usage example: `@dimension 𝐋 "L" Length` (see `src/Defaults.jl`.)
 macro dimension(symb, abbr, name)
     s = Symbol(symb)
     x = Expr(:quote, name)
+    uname = Symbol(name,"Unit")
     esc(quote
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
         const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
-        typealias $(name)
-            DimensionedQuantity{Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}}
+        typealias $(name) DimensionedQuantity{typeof($s)}
+        typealias $(uname) DimensionedUnits{typeof($s)}
     end)
 end
 
@@ -45,9 +46,11 @@ Usage examples:
 - `@derived_dimension Area 𝐋^2`
 - `@derived_dimension Speed 𝐋/𝐓`
 """
-macro derived_dimension(symb, dims)
+macro derived_dimension(name, dims)
+    uname = Symbol(name,"Unit")
     esc(quote
-        typealias ($symb) DimensionedQuantity{typeof($dims)}
+        typealias ($name) DimensionedQuantity{typeof($dims)}
+        typealias ($uname) DimensionedUnits{typeof($dims)}
     end)
 end
 
@@ -139,8 +142,9 @@ macro prefixed_unit_symbols(symb,name)
     z = Expr(:quote, name)
     for (k,v) in prefixdict
         s = Symbol(v,symb)
+        u = Unitful.Unit{name}(k,1//1)
         ea = esc(quote
-            const $s = Unitful.Units{(Unitful.Unit{$z}($k,1//1),)}()
+            const $s = Unitful.Units{($u,),typeof(dimension($u))}()
         end)
         push!(expr.args, ea)
     end
@@ -161,8 +165,9 @@ Example: `@unit_symbols ft Foot` results in `ft` getting defined but not `kft`.
 macro unit_symbols(symb,name)
     s = Symbol(symb)
     z = Expr(:quote, name)
+    u = Unitful.Unit{name}(0,1//1)
     esc(quote
-        const $s = Unitful.Units{(Unitful.Unit{$z}(0,1//1),)}()
+        const $s = Unitful.Units{($u,),typeof(dimension($u))}()
     end)
 end
 

@@ -28,7 +28,7 @@ function promote_op{T1,D1,U1,T2,D2,U2}(op, x::Type{Quantity{T1,D1,U1}},
     qr = op(q1,q2)
     unittype = typeof(unit(qr))
     numtype = typeof(qr/unit(qr))
-    if unittype == Units{()}
+    if unittype == Units{(), Dimensions{()}}
         numtype
     else
         dimtype = typeof(dimension(unittype()))
@@ -61,7 +61,7 @@ promote_op{D}(op, ::Type{Number}, ::Type{DimensionedQuantity{D}}) = Number
 function promote_op{R<:Units,S,D,U}(op, ::Type{Quantity{S,D,U}}, ::Type{R})
     numtype = S
     unittype = typeof(op(U(), R()))
-    if unittype == Units{()}
+    if unittype == Units{(), Dimensions{()}}
         numtype
     else
         dimtype = typeof(dimension(unittype()))
@@ -73,8 +73,8 @@ promote_op{R<:Units,S,D,U}(op, x::Type{R}, y::Type{Quantity{S,D,U}}) =
 
 # units, number
 function promote_op{R<:Number,S<:Units}(op, x::Type{R}, y::Type{S})
-    unittype = typeof(op(Units{()}(), S()))
-    if unittype == Units{()}
+    unittype = typeof(op(Units{(), Dimensions{()}}(), S()))
+    if unittype == Units{(), Dimensions{()}}
         R
     else
         dimtype = typeof(dimension(unittype()))

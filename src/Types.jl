@@ -34,7 +34,7 @@ end
 Description of a physical unit, including powers-of-ten prefixes and powers of
 the unit. The name of the unit `U` is a symbol, e.g. `:Meter`, `:Second`,
 `:Gram`, etc. `Unit{U}` objects are collected in a tuple, which is used for the
-type parameter `N` of a [`Units{N}`](@ref) object.
+type parameter `N` of a [`Units{N,D}`](@ref) object.
 """
 immutable Unit{U}
     tens::Int
@@ -55,15 +55,25 @@ abstract Unitlike
 
 """
 ```
-immutable Units{N} <: Unitlike
+abstract DimensionedUnits{D} <: Unitlike
+```
+
+Abstract type used in dispatching on the dimension of a unit.
+"""
+abstract DimensionedUnits{D} <: Unitlike
+
+"""
+```
+immutable Units{N,D} <: DimensionedUnits{D}
 ```
 
 Instances of this object represent units, possibly combinations thereof.
 Example: the unit `m` is actually a singleton of type
-`Units{(Unit{:Meter}(0,1),)}`. After dividing by `s`, a singleton of type
-`Units{(Unit{:Meter}(0,1),Unit{:Second}(0,-1))}` is returned.
+`Units{(Unit{:Meter}(0,1),),typeof(u"𝐋")}`.
+After dividing by `s`, a singleton of type
+`Units{(Unit{:Meter}(0,1),Unit{:Second}(0,-1)), typeof(u"𝐋")}` is returned.
 """
-immutable Units{N} <: Unitlike end
+immutable Units{N,D} <: DimensionedUnits{D} end
 
 """
 ```
@@ -105,7 +115,7 @@ end
 
 """
 ```
-typealias UnitlessQuantity{T} Quantity{T, Dimensions{()}, Units{()}}
+typealias UnitlessQuantity{T} Quantity{T, Dimensions{()}, Units{(), Dimensions{()}}}
 ```
 
 When [`Unitful.Quantity`](@ref) objects are combined with unitless numbers in a
@@ -114,7 +124,7 @@ the unitless numbers in a `UnitlessQuantity{T}` type. This way, the array can
 specialize on the numeric backing type. Otherwise, the most specific container
 would be something like `AbstractArray{Number}`.
 """
-typealias UnitlessQuantity{T} Quantity{T, Dimensions{()}, Units{()}}
+typealias UnitlessQuantity{T} Quantity{T, Dimensions{()}, Units{(),Dimensions{()}}}
 
 UnitlessQuantity{T<:Quantity}(x::T) =
     error("To strip units, divide out by `unit(x)`.")
@@ -147,7 +157,7 @@ determining the dimensions of a given set of units each time a new quantity is
 made.
 """
 @generated function Quantity(x::Number, y::Units)
-    if y == Units{()}
+    if y == Units{(), Dimensions{()}}
         :(x)
     else
         u = y()

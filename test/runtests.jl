@@ -15,19 +15,23 @@ import Unitful:
     Temperature,
     Angle
 
+import Unitful:
+    LengthUnit, AreaUnit, MassUnit
+    
 @testset "Type construction" begin
+    @test typeof(𝐋) == Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
     @test typeof(1.0m) ==
         Unitful.Quantity{Float64,
-            Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)},
-            Unitful.Units{(Unitful.Unit{:Meter}(0, 1),)}}
+            typeof(𝐋),
+            Unitful.Units{(Unitful.Unit{:Meter}(0, 1),), typeof(𝐋)}}
     @test typeof(1m^2) ==
         Unitful.Quantity{Int,
-            Unitful.Dimensions{(Unitful.Dimension{:Length}(2),)},
-            Unitful.Units{(Unitful.Unit{:Meter}(0, 2),)}}
+            typeof(𝐋^2),
+            Unitful.Units{(Unitful.Unit{:Meter}(0, 2),), typeof(𝐋^2)}}
     @test typeof(1ac) ==
         Unitful.Quantity{Int,
-            Unitful.Dimensions{(Unitful.Dimension{:Length}(2),)},
-            Unitful.Units{(Unitful.Unit{:Acre}(0, 1),)}}
+            typeof(𝐋^2),
+            Unitful.Units{(Unitful.Unit{:Acre}(0, 1),), typeof(𝐋^2)}}
     # @test isa(1J//10, Unitful.Quantity{Rational{Int},
     #         Unitful.Dimensions{(Unitful.Dimension{:})}}) == true
 end
@@ -109,7 +113,13 @@ end
     @test dimension(μm/m) == Unitful.Dimensions{()}()
     @test dimension([1u"m", 1u"s"]) == [𝐋, 𝐓]
     @test (𝐋/𝐓)^2 == 𝐋^2 / 𝐓^2
+    @test isa(m, LengthUnit)
+    @test !isa(m, AreaUnit)
+    @test !isa(m, MassUnit)
+    @test isa(m^2, AreaUnit)
+    @test !isa(m^2, LengthUnit)
     @test isa(1m, Length)
+    @test !isa(1m, LengthUnit)
     @test !isa(1m, Area)
     @test !isa(1m, Luminosity)
     @test isa(1ft, Length)
