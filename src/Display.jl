@@ -66,18 +66,33 @@ end
 
 """
 ```
+show{T<:Quantity}(io::IO, ::Type{T})
+```
+
+Show the type of a unitful quantity in a succinct way. Otherwise,
+array summaries are nearly unreadable.
+"""
+function show{T,D,U}(io::IO, ::Type{Quantity{T,D,U}})
+    print(io, "Quantity{", string(T),
+            ", Dimensions:{", string(D()),
+            "}, Units:{", string(U()), "}}")
+    nothing
+end
+
+"""
+```
 show(io::IO,x::Unitlike)
 ```
 
-Call `show` on each object in the tuple that is the type variable of a
-[`Unitful.Units`](@ref) or [`Unitful.Dimensions`](@ref) object.
+Call [`Unitful.showrep`](@ref) on each object in the tuple that is the type
+variable of a [`Unitful.Units`](@ref) or [`Unitful.Dimensions`](@ref) object.
 """
 function show(io::IO,x::Unitlike)
     first = ""
     tup = typeof(x).parameters[1]
     map(tup) do y
         print(io,first)
-        show(io,y)
+        showrep(io,y)
         first = " "
     end
     nothing
@@ -85,13 +100,13 @@ end
 
 """
 ```
-show(io::IO, x::Unit)
+showrep(io::IO, x::Unit)
 ```
 
 Show the unit, prefixing with any decimal prefix and appending the exponent as
 formatted by [`Unitful.superscript`](@ref).
 """
-function show(io::IO, x::Unit)
+function showrep(io::IO, x::Unit)
     print(io, prefix(x))
     print(io, abbr(x))
     print(io, (power(x) == 1//1 ? "" : superscript(power(x))))
@@ -100,13 +115,13 @@ end
 
 """
 ```
-show(io::IO, x::Dimension)
+showrep(io::IO, x::Dimension)
 ```
 
 Show the dimension, appending any exponent as formatted by
 [`Unitful.superscript`](@ref).
 """
-function show(io::IO, x::Dimension)
+function showrep(io::IO, x::Dimension)
     print(io, abbr(x))
     print(io, (power(x) == 1//1 ? "" : superscript(power(x))))
 end

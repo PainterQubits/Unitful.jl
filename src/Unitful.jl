@@ -40,7 +40,7 @@ julia> unit(1.0u"m") == u"m"
 true
 
 julia> typeof(u"m")
-Unitful.Units{(m,),Unitful.Dimensions{(𝐋,)}}
+Unitful.Units{(Unitful.Unit{:Meter}(0,1//1),),Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}
 ```
 """
 unit{T,D,U}(x::Quantity{T,D,U}) = U()
@@ -112,7 +112,7 @@ julia> dimension(u"m")
 𝐋
 
 julia> typeof(dimension(u"m"))
-Unitful.Dimensions{(𝐋,)}
+Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}
 
 julia> typeof(dimension(u"m/km"))
 Unitful.Dimensions{()}
@@ -257,9 +257,6 @@ kg m s^-2
 
 julia> u"m/s*kg/s"
 kg m s^-2
-
-julia> typeof(u"kg*m/s^2")
-Unitful.Units{(kg,m,s^-2),Unitful.Dimensions{(𝐋,𝐌,𝐓^-2)}}
 
 julia> typeof(u"m/s*kg/s") == typeof(u"kg*m/s^2")
 true

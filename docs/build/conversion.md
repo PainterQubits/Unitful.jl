@@ -29,7 +29,7 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/df2485b7dff5f58dc0f7460b50d92afcd6b42c03/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/d957ae240ca3ec070f89476c7a869eed235e21b3/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 ```
@@ -39,7 +39,7 @@ uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},
 In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/df2485b7dff5f58dc0f7460b50d92afcd6b42c03/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/d957ae240ca3ec070f89476c7a869eed235e21b3/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
 
 
 <a id='Basic-conversion-and-promotion-mechanisms-1'></a>
@@ -75,12 +75,12 @@ Arrays are typed with as much specificity as possible upon creation. consider th
 
 ```jlcon
 julia> [1.0u"m", 2.0u"m"]
-2-element Array{Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋,)},Unitful.Units{(m,),Unitful.Dimensions{(𝐋,)}}},1}:
+2-element Array{Quantity{Float64, Dimensions:{𝐋}, Units:{m}},1}:
  1.0 m
  2.0 m
 
 julia> [1.0u"m", 2.0u"cm"]
-2-element Array{Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋,)},Unitful.Units{(m,),Unitful.Dimensions{(𝐋,)}}},1}:
+2-element Array{Quantity{Float64, Dimensions:{𝐋}, Units:{m}},1}:
   1.0 m
  0.02 m
 

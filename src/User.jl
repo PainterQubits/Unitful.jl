@@ -234,7 +234,7 @@ julia> 1.0u"m/s"
 1.0 m s^-1
 
 julia> typeof(1.0u"m/s")
-Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋,𝐓^-1)},Unitful.Units{(m,s^-1),Unitful.Dimensions{(𝐋,𝐓^-1)}}}
+Quantity{Float64, Dimensions:{𝐋 𝐓^-1}, Units:{m s^-1}}
 
 julia> u"ħ"
 1.0545718001391127e-34 J s

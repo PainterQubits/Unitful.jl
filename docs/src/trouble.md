@@ -32,10 +32,10 @@ This type instability could impact performance. Example:
 
 ```jldoctest
 julia> typeof((1.0u"m")^2)
-Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋^2,)},Unitful.Units{(m^2,),Unitful.Dimensions{(𝐋^2,)}}}
+Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}
 
 julia> typeof((1.0u"m")^3)
-Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋^3,)},Unitful.Units{(m^3,),Unitful.Dimensions{(𝐋^3,)}}}
+Quantity{Float64, Dimensions:{𝐋^3}, Units:{m^3}}
 ```
 
 Because the functions `inv` and `sqrt` are raising a `Quantity` to a fixed
