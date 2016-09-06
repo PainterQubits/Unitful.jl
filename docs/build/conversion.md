@@ -29,7 +29,7 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/d957ae240ca3ec070f89476c7a869eed235e21b3/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7b7e6d7366b47f778cd8ba9d8771fef0938dba0a/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 ```
@@ -39,7 +39,7 @@ uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},
 In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/d957ae240ca3ec070f89476c7a869eed235e21b3/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7b7e6d7366b47f778cd8ba9d8771fef0938dba0a/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
 
 
 <a id='Basic-conversion-and-promotion-mechanisms-1'></a>

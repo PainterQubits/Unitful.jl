@@ -173,3 +173,7 @@ convert{T}(::Type{UnitlessQuantity{T}}, x::Number) =
     UnitlessQuantity{T}(x)us
 
 convert(::Type{Number}, y::Quantity) = y
+convert{T<:Real}(::Type{T}, y::Quantity) =
+    T(uconvert(NoUnits, y))
+convert{T<:Complex}(::Type{T}, y::Quantity) =
+    T(uconvert(NoUnits, y))

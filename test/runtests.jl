@@ -37,7 +37,7 @@ end
 @testset "Conversion" begin
     @testset "> Unitless ↔ unitful conversion" begin
         @test_throws MethodError convert(typeof(3m),1)
-        @test_throws MethodError convert(Float64, 3m)
+        @test_throws ErrorException convert(Float64, 3m)
         @test 3m/unit(3m) === 3
         @test 3.0g/unit(3.0g) === 3.0
     end
