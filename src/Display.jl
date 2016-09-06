@@ -66,7 +66,7 @@ end
 
 """
 ```
-show{T<:Quantity}(io::IO, ::Type{T})
+show{T,D,U}(io::IO, ::Type{Quantity{T,D,U}})
 ```
 
 Show the type of a unitful quantity in a succinct way. Otherwise,
