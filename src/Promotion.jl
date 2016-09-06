@@ -11,7 +11,7 @@ for op in (.+, .-, +, -)
     end
     @eval function promote_op{S<:DimensionedUnits,T<:DimensionedUnits}(
         ::typeof($op), ::Type{S}, ::Type{T})
-        if S==T
+        if dimension(S())==dimension(T())
             promote_type(S,T)
         else
             error("Dimension mismatch.")
@@ -30,8 +30,12 @@ function promote_op{T1,D1,U1,T2,D2,U2}(op, x::Type{Quantity{T1,D1,U1}},
     y::Type{Quantity{T2,D2,U2}})
     # figuring out numeric type can be subtle if D1 == D2 but U1 != U2.
     # in particular, consider adding 1m + 1cm... the numtype is not Int.
-    unittype = promote_op(op, U1(), U2())
-    numtype = promote_type(T1, T2, typeof(convfact(U1(),U2())))
+    unittype = promote_op(op, U1, U2)
+    numtype = if D1 == D2
+        promote_type(T1, T2, typeof(convfact(U1(),U2())))
+    else
+        promote_type(T1, T2)
+    end
     if unittype == Units{(), Dimensions{()}}
         numtype
     else

@@ -16,30 +16,52 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         @dimension 𝐍 "𝐍" Amount
 
         # Define derived dimensions.
-        @derived_dimension Area         𝐋^2
-        @derived_dimension Volume       𝐋^3
-        @derived_dimension Frequency    𝐓^-1
-        @derived_dimension Force        𝐌*𝐋/𝐓^2
-        @derived_dimension Energy       𝐌*𝐋^2/𝐓^2
-        @derived_dimension Momentum     𝐌*𝐋/𝐓
-        @derived_dimension Power        𝐋^2*𝐌*𝐓^-3
-        @derived_dimension Voltage      𝐈^-1*𝐋^2*𝐌*𝐓^-3
+        @derived_dimension Area             𝐋^2
+        @derived_dimension Volume           𝐋^3
+        @derived_dimension Frequency        inv(𝐓)
+        @derived_dimension AngularFrequency ∠/𝐓
+        @derived_dimension Force            𝐌*𝐋/𝐓^2
+        @derived_dimension Pressure         𝐌*𝐋^-1*𝐓^-2
+        @derived_dimension Energy           𝐌*𝐋^2/𝐓^2
+        @derived_dimension Momentum         𝐌*𝐋/𝐓
+        @derived_dimension Power            𝐋^2*𝐌*𝐓^-3
+        @derived_dimension Charge           𝐈*𝐓
+        @derived_dimension Voltage          𝐈^-1*𝐋^2*𝐌*𝐓^-3
+        @derived_dimension Resistance       𝐈^-2*𝐋^2*𝐌*𝐓^-3
+        @derived_dimension Capacitance      𝐈^2*𝐋^-2*𝐌^-1*𝐓^4
+        @derived_dimension Inductance       𝐈^-2*𝐋^2*𝐌*𝐓^-2
+        @derived_dimension MagneticFlux     𝐈^-1*𝐋^2*𝐌*𝐓^-2
+        @derived_dimension HField           𝐈/𝐋
+        @derived_dimension BField           𝐈^-1*𝐌*𝐓^-2
 
         # Define base units. This is not to imply g is the base SI unit instead of kg.
         # See the documentation for further details.
-        # #key:   Symbol  Display  Name      Dimension      Prefixes?
-        @refunit  m       "m"      Meter     𝐋                 true
-        @refunit  s       "s"      Second    𝐓                 true
-        @refunit  A       "A"      Ampere    𝐈                 true
-        @refunit  K       "K"      Kelvin    𝚯                 true
-        @refunit  cd      "cd"     Candela   𝐉                  true
-        @refunit  g       "g"      Gram      𝐌                 true
-        @refunit  rad     "rad"    Radian    ∠                 true
-        @refunit  mol     "mol"    Mole      𝐍                 true
+        # #key:   Symbol  Display  Name      Dimension   Prefixes?
+        @refunit  m       "m"      Meter     𝐋           true
+        @refunit  s       "s"      Second    𝐓           true
+        @refunit  A       "A"      Ampere    𝐈            true
+        @refunit  K       "K"      Kelvin    𝚯           true
+        @refunit  cd      "cd"     Candela   𝐉            true
+        @refunit  g       "g"      Gram      𝐌           true
+        @refunit  rad     "rad"    Radian    ∠           true
+        @refunit  mol     "mol"    Mole      𝐍           true
+
+        # Specify preferred unit for promotion.
+        # This is separate from the @refunit macro for flexibility; consider that
+        # the SI unit of mass is not g but instead kg, and yet some people use cgs units.
+        # This macro should only be used with units having "pure" dimensions like 𝐋, 𝐓, 𝐈, etc.
+        @preferunit m
+        @preferunit s
+        @preferunit A
+        @preferunit K
+        @preferunit cd
+        @preferunit kg
+        @preferunit rad
+        @preferunit mol
 
         # These lines allow for μ to be typed with option-m on a Mac.
         # The character encodings are different here so this is less crazy than it looks
-        const  µm = μm
+        const µm = μm
 
         # Length
         #key: Symbol Display    Name        Equivalent to           10^n prefixes?
@@ -64,15 +86,8 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         # Angle
         @unit °       "°"       Degree      (pi/180)*rad           false
         import Base: sin, cos, tan, cot, sec, csc
-        for (_y,_yd) in [(:sin, :sind),
-                (:cos, :cosd),
-                (:tan, :tand),
-                (:cot, :cotd),
-                (:sec, :secd),
-                (:csc, :cscd)]
-            @eval (\$_y){T,D}(x::Quantity{T,D,typeof(°)}) = (\$_yd)(x.val)
-            @eval (\$_yd){T,D}(x::Quantity{T,D,typeof(°)}) = (\$_yd)(x.val)
-            @eval (\$_y){T,D}(x::Quantity{T,D,typeof(rad)}) = (\$_y)(x.val)
+        for _y in [:sin, :cos, :tan, :cot, :sec, :csc]
+            @eval (\$_y)(x::DimensionedQuantity{typeof(∠)}) = (\$_y)(uconvert(rad, x).val)
         end
 
         # Temperature
@@ -122,11 +137,31 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         const k  = 1.380_648_52e-23*(J/K)   # (79) Boltzmann constant
         const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
 
-        # Default rules for addition and subtraction.
-        for op in [:+, :-]
-            # Can change to min(x,y), x, or y
-            @eval (\$op)(x::Unitful.Units, y::Unitful.Units) = max(x,y)
+        # Promotion rules
+
+        # By default, pick the units specified by the @preferunit macro.
+        # Our use of promote_rule here is only via promote_type;
+        # We will never be promoting unit objects themselves.
+        function promote_rule{S<:DimensionedUnits,T<:DimensionedUnits}(::Type{S}, ::Type{T})
+            dS = dimension(S())
+            dT = dimension(T())
+            dS != dT && error("Dimensions are unequal in call to `promote_rule`.")
+            typeof(dim2refunits(dS))
         end
+
+        # You could also add rules like the following, which will not interfere with
+        # the generic behavior for other dimensions:
+        promote_rule{S<:EnergyUnit, T<:EnergyUnit}(::Type{S}, ::Type{T}) = typeof(J)
+        promote_rule{S<:ForceUnit, T<:ForceUnit}(::Type{S}, ::Type{T}) = typeof(N)
+        promote_rule{S<:PowerUnit, T<:PowerUnit}(::Type{S}, ::Type{T}) = typeof(W)
+        promote_rule{S<:PressureUnit, T<:PressureUnit}(::Type{S}, ::Type{T}) = typeof(Pa)
+        promote_rule{S<:ChargeUnit, T<:ChargeUnit}(::Type{S}, ::Type{T}) = typeof(C)
+        promote_rule{S<:VoltageUnit, T<:VoltageUnit}(::Type{S}, ::Type{T}) = typeof(V)
+        promote_rule{S<:ResistanceUnit, T<:ResistanceUnit}(::Type{S}, ::Type{T}) = typeof(Ω)
+        promote_rule{S<:CapacitanceUnit, T<:CapacitanceUnit}(::Type{S}, ::Type{T}) = typeof(F)
+        promote_rule{S<:InductanceUnit, T<:InductanceUnit}(::Type{S}, ::Type{T}) = typeof(H)
+        promote_rule{S<:MagneticFluxUnit, T<:MagneticFluxUnit}(::Type{S}, ::Type{T}) = typeof(Wb)
+        promote_rule{S<:BField, T<:BField}(::Type{S}, ::Type{T}) = typeof(T)
         """)
     end
 end
