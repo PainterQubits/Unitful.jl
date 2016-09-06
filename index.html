@@ -179,20 +179,14 @@
         <ul>
           
             <li class="anchor">
-              <a title="Features" href="#features">
-                Features
-              </a>
-            </li>
-          
-            <li class="anchor">
               <a title="Quick start" href="#quick-start">
                 Quick start
               </a>
             </li>
           
             <li class="anchor">
-              <a title="Testing this package" href="#testing-this-package">
-                Testing this package
+              <a title="Usage examples" href="#usage-examples">
+                Usage examples
               </a>
             </li>
           
@@ -210,8 +204,62 @@
           
             
   <li>
-    <a class="" title="Implementation" href="implementation/">
-      Implementation
+    <a class="" title="Highlighted features" href="highlights/">
+      Highlighted features
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Types" href="types/">
+      Types
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Defining new units" href="newunits/">
+      Defining new units
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Conversion" href="conversion/">
+      Conversion
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Manipulations" href="manipulations/">
+      Manipulations
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="How units are displayed" href="display/">
+      How units are displayed
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Troubleshooting" href="trouble/">
+      Troubleshooting
     </a>
     
   </li>
@@ -238,87 +286,71 @@
           
           <p><a id='Unitful.jl-1'></a></p>
 <h1 id="unitfuljl">Unitful.jl</h1>
-<p>A Julia package for physical units. Available <a href="https://github.com/ajkeller34/Unitful.jl">here</a>. Inspired by Keno Fischer's very clever package <a href="https://github.com/keno/SIUnits.jl">SIUnits.jl</a>.</p>
-<p>We want to support not only SI units but also any other unit system. We also want to minimize or in some cases eliminate the run-time penalty of units. There should be facilities for dimensional analysis. All of this should integrate easily with the usual mathematical operations and collections that are found in Julia base.</p>
-<p><a id='Features-1'></a></p>
-<h2 id="features">Features</h2>
+<p>A Julia package for physical units. Available <a href="https://github.com/ajkeller34/Unitful.jl">here</a>. Inspired by:</p>
 <ul>
-<li>Support for rational exponents. Good for power spectral density, etc.</li>
-<li>Exact conversions are respected by using Rationals.</li>
-<li>Can make new units using the <code>@unit</code> macro without digging through the code.</li>
-<li>“Sticky units”: by default, no implicit conversions in multiplication or division   - We allow for implicit conversions in addition and subtraction</li>
-<li>Some built-in dimensional analysis</li>
+<li><a href="https://github.com/keno/SIUnits.jl">SIUnits.jl</a></li>
+<li><a href="https://github.com/dhoegh/EngUnits.jl">EngUnits.jl</a></li>
+<li><a href="https://github.com/timholy/Units.jl">Units.jl</a></li>
 </ul>
+<p>We want to support not only SI units but also any other unit system. We also want to minimize or in some cases eliminate the run-time penalty of units. There should be facilities for dimensional analysis. All of this should integrate easily with the usual mathematical operations and collections that are found in Julia base.</p>
 <p><a id='Quick-start-1'></a></p>
 <h2 id="quick-start">Quick start</h2>
-<p><a id='Installation-1'></a></p>
-<h3 id="installation">Installation</h3>
 <ul>
-<li>Use a recent nightly build of Julia 0.5.</li>
+<li>This package requires Julia 0.5. Older versions will not be supported.</li>
 <li><code>Pkg.clone("https://github.com/ajkeller34/Unitful.jl.git")</code></li>
+<li><code>Pkg.build("Unitful")</code></li>
+<li><code>using Unitful</code></li>
 </ul>
-<p><a id='In-Julia-1'></a></p>
-<h3 id="in-julia">In Julia</h3>
-<div class="codehilite"><pre><span></span><span class="k">using</span> <span class="n">Unitful</span>
+<p>In <code>deps/Defaults.jl</code> of the package directory, you can see what is defined by default. Feel free to edit this file to suit your needs. The Unitful package will need to be reloaded for changes to take place. To recover the "factory  defaults," delete <code>deps/Defaults.jl</code> and run <code>Pkg.build("Unitful")</code> again.</p>
+<p>Here is a summary of the defaults file contents:</p>
+<ul>
+<li>Base dimensions like length, mass, time, etc. are defined.</li>
+<li>Derived dimensions like volume, energy, momentum, etc. are defined.</li>
+<li>SI units and their power-of-ten prefixes are defined.</li>
+<li>Some other units (imperial units) are defined, without power-of-ten prefixes.</li>
+<li>Promotion behavior is specified.</li>
+</ul>
+<p>Some unit abbreviations conflict with other definitions or syntax:</p>
+<ul>
+<li><code>inch</code> is used instead of <code>in</code>, since <code>in</code> conflicts with Julia syntax</li>
+<li><code>minute</code> is used instead of <code>min</code>, since <code>min</code> is a commonly used function</li>
+<li><code>hr</code> is used instead of <code>h</code>, since <code>h</code> is revered as the Planck constant</li>
+</ul>
+<p>Units, dimensions, and fundamental constants are not exported from Unitful. This is to avoid proliferating symbols in your namespace unnecessarily. You can retrieve them using the <a href="manipulations/#Unitful.@u_str"><code>@u_str</code></a> string macro for convenience, or import them from the <code>Unitful</code> package to bring them into the namespace.</p>
+<p><a id='Usage-examples-1'></a></p>
+<h2 id="usage-examples">Usage examples</h2>
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="mi">1</span><span class="n">u</span><span class="s">&quot;kg&quot;</span> <span class="o">==</span> <span class="mi">1000</span><span class="n">u</span><span class="s">&quot;g&quot;</span>             <span class="c"># Equivalence implies unit conversion</span>
+<span class="go">true</span>
+
+<span class="gp">julia&gt;</span> <span class="o">!</span><span class="p">(</span><span class="mi">1</span><span class="n">u</span><span class="s">&quot;kg&quot;</span> <span class="o">===</span> <span class="mi">1000</span><span class="n">u</span><span class="s">&quot;g&quot;</span><span class="p">)</span>         <span class="c"># ...and yet we can distinguish these...</span>
+<span class="go">true</span>
+
+<span class="gp">julia&gt;</span> <span class="mi">1</span><span class="n">u</span><span class="s">&quot;kg&quot;</span> <span class="o">===</span> <span class="mi">1</span><span class="n">u</span><span class="s">&quot;kg&quot;</span>              <span class="c"># ...and these are indistinguishable.</span>
+<span class="go">true</span>
 </pre></div>
 
 
-<p><em>Cautiously disregard the several warnings about overwriting methods in Base, which are expected.</em></p>
-<p>By default, SI units and their power-of-ten prefixes are exported. Other units are exported but not power-of-ten prefixes.</p>
-<ul>
-<li><code>m</code>, <code>km</code>, <code>cm</code>, etc. are exported.</li>
-<li><code>nft</code> for nano-foot is not exported.</li>
-</ul>
-<p>Some unit abbreviations conflict with Julia definitions or syntax:</p>
-<ul>
-<li><code>inch</code> is used instead of <code>in</code></li>
-<li><code>minute</code> is used instead of <code>min</code></li>
-</ul>
-<p><a id='Usage-examples-1'></a></p>
-<h3 id="usage-examples">Usage examples</h3>
-<div class="codehilite"><pre><span></span><span class="c"># The following are true:</span>
-<span class="mi">1</span><span class="n">kg</span> <span class="o">==</span> <span class="mi">1000</span><span class="n">g</span>                    <span class="c"># Equivalence implies unit conversion</span>
-<span class="o">!</span><span class="p">(</span><span class="mi">1</span><span class="n">kg</span> <span class="o">===</span> <span class="mi">1000</span><span class="n">g</span><span class="p">)</span>                <span class="c"># ...and yet we can distinguish these...</span>
-<span class="mi">1</span><span class="n">kg</span> <span class="o">===</span> <span class="mi">1</span><span class="n">kg</span>                     <span class="c"># ...and these are indistinguishable.</span>
+<p>In the next examples we assume we have brought some units into our namespace, e.g. using <code>m = u"m"</code>, etc.</p>
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">uconvert</span><span class="p">(</span><span class="n">°C</span><span class="p">,</span> <span class="mi">212</span><span class="n">°F</span><span class="p">)</span>
+<span class="go">100//1 °C</span>
 
-<span class="c"># Also true:</span>
-<span class="n">unit</span><span class="p">(</span><span class="nb">convert</span><span class="p">(</span><span class="n">°C</span><span class="p">,</span> <span class="mi">212</span><span class="n">°F</span><span class="p">))</span> <span class="o">===</span> <span class="n">°C</span>
-<span class="n">unitless</span><span class="p">(</span><span class="nb">convert</span><span class="p">(</span><span class="n">°C</span><span class="p">,</span> <span class="mi">212</span><span class="n">°F</span><span class="p">))</span> <span class="o">==</span> <span class="mi">100</span>
-<span class="c"># Note: use the \approx tab-completion. Sometimes ≈ is needed if there are tiny</span>
-<span class="c"># floating-point errors (see to-do list note, regarding exact conversions)</span>
+<span class="gp">julia&gt;</span> <span class="n">uconvert</span><span class="p">(</span><span class="n">μm</span><span class="o">/</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">°F</span><span class="p">),</span> <span class="mi">9</span><span class="n">μm</span><span class="o">/</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">°C</span><span class="p">))</span>
+<span class="go">5//1 °F^-1 μm m^-1</span>
 
-<span class="c"># Also true:</span>
-<span class="nb">convert</span><span class="p">(</span><span class="n">µm</span><span class="o">/</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">°F</span><span class="p">),</span> <span class="mi">9</span><span class="n">µm</span><span class="o">/</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">°C</span><span class="p">))</span> <span class="n">≈</span> <span class="mi">5</span><span class="n">µm</span><span class="o">/</span><span class="p">(</span><span class="n">m</span><span class="o">*</span><span class="n">°F</span><span class="p">)</span>
-<span class="n">mod</span><span class="p">(</span><span class="mi">1</span><span class="n">h</span><span class="o">+</span><span class="mi">3</span><span class="n">minute</span><span class="o">+</span><span class="mi">5</span><span class="n">s</span><span class="p">,</span> <span class="mi">24</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">17</span><span class="n">s</span>
+<span class="gp">julia&gt;</span> <span class="n">mod</span><span class="p">(</span><span class="mi">1</span><span class="n">hr</span><span class="o">+</span><span class="mi">3</span><span class="n">minute</span><span class="o">+</span><span class="mi">5</span><span class="n">s</span><span class="p">,</span> <span class="mi">24</span><span class="n">s</span><span class="p">)</span>
+<span class="go">17//1 s</span>
 </pre></div>
 
 
 <p>See <code>test/runtests.jl</code> for more usage examples.</p>
-<p><a id='Gotchas-1'></a></p>
-<h3 id="gotchas">Gotchas</h3>
-<p>One inch is exactly equal to 2.54 cm. However, in Julia, the floating-point 2.54 is not equal to the Rational 254//100. As a consequence, <code>1inch != 2.54cm</code>, because Unitful respects exact conversions and 1 inch is really 254//100 cm. To test for equivalence, instead use <code>≈</code> (backslash approx tab-completion).</p>
-<p>The above applies generically to any pair of units, not just inches and centimeters.</p>
-<p>Ranges were once supported by overriding base. Somehow, they will be supported again at some point. I have stopped overriding base to reduce warnings and encourage broader package adoption.</p>
-<p><a id='Testing-this-package-1'></a></p>
-<h2 id="testing-this-package">Testing this package</h2>
-<p>There are of course subtleties in getting this all to work. To test that changes to either Julia or Unitful haven't given rise to undesirable behavior, run the test suite in Julia:</p>
-<div class="codehilite"><pre><span></span><span class="n">Pkg</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="s">&quot;Unitful&quot;</span><span class="p">)</span>
-</pre></div>
-
-
 <p><a id='To-do-1'></a></p>
 <h2 id="to-do">To do</h2>
 <ul>
-<li>Clean up how units/quantities are displayed.</li>
+<li>Benchmarking needed.</li>
+<li>More tests are always appreciated and necessary.</li>
+<li>Specialized exceptions for dimensional mismatches, other unit-related troubles?</li>
+<li>Further down the road, it could be nice to have a concrete type where the units are a value and not part of the type signature. This could be used as a fallback for promotion when arrays of mixed dimensions are created.</li>
 </ul>
-<p>I'm waiting on <code>show</code>, <code>print</code>, etc. to be cleaned up before I work on this myself (see <a href="https://github.com/JuliaLang/julia/issues/14052">issue #14052</a> and others).</p>
-<ul>
-<li>Clean up sin(degrees), etc. (not done nicely)</li>
-<li>Benchmarking needed!</li>
-<li>More tests would be nice</li>
-<li>Add support for uncertainties? For quantities with uncertainty, <code>isapprox</code></li>
-</ul>
-<p>becomes a loaded / ambiguous name.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -338,14 +370,14 @@
     </div>
     <div class="next">
       
-        <a href="implementation/" title="Implementation">
+        <a href="highlights/" title="Highlighted features">
           <span class="direction">
             Next
           </span>
           <div class="page">
             <div class="stretch">
               <div class="title">
-                Implementation
+                Highlighted features
               </div>
             </div>
             <div class="button button-next" role="button" aria-label="Next">

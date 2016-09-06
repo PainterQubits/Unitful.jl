@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
       
-        <title>Implementation - Unitful.jl</title>
+        <title>Troubleshooting - Unitful.jl</title>
       
       
       
@@ -96,7 +96,7 @@
             
           </span>
         
-        Implementation
+        Troubleshooting
       </div>
     </div>
     
@@ -175,37 +175,89 @@
           
             
   <li>
-    <a class="current" title="Implementation" href="./">
-      Implementation
+    <a class="" title="Highlighted features" href="../highlights/">
+      Highlighted features
     </a>
     
-      
-        
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Types" href="../types/">
+      Types
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Defining new units" href="../newunits/">
+      Defining new units
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Conversion" href="../conversion/">
+      Conversion
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Manipulations" href="../manipulations/">
+      Manipulations
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="How units are displayed" href="../display/">
+      How units are displayed
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="current" title="Troubleshooting" href="./">
+      Troubleshooting
+    </a>
+    
       
       
         <ul>
           
             <li class="anchor">
-              <a title="A view from 30000 ft (or 9144 m)" href="#a-view-from-30000-ft-or-9144-m">
-                A view from 30000 ft (or 9144 m)
+              <a title="Why do unit conversions yield rational numbers sometimes?" href="#why-do-unit-conversions-yield-rational-numbers-sometimes">
+                Why do unit conversions yield rational numbers sometimes?
               </a>
             </li>
           
             <li class="anchor">
-              <a title="Creating new units" href="#creating-new-units">
-                Creating new units
+              <a title="Exponentiation" href="#exponentiation">
+                Exponentiation
               </a>
             </li>
           
             <li class="anchor">
-              <a title="Conversion and promotions" href="#conversion-and-promotions">
-                Conversion and promotions
+              <a title="Other random problems" href="#other-random-problems">
+                Other random problems
               </a>
             </li>
           
             <li class="anchor">
-              <a title="Temperature conversion" href="#temperature-conversion">
-                Temperature conversion
+              <a title="I have a different problem" href="#i-have-a-different-problem">
+                I have a different problem
               </a>
             </li>
           
@@ -234,37 +286,41 @@
       <article class="article">
         <div class="wrapper">
           
-          <p><a id='Design-and-implementation-1'></a></p>
-<h1 id="design-and-implementation">Design and implementation</h1>
-<p><a id='A-view-from-30000-ft-(or-9144-m)-1'></a></p>
-<h2 id="a-view-from-30000-ft-or-9144-m">A view from 30000 ft (or 9144 m)</h2>
-<p>Like SIUnits.jl, units are part of the type signature of a quantity. From there, the implementations diverge. Unitful.jl uses generated functions to enable more flexibility than found in SIUnits.jl. Support is targeted to Julia 0.5 and up.</p>
-<p>We make an immutable <code>UnitDatum</code> that stores a base unit (expressed a bits type, either <code>NormalUnit</code> or <code>TemperatureUnit</code>), a rational exponent, and a prefix. We don't allow arbitrary floating point exponents of units because they probably aren't very useful. The prefixes on units (e.g. <code>nm</code> or <code>km</code>) may help to avoid overflow issues and general ugliness.</p>
-<p>We define the immutable singleton <code>UnitData{T}</code>, where <code>T</code> is always a tuple of <code>UnitDatum</code> (variable number of arguments). Usually, the user interacts only with <code>UnitData{T}</code> objects, not <code>UnitDatum</code>.</p>
-<p>We define methods <code>dimension</code> that turn, for example, <code>acre^2</code> into <code>[L]^4</code>. We can in principle add quantities with the same dimension (<code>acre [L]^2 + ft^2 [L]^2</code>), provided some "promotion" rules are given (see below). Note that dimensions cannot be determined by powers of the units: <code>ft^2</code> is an area, but so is <code>acre^1</code>.</p>
-<p>We define unitful <em>Quantities</em> <code>RealQuantity{T&lt;:Real, Units}</code> and <code>FloatQuantity{T&lt;:AbstractFloat, Units}</code> where <code>Units</code> is a type <code>UnitData{T}</code>. To play nicely with <code>FloatRange</code> and <code>LinSpace</code>, we need <code>FloatQuantity &lt;: AbstractFloat</code>; we also have <code>RealQuantity &lt;: Real</code>. By putting units in the type signature of a quantity, staged functions can be used to offload as much of the unit computation to compile-time as is possible.</p>
-<p><a id='Creating-new-units-1'></a></p>
-<h2 id="creating-new-units">Creating new units</h2>
-<p>Just use the <code>@unit</code> macro, providing four arguments: the symbol for the unit, how the unit is displayed, a quantity equivalent to one of the new unit, and a <code>Bool</code> to indicate whether or not to make symbols for all SI prefixes (as in mm, km, etc.)</p>
-<p>Usage example:</p>
-<div class="codehilite"><pre><span></span><span class="p">@</span><span class="n">unit</span> <span class="n">pim</span> <span class="s">&quot;π-meter&quot;</span> <span class="n">π</span><span class="o">*</span><span class="n">m</span> <span class="n">false</span>
-<span class="mi">1</span><span class="n">pim</span> <span class="c"># displays as &quot;1 π-meter&quot;</span>
-<span class="nb">convert</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mi">1</span><span class="n">pim</span><span class="p">)</span> <span class="c"># evaluates to 3.14159... m</span>
+            <h1>Troubleshooting</h1>
+          
+          <p><a id='Why-do-unit-conversions-yield-rational-numbers-sometimes?-1'></a></p>
+<h2 id="why-do-unit-conversions-yield-rational-numbers-sometimes">Why do unit conversions yield rational numbers sometimes?</h2>
+<p>We use rational numbers in this package to permit exact conversions between different units where possible. As an example, one inch is exactly equal to 2.54 cm. However, in Julia, the floating-point <code>2.54</code> is not equal to <code>254//100</code>. As a consequence, <code>1inch != 2.54cm</code>, because Unitful respects exact conversions. To test for equivalence, instead use <code>≈</code> (<code>\approx</code> tab-completion).</p>
+<p><a id='But-I-want-a-floating-point-number...-1'></a></p>
+<h3 id="but-i-want-a-floating-point-number">But I want a floating point number...</h3>
+<p><code>float(x)</code> is defined for <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a> types, and is forwarded to the underlying numeric type (units are not affected).</p>
+<p>We may consider adding an option in the defaults to turn on/off use of <code>Rational</code> numbers. They permit exact conversions, but they aren't preferred as a result type in much of Julia Base (consider that <code>inv(2) === 0.5</code>, not <code>1//2</code>).</p>
+<p><a id='Exponentiation-1'></a></p>
+<h2 id="exponentiation">Exponentiation</h2>
+<p>Most operations with this package should in principle suffer little performance penalty if any at run time. An exception to this is rule is exponentiation. Since units and their powers are encoded in the type signature of a <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a> object, raising a <code>Quantity</code> to some power, which is just some run-time value, necessarily results in different result types. This type instability could impact performance. Example:</p>
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="nb">typeof</span><span class="p">((</span><span class="mf">1.0</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}</span>
+
+<span class="gp">julia&gt;</span> <span class="nb">typeof</span><span class="p">((</span><span class="mf">1.0</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">)</span><span class="o">^</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">Quantity{Float64, Dimensions:{𝐋^3}, Units:{m^3}}</span>
 </pre></div>
 
 
-<p>You can look at <code>Defaults.jl</code> in the package to see what units are there by default.</p>
-<p>Note for the experts: Some care should be taken if explicitly making <code>UnitData</code> objects. The ordering of <code>UnitDatum</code> inside a tuple matters for type comparisons. Using the unary multiplication operator on the <code>UnitData</code> object will return a "canonically sorted" <code>UnitData</code> object. Indeed, this is how we avoid ordering issues when multiplying quantities together.</p>
-<p><a id='Conversion-and-promotions-1'></a></p>
-<h2 id="conversion-and-promotions">Conversion and promotions</h2>
-<p>Conversions between units are rejected if the units have different dimensions.</p>
-<p>We decide the result units for addition and subtraction operations based on looking at the unit types only. We can't take runtime values into account without compromising runtime performance. By default, if we have <code>x (A) + y (B) = z (C)</code> where <code>x,y,z</code> are numbers and <code>A,B,C</code> are units, then <code>C = max(1A, 1B)</code>. This is an arbitrary choice and can be changed in <code>Defaults.jl</code>. For example, <code>101cm + 1m = 2.01m</code> because <code>1m &gt; 1cm</code>.</p>
-<p>Although quantities could be integrated with Julia's promotion mechanisms, we instead simply define how to add or subtract the units themselves, and have addition of quantities rely on those definitions. The concern is that implicit promotion operations that were written with pure numbers in mind may give rise to surprising behavior without returning errors. The operations on the numeric values of quantities of course utilize Julia's promotion mechanisms.</p>
-<p>Some of our <code>convert</code> syntax breaks Julia conventions in that the first argument is not a type. For example, <code>convert(ft, 1m)</code> converts 1 meter to feet. This may rub people the wrong way and could change. A neat alternative would be to override other syntax: <code>3m in cm</code> would be succinct and intuitive. Overriding <code>in</code> is simple, but the parsing rules aren't intended for this. For example, <code>0°C in °F == 32°F</code> fails to evaluate, but <code>(0°C in °F) == 32°F</code> returns <code>true</code>.</p>
-<p>Exact conversions between units are respected where possible. If rational arithmetic would result in an overflow, then floating-point conversion will proceed.</p>
-<p><a id='Temperature-conversion-1'></a></p>
-<h2 id="temperature-conversion">Temperature conversion</h2>
-<p>If a unit is a pure temperature unit, then conversion respects scale offsets. For instance, converting 0°C to °F returns the expected result, 32°F. If instead temperature appears in combination with other units, scale offsets don't make sense and we consider temperature <em>intervals</em>. This gives the expected behavior most of the time.</p>
+<p>Because the functions <code>inv</code> and <code>sqrt</code> are raising a <code>Quantity</code> to a fixed power (-1 and 1/2, respectively), we can use a generated function to ensure type stability in these cases. Also note that squaring a <code>Quantity</code> will be type-stable if done as <code>x*x</code> but not as <code>x^2</code>.</p>
+<p><a id='Other-random-problems-1'></a></p>
+<h2 id="other-random-problems">Other random problems</h2>
+<p>If using units with some of the unsigned types... well, I'm not sure what you are doing, but you should be aware of this:</p>
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="k">using</span> <span class="n">Unitful</span><span class="p">:</span> <span class="n">m</span><span class="p">,</span><span class="n">cm</span>
+
+<span class="gp">julia&gt;</span> <span class="n">uconvert</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="mh">0x01c</span><span class="n">m</span><span class="p">)</span>   <span class="c"># the user means cm, not 0x01c*m</span>
+<span class="go">0x001c m</span>
+</pre></div>
+
+
+<p>This behavior is a consequence of <a href="https://github.com/JuliaLang/julia/issues/16356">a Julia issue</a>.</p>
+<p><a id='I-have-a-different-problem-1'></a></p>
+<h2 id="i-have-a-different-problem">I have a different problem</h2>
+<p>Please raise an issue. This package is in development and there may be bugs. Feature requests may also be considered and pull requests are welcome.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -281,7 +337,7 @@
   <nav class="pagination" aria-label="Footer">
     <div class="previous">
       
-        <a href=".." title="Home">
+        <a href="../display/" title="How units are displayed">
           <span class="direction">
             Previous
           </span>
@@ -291,7 +347,7 @@
             </div>
             <div class="stretch">
               <div class="title">
-                Home
+                How units are displayed
               </div>
             </div>
           </div>
