@@ -29,7 +29,7 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7b7e6d7366b47f778cd8ba9d8771fef0938dba0a/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/aa50f3a83cf7497b5260d1c28f4ab6af6b4cc90c/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 ```
@@ -39,18 +39,12 @@ uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},
 In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7b7e6d7366b47f778cd8ba9d8771fef0938dba0a/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/aa50f3a83cf7497b5260d1c28f4ab6af6b4cc90c/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
 
 
-<a id='Basic-conversion-and-promotion-mechanisms-1'></a>
+<a id='Dimensionless-quantities-1'></a>
 
-## Basic conversion and promotion mechanisms
-
-
-We decide the result units for addition and subtraction operations based on looking at the types only. We can't take runtime values into account without compromising runtime performance. By default, if we have `x (A) + y (B) = z (C)` where `x,y,z` are numbers and `A,B,C` are units, then `C = max(1A, 1B)`. This is an arbitrary choice and can be changed at the end of `deps/Defaults.jl`. For example, `101cm + 1m = 2.01m` because `1m > 1cm`.
-
-
-Exact conversions between units are respected where possible. If rational arithmetic would result in an overflow, then floating-point conversion should proceed. File an issue if this does not work properly.
+### Dimensionless quantities
 
 
 For dimensionless quantities, `uconvert` can be used to strip the units without losing power-of-ten information:
@@ -63,6 +57,29 @@ julia> uconvert(Unitful.NoUnits, 1.0u"μm/m")
 julia> uconvert(Unitful.NoUnits, 1.0u"m")
 ERROR: Dimensional mismatch.
 ```
+
+
+You can also directly convert to a subtype of `Real` or `Complex`:
+
+
+```jlcon
+julia> Float64(1.0u"μm/m")
+1.0e-6
+```
+
+
+<a id='Basic-conversion-and-promotion-mechanisms-1'></a>
+
+## Basic conversion and promotion mechanisms
+
+
+Exact conversions between units are respected where possible. If rational arithmetic would result in an overflow, then floating-point conversion should proceed. Use of floating-point numbers inhibits exact conversion.
+
+
+We decide the result units for addition and subtraction operations based on looking at the types only. We can't take runtime values into account without compromising runtime performance. If two quantities with the same units are added or subtracted, then the result units will be the same. If two quantities with differing units (but same dimension) are added or subtracted, then the result units will be specified by promotion. The [`Unitful.@preferunit`](newunits.md#Unitful.@preferunit) macro is used in `deps/Defaults.jl` to designate preferred units for each pure dimension for promotion. Adding two masses with different units will give a result in `kg`. Adding two velocities with different units will give `m/s`, and so on. You can special case for "mixed" dimensions, e.g. such that the preferred units of energy are `J`. The behaviors can be changed in `deps/Defaults.jl`.
+
+
+For multiplication and division, note that powers-of-ten prefixes are significant in unit cancellation. For instance, `mV/V` is not simplified, although `V/V` is. Also, `N*m/J` is not simplified: there is currently no logic to decide whether or not units on a dimensionless quantity seem "intentional" or not.
 
 
 <a id='Array-promotion-1'></a>
@@ -91,7 +108,7 @@ julia> [1.0u"m", 2.0]
 ```
 
 
-In the first case, an array with a concrete type can be created. Good performance should be attainable. The second and third cases fall back to increasingly abstract types, which cannot be stored efficiently and will incur a performance penalty. The second case at least provides enough information to permit dispatch on the dimensions of the array's elements:
+In the first case, an array with a concrete type is created. Good performance should be attainable. The second case invokes promotion so that an array of concrete type can be created. The third case falls back to an abstract type, which cannot be stored efficiently and will incur a performance penalty. An additional benefit of having a concrete type is that we can dispatch on the dimensions of the array's elements:
 
 
 ```jlcon

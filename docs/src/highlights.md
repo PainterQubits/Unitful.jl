@@ -22,6 +22,9 @@ julia> dB(1u"mW", 1u"W")
 -30.0
 ```
 
+We don't currently implement dB as a unit because the log scale would require
+special treatment, but it is under consideration.
+
 ### Dimensions in a type definition
 
 It may be tempting to specify the dimensions of a quantity in a type definition, e.g.
@@ -57,12 +60,15 @@ c
 
 ## Arrays
 
-Arrays can hold quantities with different units, different dimensions, even
+Promotion is used to create arrays of a concrete type where possible, such
+that arrays of unitful quantities are stored efficiently in memory. However,
+if necessary, arrays can hold quantities with different dimensions, even
 mixed with unitless numbers. Doing so will suffer a performance penalty compared
 with the fast performance attainable with an array of concrete type
-(e.g. as resulting from `[1.0u"m", 2.0u"m", 3.0u"m"]`). However, it could be useful
+(e.g. as resulting from `[1.0u"m", 2.0u"cm", 3.0u"km"]`). However, it could be useful
 in toy calculations for
-[general relativity](https://en.wikipedia.org/wiki/Metric_tensor_(general_relativity)):
+[general relativity](https://en.wikipedia.org/wiki/Metric_tensor_(general_relativity))
+where some conventions yield matrices with mixed dimensions:
 
 ```
 julia> @unit c "c" SpeedOfLight 299792458u"m/s" false
@@ -76,23 +82,16 @@ julia> Diagonal([-1.0c^2, 1.0, 1.0, 1.0])
        ⋅    ⋅    ⋅   1.0
 ```
 
-## Units may have rational exponents
+## Units with rational exponents
 
 ```
 julia> 1.0u"V/sqrt(Hz)"
 1.0 Hz^-1/2 V
 ```
 
-## Exact conversions are respected by using `Rational`s where possible.
+## Exact conversions respected
 
 ```
 julia> uconvert(u"ft",1u"inch")
 1//12 ft
 ```
-
-## Sticky units
-
-Although `1.0 J` and `1.0 N m` are equivalent quantities,
-they are represented distinctly, so further manipulations on `1.0 J` can leave
-the `J` intact. Furthermore, units are only canceled out if they are exactly
-the same, including power-of-ten prefixes. `1.0 mV/V` is possible.

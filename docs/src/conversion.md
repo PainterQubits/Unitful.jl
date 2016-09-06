@@ -15,18 +15,7 @@ of figuring out which type is appropriate for representing the desired units.
 uconvert
 ```
 
-## Basic conversion and promotion mechanisms
-
-We decide the result units for addition and subtraction operations based
-on looking at the types only. We can't take runtime values into account
-without compromising runtime performance. By default, if we have
-`x (A) + y (B) = z (C)` where `x,y,z` are numbers and `A,B,C` are units,
-then `C = max(1A, 1B)`. This is an arbitrary choice and can be changed at the
-end of `deps/Defaults.jl`. For example, `101cm + 1m = 2.01m` because `1m > 1cm`.
-
-Exact conversions between units are respected where possible. If rational
-arithmetic would result in an overflow, then floating-point conversion should
-proceed. File an issue if this does not work properly.
+### Dimensionless quantities
 
 For dimensionless quantities, `uconvert` can be used to strip the units without
 losing power-of-ten information:
@@ -38,6 +27,37 @@ julia> uconvert(Unitful.NoUnits, 1.0u"μm/m")
 julia> uconvert(Unitful.NoUnits, 1.0u"m")
 ERROR: Dimensional mismatch.
 ```
+
+You can also directly convert to a subtype of `Real` or `Complex`:
+
+```jldoctest
+julia> Float64(1.0u"μm/m")
+1.0e-6
+```
+
+## Basic conversion and promotion mechanisms
+
+Exact conversions between units are respected where possible. If rational
+arithmetic would result in an overflow, then floating-point conversion should
+proceed. Use of floating-point numbers inhibits exact conversion.
+
+We decide the result units for addition and subtraction operations based
+on looking at the types only. We can't take runtime values into account
+without compromising runtime performance. If two quantities with the same units
+are added or subtracted, then the result units will be the same. If two quantities
+with differing units (but same dimension) are added or subtracted, then
+the result units will be specified by promotion. The
+[`Unitful.@preferunit`](@ref) macro is used in `deps/Defaults.jl` to designate
+preferred units for each pure dimension for promotion. Adding two masses with
+different units will give a result in `kg`. Adding two velocities with different
+units will give `m/s`, and so on. You can special case for "mixed" dimensions,
+e.g. such that the preferred units of energy are `J`. The behaviors can be
+changed in `deps/Defaults.jl`.
+
+For multiplication and division, note that powers-of-ten prefixes are significant
+in unit cancellation. For instance, `mV/V` is not simplified, although `V/V` is.
+Also, `N*m/J` is not simplified: there is currently no logic to decide
+whether or not units on a dimensionless quantity seem "intentional" or not.
 
 ## Array promotion
 
@@ -61,11 +81,12 @@ julia> [1.0u"m", 2.0]
      2.0
 ```
 
-In the first case, an array with a concrete type can be created. Good
-performance should be attainable. The second and third cases fall back to
-increasingly abstract types, which cannot be stored efficiently and will
-incur a performance penalty. The second case at least provides enough information
-to permit dispatch on the dimensions of the array's elements:
+In the first case, an array with a concrete type is created. Good
+performance should be attainable. The second case invokes promotion so that an
+array of concrete type can be created. The third case falls back to an abstract
+type, which cannot be stored efficiently and will incur a performance penalty.
+An additional benefit of having a concrete type is that we can dispatch on the
+dimensions of the array's elements:
 
 ```jldoctest
 julia> f{T<:Unitful.Length}(x::AbstractArray{T}) = sum(x)

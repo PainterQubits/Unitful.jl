@@ -22,41 +22,23 @@ We want to support not only SI units but also any other unit system. We also wan
 ## Quick start
 
 
-<a id='Installation-1'></a>
-
-### Installation
-
-
   * This package requires Julia 0.5. Older versions will not be supported.
   * `Pkg.clone("https://github.com/ajkeller34/Unitful.jl.git")`
   * `Pkg.build("Unitful")`
+  * `using Unitful`
 
 
-<a id='In-Julia-1'></a>
-
-### In Julia
+In `deps/Defaults.jl` of the package directory, you can see what is defined by default. Feel free to edit this file to suit your needs. The Unitful package will need to be reloaded for changes to take place. To recover the "factory  defaults," delete `deps/Defaults.jl` and run `Pkg.build("Unitful")` again.
 
 
-First load the package:
+Here is a summary of the defaults file contents:
 
 
-```jl
-using Unitful
-```
-
-
-If you encounter errors you may want to try `Pkg.build("Unitful")`.
-
-
-In `deps/Defaults.jl` of the package directory, you see what is defined by default. Feel free to edit this file to suit your needs. The Unitful package will need to be reloaded for changes to take place.
-
-
-Here is a summary of the defaults:
-
-
+  * Base dimensions like length, mass, time, etc. are defined.
+  * Derived dimensions like volume, energy, momentum, etc. are defined.
   * SI units and their power-of-ten prefixes are defined.
   * Some other units (imperial units) are defined, without power-of-ten prefixes.
-  * Dimensions are also defined.
+  * Promotion behavior is specified.
 
 
 Some unit abbreviations conflict with other definitions or syntax:
@@ -67,12 +49,12 @@ Some unit abbreviations conflict with other definitions or syntax:
   * `hr` is used instead of `h`, since `h` is revered as the Planck constant
 
 
+Units, dimensions, and fundamental constants are not exported from Unitful. This is to avoid proliferating symbols in your namespace unnecessarily. You can retrieve them using the [`@u_str`](manipulations.md#Unitful.@u_str) string macro for convenience, or import them from the `Unitful` package to bring them into the namespace.
+
+
 <a id='Usage-examples-1'></a>
 
-### Usage examples
-
-
-Units, dimensions, and fundamental constants are not exported from Unitful. This is to avoid proliferating symbols in your namespace unnecessarily. You can retrieve them using the [`@u_str`](manipulations.md#Unitful.@u_str) string macro for convenience, or import them from the `Unitful` package to bring them into the namespace.
+## Usage examples
 
 
 
@@ -112,9 +94,8 @@ See `test/runtests.jl` for more usage examples.
 ## To do
 
 
-  * Clean up how units/quantities are displayed, especially with regards to how their *types* are displayed. How to interpret what is printed is confusing.
   * Benchmarking needed.
   * More tests are always appreciated and necessary.
-  * Add support for uncertainties? For quantities with uncertainty, `isapprox` becomes a loaded / ambiguous name.
   * Specialized exceptions for dimensional mismatches, other unit-related troubles?
+  * Further down the road, it could be nice to have a concrete type where the units are a value and not part of the type signature. This could be used as a fallback for promotion when arrays of mixed dimensions are created.
 
