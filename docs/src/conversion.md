@@ -28,17 +28,14 @@ Exact conversions between units are respected where possible. If rational
 arithmetic would result in an overflow, then floating-point conversion should
 proceed. File an issue if this does not work properly.
 
-For dimensionless quantities, the usual `convert` methods can be
-used to strip the units without losing power-of-ten information:
+For dimensionless quantities, `uconvert` can be used to strip the units without
+losing power-of-ten information:
 
 ```jldoctest
-julia> convert(Float64, 1.0u"μm/m")
+julia> uconvert(Unitful.NoUnits, 1.0u"μm/m")
 1.0e-6
 
-julia> convert(Complex{Float64}, 1.0u"μm/m")
-1.0e-6 + 0.0im
-
-julia> convert(Float64, 1.0u"m")
+julia> uconvert(Unitful.NoUnits, 1.0u"m")
 ERROR: Dimensional mismatch.
 ```
 
@@ -49,19 +46,19 @@ the following three cases:
 
 ```jldoctest
 julia> [1.0u"m", 2.0u"m"]
-2-element Array{Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋,)},Unitful.Units{(m,)}},1}:
+2-element Array{Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋,)},Unitful.Units{(m,),Unitful.Dimensions{(𝐋,)}}},1}:
  1.0 m
  2.0 m
 
 julia> [1.0u"m", 2.0u"cm"]
-2-element Array{Unitful.DimensionedQuantity{Float64,Unitful.Dimensions{(𝐋,)}},1}:
+2-element Array{Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋,)},Unitful.Units{(m,),Unitful.Dimensions{(𝐋,)}}},1}:
   1.0 m
- 2.0 cm
+ 0.02 m
 
 julia> [1.0u"m", 2.0]
-2-element Array{Unitful.AbstractQuantity{Float64},1}:
+2-element Array{Number,1}:
  1.0 m
-   2.0
+     2.0
 ```
 
 In the first case, an array with a concrete type can be created. Good
@@ -78,21 +75,8 @@ julia> f([1.0u"m", 2.0u"cm"])
 1.02 m
 
 julia> f([1.0u"g", 2.0u"cm"])
-ERROR: MethodError: no method matching f(::Array{Unitful.AbstractQuantity{Float64},1})
+ERROR: MethodError: no method matching f(::Array{Number,1})
 ```
-
-In addition to the performance hit, having an array of
-[`DimensionedQuantity{T,D}`](@ref) or [`AbstractQuantity{T}`](@ref) has
-another limitation. Since the units of the quantities held in the array are not
-all the same, when two such arrays are added or subtracted, unit promotion will
-have to take place. The conversion factor between a given pair of units may be
-an `AbstractFloat`, `Rational`, etc. Therefore, a resulting numeric type
-following unit promotion, when the units are not specified outright,
-cannot be determined.
-
-<!-- ```jldoctest
-julia> Unitful.Length{Float64}[1u"m"] + Unitful.Length{Float64}[1u"cm"]
-``` -->
 
 ## Temperature conversion
 

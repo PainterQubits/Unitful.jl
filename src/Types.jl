@@ -69,7 +69,7 @@ immutable Units{N,D} <: DimensionedUnits{D}
 
 Instances of this object represent units, possibly combinations thereof.
 Example: the unit `m` is actually a singleton of type
-`Units{(Unit{:Meter}(0,1),),typeof(u"𝐋")}`.
+`Units{(Unit{:Meter}(0,1),), typeof(u"𝐋")}`.
 After dividing by `s`, a singleton of type
 `Units{(Unit{:Meter}(0,1),Unit{:Second}(0,-1)), typeof(u"𝐋")}` is returned.
 """

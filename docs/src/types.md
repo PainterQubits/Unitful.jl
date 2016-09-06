@@ -10,9 +10,10 @@ prefix. We don't allow arbitrary floating point exponents of units because they
 probably aren't very useful. The prefixes on units (e.g. `nm` or `km`) may help
 to avoid overflow issues and general ugliness.
 
-We define the immutable singleton [`Unitful.Units{N}`](@ref), where `N` is
-always a tuple of `Unit` objects. Usually, the user interacts only with `Units`
-objects, not `Unit` objects.
+We define the immutable singleton [`Unitful.Units{N,D}`](@ref), where `N` is
+always a tuple of `Unit` objects, and `D` is some type, like `typeof(Unitful.𝐋)`,
+where `𝐋` is the object representing the length dimension. Usually, the user
+interacts only with `Units` objects, not `Unit` objects.
 
 We define a function [`dimension`](@ref) that turns, for example, `acre^2` into
 `𝐋^4`. We can add quantities with the same dimension, regardless of specific units.
@@ -24,13 +25,12 @@ We define physical quantity types as [`Quantity{T<:Number, D, U}`](@ref), where
 quantity, staged functions can be used to offload as much of the unit
 computation to compile-time as is possible. By also having the dimensions
 explicitly in the type signature, dispatch can be done on dimensions:
-`isa(1m, Length) == true`. This works because `Length{T}` is a type alias for
+`isa(1m, Length) == true`. This works because `Length` is a type alias for
 some subset of [`Unitful.DimensionedQuantity`](@ref) subtypes.
 
 ## Quantities
 ```@docs
-    Unitful.AbstractQuantity{T}
-    Unitful.DimensionedQuantity{T,D}
+    Unitful.DimensionedQuantity{D}
     Unitful.Quantity{T,D,U}
     Unitful.DimensionlessQuantity{T,U}
     Unitful.UnitlessQuantity{T}

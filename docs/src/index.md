@@ -101,9 +101,8 @@ See `test/runtests.jl` for more usage examples.
 
 ## To do
 
-- Clean up how units/quantities are displayed.
-
-- Clean up `sin(degrees)`, etc. (not done nicely)
+- Clean up how units/quantities are displayed, especially with regards to how
+  their *types* are displayed. How to interpret what is printed is confusing.
 
 - Benchmarking needed.
 

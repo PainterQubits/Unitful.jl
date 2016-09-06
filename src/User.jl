@@ -13,9 +13,10 @@ is not exported.
 This macro extends [`Unitful.abbr`](@ref) to display the new dimension in an
 abbreviated format using the string `abbr`.
 
-Finally, a type alias is created that allows to dispatch on
-[`Unitful.Quantity`](@ref) objects of the newly defined dimension. The type alias
-symbol is given by `name`.
+Finally, type aliases are created that allow the user to dispatch on
+[`Unitful.Quantity`](@ref) and [`Unitful.Units`](@ref) objects of the newly
+defined dimension. The type alias for quantities is simply given by `name`,
+and the type alias for units is given by `name*"Unit"`, e.g. `LengthUnit`.
 
 Usage example: `@dimension 𝐋 "L" Length` (see `src/Defaults.jl`.)
 """
@@ -33,18 +34,19 @@ end
 
 """
 ```
-macro derived_dimension(symb, dims)
+macro derived_dimension(name, dims)
 ```
 
-Creates type aliases to allow dispatch on [`Unitful.Quantity`](@ref) objects
-of a derived dimension, like area, which is just length squared. The type
-aliases are not exported. `symb` is the name of the derived dimension and `dims`
-is a [`Unitful.Dimensions`](@ref) object.
+Creates type aliases to allow dispatch on [`Unitful.Quantity`](@ref) and
+[`Unitful.Units`](@ref) objects of a derived dimension, like area, which is just
+length squared. The type aliases are not exported.
+
+`dims` is a [`Unitful.Dimensions`](@ref) object.
 
 Usage examples:
 
-- `@derived_dimension Area 𝐋^2`
-- `@derived_dimension Speed 𝐋/𝐓`
+- `@derived_dimension Area 𝐋^2` gives `Area` and `AreaUnit` type aliases
+- `@derived_dimension Speed 𝐋/𝐓` gives `Speed` and `SpeedUnit` type aliases
 """
 macro derived_dimension(name, dims)
     uname = Symbol(name,"Unit")
@@ -57,7 +59,7 @@ end
 
 """
 ```
-macro refunit(symb, name, abbr, dimension)
+macro refunit(symb, name, abbr, dimension, tf)
 ```
 
 Define a reference unit, typically SI. Rather than define
@@ -65,14 +67,14 @@ conversion factors between each and every unit of a given dimension, conversion
 factors are given between each unit and a reference unit, defined by this macro.
 
 This macro extends [`Unitful.abbr`](@ref) so that the reference unit can be
-displayed in an abbreviated format. It also generates symbols for every power
-of ten of the unit, using the standard SI prefixes. A `dimension` must be given
-([`Unitful.Dimensions`](@ref) object) that specifies the dimension of the
-reference unit.
+displayed in an abbreviated format. If `tf == true`, this macro generates symbols
+for every power of ten of the unit, using the standard SI prefixes. A `dimension`
+must be given ([`Unitful.Dimensions`](@ref) object) that specifies the dimension
+of the reference unit.
 
 Usage example: `@refunit m "m" Meter 𝐋 true`
 
-This will generate `km`, `m`, `cm`, ...
+This example will generate `km`, `m`, `cm`, ...
 """
 macro refunit(symb, abbr, name, dimension, tf)
     x = Expr(:quote, name)
@@ -90,17 +92,50 @@ end
 
 """
 ```
+macro preferunit(unit)
+```
+
+This macro specifies the default unit for promotion for a given dimension,
+which is inferred from the given unit.
+
+Usage example: `@preferunit kg`
+"""
+macro preferunit(unit)
+    quote
+        dim = dimension($unit)
+        if length(typeof(dim).parameters[1]) > 1
+            error("@prefer can only be used with a unit that has a pure ",
+            "dimension, like 𝐋 or 𝐓 but not 𝐋/𝐓.")
+        end
+        if length(typeof(dim).parameters[1]) == 1 &&
+            typeof(dim).parameters[1][1].power != 1
+            error("@prefer cannot handle powers of pure dimensions except 1. ",
+            "For instance, it should not be used with units of dimension 𝐋^2.")
+        end
+        Unitful.dim2refunits(y::typeof(typeof(dim).parameters[1][1])) =
+            $unit^y.power
+    end
+end
+
+# Generated to force a concrete result type.
+@generated function dim2refunits(x::Dimensions)
+    dim = x.parameters[1]
+    y = mapreduce(dim2refunits, *, NoUnits, dim)
+    :($y)
+end
+
+"""
+```
 macro unit(symb,abbr,name,equals,tf)
 ```
 
 Define a unit. Rather than specifying a dimension like in [`@refunit`](@ref),
 `equals` should be a [`Unitful.Quantity`](@ref) equal to one of the unit being
-defined. The last argument `tf::Bool` should be `true` if symbols should be
-made for each power-of-ten prefix, otherwise `false`.
+defined. If `tf == true`, symbols will be made for each power-of-ten prefix.
 
 Usage example: `@unit mi "mi" Mile (201168//125)*m false`
 
-This will *not* generate `kmi` (kilomiles).
+This example will *not* generate `kmi` (kilomiles).
 """
 macro unit(symb,abbr,name,equals,tf)
     # name is a symbol
@@ -195,18 +230,13 @@ Unitful module, which does not export such things to avoid namespace pollution.
 Examples:
 
 ```jldoctest
-1.0u"m/s"
-# output
+julia> 1.0u"m/s"
 1.0 m s^-1
-```
-```jldoctest
-typeof(1.0u"m/s")
-# output
-Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋,𝐓^-1)},Unitful.Units{(m,s^-1)}}
-```
-```jldoctest
-u"ħ"
-# output
+
+julia> typeof(1.0u"m/s")
+Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋,𝐓^-1)},Unitful.Units{(m,s^-1),Unitful.Dimensions{(𝐋,𝐓^-1)}}}
+
+julia> u"ħ"
 1.0545718001391127e-34 J s
 ```
 """

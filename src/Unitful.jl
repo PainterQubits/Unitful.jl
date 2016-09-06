@@ -4,7 +4,6 @@ module Unitful
 import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, .\, //, ^, .^
 import Base: show, convert
 import Base: abs, abs2, float, inv, sqrt
-import Base: sin, cos, tan, cot, sec, csc
 import Base: min, max, floor, ceil, log, log10
 
 import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
@@ -21,9 +20,11 @@ export unit, dimension, uconvert
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
 export DimensionedQuantity, Quantity
 export UnitlessQuantity, DimensionlessQuantity
+export NoUnits
 
 include("Types.jl")
 include("User.jl")
+const NoUnits = Units{(), Dimensions{()}}()
 
 """
 ```
@@ -39,7 +40,7 @@ julia> unit(1.0u"m") == u"m"
 true
 
 julia> typeof(u"m")
-Unitful.Units{(m,)}
+Unitful.Units{(m,),Unitful.Dimensions{(𝐋,)}}
 ```
 """
 unit{T,D,U}(x::Quantity{T,D,U}) = U()
@@ -73,7 +74,7 @@ Examples:
 
 ```jldoctest
 julia> typeof(unit(1.0))
-Unitful.Units{(), Dimensions{()}}
+Unitful.Units{(),Unitful.Dimensions{()}}
 ```
 """
 unit(x::Number) = Units{(), Dimensions{()}}()
@@ -97,11 +98,11 @@ dimension(x::Number) = Dimensions{()}()
 
 """
 ```
-dimension{N}(u::Units{N})
+dimension{U,D}(u::Units{U,D})
 ```
 
 Returns a [`Unitful.Dimensions`](@ref) object corresponding to the dimensions
-of the units. For a dimensionless combination of units, a
+of the units, `D()`. For a dimensionless combination of units, a
 `Unitful.Dimensions{()}` object is returned.
 
 Examples:
@@ -210,7 +211,7 @@ for op in [:+, :-]
     # If not generated, there are run-time allocations
     @eval @generated function ($op){S,T,D,SU,TU}(x::Quantity{S,D,SU},
             y::Quantity{T,D,TU})
-        result_units = SU() + TU()
+        result_units = promote_type(SU,TU)()
         :($($op)(uconvert($result_units, x), uconvert($result_units, y)))
     end
 
@@ -258,7 +259,7 @@ julia> u"m/s*kg/s"
 kg m s^-2
 
 julia> typeof(u"kg*m/s^2")
-Unitful.Units{(kg,m,s^-2)}
+Unitful.Units{(kg,m,s^-2),Unitful.Dimensions{(𝐋,𝐌,𝐓^-2)}}
 
 julia> typeof(u"m/s*kg/s") == typeof(u"kg*m/s^2")
 true

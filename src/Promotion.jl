@@ -1,20 +1,26 @@
-# ------ promote_op with dimensions ------
+# ------ promote_op with dimensions and units ------
 
 for op in (.+, .-, +, -)
-    @eval function promote_op{S}(::typeof($op), x::Type{Dimensions{S}}, y::Type{Dimensions{S}})
-        x   # add or subtract same dimension, get same dimension
+    @eval function promote_op{S<:Dimensions,T<:Dimensions}(::typeof($op),
+        ::Type{S}, ::Type{T})
+        if S==T   # add or subtract same dimension, get same dimension
+            x
+        else
+            error("Dimension mismatch.")
+        end
     end
-    @eval function promote_op{S,T}(::typeof($op), x::Type{Dimensions{S}}, y::Type{Dimensions{T}})
-        error("Dimension mismatch.")
+    @eval function promote_op{S<:DimensionedUnits,T<:DimensionedUnits}(
+        ::typeof($op), ::Type{S}, ::Type{T})
+        if S==T
+            promote_type(S,T)
+        else
+            error("Dimension mismatch.")
+        end
     end
 end
-for op in (.*, ./, *, /, //)
-    @eval function promote_op{S}(::typeof($op), x::Type{Dimensions{S}}, y::Type{Dimensions{S}})
-        typeof(op(x(),y()))
-    end
-    @eval function promote_op{S,T}(::typeof($op), x::Type{Dimensions{S}}, y::Type{Dimensions{T}})
-        error("Unsupported promote_op.")
-    end
+
+function promote_op{S<:Unitlike,T<:Unitlike}(op, ::Type{S}, ::Type{T})
+    typeof(op(S(), T()))
 end
 
 # ------ promote_op with quantities ------
@@ -24,10 +30,8 @@ function promote_op{T1,D1,U1,T2,D2,U2}(op, x::Type{Quantity{T1,D1,U1}},
     y::Type{Quantity{T2,D2,U2}})
     # figuring out numeric type can be subtle if D1 == D2 but U1 != U2.
     # in particular, consider adding 1m + 1cm... the numtype is not Int.
-    q1,q2 = one(T1)*U1(), one(T2)*U2()
-    qr = op(q1,q2)
-    unittype = typeof(unit(qr))
-    numtype = typeof(qr/unit(qr))
+    unittype = promote_op(op, U1(), U2())
+    numtype = promote_type(T1, T2, typeof(convfact(U1(),U2())))
     if unittype == Units{(), Dimensions{()}}
         numtype
     else
@@ -91,8 +95,12 @@ promote_rule{S1,S2,D1,D2,U1,U2}(::Type{Quantity{S1,D1,U1}},
     ::Type{Quantity{S2,D2,U2}}) = Number
 
 # quantity, quantity (same dims)
-promote_rule{S1,S2,D,U1,U2}(::Type{Quantity{S1,D,U1}},
-    ::Type{Quantity{S2,D,U2}}) = DimensionedQuantity{D}
+function promote_rule{S1,S2,D,U1,U2}(::Type{Quantity{S1,D,U1}},
+    ::Type{Quantity{S2,D,U2}})
+
+    numtype = promote_type(S1,S2,typeof(convfact(U1(),U2())))
+    Quantity{numtype, D, promote_type(U1,U2)}
+end
 
 # quantity, quantity (same dims, same units)
 promote_rule{S1,S2,D,U}(::Type{Quantity{S1,D,U}}, ::Type{Quantity{S2,D,U}}) =
@@ -101,19 +109,13 @@ promote_rule{S1,S2,D,U}(::Type{Quantity{S1,D,U}}, ::Type{Quantity{S2,D,U}}) =
 # dim'd, quantity (different dims)
 promote_rule{S2,D1,D2,U}(::Type{DimensionedQuantity{D1}},
     ::Type{Quantity{S2,D2,U}}) = Number
-promote_rule{S2,D1,D2,U}(x::Type{Quantity{S2,D2,U}},
-    y::Type{DimensionedQuantity{D1}}) = promote_rule(y,x)
 
 # dim'd, quantity (same dims)
 promote_rule{S2,D,U}(::Type{DimensionedQuantity{D}},
     ::Type{Quantity{S2,D,U}}) = DimensionedQuantity{D}
-promote_rule{S2,D,U}(x::Type{Quantity{S2,D,U}},
-    y::Type{DimensionedQuantity{D}}) = promote_rule(y,x)
 
 # number, quantity
 promote_rule{S,T<:Number,D,U}(::Type{Quantity{S,D,U}}, ::Type{T}) = Number
-promote_rule{S,T<:Number,D,U}(x::Type{T}, y::Type{Quantity{S,D,U}}) =
-    promote_rule(y,x)
 
 # dim'd, dim'd (different dims)
 promote_rule{D1,D2}(::Type{DimensionedQuantity{D1}},
@@ -124,7 +126,4 @@ promote_rule{D}(::Type{DimensionedQuantity{D}},
     ::Type{DimensionedQuantity{D}}) = DimensionedQuantity{D}
 
 # dim'd, number
-promote_rule{D,T<:Number}(::Type{DimensionedQuantity{D}}, ::Type{T}) =
-    Number
-promote_rule{D,T<:Number}(x::Type{T}, y::Type{DimensionedQuantity{D}}) =
-    promote_rule(y,x)
+promote_rule{D,T<:Number}(::Type{DimensionedQuantity{D}}, ::Type{T}) = Number

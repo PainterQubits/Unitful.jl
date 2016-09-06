@@ -23,6 +23,7 @@ Indeed, this is how we avoid ordering issues when multiplying quantities togethe
 Unitful.@dimension
 Unitful.@derived_dimension
 Unitful.@refunit
+Unitful.@preferunit
 Unitful.@unit
 Unitful.offsettemp
 ```

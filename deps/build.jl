@@ -53,7 +53,7 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         @unit a      "a"        Are         100m^2                  false
 
         # The hectare is used more frequently than any other power-of-ten of an are.
-        const  ha = Unitful.Units{(Unitful.Unit{:Are}(2,1//1),)}()
+        const ha = Unitful.Units{(Unitful.Unit{:Are}(2,1//1),), typeof(𝐋)}()
 
         # Time
         @unit minute "min"      Minute      60s                     false
@@ -64,9 +64,15 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         # Angle
         @unit °       "°"       Degree      (pi/180)*rad           false
         import Base: sin, cos, tan, cot, sec, csc
-        for y in [:sin, :cos, :tan, :cot, :sec, :csc]
-            @eval (\$y){T,D}(x::Quantity{T,D,typeof(°)}) = (\$y)(x.val*pi/180)
-            @eval (\$y){T,D}(x::Quantity{T,D,typeof(rad)}) = (\$y)(x.val)
+        for (_y,_yd) in [(:sin, :sind),
+                (:cos, :cosd),
+                (:tan, :tand),
+                (:cot, :cotd),
+                (:sec, :secd),
+                (:csc, :cscd)]
+            @eval (\$_y){T,D}(x::Quantity{T,D,typeof(°)}) = (\$_yd)(x.val)
+            @eval (\$_yd){T,D}(x::Quantity{T,D,typeof(°)}) = (\$_yd)(x.val)
+            @eval (\$_y){T,D}(x::Quantity{T,D,typeof(rad)}) = (\$_y)(x.val)
         end
 
         # Temperature

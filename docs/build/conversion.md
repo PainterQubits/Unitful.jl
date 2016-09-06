@@ -14,7 +14,7 @@ Since `convert` in Julia already means something specific (conversion between Ju
 
 
 ```
-uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
+uconvert{T,U}(a::Units, x::Quantity{T,U})
 ```
 
 Convert a [`Unitful.Quantity`](types.md#Unitful.Quantity) to different units. The conversion will fail if the target units `a` have a different dimension than the dimension of the quantity `x`. You can use this method to switch between equivalent representations of the same unit, like `N m` and `J`.
@@ -29,7 +29,7 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/34085a079f619d84ee1ab2250377a406c9942fd6/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/df2485b7dff5f58dc0f7460b50d92afcd6b42c03/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 ```
@@ -39,7 +39,7 @@ uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},
 In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/34085a079f619d84ee1ab2250377a406c9942fd6/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/df2485b7dff5f58dc0f7460b50d92afcd6b42c03/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
 
 
 <a id='Basic-conversion-and-promotion-mechanisms-1'></a>
@@ -53,17 +53,14 @@ We decide the result units for addition and subtraction operations based on look
 Exact conversions between units are respected where possible. If rational arithmetic would result in an overflow, then floating-point conversion should proceed. File an issue if this does not work properly.
 
 
-For dimensionless quantities, the usual `convert` methods can be used to strip the units without losing power-of-ten information:
+For dimensionless quantities, `uconvert` can be used to strip the units without losing power-of-ten information:
 
 
 ```jlcon
-julia> convert(Float64, 1.0u"μm/m")
+julia> uconvert(Unitful.NoUnits, 1.0u"μm/m")
 1.0e-6
 
-julia> convert(Complex{Float64}, 1.0u"μm/m")
-1.0e-6 + 0.0im
-
-julia> convert(Float64, 1.0u"m")
+julia> uconvert(Unitful.NoUnits, 1.0u"m")
 ERROR: Dimensional mismatch.
 ```
 
@@ -78,19 +75,19 @@ Arrays are typed with as much specificity as possible upon creation. consider th
 
 ```jlcon
 julia> [1.0u"m", 2.0u"m"]
-2-element Array{Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋,)},Unitful.Units{(m,)}},1}:
+2-element Array{Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋,)},Unitful.Units{(m,),Unitful.Dimensions{(𝐋,)}}},1}:
  1.0 m
  2.0 m
 
 julia> [1.0u"m", 2.0u"cm"]
-2-element Array{Unitful.DimensionedQuantity{Float64,Unitful.Dimensions{(𝐋,)}},1}:
+2-element Array{Unitful.Quantity{Float64,Unitful.Dimensions{(𝐋,)},Unitful.Units{(m,),Unitful.Dimensions{(𝐋,)}}},1}:
   1.0 m
- 2.0 cm
+ 0.02 m
 
 julia> [1.0u"m", 2.0]
-2-element Array{Unitful.AbstractQuantity{Float64},1}:
+2-element Array{Number,1}:
  1.0 m
-   2.0
+     2.0
 ```
 
 
@@ -105,14 +102,8 @@ julia> f([1.0u"m", 2.0u"cm"])
 1.02 m
 
 julia> f([1.0u"g", 2.0u"cm"])
-ERROR: MethodError: no method matching f(::Array{Unitful.AbstractQuantity{Float64},1})
+ERROR: MethodError: no method matching f(::Array{Number,1})
 ```
-
-
-In addition to the performance hit, having an array of [`DimensionedQuantity{T,D}`](types.md#Unitful.DimensionedQuantity) or [`AbstractQuantity{T}`](types.md#Unitful.AbstractQuantity) has another limitation. Since the units of the quantities held in the array are not all the same, when two such arrays are added or subtracted, unit promotion will have to take place. The conversion factor between a given pair of units may be an `AbstractFloat`, `Rational`, etc. Therefore, a resulting numeric type following unit promotion, when the units are not specified outright, cannot be determined.
-
-
-<!– `jldoctest julia> Unitful.Length{Float64}[1u"m"] + Unitful.Length{Float64}[1u"cm"]` –>
 
 
 <a id='Temperature-conversion-1'></a>

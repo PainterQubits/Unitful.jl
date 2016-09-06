@@ -25,12 +25,12 @@ Creates new dimensions. `name` will be used like an identifier in the type param
 
 This macro extends [`Unitful.abbr`](display.md#Unitful.abbr) to display the new dimension in an abbreviated format using the string `abbr`.
 
-Finally, a type alias is created that allows to dispatch on [`Unitful.Quantity`](types.md#Unitful.Quantity) objects of the newly defined dimension. The type alias symbol is given by `name`.
+Finally, type aliases are created that allow the user to dispatch on [`Unitful.Quantity`](types.md#Unitful.Quantity) and [`Unitful.Units`](types.md#Unitful.Units) objects of the newly defined dimension. The type alias for quantities is simply given by `name`, and the type alias for units is given by `name*"Unit"`, e.g. `LengthUnit`.
 
 Usage example: `@dimension 𝐋 "L" Length` (see `src/Defaults.jl`.)
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/34085a079f619d84ee1ab2250377a406c9942fd6/src/User.jl#L1-L21' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/df2485b7dff5f58dc0f7460b50d92afcd6b42c03/src/User.jl#L1-L22' class='documenter-source'>source</a><br>
 
 <a id='Unitful.@derived_dimension' href='#Unitful.@derived_dimension'>#</a>
 **`Unitful.@derived_dimension`** &mdash; *Macro*.
@@ -38,18 +38,20 @@ Usage example: `@dimension 𝐋 "L" Length` (see `src/Defaults.jl`.)
 
 
 ```
-macro derived_dimension(symb, dims)
+macro derived_dimension(name, dims)
 ```
 
-Creates type aliases to allow dispatch on [`Unitful.Quantity`](types.md#Unitful.Quantity) objects of a derived dimension, like area, which is just length squared. The type aliases are not exported. `symb` is the name of the derived dimension and `dims` is a [`Unitful.Dimensions`](types.md#Unitful.Dimensions) object.
+Creates type aliases to allow dispatch on [`Unitful.Quantity`](types.md#Unitful.Quantity) and [`Unitful.Units`](types.md#Unitful.Units) objects of a derived dimension, like area, which is just length squared. The type aliases are not exported.
+
+`dims` is a [`Unitful.Dimensions`](types.md#Unitful.Dimensions) object.
 
 Usage examples:
 
-  * `@derived_dimension Area 𝐋^2`
-  * `@derived_dimension Speed 𝐋/𝐓`
+  * `@derived_dimension Area 𝐋^2` gives `Area` and `AreaUnit` type aliases
+  * `@derived_dimension Speed 𝐋/𝐓` gives `Speed` and `SpeedUnit` type aliases
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/34085a079f619d84ee1ab2250377a406c9942fd6/src/User.jl#L33-L47' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/df2485b7dff5f58dc0f7460b50d92afcd6b42c03/src/User.jl#L35-L50' class='documenter-source'>source</a><br>
 
 <a id='Unitful.@refunit' href='#Unitful.@refunit'>#</a>
 **`Unitful.@refunit`** &mdash; *Macro*.
@@ -57,19 +59,35 @@ Usage examples:
 
 
 ```
-macro refunit(symb, name, abbr, dimension)
+macro refunit(symb, name, abbr, dimension, tf)
 ```
 
 Define a reference unit, typically SI. Rather than define conversion factors between each and every unit of a given dimension, conversion factors are given between each unit and a reference unit, defined by this macro.
 
-This macro extends [`Unitful.abbr`](display.md#Unitful.abbr) so that the reference unit can be displayed in an abbreviated format. It also generates symbols for every power of ten of the unit, using the standard SI prefixes. A `dimension` must be given ([`Unitful.Dimensions`](types.md#Unitful.Dimensions) object) that specifies the dimension of the reference unit.
+This macro extends [`Unitful.abbr`](display.md#Unitful.abbr) so that the reference unit can be displayed in an abbreviated format. If `tf == true`, this macro generates symbols for every power of ten of the unit, using the standard SI prefixes. A `dimension` must be given ([`Unitful.Dimensions`](types.md#Unitful.Dimensions) object) that specifies the dimension of the reference unit.
 
 Usage example: `@refunit m "m" Meter 𝐋 true`
 
-This will generate `km`, `m`, `cm`, ...
+This example will generate `km`, `m`, `cm`, ...
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/34085a079f619d84ee1ab2250377a406c9942fd6/src/User.jl#L55-L73' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/df2485b7dff5f58dc0f7460b50d92afcd6b42c03/src/User.jl#L60-L78' class='documenter-source'>source</a><br>
+
+<a id='Unitful.@preferunit' href='#Unitful.@preferunit'>#</a>
+**`Unitful.@preferunit`** &mdash; *Macro*.
+
+
+
+```
+macro preferunit(unit)
+```
+
+This macro specifies the default unit for promotion for a given dimension, which is inferred from the given unit.
+
+Usage example: `@preferunit kg`
+
+
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/df2485b7dff5f58dc0f7460b50d92afcd6b42c03/src/User.jl#L93-L102' class='documenter-source'>source</a><br>
 
 <a id='Unitful.@unit' href='#Unitful.@unit'>#</a>
 **`Unitful.@unit`** &mdash; *Macro*.
@@ -80,14 +98,14 @@ This will generate `km`, `m`, `cm`, ...
 macro unit(symb,abbr,name,equals,tf)
 ```
 
-Define a unit. Rather than specifying a dimension like in [`@refunit`](newunits.md#Unitful.@refunit), `equals` should be a [`Unitful.Quantity`](types.md#Unitful.Quantity) equal to one of the unit being defined. The last argument `tf::Bool` should be `true` if symbols should be made for each power-of-ten prefix, otherwise `false`.
+Define a unit. Rather than specifying a dimension like in [`@refunit`](newunits.md#Unitful.@refunit), `equals` should be a [`Unitful.Quantity`](types.md#Unitful.Quantity) equal to one of the unit being defined. If `tf == true`, symbols will be made for each power-of-ten prefix.
 
 Usage example: `@unit mi "mi" Mile (201168//125)*m false`
 
-This will *not* generate `kmi` (kilomiles).
+This example will *not* generate `kmi` (kilomiles).
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/34085a079f619d84ee1ab2250377a406c9942fd6/src/User.jl#L88-L101' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/df2485b7dff5f58dc0f7460b50d92afcd6b42c03/src/User.jl#L127-L139' class='documenter-source'>source</a><br>
 
 <a id='Unitful.offsettemp' href='#Unitful.offsettemp'>#</a>
 **`Unitful.offsettemp`** &mdash; *Function*.
@@ -101,7 +119,7 @@ offsettemp(::Unit)
 For temperature units, this function is used to set the scale offset.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/34085a079f619d84ee1ab2250377a406c9942fd6/src/Unitful.jl#L686-L692' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/df2485b7dff5f58dc0f7460b50d92afcd6b42c03/src/Unitful.jl#L694-L700' class='documenter-source'>source</a><br>
 
 
 <a id='Internals-1'></a>
@@ -122,7 +140,7 @@ Not called directly by the user. Given a unit symbol and a unit's name, will def
 Example: `@prefixed_unit_symbols m Meter` results in nm, cm, m, km, ... all getting defined in the calling namespace.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/34085a079f619d84ee1ab2250377a406c9942fd6/src/User.jl#L125-L135' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/df2485b7dff5f58dc0f7460b50d92afcd6b42c03/src/User.jl#L163-L173' class='documenter-source'>source</a><br>
 
 <a id='Unitful.@unit_symbols' href='#Unitful.@unit_symbols'>#</a>
 **`Unitful.@unit_symbols`** &mdash; *Macro*.
@@ -138,7 +156,7 @@ Not called directly by the user. Given a unit symbol and a unit's name, will def
 Example: `@unit_symbols ft Foot` results in `ft` getting defined but not `kft`.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/34085a079f619d84ee1ab2250377a406c9942fd6/src/User.jl#L151-L160' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/df2485b7dff5f58dc0f7460b50d92afcd6b42c03/src/User.jl#L190-L199' class='documenter-source'>source</a><br>
 
 <a id='Unitful.basefactor' href='#Unitful.basefactor'>#</a>
 **`Unitful.basefactor`** &mdash; *Function*.
@@ -152,5 +170,5 @@ basefactor(x::Unit)
 Specifies conversion factors to reference units. It returns a tuple. The first value is any irrational part of the conversion, and the second value is a rational component. This segregation permits exact conversions within unit systems that have no rational conversion to the reference units.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/34085a079f619d84ee1ab2250377a406c9942fd6/src/User.jl#L232-L242' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/df2485b7dff5f58dc0f7460b50d92afcd6b42c03/src/User.jl#L267-L277' class='documenter-source'>source</a><br>
 

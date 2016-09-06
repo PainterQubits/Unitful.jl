@@ -17,7 +17,7 @@ import Unitful:
 
 import Unitful:
     LengthUnit, AreaUnit, MassUnit
-    
+
 @testset "Type construction" begin
     @test typeof(𝐋) == Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
     @test typeof(1.0m) ==
@@ -32,8 +32,6 @@ import Unitful:
         Unitful.Quantity{Int,
             typeof(𝐋^2),
             Unitful.Units{(Unitful.Unit{:Acre}(0, 1),), typeof(𝐋^2)}}
-    # @test isa(1J//10, Unitful.Quantity{Rational{Int},
-    #         Unitful.Dimensions{(Unitful.Dimension{:})}}) == true
 end
 
 @testset "Conversion" begin
@@ -93,8 +91,8 @@ end
     @testset "> Promotion during array creation" begin
         @test typeof([1.0m,1.0m]) == Array{typeof(1.0m),1}
         @test typeof([1.0m,1m]) == Array{typeof(1.0m),1}
-        @test typeof([1.0m,1cm]) == Array{Length,1}
-        @test typeof([1kg,1g]) == Array{Mass,1}
+        @test typeof([1.0m,1cm]) == Array{typeof(1.0m),1}
+        @test typeof([1kg,1g]) == Array{typeof(1kg//1),1}
         @test typeof([1.0m,1]) == Array{Number,1}
         @test typeof([1.0m,1kg]) == Array{Number,1}
         @test typeof([1.0m/s 1; 1 0]) == Array{Number,2}
