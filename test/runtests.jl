@@ -157,6 +157,9 @@ end
         @test 3m + 3m == 6m                   # Binary addition
         @test -(1kg) == (-1)*kg               # Unary subtraction
         @test 3m - 2m == 1m                   # Binary subtraction
+        @test zero(1m) === 0m                 # Additive identity
+        @test zero(typeof(1m)) === 0m
+        @test zero(typeof(1.0m)) === 0.0m
     end
 
     @testset "> Multiplication" begin

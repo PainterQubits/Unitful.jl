@@ -571,6 +571,7 @@ end
 for f in (:zero, :floor, :ceil)
     @eval ($f)(x::Quantity) = Quantity(($f)(x.val), unit(x))
 end
+zero{T,D,U}(x::Type{Quantity{T,D,U}}) = zero(T)*U()
 
 """
 ```
