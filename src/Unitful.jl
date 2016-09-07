@@ -216,6 +216,8 @@ for op in [:+, :-]
     end
 
     @eval ($op)(::Quantity, ::Quantity) = error("Dimensional mismatch.")
+    @eval ($op)(::Quantity, ::Number) = error("Dimensional mismatch.")
+    @eval ($op)(::Number, ::Quantity) = error("Dimensional mismatch.")
 
     @eval ($op)(x::Quantity) = Quantity(($op)(x.val),unit(x))
 end

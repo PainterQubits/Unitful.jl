@@ -160,6 +160,8 @@ end
         @test zero(1m) === 0m                 # Additive identity
         @test zero(typeof(1m)) === 0m
         @test zero(typeof(1.0m)) === 0.0m
+        @test_throws ErrorException 1+1m
+        @test_throws ErrorException 1-1m
     end
 
     @testset "> Multiplication" begin
@@ -342,6 +344,7 @@ end
             @test @inferred([1m, 2m] + [1m, 1cm])    == [2m, 201m//100]
             @test @inferred([1m] + [1cm])            == [(101//100)*m]
             @test_throws ErrorException [1m] + [2V]
+            @test_throws ErrorException [1] + [1m]
         end
 
         @testset ">> Element-wise addition" begin
