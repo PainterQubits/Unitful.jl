@@ -28,8 +28,8 @@ Available [here](http://ajkeller34.github.io/Unitful.jl).
 Tested on:
 
 ```
-Julia Version 0.5.0-rc3+0
-Commit e6f843b (2016-08-22 23:43 UTC)
+Julia Version 0.5.0-rc4+0
+Commit 9c76c3e (2016-09-09 01:43 UTC)
 Platform Info:
   System: Darwin (x86_64-apple-darwin13.4.0)
   CPU: Intel(R) Core(TM) i7-4870HQ CPU @ 2.50GHz
