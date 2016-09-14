@@ -7,6 +7,7 @@ end
 ```@docs
 Unitful.@u_str
 Unitful.unit
+Unitful.ustrip
 Unitful.dimension(::Number)
 Unitful.dimension{U,D}(::Unitful.Units{U,D})
 Unitful.dimension{T,D,U}(x::Quantity{T,D,U})

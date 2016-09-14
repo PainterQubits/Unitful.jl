@@ -16,7 +16,7 @@ import Base: getindex, eltype, step, last, first, frexp
 import Base: Rational, typemin, typemax
 import Base: steprange_last, unitrange_last, unsigned
 
-export unit, dimension, uconvert
+export unit, dimension, uconvert, ustrip
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
 export DimensionedQuantity, Quantity
 export UnitlessQuantity, DimensionlessQuantity
@@ -25,6 +25,73 @@ export NoUnits
 include("Types.jl")
 include("User.jl")
 const NoUnits = Units{(), Dimensions{()}}()
+
+"""
+```
+ustrip(x::Number)
+```
+
+Returns the number out in front of any units. This may be different from the value
+in the case of dimensionless quantities. See [`uconvert`](@ref) and the example
+below. Because the units are removed, information may be lost and this should
+be used with some care.
+
+This function is just calling `x/unit(x)`, which is as fast as directly
+accessing the `val` field of `x::Quantity`, but also works for any other kind
+of number.
+
+This function is mainly intended for compatibility with packages that don't know
+how to handle quantities. This function may be deprecated in the future.
+
+```jldoctest
+julia> ustrip(2u"μm/m") == 2
+true
+
+julia> uconvert(NoUnits, 2u"μm/m") == 2e-6
+true
+```
+"""
+ustrip(x::Number) = x/unit(x)
+
+"""
+```
+ustrip{T,D,U}(x::Array{Quantity{T,D,U}})
+```
+
+Strip units from an `Array` by reinterpreting to type `T`. The resulting
+`Array` is a "unit free view" into array `x`. Because the units are
+removed, information may be lost and this should be used with some care.
+
+This function is provided primarily for compatibility purposes; you could pass
+the result to PyPlot, for example. This function may be deprecated in the future.
+
+```jldoctest
+julia> a = [1u"m", 2u"m"]
+2-element Array{Quantity{Int64, Dimensions:{𝐋}, Units:{m}},1}:
+ 1 m
+ 2 m
+
+julia> b = ustrip(a)
+2-element Array{Int64,1}:
+ 1
+ 2
+
+julia> a[1] = 3u"m"; b
+2-element Array{Int64,1}:
+ 3
+ 2
+```
+"""
+ustrip{T,D,U}(x::Array{Quantity{T,D,U}}) = reinterpret(T, x)
+
+"""
+```
+ustrip{T<:Number}(x::Array{T})
+```
+
+Fall-back that returns `x`.
+"""
+ustrip{T<:Number}(x::Array{T}) = x
 
 """
 ```

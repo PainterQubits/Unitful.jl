@@ -39,6 +39,9 @@ end
         @test_throws ErrorException convert(Float64, 3m)
         @test @inferred(3m/unit(3m)) === 3
         @test @inferred(3.0g/unit(3.0g)) === 3.0
+        @test @inferred(ustrip(3m)) === 3
+        @test @inferred(ustrip(3)) === 3
+        @test @inferred(ustrip(3.0m)) === 3.0
     end
 
     @testset "> Unitful ↔ unitful conversion" begin
@@ -325,7 +328,7 @@ end
     #     end
     end
 
-    @testset "> Array math" begin
+    @testset "> Arrays" begin
         @testset ">> Array multiplication" begin
             @test @inferred([1m, 2m]' * [3m, 4m])    == [11m^2]
             @test @inferred([1V,2V]*[0.1/m, 0.4/m]') == [0.1V/m 0.4V/m; 0.2V/m 0.8V/m]
@@ -360,6 +363,12 @@ end
             @test !isapprox([1.0u"m"], [1.0u"V"])
             @test isapprox([1.0u"μm/m"], [1e-6])
             @test isapprox([1u"cm", 200u"cm"], [0.01u"m", 2.0u"m"])
+        end
+
+        @testset "Unit stripping" begin
+            @test @inferred(ustrip([1u"m", 2u"m"])) == [1,2]
+            @test @inferred(ustrip([1,2])) == [1,2]
+            @test typeof(ustrip([1u"m", 2u"m"])) == Array{Int,1}
         end
     end
 end
