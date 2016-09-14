@@ -47,7 +47,7 @@ how to handle quantities. This function may be deprecated in the future.
 julia> ustrip(2u"μm/m") == 2
 true
 
-julia> uconvert(NoUnits, 2u"μm/m") == 2e-6
+julia> uconvert(NoUnits, 2u"μm/m") == 2//1000000
 true
 ```
 """
