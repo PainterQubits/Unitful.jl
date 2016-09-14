@@ -250,6 +250,10 @@ end
     @test @inferred(copysign(3.0m, 4)) == 3.0m
     @test @inferred(flipsign(3.0m, -4)) == -3.0m
     @test @inferred(flipsign(-3.0m, -4)) == 3.0m
+    @test @inferred(real(3m)) == 3.0m
+    @test @inferred(real((3+4im)V)) == 3V
+    @test @inferred(imag(3m)) == 0m
+    @test @inferred(imag((3+4im)V)) == 4V
 end
 
 @testset "Collections" begin

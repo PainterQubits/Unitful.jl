@@ -4,7 +4,7 @@ module Unitful
 import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, .\, //, ^, .^
 import Base: show, convert
 import Base: abs, abs2, float, inv, sqrt
-import Base: min, max, floor, ceil, log, log10
+import Base: min, max, floor, ceil, log, log10, real, imag
 
 import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isinf, isfinite, isnan
@@ -692,6 +692,9 @@ unsigned(x::Quantity) = Quantity(unsigned(x.val), unit(x))
 
 log(x::DimensionlessQuantity) = log(uconvert(Units{(), Dimensions{()}}(), x))
 log10(x::DimensionlessQuantity) = log10(uconvert(Units{(), Dimensions{()}}(), x))
+
+real(x::Quantity) = Quantity(real(x.val), unit(x))
+imag(x::Quantity) = Quantity(imag(x.val), unit(x))
 
 """
 ```
