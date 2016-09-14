@@ -7,7 +7,7 @@ import Base: abs, abs2, float, inv, sqrt
 import Base: min, max, floor, ceil, log, log10
 
 import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
-import Base: isless, isapprox, isinteger, isreal, isinf, isfinite
+import Base: isless, isapprox, isinteger, isreal, isinf, isfinite, isnan
 import Base: copysign, flipsign
 import Base: prevfloat, nextfloat, maxintfloat, rat, step #, linspace
 import Base: promote_op, promote_array_type, promote_rule, unsafe_getindex
@@ -551,8 +551,30 @@ isless(x::Quantity, y::Quantity) = isless(uconvert(unit(y), x).val, y.val)
 
 isapprox{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = isapprox(x.val, y.val)
 isapprox(x::Quantity, y::Quantity) = isapprox(uconvert(unit(y), x).val, y.val)
-isapprox(x::Quantity, y::Number) = isapprox(uconvert(Units{(), Dimensions{()}}(), x).val, y)
+isapprox(x::Quantity, y::Number) = isapprox(uconvert(NoUnits, x), y)
 isapprox(x::Number, y::Quantity) = isapprox(y,x)
+
+function isapprox{T1,D,U1,T2,U2}(x::AbstractArray{Quantity{T1,D,U1}},
+        y::AbstractArray{Quantity{T2,D,U2}}; rtol::Real=Base.rtoldefault(T1,T2),
+        atol=zero(Quantity{T1,D,U1}), norm::Function=vecnorm)
+
+    d = norm(x - y)
+    if isfinite(d)
+        return d <= atol + rtol*max(norm(x), norm(y))
+    else
+        # Fall back to a component-wise approximate comparison
+        return all(ab -> isapprox(ab[1], ab[2]; rtol=rtol, atol=atol), zip(x, y))
+    end
+end
+isapprox{S<:Quantity,T<:Quantity}(x::AbstractArray{S},
+    y::AbstractArray{T}; kwargs...) = false
+isapprox{T1,U1,N<:Number}(x::AbstractArray{DimensionlessQuantity{T1,U1}},
+    y::AbstractArray{N}; kwargs...) =
+        isapprox(map(x->uconvert(NoUnits,x),x),y; kwargs...)
+isapprox{T1,U1,N<:Number}(y::AbstractArray{N},
+    x::AbstractArray{DimensionlessQuantity{T1,U1}}; kwargs...) =
+        isapprox(x,y; kwargs...)
+
 
 =={S,T,D,U}(x::Quantity{S,D,U}, y::Quantity{T,D,U}) = (x.val == y.val)
 function ==(x::Quantity, y::Quantity)
@@ -597,6 +619,7 @@ isinteger(x::Quantity) = isinteger(x.val)
 isreal(x::Quantity) = isreal(x.val)
 isfinite(x::Quantity) = isfinite(x.val)
 isinf(x::Quantity) = isinf(x.val)
+isnan(x::Quantity) = isnan(x.val)
 
 unsigned(x::Quantity) = Quantity(unsigned(x.val), unit(x))
 

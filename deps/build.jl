@@ -12,14 +12,12 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         @dimension 𝐈 "𝐈" Current
         @dimension 𝚯 "𝚯" Temperature    # This one is \\mbfTheta
         @dimension 𝐉 "𝐉" Luminosity
-        @dimension ∠ "∠" Angle          # This one is just \\angle
         @dimension 𝐍 "𝐍" Amount
 
         # Define derived dimensions.
         @derived_dimension Area             𝐋^2
         @derived_dimension Volume           𝐋^3
         @derived_dimension Frequency        inv(𝐓)
-        @derived_dimension AngularFrequency ∠/𝐓
         @derived_dimension Force            𝐌*𝐋/𝐓^2
         @derived_dimension Pressure         𝐌*𝐋^-1*𝐓^-2
         @derived_dimension Energy           𝐌*𝐋^2/𝐓^2
@@ -43,7 +41,6 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         @refunit  K       "K"      Kelvin    𝚯           true
         @refunit  cd      "cd"     Candela   𝐉            true
         @refunit  g       "g"      Gram      𝐌           true
-        @refunit  rad     "rad"    Radian    ∠           true
         @refunit  mol     "mol"    Mole      𝐍           true
 
         # Specify preferred unit for promotion.
@@ -56,7 +53,6 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         @preferunit K
         @preferunit cd
         @preferunit kg
-        @preferunit rad
         @preferunit mol
 
         # These lines allow for μ to be typed with option-m on a Mac.
@@ -84,10 +80,11 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         @unit wk     "wk"       Week        604800s                 false
 
         # Angle
-        @unit °       "°"       Degree      (pi/180)*rad           false
+        @unit rad     "rad"     Radian      1                       false
+        @unit °       "°"       Degree      pi/180                  false
         import Base: sin, cos, tan, cot, sec, csc
         for _y in [:sin, :cos, :tan, :cot, :sec, :csc]
-            @eval (\$_y)(x::DimensionedQuantity{typeof(∠)}) = (\$_y)(uconvert(rad, x).val)
+            @eval (\$_y)(x::DimensionlessQuantity) = (\$_y)(uconvert(NoUnits, x))
         end
 
         # Temperature

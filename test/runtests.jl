@@ -12,8 +12,7 @@ import Unitful:
     Time, Frequency,
     Mass,
     Current,
-    Temperature,
-    Angle
+    Temperature
 
 import Unitful:
     LengthUnit, AreaUnit, MassUnit
@@ -130,7 +129,7 @@ end
     @test isa(1A, Current)
     @test isa(1K, Temperature)
     @test isa(1cd, Luminosity)
-    @test isa(1rad, Angle)
+    @test isa(2π*1.0*rad*m, Length)
 end
 
 @testset "Mathematics" begin
@@ -209,9 +208,15 @@ end
         @test !isinteger(1.4m)
         @test isfinite(1.0m)
         @test !isfinite(Inf*m)
+        @test isnan(NaN*m)
+        @test !isnan(1.0m)
     end
 
     @testset "> Floating point tests" begin
+        @test isapprox(1.0u"m",(1.0+eps(1.0))u"m")
+        @test isapprox(1.0u"μm/m",1e-6)
+        @test !isapprox(1.0u"μm/m",1e-7)
+        @test_throws ErrorException isapprox(1.0u"m",5)
         @test frexp(1.5m) == (0.75m, 1.0)
         @test unit(nextfloat(0.0m)) == m
         @test unit(prevfloat(0.0m)) == m
@@ -349,6 +354,12 @@ end
 
         @testset ">> Element-wise addition" begin
             @test @inferred(5m .+ [1m, 2m, 3m])      == [6m, 7m, 8m]
+        end
+
+        @testset ">> isapprox on arrays" begin
+            @test !isapprox([1.0u"m"], [1.0u"V"])
+            @test isapprox([1.0u"μm/m"], [1e-6])
+            @test isapprox([1u"cm", 200u"cm"], [0.01u"m", 2.0u"m"])
         end
     end
 end
