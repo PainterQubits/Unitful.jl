@@ -57,6 +57,7 @@ end
             # test special case of temperature
             @test uconvert(°C, 0x01*°C) == 0x01*°C
             @test 1kg === 1kg
+            @test typeof(1m)(1m) === 1m
         end
         @testset ">> Inter-unit conversion" begin
             @test 1kg == 1000g
@@ -65,6 +66,7 @@ end
             @test 1ft == 12inch
             @test 1/mi == 1//(5280ft)
             @test 1J == 1u"kg*m^2/s^2"
+            @test typeof(1cm)(1m) === 100cm
         end
         @testset ">> Temperature conversion" begin
             # When converting a pure temperature, offsets in temperature are

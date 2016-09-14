@@ -111,6 +111,8 @@ kept separate to permit convenient dispatch on dimensions.
 """
 immutable Quantity{T,D,U} <: DimensionedQuantity{D}
     val::T
+    Quantity(v::Number) = new(v)
+    Quantity(v::Quantity) = convert(Quantity{T,D,U}, v)
 end
 
 """
