@@ -490,6 +490,9 @@ for op in (:/, ://)
     end
 end
 
+# ambiguity resolution
+//(x::Quantity, y::Complex) = Quantity(//(x.val, y), unit(x))
+
 # Division (other functions)
 
 for f in (:div, :fld, :cld)

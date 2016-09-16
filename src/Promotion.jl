@@ -33,7 +33,6 @@ function promote_op{T1,D1,U1,T2,D2,U2}(op, x::Type{Quantity{T1,D1,U1}},
     unittype = promote_op(op, U1, U2)
     numtype = if D1 == D2
         promote_type(T1, T2, typeof(convfact(U1(),U2())))
-        println("aa")
     else
         promote_type(T1, T2)
     end

@@ -158,7 +158,7 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         promote_rule{S<:CapacitanceUnit, T<:CapacitanceUnit}(::Type{S}, ::Type{T}) = typeof(F)
         promote_rule{S<:InductanceUnit, T<:InductanceUnit}(::Type{S}, ::Type{T}) = typeof(H)
         promote_rule{S<:MagneticFluxUnit, T<:MagneticFluxUnit}(::Type{S}, ::Type{T}) = typeof(Wb)
-        promote_rule{S<:BField, T<:BField}(::Type{S}, ::Type{T}) = typeof(T)
+        promote_rule{S<:BFieldUnit, T<:BFieldUnit}(::Type{S}, ::Type{T}) = typeof(T)
         """)
     end
 end
