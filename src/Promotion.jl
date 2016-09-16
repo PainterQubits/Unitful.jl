@@ -33,6 +33,7 @@ function promote_op{T1,D1,U1,T2,D2,U2}(op, x::Type{Quantity{T1,D1,U1}},
     unittype = promote_op(op, U1, U2)
     numtype = if D1 == D2
         promote_type(T1, T2, typeof(convfact(U1(),U2())))
+        println("aa")
     else
         promote_type(T1, T2)
     end
@@ -103,7 +104,11 @@ function promote_rule{S1,S2,D,U1,U2}(::Type{Quantity{S1,D,U1}},
     ::Type{Quantity{S2,D,U2}})
 
     numtype = promote_type(S1,S2,typeof(convfact(U1(),U2())))
-    Quantity{numtype, D, promote_type(U1,U2)}
+    if promote_type(U1,U2) != typeof(NoUnits)
+        Quantity{numtype, D, promote_type(U1,U2)}
+    else
+        numtype
+    end
 end
 
 # quantity, quantity (same dims, same units)
@@ -119,7 +124,13 @@ promote_rule{S2,D,U}(::Type{DimensionedQuantity{D}},
     ::Type{Quantity{S2,D,U}}) = DimensionedQuantity{D}
 
 # number, quantity
-promote_rule{S,T<:Number,D,U}(::Type{Quantity{S,D,U}}, ::Type{T}) = Number
+function promote_rule{S,T<:Number,D,U}(::Type{Quantity{S,D,U}}, ::Type{T})
+    if D == Dimensions{()}
+        promote_type(S,T,typeof(convfact(U(),NoUnits)))
+    else
+        Number
+    end
+end
 
 # dim'd, dim'd (different dims)
 promote_rule{D1,D2}(::Type{DimensionedQuantity{D1}},

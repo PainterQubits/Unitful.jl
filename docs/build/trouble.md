@@ -40,6 +40,23 @@ Quantity{Float64, Dimensions:{𝐋^3}, Units:{m^3}}
 Because the functions `inv` and `sqrt` are raising a `Quantity` to a fixed power (-1 and 1/2, respectively), we can use a generated function to ensure type stability in these cases. Also note that squaring a `Quantity` will be type-stable if done as `x*x` but not as `x^2`.
 
 
+<a id='Promotion-with-dimensionless-numbers-1'></a>
+
+## Promotion with dimensionless numbers
+
+
+Most of the time, you are only permitted to do sensible operations in Unitful. With dimensionless numbers, some of the safe logic breaks down. Consider for instance that `μm/m` and `rad` are both dimensionless units, but kind of have nothing to do with each other. It would be a little weird to add them. Nonetheless, we permit this to happen since they have the same dimensions. Otherwise, we would have to special-case operations for two dimensionless quantities rather than dispatching on the empty dimension.
+
+
+The result of addition and subtraction with dimensionless but unitful numbers is always a pure number with no units. With angles, `1 rad` is essentially just `1`, giving sane behavior:
+
+
+```jlcon
+julia> π/2*u"rad"+90u"°"
+3.141592653589793
+```
+
+
 <a id='Other-random-problems-1'></a>
 
 ## Other random problems

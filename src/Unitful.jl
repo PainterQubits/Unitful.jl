@@ -283,8 +283,20 @@ for op in [:+, :-]
     end
 
     @eval ($op)(::Quantity, ::Quantity) = error("Dimensional mismatch.")
-    @eval ($op)(::Quantity, ::Number) = error("Dimensional mismatch.")
-    @eval ($op)(::Number, ::Quantity) = error("Dimensional mismatch.")
+    @eval function ($op)(x::Quantity, y::Number)
+        if isa(x, DimensionlessQuantity)
+            ($op)(promote(x,y)...)
+        else
+            error("Dimensional mismatch.")
+        end
+    end
+    @eval function ($op)(x::Number, y::Quantity)
+        if isa(y, DimensionlessQuantity)
+            ($op)(promote(x,y)...)
+        else
+            error("Dimensional mismatch.")
+        end
+    end
 
     @eval ($op)(x::Quantity) = Quantity(($op)(x.val),unit(x))
 end

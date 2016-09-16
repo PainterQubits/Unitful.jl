@@ -35,13 +35,15 @@ end
 
 @testset "Conversion" begin
     @testset "> Unitless ↔ unitful conversion" begin
-        @test_throws MethodError convert(typeof(3m),1)
+        @test_throws ErrorException convert(typeof(3m),1)
         @test_throws ErrorException convert(Float64, 3m)
         @test @inferred(3m/unit(3m)) === 3
         @test @inferred(3.0g/unit(3.0g)) === 3.0
         @test @inferred(ustrip(3m)) === 3
         @test @inferred(ustrip(3)) === 3
         @test @inferred(ustrip(3.0m)) === 3.0
+        @test convert(typeof(1mm/m),3) == 3000mm/m
+        @test convert(Int, 1m/mm) === 1000
     end
 
     @testset "> Unitful ↔ unitful conversion" begin
@@ -89,7 +91,10 @@ end
         @test @inferred(promote(1m, 1.0m)) == (1.0m, 1.0m)
         @test @inferred(promote(1.0m, 1kg)) == (1.0m, 1.0kg)
         @test @inferred(promote(1kg, 1.0m)) == (1.0kg, 1.0m)
-        @test @inferred(promote(1.0m, 1)) == (1.0m, UnitlessQuantity(1.0))
+        @test @inferred(promote(1.0m, 1)) == (1.0m, 1)
+        @test @inferred(promote(1.0mm/m, 1.0km/m)) == (0.001,1000.0)
+        @test @inferred(promote(1.0cm/m, 1.0mm/m, 1.0km/m)) == (0.01,0.001,1000.0)
+        @test @inferred(promote(1.0rad,1.0°)) == (1.0,π/180.0)
     end
 
     @testset "> Promotion during array creation" begin
@@ -164,7 +169,9 @@ end
         @test @inferred(zero(1m)) === 0m                 # Additive identity
         @test @inferred(zero(typeof(1m))) === 0m
         @test @inferred(zero(typeof(1.0m))) === 0.0m
-        @test_throws ErrorException 1+1m
+        @test @inferred(π/2*u"rad" + 90u"°") ≈ π         # Dimless quantities
+        @test @inferred(π/2*u"rad" - 90u"°") ≈ 0         # Dimless quantities
+        @test_throws ErrorException 1+1m                 # Dim mismatched
         @test_throws ErrorException 1-1m
     end
 
@@ -336,6 +343,7 @@ end
 
     @testset "> Arrays" begin
         @testset ">> Array multiplication" begin
+            # Quantity, quantity
             @test @inferred([1m, 2m]' * [3m, 4m])    == [11m^2]
             @test @inferred([1V,2V]*[0.1/m, 0.4/m]') == [0.1V/m 0.4V/m; 0.2V/m 0.8V/m]
             @test @inferred([1m, 2m]' * [3/m, 4/m])  == [11]
@@ -343,6 +351,11 @@ end
             @test @inferred([1m, 2V]' * [3/m, 4/V])  == [11]
             @test typeof([1m, 2V]' * [3/m, 4/V])     == Array{Int,1}
             @test @inferred([1m, 2V] * [3/m, 4/V]')  == [3 4u"m*V^-1"; 6u"V*m^-1" 8]
+            # Quantity, number or vice versa
+            @test @inferred([1,2]' * [3m,4m])        == [11m]
+            @test typeof([1,2]' * [3m,4m])           == Array{typeof(1u"m"),1}
+            @test @inferred([3m,4m]' * [1,2])        == [11m]
+            @test typeof([3m,4m]' * [1,2])           == Array{typeof(1u"m"),1}
         end
 
         @testset ">> Element-wise multiplication" begin
@@ -357,6 +370,7 @@ end
             @test @inferred([1m, 2m] + [3m, 4m])     == [4m, 6m]
             @test @inferred([1m, 2m] + [1m, 1cm])    == [2m, 201m//100]
             @test @inferred([1m] + [1cm])            == [(101//100)*m]
+            # @test @inferred([1mm/m, 2mm/m] + [3,4])  == [3001mm/m, 4002mm/m] #TODO
             @test_throws ErrorException [1m] + [2V]
             @test_throws ErrorException [1] + [1m]
         end

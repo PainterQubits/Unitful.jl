@@ -121,13 +121,13 @@ convfact{S}(s::Units{S}, t::Units{S}) = 1
 
 """
 ```
-convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Quantity)
+convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Number)
 ```
 
 Direct type conversion using `convert` is permissible provided conversion
 is between two quantities of the same dimension.
 """
-function convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Quantity)
+function convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Number)
     if dimension(x) == D()
         if U == Units{(), Dimensions{()}}   # catch UnitlessQuantity
             return UnitlessQuantity{T}(x.val)
@@ -164,13 +164,13 @@ end
 
 """
 ```
-convert{T}(::Type{UnitlessQuantity{T}}, x::Number)
+convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Number)
 ```
 
-Convert `x` to a [`Unitful.UnitlessQuantity`](@ref) type.
+Convert `x` to a [`Unitful.DimensionlessQuantity`](@ref) type.
 """
-convert{T}(::Type{UnitlessQuantity{T}}, x::Number) =
-    UnitlessQuantity{T}(x)us
+convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Number) =
+    uconvert(U(), convert(T,x))
 
 convert(::Type{Number}, y::Quantity) = y
 convert{T<:Real}(::Type{T}, y::Quantity) =

@@ -90,15 +90,3 @@ julia> mod(1hr+3minute+5s, 24s)
 ```
 
 See `test/runtests.jl` for more usage examples.
-
-## To do
-
-- Benchmarking needed.
-
-- More tests are always appreciated and necessary.
-
-- Specialized exceptions for dimensional mismatches, other unit-related troubles?
-
-- Further down the road, it could be nice to have a concrete type where the
-  units are a value and not part of the type signature. This could be used as
-  a fallback for promotion when arrays of mixed dimensions are created.
