@@ -250,6 +250,12 @@
             </li>
           
             <li class="anchor">
+              <a title="Promotion with dimensionless numbers" href="#promotion-with-dimensionless-numbers">
+                Promotion with dimensionless numbers
+              </a>
+            </li>
+          
+            <li class="anchor">
               <a title="Other random problems" href="#other-random-problems">
                 Other random problems
               </a>
@@ -307,6 +313,15 @@
 
 
 <p>Because the functions <code>inv</code> and <code>sqrt</code> are raising a <code>Quantity</code> to a fixed power (-1 and 1/2, respectively), we can use a generated function to ensure type stability in these cases. Also note that squaring a <code>Quantity</code> will be type-stable if done as <code>x*x</code> but not as <code>x^2</code>.</p>
+<p><a id='Promotion-with-dimensionless-numbers-1'></a></p>
+<h2 id="promotion-with-dimensionless-numbers">Promotion with dimensionless numbers</h2>
+<p>Most of the time, you are only permitted to do sensible operations in Unitful. With dimensionless numbers, some of the safe logic breaks down. Consider for instance that <code>μm/m</code> and <code>rad</code> are both dimensionless units, but kind of have nothing to do with each other. It would be a little weird to add them. Nonetheless, we permit this to happen since they have the same dimensions. Otherwise, we would have to special-case operations for two dimensionless quantities rather than dispatching on the empty dimension.</p>
+<p>The result of addition and subtraction with dimensionless but unitful numbers is always a pure number with no units. With angles, <code>1 rad</code> is essentially just <code>1</code>, giving sane behavior:</p>
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">π</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="s">&quot;rad&quot;</span><span class="o">+</span><span class="mi">90</span><span class="n">u</span><span class="s">&quot;°&quot;</span>
+<span class="go">3.141592653589793</span>
+</pre></div>
+
+
 <p><a id='Other-random-problems-1'></a></p>
 <h2 id="other-random-problems">Other random problems</h2>
 <p>If using units with some of the unsigned types... well, I'm not sure what you are doing, but you should be aware of this:</p>

@@ -306,13 +306,13 @@
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/e7f67e3a704a0fa19babe9171b1112cef11e9b8b/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},U})
 </pre></div>
 
 
 <p>In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/e7f67e3a704a0fa19babe9171b1112cef11e9b8b/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br></p>
 <p><a id='Dimensionless-quantities-1'></a></p>
 <h3 id="dimensionless-quantities">Dimensionless quantities</h3>
 <p>For dimensionless quantities, <code>uconvert</code> can be used to strip the units without losing power-of-ten information:</p>
