@@ -29,7 +29,7 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a853a7bba9cabe50d5f13ce2055fc1efa039a471/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 ```
@@ -39,7 +39,7 @@ uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},
 In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a853a7bba9cabe50d5f13ce2055fc1efa039a471/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
 
 
 <a id='Dimensionless-quantities-1'></a>

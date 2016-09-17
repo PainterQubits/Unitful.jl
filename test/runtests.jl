@@ -352,25 +352,42 @@ end
             @test typeof([1m, 2V]' * [3/m, 4/V])     == Array{Int,1}
             @test @inferred([1m, 2V] * [3/m, 4/V]')  == [3 4u"m*V^-1"; 6u"V*m^-1" 8]
             # Quantity, number or vice versa
-            @test @inferred([1,2]' * [3m,4m])        == [11m]
-            @test typeof([1,2]' * [3m,4m])           == Array{typeof(1u"m"),1}
-            @test @inferred([3m,4m]' * [1,2])        == [11m]
-            @test typeof([3m,4m]' * [1,2])           == Array{typeof(1u"m"),1}
+            @test @inferred([1 2] * [3m,4m])         == [11m]
+            @test typeof([1 2] * [3m,4m])            == Array{typeof(1u"m"),1}
+            @test @inferred([1,2] * [3m 4m])         == [3m 4m; 6m 8m]
+            @test typeof([1,2] * [3m 4m])            == Array{typeof(1u"m"),2}
+            @test @inferred([3m 4m] * [1,2])         == [11m]
+            @test typeof([3m 4m] * [1,2])            == Array{typeof(1u"m"),1}
+            @test @inferred([3m,4m] * [1 2])         == [3m 6m; 4m 8m]
+            @test typeof([3m,4m] * [1 2])            == Array{typeof(1u"m"),2}
         end
 
         @testset ">> Element-wise multiplication" begin
-            @test @inferred([1m, 2m, 3m] .* 5m)      == [5m^2, 10m^2, 15m^2]
-            @test @inferred(5m .* [1m, 2m, 3m])      == [5m^2, 10m^2, 15m^2]
-            @test @inferred(eye(2).*V)               == [1.0V 0.0V; 0.0V 1.0V]
-            @test @inferred(V.*eye(2))               == [1.0V 0.0V; 0.0V 1.0V]
-            @test @inferred([1V 2V; 0V 3V].*2)       == [2V 4V; 0V 6V]
+            @test @inferred([1m, 2m, 3m] * 5)          == [5m, 10m, 15m]
+            @test typeof([1m, 2m, 3m] * 5)             == Array{typeof(1u"m"),1}
+            @test @inferred([1m, 2m, 3m] .* 5m)        == [5m^2, 10m^2, 15m^2]
+            @test typeof([1m, 2m, 3m] * 5m)            == Array{typeof(1u"m^2"),1}
+            @test @inferred(5m .* [1m, 2m, 3m])        == [5m^2, 10m^2, 15m^2]
+            @test typeof(5m .* [1m, 2m, 3m])           == Array{typeof(1u"m^2"),1}
+            @test @inferred(eye(2).*V)                 == [1.0V 0.0V; 0.0V 1.0V]
+
+            @test @inferred(V.*eye(2))                 == [1.0V 0.0V; 0.0V 1.0V]
+            @test @inferred([1V 2V; 0V 3V].*2)         == [2V 4V; 0V 6V]
+            @test @inferred([1V, 2V] .* [true, false]) == [1V, 0V]
         end
 
         @testset ">> Array addition" begin
             @test @inferred([1m, 2m] + [3m, 4m])     == [4m, 6m]
             @test @inferred([1m, 2m] + [1m, 1cm])    == [2m, 201m//100]
             @test @inferred([1m] + [1cm])            == [(101//100)*m]
-            # @test @inferred([1mm/m, 2mm/m] + [3,4])  == [3001mm/m, 4002mm/m] #TODO
+
+            # Dimensionless quantities
+            @test @inferred([1mm/m] + [1.0cm/m])     == [0.011]
+            @test typeof([1mm/m] + [1.0cm/m])        == Array{Float64,1}
+            @test @inferred([1mm/m] + [1cm/m])       == [11//1000]
+            @test typeof([1mm/m] + [1cm/m])          == Array{Rational{Int},1}
+            @test @inferred([1mm/m] + [2])           == [2001//1000]
+            @test typeof([1mm/m] + [2])              == Array{Rational{Int},1}
             @test_throws ErrorException [1m] + [2V]
             @test_throws ErrorException [1] + [1m]
         end

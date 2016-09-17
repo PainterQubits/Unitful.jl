@@ -129,34 +129,24 @@ is between two quantities of the same dimension.
 """
 function convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Number)
     if dimension(x) == D()
-        if U == Units{(), Dimensions{()}}   # catch UnitlessQuantity
-            return UnitlessQuantity{T}(x.val)
-        else
-            return Quantity(T(uconvert(U(),x).val), U())
-        end
+        Quantity(T(uconvert(U(),x).val), U())
     else
         error("Dimensional mismatch.")
     end
 end
 
+"""
+```
+convert{D}(::Type{DimensionedQuantity{D}}, x::Quantity)
+```
+
+Convert `x` to a [`Unitful.DimensionedQuantity`](@ref) type.
+If `x` is already of the specified dimensions, this is a no-op; if it is not, an
+`ErrorException` is thrown.
+"""
 function convert{D}(::Type{DimensionedQuantity{D}}, x::Quantity)
     if dimension(x) == D()
         return x
-    else
-        error("Dimensional mismatch.")
-    end
-end
-
-"""
-```
-convert{T}(::Type{UnitlessQuantity{T}}, x::Quantity)
-```
-
-Attempt conversion of `x` to a [`Unitful.UnitlessQuantity`](@ref) type.
-"""
-function convert{T}(::Type{UnitlessQuantity{T}}, x::Quantity)
-    if isa(x, UnitlessQuantity)
-        UnitlessQuantity{T}(x.val)
     else
         error("Dimensional mismatch.")
     end
@@ -171,6 +161,23 @@ Convert `x` to a [`Unitful.DimensionlessQuantity`](@ref) type.
 """
 convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Number) =
     uconvert(U(), convert(T,x))
+
+"""
+```
+convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Quantity)
+```
+
+Convert `x` to a [`Unitful.DimensionlessQuantity`](@ref) type.
+If `x` is already dimensionless, this is a no-op; if it is not, an
+`ErrorException` is thrown.
+"""
+function convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Quantity)
+    if dimension(x) == Dimensions{()}()
+        x
+    else
+        error("Dimensional mismatch.")
+    end
+end
 
 convert(::Type{Number}, y::Quantity) = y
 convert{T<:Real}(::Type{T}, y::Quantity) =

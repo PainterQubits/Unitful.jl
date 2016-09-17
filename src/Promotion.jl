@@ -36,7 +36,7 @@ function promote_op{T1,D1,U1,T2,D2,U2}(op, x::Type{Quantity{T1,D1,U1}},
     else
         promote_type(T1, T2)
     end
-    if unittype == Units{(), Dimensions{()}}
+    if unittype == typeof(NoUnits)
         numtype
     else
         dimtype = typeof(dimension(unittype()))
@@ -51,8 +51,22 @@ promote_op{T2,D1,D2,U}(op, x::Type{Quantity{T2,D2,U}},
     y::Type{DimensionedQuantity{D1}}) = DimensionedQuantity{promote_op(op,D2,D1)}
 
 # number, quantity
-promote_op{R<:Number,S,D,U}(op, ::Type{R}, ::Type{Quantity{S,D,U}}) = Number
-promote_op{R<:Number,S,D,U}(op, x::Type{Quantity{S,D,U}}, y::Type{R}) = Number
+function promote_op{R<:Number,S,D,U}(op, ::Type{R}, ::Type{Quantity{S,D,U}})
+    unittype = promote_op(op, typeof(NoUnits), U)
+    numtype = if D == Dimensions{()}
+        promote_type(R, S, typeof(convfact(NoUnits,U())))
+    else
+        promote_type(R, S)
+    end
+    if unittype == typeof(NoUnits)
+        numtype
+    else
+        dimtype = typeof(dimension(unittype()))
+        Quantity{numtype, dimtype, unittype}
+    end
+end
+promote_op{R<:Number,S,D,U}(op, x::Type{Quantity{S,D,U}}, y::Type{R}) =
+    promote_op(op, y, x)
 
 # dim'd, dim'd
 promote_op{D1,D2}(op, ::Type{DimensionedQuantity{D1}},

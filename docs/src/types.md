@@ -33,7 +33,6 @@ some subset of [`Unitful.DimensionedQuantity`](@ref) subtypes.
     Unitful.DimensionedQuantity{D}
     Unitful.Quantity{T,D,U}
     Unitful.DimensionlessQuantity{T,U}
-    Unitful.UnitlessQuantity{T}
 ```
 
 ## Units and dimensions

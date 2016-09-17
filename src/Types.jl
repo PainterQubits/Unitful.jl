@@ -117,23 +117,6 @@ end
 
 """
 ```
-typealias UnitlessQuantity{T} Quantity{T, Dimensions{()}, Units{(), Dimensions{()}}}
-```
-
-When [`Unitful.Quantity`](@ref) objects are combined with unitless numbers in a
-matrix or vector, e.g. as is sometimes encountered in general relativity, we wrap
-the unitless numbers in a `UnitlessQuantity{T}` type. This way, the array can
-specialize on the numeric backing type. Otherwise, the most specific container
-would be something like `AbstractArray{Number}`.
-"""
-typealias UnitlessQuantity{T} Quantity{T, Dimensions{()}, Units{(),Dimensions{()}}}
-
-UnitlessQuantity{T<:Quantity}(x::T) =
-    error("To strip units, divide out by `unit(x)`.")
-UnitlessQuantity{T<:Number}(x::T) = UnitlessQuantity{T}(x)
-
-"""
-```
 typealias DimensionlessQuantity{T,U} Quantity{T, Dimensions{()},U}
 ```
 

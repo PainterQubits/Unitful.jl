@@ -19,7 +19,7 @@ import Base: steprange_last, unitrange_last, unsigned
 export unit, dimension, uconvert, ustrip
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
 export DimensionedQuantity, Quantity
-export UnitlessQuantity, DimensionlessQuantity
+export DimensionlessQuantity
 export NoUnits
 
 include("Types.jl")
