@@ -29,6 +29,15 @@ const NoDims = Dimensions{()}()
 
 """
 ```
+type DimensionError <: Exception end
+```
+
+Thrown when dimensions don't match in an operation that demands they do.
+"""
+type DimensionError <: Exception end
+
+"""
+```
 ustrip(x::Number)
 ```
 
@@ -296,19 +305,19 @@ for op in [:+, :-]
         :($($op)(uconvert($result_units, x), uconvert($result_units, y)))
     end
 
-    @eval ($op)(::Quantity, ::Quantity) = error("Dimensional mismatch.")
+    @eval ($op)(::Quantity, ::Quantity) = throw(DimensionError())
     @eval function ($op)(x::Quantity, y::Number)
         if isa(x, DimensionlessQuantity)
             ($op)(promote(x,y)...)
         else
-            error("Dimensional mismatch.")
+            throw(DimensionError())
         end
     end
     @eval function ($op)(x::Number, y::Quantity)
         if isa(y, DimensionlessQuantity)
             ($op)(promote(x,y)...)
         else
-            error("Dimensional mismatch.")
+            throw(DimensionError())
         end
     end
 
@@ -602,7 +611,7 @@ for (f, F) in [(:min, :<), (:max, :>)]
         xdim = x.parameters[2]()
         ydim = y.parameters[2]()
         if xdim != ydim
-            return :(error("Dimensional mismatch."))
+            return :(throw(DimensionError()))
         end
 
         xunits = x.parameters[3].parameters[1]

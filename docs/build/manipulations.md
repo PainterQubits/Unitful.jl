@@ -25,7 +25,7 @@ julia> u"ħ"
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/User.jl#L222-L242' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/User.jl#L222-L242' class='documenter-source'>source</a><br>
 
 <a id='Unitful.unit' href='#Unitful.unit'>#</a>
 **`Unitful.unit`** &mdash; *Function*.
@@ -49,7 +49,7 @@ Unitful.Units{(Unitful.Unit{:Meter}(0,1//1),),Unitful.Dimensions{(Unitful.Dimens
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L97-L113' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Unitful.jl#L106-L122' class='documenter-source'>source</a><br>
 
 
 ```
@@ -66,7 +66,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L116-L129' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Unitful.jl#L125-L138' class='documenter-source'>source</a><br>
 
 
 ```
@@ -87,7 +87,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L133-L152' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Unitful.jl#L142-L161' class='documenter-source'>source</a><br>
 
 <a id='Unitful.ustrip' href='#Unitful.ustrip'>#</a>
 **`Unitful.ustrip`** &mdash; *Function*.
@@ -113,7 +113,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L30-L54' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Unitful.jl#L39-L63' class='documenter-source'>source</a><br>
 
 
 ```
@@ -142,7 +142,7 @@ julia> a[1] = 3u"m"; b
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L57-L85' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Unitful.jl#L66-L94' class='documenter-source'>source</a><br>
 
 
 ```
@@ -152,7 +152,7 @@ ustrip{T<:Number}(x::Array{T})
 Fall-back that returns `x`.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L88-L94' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Unitful.jl#L97-L103' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{Number}' href='#Unitful.dimension-Tuple{Number}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -178,7 +178,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L156-L176' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Unitful.jl#L165-L185' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{Unitful.Units{U,D}}' href='#Unitful.dimension-Tuple{Unitful.Units{U,D}}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -205,7 +205,7 @@ Unitful.Dimensions{()}
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L180-L201' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Unitful.jl#L189-L210' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{Unitful.Quantity{T,D,U}}' href='#Unitful.dimension-Tuple{Unitful.Quantity{T,D,U}}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -231,7 +231,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L156-L176' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Unitful.jl#L165-L185' class='documenter-source'>source</a><br>
 
 
 ```
@@ -251,7 +251,7 @@ Unitful.Dimensions{()}
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L204-L222' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Unitful.jl#L213-L231' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{AbstractArray{T<:Unitful.Units,N}}' href='#Unitful.dimension-Tuple{AbstractArray{T<:Unitful.Units,N}}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -265,7 +265,7 @@ dimension{T<:Units}(x::AbstractArray{T})
 Just calls `map(dimension, x)`.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L236-L242' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Unitful.jl#L245-L251' class='documenter-source'>source</a><br>
 
 <a id='Base.:*-Tuple{Unitful.Unitlike,Vararg{Unitful.Unitlike,N}}' href='#Base.:*-Tuple{Unitful.Unitlike,Vararg{Unitful.Unitlike,N}}'>#</a>
 **`Base.:*`** &mdash; *Method*.
@@ -294,5 +294,5 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L331-L359' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Unitful.jl#L340-L368' class='documenter-source'>source</a><br>
 

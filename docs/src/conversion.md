@@ -25,7 +25,7 @@ julia> uconvert(Unitful.NoUnits, 1.0u"μm/m")
 1.0e-6
 
 julia> uconvert(Unitful.NoUnits, 1.0u"m")
-ERROR: Dimensional mismatch.
+ERROR: Unitful.DimensionError()
 ```
 
 You can also directly convert to a subtype of `Real` or `Complex`:

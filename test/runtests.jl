@@ -35,8 +35,8 @@ end
 
 @testset "Conversion" begin
     @testset "> Unitless ↔ unitful conversion" begin
-        @test_throws ErrorException convert(typeof(3m),1)
-        @test_throws ErrorException convert(Float64, 3m)
+        @test_throws Unitful.DimensionError convert(typeof(3m),1)
+        @test_throws Unitful.DimensionError convert(Float64, 3m)
         @test @inferred(3m/unit(3m)) === 3
         @test @inferred(3.0g/unit(3.0g)) === 3.0
         @test @inferred(ustrip(3m)) === 3
@@ -173,8 +173,8 @@ end
         @test @inferred(zero(typeof(1.0m))) === 0.0m
         @test @inferred(π/2*u"rad" + 90u"°") ≈ π         # Dimless quantities
         @test @inferred(π/2*u"rad" - 90u"°") ≈ 0         # Dimless quantities
-        @test_throws ErrorException 1+1m                 # Dim mismatched
-        @test_throws ErrorException 1-1m
+        @test_throws Unitful.DimensionError 1+1m                 # Dim mismatched
+        @test_throws Unitful.DimensionError 1-1m
     end
 
     @testset "> Multiplication" begin
@@ -230,7 +230,7 @@ end
         @test isapprox(1.0u"m",(1.0+eps(1.0))u"m")
         @test isapprox(1.0u"μm/m",1e-6)
         @test !isapprox(1.0u"μm/m",1e-7)
-        @test_throws ErrorException isapprox(1.0u"m",5)
+        @test_throws Unitful.DimensionError isapprox(1.0u"m",5)
         @test frexp(1.5m) == (0.75m, 1.0)
         @test unit(nextfloat(0.0m)) == m
         @test unit(prevfloat(0.0m)) == m

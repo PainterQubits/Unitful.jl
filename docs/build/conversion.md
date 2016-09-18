@@ -29,7 +29,7 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 ```
@@ -39,7 +39,7 @@ uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},
 In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
 
 
 <a id='Dimensionless-quantities-1'></a>
@@ -55,7 +55,7 @@ julia> uconvert(Unitful.NoUnits, 1.0u"μm/m")
 1.0e-6
 
 julia> uconvert(Unitful.NoUnits, 1.0u"m")
-ERROR: Dimensional mismatch.
+ERROR: Unitful.DimensionError()
 ```
 
 

@@ -58,7 +58,7 @@ function uconvert(a::Units, x::Number)
     if dimension(a) == NoDims
         Quantity(x * convfact(a, NoUnits), a)
     else
-        error("Dimensional mismatch.")
+        throw(DimensionError())
     end
 end
 
@@ -76,7 +76,7 @@ Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.0
     # Check if conversion is possible in principle
     sdim = dimension(s())
     tdim = dimension(t())
-    sdim != tdim && error("Dimensional mismatch.")
+    sdim != tdim && throw(DimensionError())
 
     # first convert to base SI units.
     # fact1 is what would need to be multiplied to get to base SI units
@@ -131,7 +131,7 @@ function convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Number)
     if dimension(x) == D()
         Quantity(T(uconvert(U(),x).val), U())
     else
-        error("Dimensional mismatch.")
+        throw(DimensionError())
     end
 end
 
@@ -148,7 +148,7 @@ function convert{D}(::Type{DimensionedQuantity{D}}, x::Quantity)
     if dimension(x) == D()
         return x
     else
-        error("Dimensional mismatch.")
+        throw(DimensionError())
     end
 end
 
@@ -175,7 +175,7 @@ function convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Quantity)
     if dimension(x) == NoDims
         x
     else
-        error("Dimensional mismatch.")
+        throw(DimensionError())
     end
 end
 
