@@ -83,7 +83,7 @@ promote_op{D}(op, ::Type{Number}, ::Type{DimensionedQuantity{D}}) = Number
 function promote_op{R<:Units,S,D,U}(op, ::Type{Quantity{S,D,U}}, ::Type{R})
     numtype = S
     unittype = typeof(op(U(), R()))
-    if unittype == Units{(), Dimensions{()}}
+    if unittype == typeof(NoUnits)
         numtype
     else
         dimtype = typeof(dimension(unittype()))
@@ -95,8 +95,8 @@ promote_op{R<:Units,S,D,U}(op, x::Type{R}, y::Type{Quantity{S,D,U}}) =
 
 # units, number
 function promote_op{R<:Number,S<:Units}(op, x::Type{R}, y::Type{S})
-    unittype = typeof(op(Units{(), Dimensions{()}}(), S()))
-    if unittype == Units{(), Dimensions{()}}
+    unittype = typeof(op(NoUnits, S()))
+    if unittype == typeof(NoUnits)
         R
     else
         dimtype = typeof(dimension(unittype()))

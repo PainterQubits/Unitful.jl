@@ -142,7 +142,7 @@ determining the dimensions of a given set of units each time a new quantity is
 made.
 """
 @generated function Quantity(x::Number, y::Units)
-    if y == Units{(), Dimensions{()}}
+    if y == typeof(NoUnits)
         :(x)
     else
         u = y()

@@ -55,8 +55,8 @@ offsets, if they do not appear in combination with other dimensions.
 end
 
 function uconvert(a::Units, x::Number)
-    if dimension(a) == Dimensions{()}()
-        Quantity(x * convfact(a, Units{(), Dimensions{()}}()), a)
+    if dimension(a) == NoDims
+        Quantity(x * convfact(a, NoUnits), a)
     else
         error("Dimensional mismatch.")
     end
@@ -172,7 +172,7 @@ If `x` is already dimensionless, this is a no-op; if it is not, an
 `ErrorException` is thrown.
 """
 function convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Quantity)
-    if dimension(x) == Dimensions{()}()
+    if dimension(x) == NoDims
         x
     else
         error("Dimensional mismatch.")

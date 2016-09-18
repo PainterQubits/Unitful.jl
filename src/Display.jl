@@ -57,7 +57,7 @@ space, and then calling `show` on a units object `U()`.
 """
 function show(io::IO, x::Quantity)
     show(io,x.val)
-    if unit(x) != Units{(), Dimensions{()}}()
+    if unit(x) != NoUnits
         print(io," ")
         show(io, unit(x))
     end

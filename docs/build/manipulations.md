@@ -25,7 +25,7 @@ julia> u"ħ"
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/User.jl#L222-L242' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/User.jl#L222-L242' class='documenter-source'>source</a><br>
 
 <a id='Unitful.unit' href='#Unitful.unit'>#</a>
 **`Unitful.unit`** &mdash; *Function*.
@@ -49,7 +49,7 @@ Unitful.Units{(Unitful.Unit{:Meter}(0,1//1),),Unitful.Dimensions{(Unitful.Dimens
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Unitful.jl#L96-L112' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L97-L113' class='documenter-source'>source</a><br>
 
 
 ```
@@ -66,24 +66,28 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Unitful.jl#L115-L128' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L116-L129' class='documenter-source'>source</a><br>
 
 
 ```
 unit(x::Number)
 ```
 
-Returns a `Unitful.Units{(), Dimensions{()}}` object to indicate that ordinary numbers have no units. The unit is displayed as an empty string.
+Returns a `Unitful.Units{(), Dimensions{()}}` object to indicate that ordinary numbers have no units. This is a singleton, which we export as `NoUnits`. The unit is displayed as an empty string.
 
 Examples:
 
 ```jlcon
 julia> typeof(unit(1.0))
 Unitful.Units{(),Unitful.Dimensions{()}}
+julia> typeof(unit(Float64))
+Unitful.Units{(),Unitful.Dimensions{()}}
+julia> unit(1.0) == NoUnits
+true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Unitful.jl#L132-L146' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L133-L152' class='documenter-source'>source</a><br>
 
 <a id='Unitful.ustrip' href='#Unitful.ustrip'>#</a>
 **`Unitful.ustrip`** &mdash; *Function*.
@@ -109,7 +113,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Unitful.jl#L29-L53' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L30-L54' class='documenter-source'>source</a><br>
 
 
 ```
@@ -138,7 +142,7 @@ julia> a[1] = 3u"m"; b
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Unitful.jl#L56-L84' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L57-L85' class='documenter-source'>source</a><br>
 
 
 ```
@@ -148,7 +152,7 @@ ustrip{T<:Number}(x::Array{T})
 Fall-back that returns `x`.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Unitful.jl#L87-L93' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L88-L94' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{Number}' href='#Unitful.dimension-Tuple{Number}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -157,19 +161,24 @@ Fall-back that returns `x`.
 
 ```
 dimension(x::Number)
+dimension{T<:Number}(x::Type{T})
 ```
 
-Returns a `Unitful.Dimensions{()}` object to indicate that ordinary numbers are dimensionless. The dimension is displayed as an empty string.
+Returns a `Unitful.Dimensions{()}` object to indicate that ordinary numbers are dimensionless. This is a singleton, which we export as `NoDims`. The dimension is displayed as an empty string.
 
 Examples:
 
 ```jlcon
 julia> typeof(dimension(1.0))
 Unitful.Dimensions{()}
+julia> typeof(dimension(Float64))
+Unitful.Dimensions{()}
+julia> dimension(1.0) == NoDims
+true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Unitful.jl#L149-L163' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L156-L176' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{Unitful.Units{U,D}}' href='#Unitful.dimension-Tuple{Unitful.Units{U,D}}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -196,7 +205,7 @@ Unitful.Dimensions{()}
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Unitful.jl#L166-L187' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L180-L201' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{Unitful.Quantity{T,D,U}}' href='#Unitful.dimension-Tuple{Unitful.Quantity{T,D,U}}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -205,19 +214,24 @@ Unitful.Dimensions{()}
 
 ```
 dimension(x::Number)
+dimension{T<:Number}(x::Type{T})
 ```
 
-Returns a `Unitful.Dimensions{()}` object to indicate that ordinary numbers are dimensionless. The dimension is displayed as an empty string.
+Returns a `Unitful.Dimensions{()}` object to indicate that ordinary numbers are dimensionless. This is a singleton, which we export as `NoDims`. The dimension is displayed as an empty string.
 
 Examples:
 
 ```jlcon
 julia> typeof(dimension(1.0))
 Unitful.Dimensions{()}
+julia> typeof(dimension(Float64))
+Unitful.Dimensions{()}
+julia> dimension(1.0) == NoDims
+true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Unitful.jl#L149-L163' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L156-L176' class='documenter-source'>source</a><br>
 
 
 ```
@@ -237,7 +251,7 @@ Unitful.Dimensions{()}
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Unitful.jl#L190-L208' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L204-L222' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{AbstractArray{T<:Unitful.Units,N}}' href='#Unitful.dimension-Tuple{AbstractArray{T<:Unitful.Units,N}}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -251,7 +265,7 @@ dimension{T<:Units}(x::AbstractArray{T})
 Just calls `map(dimension, x)`.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Unitful.jl#L222-L228' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L236-L242' class='documenter-source'>source</a><br>
 
 <a id='Base.:*-Tuple{Unitful.Unitlike,Vararg{Unitful.Unitlike,N}}' href='#Base.:*-Tuple{Unitful.Unitlike,Vararg{Unitful.Unitlike,N}}'>#</a>
 **`Base.:*`** &mdash; *Method*.
@@ -280,5 +294,5 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/139b437ec8a125e3b08a2f4c6f542568a3df3260/src/Unitful.jl#L317-L345' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7a478d7d12438c6375ee4bc20a9f74ff1d6f573d/src/Unitful.jl#L331-L359' class='documenter-source'>source</a><br>
 

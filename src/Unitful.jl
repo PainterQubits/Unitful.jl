@@ -20,11 +20,12 @@ export unit, dimension, uconvert, ustrip
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
 export DimensionedQuantity, Quantity
 export DimensionlessQuantity
-export NoUnits
+export NoUnits, NoDims
 
 include("Types.jl")
 include("User.jl")
 const NoUnits = Units{(), Dimensions{()}}()
+const NoDims = Dimensions{()}()
 
 """
 ```
@@ -135,33 +136,46 @@ unit(x::Number)
 ```
 
 Returns a `Unitful.Units{(), Dimensions{()}}` object to indicate that ordinary
-numbers have no units. The unit is displayed as an empty string.
+numbers have no units. This is a singleton, which we export as `NoUnits`.
+The unit is displayed as an empty string.
 
 Examples:
 
 ```jldoctest
 julia> typeof(unit(1.0))
 Unitful.Units{(),Unitful.Dimensions{()}}
+julia> typeof(unit(Float64))
+Unitful.Units{(),Unitful.Dimensions{()}}
+julia> unit(1.0) == NoUnits
+true
 ```
 """
-unit(x::Number) = Units{(), Dimensions{()}}()
+unit(x::Number) = NoUnits
+unit{T<:Number}(x::Type{T}) = NoUnits
 
 """
 ```
 dimension(x::Number)
+dimension{T<:Number}(x::Type{T})
 ```
 
 Returns a `Unitful.Dimensions{()}` object to indicate that ordinary
-numbers are dimensionless. The dimension is displayed as an empty string.
+numbers are dimensionless. This is a singleton, which we export as `NoDims`.
+The dimension is displayed as an empty string.
 
 Examples:
 
 ```jldoctest
 julia> typeof(dimension(1.0))
 Unitful.Dimensions{()}
+julia> typeof(dimension(Float64))
+Unitful.Dimensions{()}
+julia> dimension(1.0) == NoDims
+true
 ```
 """
-dimension(x::Number) = Dimensions{()}()
+dimension(x::Number) = NoDims
+dimension{T<:Number}(x::Type{T}) = NoDims
 
 """
 ```
@@ -396,7 +410,7 @@ true
     if a0 <: Units
         T = Units
         d = (c...)
-        f = typeof(mapreduce(dimension,*,Dimensions{()}(),c))
+        f = typeof(mapreduce(dimension,*,NoDims,c))
         :(($T){$d,$f}())
     else
         T = Dimensions
@@ -524,7 +538,7 @@ end
     tup = x.parameters[1]
     length(tup) == 0 && return :(x)
     tup2 = map(x->x^-1,tup)
-    D = typeof(mapreduce(dimension, *, Dimensions{()}(), tup2))
+    D = typeof(mapreduce(dimension, *, NoDims, tup2))
     y = *(Units{tup2, D}())
     :($y)
 end
@@ -546,7 +560,7 @@ end
 function ^{U,D}(x::Units{U,D}, y::Integer)
     utup = map(a->a^y, U)
     *(Units{utup, ()}()) # dimensions get reconstructed anyway
-    # would use mapreduce(dimension, *, Dimensions{()}(), utup)
+    # would use mapreduce(dimension, *, NoDims, utup)
 end
 
 function ^{U,D}(x::Units{U,D}, y)
@@ -648,15 +662,18 @@ function isapprox{T1,D,U1,T2,U2}(x::AbstractArray{Quantity{T1,D,U1}},
         return all(ab -> isapprox(ab[1], ab[2]; rtol=rtol, atol=atol), zip(x, y))
     end
 end
-isapprox{S<:Quantity,T<:Quantity}(x::AbstractArray{S},
-    y::AbstractArray{T}; kwargs...) = false
-isapprox{T1,U1,N<:Number}(x::AbstractArray{DimensionlessQuantity{T1,U1}},
-    y::AbstractArray{N}; kwargs...) =
+isapprox{S<:Quantity,T<:Quantity}(x::AbstractArray{S}, y::AbstractArray{T};
+    kwargs...) = false
+function isapprox{S<:Quantity,N<:Number}(x::AbstractArray{S}, y::AbstractArray{N};
+    kwargs...)
+    if dimension(N) == dimension(S)
         isapprox(map(x->uconvert(NoUnits,x),x),y; kwargs...)
-isapprox{T1,U1,N<:Number}(y::AbstractArray{N},
-    x::AbstractArray{DimensionlessQuantity{T1,U1}}; kwargs...) =
-        isapprox(x,y; kwargs...)
-
+    else
+        false
+    end
+end
+isapprox{S<:Quantity,N<:Number}(y::AbstractArray{N}, x::AbstractArray{S};
+    kwargs...) = isapprox(x,y; kwargs...)
 
 =={S,T,D,U}(x::Quantity{S,D,U}, y::Quantity{T,D,U}) = (x.val == y.val)
 function ==(x::Quantity, y::Quantity)
@@ -665,8 +682,8 @@ function ==(x::Quantity, y::Quantity)
 end
 
 function ==(x::Quantity, y::Number)
-    if dimension(x) == Dimensions{()}()
-        uconvert(Units{(), Dimensions{()}}(), x) == y
+    if dimension(x) == NoDims
+        uconvert(NoUnits, x) == y
     else
         false
     end
@@ -705,8 +722,8 @@ isnan(x::Quantity) = isnan(x.val)
 
 unsigned(x::Quantity) = Quantity(unsigned(x.val), unit(x))
 
-log(x::DimensionlessQuantity) = log(uconvert(Units{(), Dimensions{()}}(), x))
-log10(x::DimensionlessQuantity) = log10(uconvert(Units{(), Dimensions{()}}(), x))
+log(x::DimensionlessQuantity) = log(uconvert(NoUnits, x))
+log10(x::DimensionlessQuantity) = log10(uconvert(NoUnits, x))
 
 real(x::Quantity) = Quantity(real(x.val), unit(x))
 imag(x::Quantity) = Quantity(imag(x.val), unit(x))

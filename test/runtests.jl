@@ -111,13 +111,15 @@ end
 @testset "Unit and dimensional analysis" begin
     @test @inferred(unit(1m^2)) == m^2
     @test @inferred(unit(typeof(1m^2))) == m^2
+    @test @inferred(unit(Float64)) == NoUnits
     @test @inferred(dimension(1m^2)) == 𝐋^2
     @test @inferred(dimension(typeof(1m^2))) == 𝐋^2
+    @test @inferred(dimension(Float64)) == NoDims
     @test @inferred(dimension(m^2)) == 𝐋^2
     @test @inferred(dimension(1m/s)) == 𝐋/𝐓
     @test @inferred(dimension(m/s)) == 𝐋/𝐓
     @test @inferred(dimension(1u"mol")) == 𝐍
-    @test @inferred(dimension(μm/m)) == Unitful.Dimensions{()}()
+    @test @inferred(dimension(μm/m)) == NoDims
     @test dimension([1u"m", 1u"s"]) == [𝐋, 𝐓]
     @test (𝐋/𝐓)^2 == 𝐋^2 / 𝐓^2
     @test isa(m, LengthUnit)
@@ -139,7 +141,7 @@ end
     @test isa(1A, Current)
     @test isa(1K, Temperature)
     @test isa(1cd, Luminosity)
-    @test isa(2π*1.0*rad*m, Length)
+    @test isa(2π*rad*1.0m, Length)
 end
 
 @testset "Mathematics" begin
@@ -399,9 +401,11 @@ end
         end
 
         @testset ">> isapprox on arrays" begin
-            @test !isapprox([1.0u"m"], [1.0u"V"])
-            @test isapprox([1.0u"μm/m"], [1e-6])
-            @test isapprox([1u"cm", 200u"cm"], [0.01u"m", 2.0u"m"])
+            @test !isapprox([1.0m], [1.0V])
+            @test isapprox([1.0μm/m], [1e-6])
+            @test isapprox([1cm, 200cm], [0.01m, 2.0m])
+            @test !isapprox([1.0], [1.0m])
+            @test !isapprox([1.0m], [1.0])
         end
 
         @testset "Unit stripping" begin
