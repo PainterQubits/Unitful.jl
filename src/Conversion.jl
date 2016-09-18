@@ -173,7 +173,7 @@ If `x` is already dimensionless, this is a no-op; if it is not, an
 """
 function convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Quantity)
     if dimension(x) == NoDims
-        x
+        Quantity(T(x.val), U())
     else
         throw(DimensionError())
     end

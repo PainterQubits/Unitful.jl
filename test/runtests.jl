@@ -51,6 +51,8 @@ end
             @test @inferred(float(3m)) === 3.0m
             @test @inferred(Integer(3.0A)) === 3A
             @test Rational(3.0m) === (3//1)*m
+            @test typeof(convert(typeof(0.0°), 90°)) == typeof(0.0°)
+
         end
         @testset ">> Intra-unit conversion" begin
             @test @inferred(uconvert(g,1g)) == 1g
