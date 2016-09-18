@@ -392,8 +392,8 @@ end
             @test typeof([1mm/m] + [1cm/m])          == Array{Rational{Int},1}
             @test @inferred([1mm/m] + [2])           == [2001//1000]
             @test typeof([1mm/m] + [2])              == Array{Rational{Int},1}
-            @test_throws ErrorException [1m] + [2V]
-            @test_throws ErrorException [1] + [1m]
+            @test_throws Unitful.DimensionError [1m] + [2V]
+            @test_throws Unitful.DimensionError [1] + [1m]
         end
 
         @testset ">> Element-wise addition" begin

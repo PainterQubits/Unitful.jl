@@ -6,7 +6,7 @@ for op in (.+, .-, +, -)
         if S==T   # add or subtract same dimension, get same dimension
             x
         else
-            error("Dimension mismatch.")
+            throw(DimensionError())
         end
     end
     @eval function promote_op{S<:DimensionedUnits,T<:DimensionedUnits}(
@@ -14,7 +14,7 @@ for op in (.+, .-, +, -)
         if dimension(S())==dimension(T())
             promote_type(S,T)
         else
-            error("Dimension mismatch.")
+            throw(DimensionError())
         end
     end
 end
