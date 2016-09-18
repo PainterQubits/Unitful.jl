@@ -263,6 +263,8 @@ end
     @test @inferred(real((3+4im)V)) == 3V
     @test @inferred(imag(3m)) == 0m
     @test @inferred(imag((3+4im)V)) == 4V
+    @test @inferred(conj(3m)) == 3m
+    @test @inferred(conj((3+4im)V)) == (3-4im)V
 end
 
 @testset "Collections" begin
