@@ -3,8 +3,7 @@
 # Unitful.jl
 
 **This package has recently undergone major changes. Existing users
-are advised to read the documentation. Unitful will be published
-and tagged shortly after Julia 0.5.0 is released.**
+are advised to read the documentation.**
 
 Unitful is a Julia package for physical units. Available
 [here](https://github.com/ajkeller34/Unitful.jl). Inspired by:
@@ -28,8 +27,8 @@ Available [here](http://ajkeller34.github.io/Unitful.jl).
 Tested on:
 
 ```
-Julia Version 0.5.0-rc4+0
-Commit 9c76c3e (2016-09-09 01:43 UTC)
+Julia Version 0.5.0
+Commit 3c9d753 (2016-09-19 18:14 UTC)
 Platform Info:
   System: Darwin (x86_64-apple-darwin13.4.0)
   CPU: Intel(R) Core(TM) i7-4870HQ CPU @ 2.50GHz
