@@ -139,5 +139,7 @@ end
 
 # ---------------------------------------------------
 
-using RecipesBase
-@recipe f{Q<:Quantity}(::Type{Q}, q::Q) = (vi -> vi.val, vi -> string(vi * unit(Q)))
+try
+    @eval import RecipesBase
+    @eval RecipesBase.@recipe f{Q<:Quantity}(::Type{Q}, q::Q) = (vi -> vi.val, vi -> string(vi * unit(Q)))
+end
