@@ -34,7 +34,7 @@ abstract DimensionedQuantity{D} <: Number
 Super-type of [`Unitful.Quantity`](types.md#Unitful.Quantity) types. Used in dispatch on quantities of a particular dimension, without having to specify the units. The type parameter `D <:` [`Unitful.Dimensions`](types.md#Unitful.Dimensions).
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Types.jl#L87-L95' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3d20c805ba0a92232af277c60d95dd0144073b9e/src/Types.jl#L87-L95' class='documenter-source'>source</a><br>
 
 <a id='Unitful.Quantity' href='#Unitful.Quantity'>#</a>
 **`Unitful.Quantity`** &mdash; *Type*.
@@ -50,7 +50,7 @@ A quantity, which has dimensions and units specified in the type signature. The 
 The type parameter `T` represents the numeric backing type. The type parameters `D <:` [`Unitful.Dimensions`](types.md#Unitful.Dimensions) and `U <:` [`Unitful.Units`](types.md#Unitful.Units). Of course, the dimensions follow from the units, but the type parameters are kept separate to permit convenient dispatch on dimensions.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Types.jl#L98-L111' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3d20c805ba0a92232af277c60d95dd0144073b9e/src/Types.jl#L98-L111' class='documenter-source'>source</a><br>
 
 <a id='Unitful.DimensionlessQuantity' href='#Unitful.DimensionlessQuantity'>#</a>
 **`Unitful.DimensionlessQuantity`** &mdash; *Constant*.
@@ -71,7 +71,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Types.jl#L118-L132' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3d20c805ba0a92232af277c60d95dd0144073b9e/src/Types.jl#L118-L132' class='documenter-source'>source</a><br>
 
 
 <a id='Units-and-dimensions-1'></a>
@@ -90,7 +90,7 @@ abstract Unitlike
 Abstract container type for units or dimensions, which need similar manipulations for collecting powers and sorting. This abstract type is probably not strictly necessary but facilitates code reuse (see [`*(::Unitlike,::Unitlike...)`](manipulations.md#Base.:*-Tuple{Unitful.Unitlike,Vararg{Unitful.Unitlike,N}})).
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Types.jl#L44-L53' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3d20c805ba0a92232af277c60d95dd0144073b9e/src/Types.jl#L44-L53' class='documenter-source'>source</a><br>
 
 <a id='Unitful.Units' href='#Unitful.Units'>#</a>
 **`Unitful.Units`** &mdash; *Type*.
@@ -104,7 +104,7 @@ immutable Units{N,D} <: DimensionedUnits{D}
 Instances of this object represent units, possibly combinations thereof. Example: the unit `m` is actually a singleton of type `Units{(Unit{:Meter}(0,1),), typeof(u"𝐋")}`. After dividing by `s`, a singleton of type `Units{(Unit{:Meter}(0,1),Unit{:Second}(0,-1)), typeof(u"𝐋")}` is returned.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Types.jl#L65-L75' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3d20c805ba0a92232af277c60d95dd0144073b9e/src/Types.jl#L65-L75' class='documenter-source'>source</a><br>
 
 <a id='Unitful.Dimensions' href='#Unitful.Dimensions'>#</a>
 **`Unitful.Dimensions`** &mdash; *Type*.
@@ -118,7 +118,7 @@ immutable Dimensions{N} <: Unitlike
 Instances of this object represent dimensions, possibly combinations thereof.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Types.jl#L78-L84' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3d20c805ba0a92232af277c60d95dd0144073b9e/src/Types.jl#L78-L84' class='documenter-source'>source</a><br>
 
 <a id='Unitful.Unit' href='#Unitful.Unit'>#</a>
 **`Unitful.Unit`** &mdash; *Type*.
@@ -135,7 +135,7 @@ end
 Description of a physical unit, including powers-of-ten prefixes and powers of the unit. The name of the unit `U` is a symbol, e.g. `:Meter`, `:Second`, `:Gram`, etc. `Unit{U}` objects are collected in a tuple, which is used for the type parameter `N` of a [`Units{N,D}`](types.md#Unitful.Units) object.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Types.jl#L26-L38' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3d20c805ba0a92232af277c60d95dd0144073b9e/src/Types.jl#L26-L38' class='documenter-source'>source</a><br>
 
 <a id='Unitful.Dimension' href='#Unitful.Dimension'>#</a>
 **`Unitful.Dimension`** &mdash; *Type*.
@@ -157,5 +157,5 @@ Description of a dimension. The name of the dimension `D` is a symbol, e.g. `:Le
 The two-argument constructor ignores the first argument and is used only in the function [`*(::Unitlike,::Unitlike...)`](manipulations.md#Base.:*-Tuple{Unitful.Unitlike,Vararg{Unitful.Unitlike,N}}).
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Types.jl#L2-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3d20c805ba0a92232af277c60d95dd0144073b9e/src/Types.jl#L2-L19' class='documenter-source'>source</a><br>
 

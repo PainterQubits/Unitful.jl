@@ -226,12 +226,17 @@ macro u_str(unit)
 
 String macro to easily recall units, dimensions, or quantities defined in the
 Unitful module, which does not export such things to avoid namespace pollution.
+Note that for now, what goes inside must be parsable as a valid Julia expression.
+In other words, u"N m" will fail if you intended to write u"N*m".
 
 Examples:
 
 ```jldoctest
 julia> 1.0u"m/s"
 1.0 m s^-1
+
+julia> 1.0u"N*m"
+1.0 m N
 
 julia> typeof(1.0u"m/s")
 Quantity{Float64, Dimensions:{𝐋 𝐓^-1}, Units:{m s^-1}}

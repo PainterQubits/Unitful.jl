@@ -23,8 +23,7 @@ We want to support not only SI units but also any other unit system. We also wan
 
 
   * This package requires Julia 0.5. Older versions will not be supported.
-  * `Pkg.clone("https://github.com/ajkeller34/Unitful.jl.git")`
-  * `Pkg.build("Unitful")`
+  * `Pkg.add("Unitful")`
   * `using Unitful`
 
 

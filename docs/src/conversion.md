@@ -15,6 +15,26 @@ of figuring out which type is appropriate for representing the desired units.
 uconvert
 ```
 
+Since objects are callable, we can also make [`Unitful.Units`](@ref) callable
+with a `Number` as an argument, for a unit conversion shorthand:
+
+```jldoctest
+julia> u"cm"(1u"m")
+100//1 cm
+```
+
+This syntax is a little confusing, but becomes appealing with the function
+chaining operator `|>`:
+
+```jldoctest
+julia> 1u"m" |> u"cm"
+100//1 cm
+```
+
+Note that since [`Unitful.Units`](@ref) objects have no fields, we don't have
+to worry about ambiguity with constructor calls. This way of converting units
+results in behavior identical to calling [`uconvert`](@ref).
+
 ### Dimensionless quantities
 
 For dimensionless quantities, `uconvert` can be used to strip the units without

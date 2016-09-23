@@ -29,7 +29,7 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3d20c805ba0a92232af277c60d95dd0144073b9e/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 ```
@@ -39,7 +39,28 @@ uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},
 In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3d20c805ba0a92232af277c60d95dd0144073b9e/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
+
+
+Since objects are callable, we can also make [`Unitful.Units`](types.md#Unitful.Units) callable with a `Number` as an argument, for a unit conversion shorthand:
+
+
+```jlcon
+julia> u"cm"(1u"m")
+100//1 cm
+```
+
+
+This syntax is a little confusing, but becomes appealing with the function chaining operator `|>`:
+
+
+```jlcon
+julia> 1u"m" |> u"cm"
+100//1 cm
+```
+
+
+Note that since [`Unitful.Units`](types.md#Unitful.Units) objects have no fields, we don't have to worry about ambiguity with constructor calls. This way of converting units results in behavior identical to calling [`uconvert`](conversion.md#Unitful.uconvert).
 
 
 <a id='Dimensionless-quantities-1'></a>

@@ -27,6 +27,8 @@ include("User.jl")
 const NoUnits = Units{(), Dimensions{()}}()
 const NoDims = Dimensions{()}()
 
+(y::Units)(x::Number) = uconvert(y,x)
+
 """
 ```
 type DimensionError <: Exception end

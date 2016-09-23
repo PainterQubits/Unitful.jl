@@ -21,8 +21,7 @@ that are found in Julia base.
 ## Quick start
 
 - This package requires Julia 0.5. Older versions will not be supported.
-- `Pkg.clone("https://github.com/ajkeller34/Unitful.jl.git")`
-- `Pkg.build("Unitful")`
+- `Pkg.add("Unitful")`
 - `using Unitful`
 
 In `deps/Defaults.jl` of the package directory, you can see what is defined by
