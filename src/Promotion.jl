@@ -65,8 +65,21 @@ function promote_op{R<:Number,S,D,U}(op, ::Type{R}, ::Type{Quantity{S,D,U}})
         Quantity{numtype, dimtype, unittype}
     end
 end
-promote_op{R<:Number,S,D,U}(op, x::Type{Quantity{S,D,U}}, y::Type{R}) =
-    promote_op(op, y, x)
+
+function promote_op{R<:Number,S,D,U}(op, x::Type{Quantity{S,D,U}}, y::Type{R})
+    unittype = promote_op(op, U, typeof(NoUnits))
+    numtype = if D == Dimensions{()}
+        promote_type(R, S, typeof(convfact(U(),NoUnits)))
+    else
+        promote_type(R, S)
+    end
+    if unittype == typeof(NoUnits)
+        numtype
+    else
+        dimtype = typeof(dimension(unittype()))
+        Quantity{numtype, dimtype, unittype}
+    end
+end
 
 # dim'd, dim'd
 promote_op{D1,D2}(op, ::Type{DimensionedQuantity{D1}},
@@ -90,22 +103,36 @@ function promote_op{R<:Units,S,D,U}(op, ::Type{Quantity{S,D,U}}, ::Type{R})
         Quantity{numtype, dimtype, unittype}
     end
 end
-promote_op{R<:Units,S,D,U}(op, x::Type{R}, y::Type{Quantity{S,D,U}}) =
-    promote_op(op, y, x)
+function promote_op{R<:Units,S,D,U}(op, x::Type{R}, y::Type{Quantity{S,D,U}})
+    numtype = S
+    unittype = typeof(op(R(), U()))
+    if unittype == typeof(NoUnits)
+        numtype
+    else
+        dimtype = typeof(dimension(unittype()))
+        Quantity{numtype, dimtype, unittype}
+    end
+end
 
 # units, number
-function promote_op{R<:Number,S<:Units}(op, x::Type{R}, y::Type{S})
+function promote_op{R<:Number,S<:Units}(op, ::Type{R}, ::Type{S})
     unittype = typeof(op(NoUnits, S()))
     if unittype == typeof(NoUnits)
         R
     else
         dimtype = typeof(dimension(unittype()))
-        Quantity{x, dimtype, unittype}
+        Quantity{R, dimtype, unittype}
     end
 end
-promote_op{R<:Number,S<:Units}(op, x::Type{S}, y::Type{R}) =
-    promote_op(op, y, x)
-
+function promote_op{R<:Number,S<:Units}(op, ::Type{S}, ::Type{R})
+    unittype = typeof(op(S(), NoUnits))
+    if unittype == typeof(NoUnits)
+        R
+    else
+        dimtype = typeof(dimension(unittype()))
+        Quantity{R, dimtype, unittype}
+    end
+end
 # ------ promote_rule ------
 
 # quantity, quantity (different dims)

@@ -252,7 +252,7 @@ end
 
 @testset "Sgn, abs, &c." begin
     @test @inferred(abs(3V+4V*im)) == 5V
-    @test norm(3V+4V*im) == 5V  # FIXME: add @inferred
+    @test norm(3V+4V*im) == 5V  # TODO: add @inferred
     @test @inferred(abs2(3V+4V*im)) == 25V^2
     @test @inferred(abs(-3m)) == 3m
     @test @inferred(abs2(-3m)) == 9m^2
@@ -380,6 +380,8 @@ end
             @test @inferred(V.*eye(2))                 == [1.0V 0.0V; 0.0V 1.0V]
             @test @inferred([1V 2V; 0V 3V].*2)         == [2V 4V; 0V 6V]
             @test @inferred([1V, 2V] .* [true, false]) == [1V, 0V]
+            @test @inferred([1V, 2.0V] ./ 3)           == [1V/3, 2V/3]
+            @test @inferred([1V, 2.0V] ./ [3m, 4m])    == [1V/(3m), 0.5V/m]
         end
 
         @testset ">> Array addition" begin
