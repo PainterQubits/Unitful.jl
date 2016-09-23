@@ -291,8 +291,7 @@
 <h2 id="quick-start">Quick start</h2>
 <ul>
 <li>This package requires Julia 0.5. Older versions will not be supported.</li>
-<li><code>Pkg.clone("https://github.com/ajkeller34/Unitful.jl.git")</code></li>
-<li><code>Pkg.build("Unitful")</code></li>
+<li><code>Pkg.add("Unitful")</code></li>
 <li><code>using Unitful</code></li>
 </ul>
 <p>In <code>deps/Defaults.jl</code> of the package directory, you can see what is defined by default. Feel free to edit this file to suit your needs. The Unitful package will need to be reloaded for changes to take place. To recover the "factory  defaults," delete <code>deps/Defaults.jl</code> and run <code>Pkg.build("Unitful")</code> again.</p>

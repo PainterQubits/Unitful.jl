@@ -306,13 +306,26 @@
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3d20c805ba0a92232af277c60d95dd0144073b9e/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},U})
 </pre></div>
 
 
 <p>In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1a45d2ccd5780c6088e83a44288c09c9d64b9564/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3d20c805ba0a92232af277c60d95dd0144073b9e/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br></p>
+<p>Since objects are callable, we can also make <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> callable with a <code>Number</code> as an argument, for a unit conversion shorthand:</p>
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">u</span><span class="s">&quot;cm&quot;</span><span class="p">(</span><span class="mi">1</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">)</span>
+<span class="go">100//1 cm</span>
+</pre></div>
+
+
+<p>This syntax is a little confusing, but becomes appealing with the function chaining operator <code>|&gt;</code>:</p>
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="mi">1</span><span class="n">u</span><span class="s">&quot;m&quot;</span> <span class="o">|&gt;</span> <span class="n">u</span><span class="s">&quot;cm&quot;</span>
+<span class="go">100//1 cm</span>
+</pre></div>
+
+
+<p>Note that since <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> objects have no fields, we don't have to worry about ambiguity with constructor calls. This way of converting units results in behavior identical to calling <a href="./#Unitful.uconvert"><code>uconvert</code></a>.</p>
 <p><a id='Dimensionless-quantities-1'></a></p>
 <h3 id="dimensionless-quantities">Dimensionless quantities</h3>
 <p>For dimensionless quantities, <code>uconvert</code> can be used to strip the units without losing power-of-ten information:</p>
