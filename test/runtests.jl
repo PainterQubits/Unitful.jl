@@ -44,6 +44,10 @@ end
         @test @inferred(ustrip(3.0m)) === 3.0
         @test convert(typeof(1mm/m),3) == 3000mm/m
         @test convert(Int, 1m/mm) === 1000
+
+        # Issue 26
+        @unit altL "altL" altLiter 1000*cm^3 true
+        @test Float64(1altL/cm^3) === 1000.0
     end
 
     @testset "> Unitful ↔ unitful conversion" begin

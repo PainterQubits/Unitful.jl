@@ -267,7 +267,7 @@ function basefactorhelper(inex, ex, t, p)
     can_exact &= isinteger(p)
 
     if can_exact
-        (inex^p, (ex//1*10^t)^p)
+        (inex^p, (ex//1*(10//1)^t)^p)
     else
         ((inex * ex * 10.0^t)^p, 1)
     end
