@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/ajkeller34/Unitful.jl.svg?branch=master)](https://travis-ci.org/ajkeller34/Unitful.jl)
-
+[![codecov](https://codecov.io/gh/ajkeller34/Unitful.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ajkeller34/Unitful.jl)
 # Unitful.jl
 
 **This package has recently undergone major changes. Existing users
