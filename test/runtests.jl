@@ -386,6 +386,9 @@ end
             @test @inferred([1V, 2V] .* [true, false]) == [1V, 0V]
             @test @inferred([1.0m, 2.0m] ./ 3)         == [1m/3, 2m/3]
             @test @inferred([1V, 2.0V] ./ [3m, 4m])    == [1V/(3m), 0.5V/m]
+
+            @test @inferred([1, 2]kg)                  == [1, 2] * kg
+            @test @inferred([1, 2]kg .* [2, 3]kg^-1)   == [2, 6]
         end
 
         @testset ">> Array addition" begin
