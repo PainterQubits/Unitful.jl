@@ -349,6 +349,12 @@ end
     #         @test isa(collect(1.0m:2m:10m), Array{typeof(1.0m),1})
     #         @test isa(collect(linspace(1.0m,10.0m,5)), Array{typeof(1.0m),1})
     #     end
+
+        @testset ">> unit multiplication" begin
+            @test @inferred((1:5)*mm) === 1mm:1mm:5mm
+            @test @inferred((1:2:5)*mm) === 1mm:2mm:5mm
+            @test @inferred((1.0:2.0:5.01)*mm) === 1.0mm:2.0mm:5.0mm
+        end
     end
 
     @testset "> Arrays" begin

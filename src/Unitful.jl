@@ -331,6 +331,9 @@ end
 # Kind of weird, but okay, no need to make things noncommutative.
 *(x::Units, y::Number) = *(y,x)
 
+*(r::Range, y::Units) = range(first(r)*y, step(r)*y, length(r))
+*(r::Range, y::Units, z::Units...) = *(x, *(y,z...))
+
 # These six are defined for use in `*(a0::Unitlike, a::Unitlike...)`
 unit{S}(x::Unit{S}) = S
 unit{S}(x::Dimension{S}) = S
