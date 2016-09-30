@@ -475,7 +475,7 @@ end
 .\(X::AbstractArray, y::Units) =
     reshape([ x .\ y for x in X ], size(X))
 
-for f in (:.*,) # looked in arraymath.jl for similar code
+for f in (:.*, :*) # looked in arraymath.jl for similar code
     @eval begin
         function ($f){T}(A::Units, B::AbstractArray{T})
             F = similar(B, promote_op($f,typeof(A),T))
