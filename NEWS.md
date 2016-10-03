@@ -8,9 +8,9 @@
  - Added remaining SI units to the factory defaults: `sr` (steradian), `lm`
    (luminous flux), `lx` (illuminance), `Bq` (becquerel), `Gy` (gray),
    `Sv` (sievert), `kat` (katal).
- - Simplify array creation, as in `[1, 2]u"km"` (#29)
- - Support multiplying ranges by units, as in `(1:3)*mm` (#28)
- - Bug fix (#26)
+ - Simplify array creation, as in `[1, 2]u"km"` [#29](https://github.com/ajkeller34/Unitful.jl/pull/29)
+ - Support multiplying ranges by units, as in `(1:3)*mm` [#28](https://github.com/ajkeller34/Unitful.jl/pull/28)
+ - Bug fix [#26](https://github.com/ajkeller34/Unitful.jl/issues/26)
 
 - v0.0.2
  - Bug fixes (`[1.0m, 2.0m] ./ 3` would throw a `Unitful.DimensionError()`).
