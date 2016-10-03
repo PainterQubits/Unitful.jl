@@ -843,6 +843,8 @@ offsettemp(::Unit) = 0
 include("Display.jl")
 include("Promotion.jl")
 include("Conversion.jl")
+include("fastmath.jl")
+
 
 defaults()
 end
