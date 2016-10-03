@@ -16,6 +16,8 @@ import FastMath: @fastmath,
 
 FloatTypes = Union{Quantity{Float32}, Quantity{Float64}}
 
+sub_fast{T<:FloatTypes}(x::T) = box(T,Base.neg_float_fast(unbox(T,x)))
+
 add_fast{T<:FloatTypes}(x::T, y::T) =
     box(T,Base.add_float_fast(unbox(T,x), unbox(T,y)))
 sub_fast{T<:FloatTypes}(x::T, y::T) =
@@ -51,3 +53,16 @@ lt_fast{T<:FloatTypes}(x::T, y::T) =
     Base.lt_float_fast(unbox(T,x),unbox(T,y))
 le_fast{T<:FloatTypes}(x::T, y::T) =
     Base.le_float_fast(unbox(T,x),unbox(T,y))
+
+for op in (:+, :-, :*, :/, :(==), :!=, :<, :<=, :cmp, :mod, :rem)
+    op_fast = fast_op[op]
+    @eval begin
+        # fall-back implementation for non-numeric types
+        $op_fast(xs...) = $op(xs...)
+        # type promotion
+        $op_fast(x::Number, y::Number, zs::Number...) =
+            $op_fast(promote(x,y,zs...)...)
+        # fall-back implementation that applies after promotion
+        $op_fast{T<:Number}(x::T,ys::T...) = $op(x,ys...)
+    end
+end
