@@ -1,6 +1,6 @@
 import Base.FastMath
 import Core.Intrinsics
-import FastMath: @fastmath,
+import Base.FastMath: @fastmath,
     add_fast,
     sub_fast,
     mul_fast,
@@ -29,6 +29,7 @@ end
 @generated function div_fast{T<:FloatTypes}(x::T, y::T)
     S = typeof(div(T(1),T(1)))
     :(box(S,Base.div_float_fast(unbox(T,x), unbox(T,y))))
+end
 rem_fast{T<:FloatTypes}(x::T, y::T) =
     box(T,Base.rem_float_fast(unbox(T,x), unbox(T,y)))
 
@@ -57,8 +58,6 @@ le_fast{T<:FloatTypes}(x::T, y::T) =
 for op in (:+, :-, :*, :/, :(==), :!=, :<, :<=, :cmp, :mod, :rem)
     op_fast = fast_op[op]
     @eval begin
-        # fall-back implementation for non-numeric types
-        $op_fast(xs...) = $op(xs...)
         # type promotion
         $op_fast(x::Number, y::Number, zs::Number...) =
             $op_fast(promote(x,y,zs...)...)
