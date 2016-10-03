@@ -1,6 +1,6 @@
 """
 ```
-uconvert{T,U}(a::Units, x::Quantity{T,U})
+uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
 ```
 
 Convert a [`Unitful.Quantity`](@ref) to different units. The conversion will
@@ -27,7 +27,7 @@ end
 
 """
 ```
-uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},U})
+uconvert{T,D,U}(a::Units, x::Quantity{T,D,Units{U,Dimensions{(Dimension{:Temperature}(1),)}}})
 ```
 
 In this method, we are special-casing temperature conversion to respect scale
@@ -35,7 +35,7 @@ offsets, if they do not appear in combination with other dimensions.
 """
 @generated function uconvert{T,D,U}(a::Units,
         x::Quantity{T,D,Units{U,Dimensions{(Dimension{:Temperature}(1),)}}})
-    if a == U
+    if a == typeof(unit(x))
         :(Quantity(x.val, a))
     else
         xunits = x.parameters[3]

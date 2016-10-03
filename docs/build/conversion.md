@@ -14,7 +14,7 @@ Since `convert` in Julia already means something specific (conversion between Ju
 
 
 ```
-uconvert{T,U}(a::Units, x::Quantity{T,U})
+uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
 ```
 
 Convert a [`Unitful.Quantity`](types.md#Unitful.Quantity) to different units. The conversion will fail if the target units `a` have a different dimension than the dimension of the quantity `x`. You can use this method to switch between equivalent representations of the same unit, like `N m` and `J`.
@@ -29,17 +29,17 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/8792f52b387782019e946f56b0520fdc2ff83657/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 ```
-uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},U})
+uconvert{T,D,U}(a::Units, x::Quantity{T,D,Units{U,Dimensions{(Dimension{:Temperature}(1),)}}})
 ```
 
 In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/8792f52b387782019e946f56b0520fdc2ff83657/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
 
 
 Since objects are callable, we can also make [`Unitful.Units`](types.md#Unitful.Units) callable with a `Number` as an argument, for a unit conversion shorthand:

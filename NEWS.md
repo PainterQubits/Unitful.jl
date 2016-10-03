@@ -1,4 +1,5 @@
 - v0.0.3
+ - Bug fix: `uconvert(°C, 0x01°C)` no longer disturbs the numeric type
  - Allow μ-prefixed units to be typed with option-m on a Mac, in addition to
    using Unicode. Previously only `μm` could be typed this way.
  - Include a `baremodule` called `SIUnits` in the factory defaults. You can

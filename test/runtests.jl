@@ -59,11 +59,11 @@ end
 
         end
         @testset ">> Intra-unit conversion" begin
-            @test @inferred(uconvert(g,1g)) == 1g
+            @test @inferred(uconvert(g,1g)) === 1g
             # an essentially no-op uconvert should not disturb numeric type
-            @test @inferred(uconvert(m,0x01*m)) == 0x01*m
+            @test @inferred(uconvert(m,0x01*m)) === 0x01*m
             # test special case of temperature
-            @test uconvert(°C, 0x01*°C) == 0x01*°C
+            @test uconvert(°C, 0x01*°C) === 0x01*°C
             @test 1kg === 1kg
             @test typeof(1m)(1m) === 1m
         end
