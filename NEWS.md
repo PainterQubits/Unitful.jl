@@ -1,3 +1,13 @@
+- v0.0.3
+ - Include a `baremodule` called `SIUnits` in the factory defaults. You can
+   now do `using Unitful.SIUnits` to bring all of the SI units into the calling
+   namespace.
+ - Added units to the factory defaults: `sr` (steradian), `lm` (luminous flux),
+   `lx` (illuminance), `Bq` (becquerel), `Gy` (gray), `Sv` (sievert), `kat` (katal).
+ - Simplify array creation, as in `[1, 2]u"km"` (#29)
+ - Support multiplying ranges by units, as in `(1:3)*mm` (#28)
+ - Bug fix (#26)
+
 - v0.0.2
  - Bug fixes (`[1.0m, 2.0m] ./ 3` would throw a `Unitful.DimensionError()`).
 Promotion still isn't perfect, but it is hard for me to see what `@inferred`

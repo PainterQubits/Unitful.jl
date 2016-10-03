@@ -2,9 +2,6 @@
 [![codecov](https://codecov.io/gh/ajkeller34/Unitful.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ajkeller34/Unitful.jl)
 # Unitful.jl
 
-**This package has recently undergone major changes. Existing users
-are advised to read the documentation.**
-
 Unitful is a Julia package for physical units. Available
 [here](https://github.com/ajkeller34/Unitful.jl). Inspired by:
 
@@ -17,8 +14,6 @@ want to minimize or in some cases eliminate the run-time penalty of units.
 There should be facilities for dimensional analysis. All of this should
 integrate easily with the usual mathematical operations and collections that
 are found in Julia base.
-
-Ranges are not well supported at the moment. This will improve in the future.
 
 ## Documentation
 

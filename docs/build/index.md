@@ -35,7 +35,7 @@ Here is a summary of the defaults file contents:
 
   * Base dimensions like length, mass, time, etc. are defined.
   * Derived dimensions like volume, energy, momentum, etc. are defined.
-  * SI units and their power-of-ten prefixes are defined.
+  * Base and derived SI units with their power-of-ten prefixes are defined.
   * Some other units (imperial units) are defined, without power-of-ten prefixes.
   * Promotion behavior is specified.
 
@@ -48,7 +48,17 @@ Some unit abbreviations conflict with other definitions or syntax:
   * `hr` is used instead of `h`, since `h` is revered as the Planck constant
 
 
-Units, dimensions, and fundamental constants are not exported from Unitful. This is to avoid proliferating symbols in your namespace unnecessarily. You can retrieve them using the [`@u_str`](manipulations.md#Unitful.@u_str) string macro for convenience, or import them from the `Unitful` package to bring them into the namespace.
+<a id='Important-note-on-namespaces-1'></a>
+
+## Important note on namespaces
+
+
+Units, dimensions, and fundamental constants are not exported from Unitful. This is to avoid proliferating symbols in your namespace unnecessarily. You can retrieve them from Unitful in one of three ways:
+
+
+1. Use the [`@u_str`](manipulations.md#Unitful.@u_str) string macro.
+2. Explicitly import from the `Unitful` package to bring specific symbols into the calling namespace.
+3. `using Unitful.SIUnits` will bring all base and derived SI units, with SI prefixes, into the calling namespace. If you have been using the [SIUnits.jl](https://github.com/keno/SIUnits.jl) package, this is not unlike typing `using SIUnits.ShortUnits` with that package.
 
 
 <a id='Usage-examples-1'></a>

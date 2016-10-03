@@ -79,8 +79,9 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         @unit d      "dy"       Day         86400s                  false
         @unit wk     "wk"       Week        604800s                 false
 
-        # Angle
-        @unit rad     "rad"     Radian      1                       false
+        # Angles and solid angles
+        @unit sr      "sr"      Steradian   1                       true
+        @unit rad     "rad"     Radian      1                       true
         @unit °       "°"       Degree      pi/180                  false
         import Base: sin, cos, tan, cot, sec, csc
         for _y in [:sin, :cos, :tan, :cot, :sec, :csc]
@@ -89,7 +90,7 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
 
         # Temperature
         @unit °Ra    "°Ra"      Rankine     (5//9)*K                false
-        @unit °C     "°C"       Celsius     1K                      false
+        @unit °C     "°C"       Celsius     1K                      true
         Unitful.offsettemp(::Unitful.Unit{:Celsius}) = 27315//100
         @unit °F     "°F"       Fahrenheit  (5//9)*K                false
         Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
@@ -110,6 +111,12 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         @unit H      "H"        Henry       1J/(A^2)                true
         @unit T      "T"        Tesla       1kg/(A*s^2)             true
         @unit Wb     "Wb"       Weber       1kg*m^2/(A*s^2)         true
+        @unit lm     "lm"       Lumen       1cd*sr                  true
+        @unit lx     "lx"       Lux         1lm/m^2                 true
+        @unit Bq     "Bq"       Becquerel   1/s                     true
+        @unit Gy     "Gy"       Gray        1J/kg                   true
+        @unit Sv     "Sv"       Sievert     1J/kg                   true
+        @unit kat    "kat"      Katal       1mol/s                  true
 
         # Constants (2014 CODATA values)    (uncertainties in final digits)
         const c0 = 299_792_458*m/s          # exact
@@ -159,6 +166,23 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         promote_rule{S<:InductanceUnit, T<:InductanceUnit}(::Type{S}, ::Type{T}) = typeof(H)
         promote_rule{S<:MagneticFluxUnit, T<:MagneticFluxUnit}(::Type{S}, ::Type{T}) = typeof(Wb)
         promote_rule{S<:BFieldUnit, T<:BFieldUnit}(::Type{S}, ::Type{T}) = typeof(T)
+
+        # `using Unitful.SIUnits` will bring all the base and derived SI units,
+        # with SI prefixes, into the calling namespace.
+        baremodule SIUnits
+            import Unitful
+
+            for p in (:y, :z, :a, :f, :p, :n, :μ, :m, :c, :d,
+                Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
+                for u in (:m, :s, :A, :K, :cd, :g, :mol, :rad, :sr, :Hz, :N,
+                    :Pa, :J, :W, :C, :V, :F, :Ω, :S, :Wb, :T, :H, :°C, :lm, :lx, :Bq,
+                    :Gy, :Sv, :kat)
+                    eval(SIUnits, Expr(:import, :Unitful, Symbol(p,u)))
+                    eval(SIUnits, Expr(:export, Symbol(p,u)))
+                end
+            end
+
+        end
         """)
     end
 end
