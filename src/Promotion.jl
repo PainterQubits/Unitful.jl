@@ -137,7 +137,7 @@ end
 
 # quantity, quantity (different dims)
 promote_rule{S1,S2,D1,D2,U1,U2}(::Type{Quantity{S1,D1,U1}},
-    ::Type{Quantity{S2,D2,U2}}) = Number
+    ::Type{Quantity{S2,D2,U2}}) = Quantity{promote_type(S1,S2)} # was Number
 
 # quantity, quantity (same dims)
 function promote_rule{S1,S2,D,U1,U2}(::Type{Quantity{S1,D,U1}},

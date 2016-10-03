@@ -137,6 +137,22 @@ end
 
 """
 ```
+convert{T}(::Type{Quantity{T}}, x::Number)
+```
+
+Convert the numeric backing type of `x` to `T`. If `x <: Real`, for example,
+this method yields the same result as `convert(T, x)`. If `x <: Quantity{S,D,U}`,
+this method returns a `Quantity{T,D,U}` object.
+
+This method is used in promotion when trying to promote two quantities of
+different dimension.
+"""
+function convert{T}(::Type{Quantity{T}}, x::Number)
+    Quantity(T(ustrip(x)), unit(x))
+end
+
+"""
+```
 convert{D}(::Type{DimensionedQuantity{D}}, x::Quantity)
 ```
 
