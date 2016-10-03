@@ -28,7 +28,7 @@ julia> u"ħ"
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/804076094c23de421317f936fd18769ea64629a0/src/User.jl#L222-L247' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/User.jl#L257-L282' class='documenter-source'>source</a><br>
 
 <a id='Unitful.unit' href='#Unitful.unit'>#</a>
 **`Unitful.unit`** &mdash; *Function*.
@@ -52,7 +52,7 @@ Unitful.Units{(Unitful.Unit{:Meter}(0,1//1),),Unitful.Dimensions{(Unitful.Dimens
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/804076094c23de421317f936fd18769ea64629a0/src/Unitful.jl#L108-L124' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/Unitful.jl#L108-L124' class='documenter-source'>source</a><br>
 
 
 ```
@@ -69,7 +69,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/804076094c23de421317f936fd18769ea64629a0/src/Unitful.jl#L127-L140' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/Unitful.jl#L127-L140' class='documenter-source'>source</a><br>
 
 
 ```
@@ -90,7 +90,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/804076094c23de421317f936fd18769ea64629a0/src/Unitful.jl#L144-L163' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/Unitful.jl#L144-L163' class='documenter-source'>source</a><br>
 
 <a id='Unitful.ustrip' href='#Unitful.ustrip'>#</a>
 **`Unitful.ustrip`** &mdash; *Function*.
@@ -116,7 +116,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/804076094c23de421317f936fd18769ea64629a0/src/Unitful.jl#L41-L65' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/Unitful.jl#L41-L65' class='documenter-source'>source</a><br>
 
 
 ```
@@ -145,7 +145,7 @@ julia> a[1] = 3u"m"; b
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/804076094c23de421317f936fd18769ea64629a0/src/Unitful.jl#L68-L96' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/Unitful.jl#L68-L96' class='documenter-source'>source</a><br>
 
 
 ```
@@ -155,7 +155,41 @@ ustrip{T<:Number}(x::Array{T})
 Fall-back that returns `x`.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/804076094c23de421317f936fd18769ea64629a0/src/Unitful.jl#L99-L105' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/Unitful.jl#L99-L105' class='documenter-source'>source</a><br>
+
+<a id='Unitful.upreferred' href='#Unitful.upreferred'>#</a>
+**`Unitful.upreferred`** &mdash; *Function*.
+
+
+
+```
+upreferred(x::Number)
+```
+
+Unit-convert `x` to units which are preferred for the dimensions of `x`, as specified by the [`@preferunit`](newunits.md#Unitful.@preferunit) macro. If you are using the factory defaults in `deps/Defaults.jl`, this function will unit-convert to a product of powers of base SI units.
+
+
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/User.jl#L127-L136' class='documenter-source'>source</a><br>
+
+
+```
+upreferred(x::Units)
+```
+
+Return units which are preferred for the dimensions of `x`, which may or may not be equal to `x`, as specified by the [`@preferunit`](newunits.md#Unitful.@preferunit) macro. If you are using the factory defaults in `deps/Defaults.jl`, this function will return a product of powers of base SI units.
+
+
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/User.jl#L139-L148' class='documenter-source'>source</a><br>
+
+
+```
+upreferred(x::Dimensions)
+```
+
+Return units which are preferred for dimensions `x`. If you are using the factory defaults in `deps/Defaults.jl`, this function will return a product of powers of base SI units.
+
+
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/User.jl#L151-L159' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{Number}' href='#Unitful.dimension-Tuple{Number}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -181,7 +215,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/804076094c23de421317f936fd18769ea64629a0/src/Unitful.jl#L167-L187' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/Unitful.jl#L167-L187' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{Unitful.Units{U,D}}' href='#Unitful.dimension-Tuple{Unitful.Units{U,D}}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -208,7 +242,7 @@ Unitful.Dimensions{()}
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/804076094c23de421317f936fd18769ea64629a0/src/Unitful.jl#L191-L212' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/Unitful.jl#L191-L212' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{Unitful.Quantity{T,D,U}}' href='#Unitful.dimension-Tuple{Unitful.Quantity{T,D,U}}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -234,7 +268,7 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/804076094c23de421317f936fd18769ea64629a0/src/Unitful.jl#L167-L187' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/Unitful.jl#L167-L187' class='documenter-source'>source</a><br>
 
 
 ```
@@ -254,7 +288,7 @@ Unitful.Dimensions{()}
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/804076094c23de421317f936fd18769ea64629a0/src/Unitful.jl#L215-L233' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/Unitful.jl#L215-L233' class='documenter-source'>source</a><br>
 
 <a id='Unitful.dimension-Tuple{AbstractArray{T<:Unitful.Units,N}}' href='#Unitful.dimension-Tuple{AbstractArray{T<:Unitful.Units,N}}'>#</a>
 **`Unitful.dimension`** &mdash; *Method*.
@@ -268,7 +302,7 @@ dimension{T<:Units}(x::AbstractArray{T})
 Just calls `map(dimension, x)`.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/804076094c23de421317f936fd18769ea64629a0/src/Unitful.jl#L247-L253' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/Unitful.jl#L247-L253' class='documenter-source'>source</a><br>
 
 <a id='Base.:*-Tuple{Unitful.Unitlike,Vararg{Unitful.Unitlike,N}}' href='#Base.:*-Tuple{Unitful.Unitlike,Vararg{Unitful.Unitlike,N}}'>#</a>
 **`Base.:*`** &mdash; *Method*.
@@ -297,5 +331,5 @@ true
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/804076094c23de421317f936fd18769ea64629a0/src/Unitful.jl#L345-L373' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a9861bce98d7bcb4899d947f73cc187f5a0f6390/src/Unitful.jl#L345-L373' class='documenter-source'>source</a><br>
 

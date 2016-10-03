@@ -1,9 +1,12 @@
 - v0.0.3
+ - Allow μ-prefixed units to be typed with option-m on a Mac, in addition to
+   using Unicode. Previously only `μm` could be typed this way.
  - Include a `baremodule` called `SIUnits` in the factory defaults. You can
    now do `using Unitful.SIUnits` to bring all of the SI units into the calling
    namespace.
- - Added units to the factory defaults: `sr` (steradian), `lm` (luminous flux),
-   `lx` (illuminance), `Bq` (becquerel), `Gy` (gray), `Sv` (sievert), `kat` (katal).
+ - Added remaining SI units to the factory defaults: `sr` (steradian), `lm`
+   (luminous flux), `lx` (illuminance), `Bq` (becquerel), `Gy` (gray),
+   `Sv` (sievert), `kat` (katal).
  - Simplify array creation, as in `[1, 2]u"km"` (#29)
  - Support multiplying ranges by units, as in `(1:3)*mm` (#28)
  - Bug fix (#26)

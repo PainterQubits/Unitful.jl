@@ -2,7 +2,7 @@ using Unitful
 using Base.Test
 
 import Unitful: m, ac, g, A, kg, cm, inch, mi, ft, °Ra, °F, °C, μm,
-    s, A, K, mol, cd, rad, V, cm, hr, mm, km, minute, °, J
+    s, A, K, N, mol, cd, rad, V, cm, hr, mm, km, minute, °, J
 
 import Unitful: 𝐋, 𝐓, 𝐍
 
@@ -75,6 +75,9 @@ end
             @test 1/mi == 1//(5280ft)
             @test 1J == 1u"kg*m^2/s^2"
             @test typeof(1cm)(1m) === 100cm
+            @test @inferred(upreferred(N)) == kg*m/s^2
+            @test @inferred(upreferred(dimension(N))) == kg*m/s^2
+            @test upreferred(1N) === (1//1)*kg*m/s^2  # TODO: add @inferred
         end
         @testset ">> Temperature conversion" begin
             # When converting a pure temperature, offsets in temperature are

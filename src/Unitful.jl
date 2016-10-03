@@ -16,7 +16,7 @@ import Base: getindex, eltype, step, last, first, frexp
 import Base: Rational, typemin, typemax
 import Base: steprange_last, unitrange_last, unsigned
 
-export unit, dimension, uconvert, ustrip
+export unit, dimension, uconvert, ustrip, upreferred
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
 export DimensionedQuantity, Quantity
 export DimensionlessQuantity
