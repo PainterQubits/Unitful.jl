@@ -1,3 +1,5 @@
+- v0.0.4 (upcoming)
+ - Support `fma` for quantities
 - v0.0.3
  - Bug fix: `uconvert(°C, 0x01°C)` no longer disturbs the numeric type
  - Allow μ-prefixed units to be typed with option-m on a Mac, in addition to
