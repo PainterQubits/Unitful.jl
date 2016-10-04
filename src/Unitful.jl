@@ -3,7 +3,7 @@ module Unitful
 
 import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, .\, //, ^, .^
 import Base: show, convert
-import Base: abs, abs2, float, inv, sqrt
+import Base: abs, abs2, float, fma, inv, sqrt
 import Base: min, max, floor, ceil, log, log10, real, imag, conj
 
 import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
@@ -588,6 +588,12 @@ end
 ^{T,D,U}(x::Quantity{T,D,U}, y::Real) = Quantity((x.val)^y, U()^y)
 
 # Other mathematical functions
+@inline function fma{T,D,U}(x::Number, y::Quantity{T,D,U}, z::Quantity{T,D,U})
+    c = fma(x, y.val, z.val)
+    Quantity(c, U())
+end
+fma(x::Number, y::Quantity, z::Quantity) = fma(x, promote(y, z)...)
+
 """
 ```
 sqrt(x::Quantity)

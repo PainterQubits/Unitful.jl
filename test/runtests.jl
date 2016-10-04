@@ -170,6 +170,8 @@ end
         @test V*(3+4im) == (3V+4V*im)
         @test (3.0+4.0im)*V == (3+4im)*V
         @test im*V == Complex(0,1)*V
+        @test fma(2.0, 3.0m, 1.0m) == 7.0m
+        @test fma(2.0, 3.0m, 35mm) == 6.035m
     end
 
     @testset "> Addition and subtraction" begin
