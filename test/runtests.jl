@@ -170,8 +170,10 @@ end
         @test V*(3+4im) == (3V+4V*im)
         @test (3.0+4.0im)*V == (3+4im)*V
         @test im*V == Complex(0,1)*V
-        @test fma(2.0, 3.0m, 1.0m) == 7.0m
-        @test fma(2.0, 3.0m, 35mm) == 6.035m
+        @test @inferred(fma(2.0, 3.0m, 1.0m)) === 7.0m
+        @test @inferred(fma(2.0, 3.0m, 35mm)) === 6.035m
+        @test @inferred(fma(2m, 1/m, 3)) === 5
+        @test_throws DimensionError fma(2m, 1/m, 1m)
     end
 
     @testset "> Addition and subtraction" begin

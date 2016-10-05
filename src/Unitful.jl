@@ -593,27 +593,35 @@ end
     Quantity(c, U())
 end
 
-fma(x::Number, y::Quantity, z::Quantity) = _fma(x, promote(y, z)...)
-
-# We also want the following, since you can add dimensionless quantities and Numbers
-fma(x::Number, y::Quantity, z::Number) = _fma(x, promote(y, z)...)
-fma(x::Number, y::Number, z::Quantity) = _fma(x, promote(y, z)...)
+fma(x::Quantity, y::Number, z::Number)     = _fma(x, promote(y,z)...)
+fma(x::Quantity, y::Quantity, z::Number)   = _fma(x, promote(y,z)...)
+fma(x::Quantity, y::Number, z::Quantity)   = _fma(x, promote(y,z)...)
+fma(x::Quantity, y::Quantity, z::Quantity) = _fma(x, promote(y,z)...)
+fma(x::Number, y::Quantity, z::Quantity)   = _fma(x, promote(y,z)...)
+fma(x::Number, y::Quantity, z::Number)     = _fma(x, promote(y,z)...)
+fma(x::Number, y::Number, z::Quantity)     = _fma(x, promote(y,z)...)
 
 # Promotion yielded a common Quantity type
-_fma{T,D,U}(x::Number, y::Quantity{T,D,U}, z::Quantity{T,D,U}) = fma(x,y,z)
+function _fma{T<:Quantity}(x, y::T, z::T)
+    dimension(x) != NoDims && throw(DimensionError())
+    fma(x,y,z)
+end
 
 # Promotion yielded a common type that wasn't a Quantity, e.g.
 # promote(1μm/m, 2.0) == (1.0e-6,2.0)
-_fma(x::Number, y::Number, z::Number) = fma(x,y,z)
+function _fma{T<:Number}(x, y::T, z::T)
+    dimension(x) != NoDims && throw(DimensionError())
+    fma(x,y,z)
+end
 
 # Promotion could not yield a common type, e.g.
-# promote(1.0m, 1.0N) == (1.0m, 1.0N)
-function _fma(x::Number, y, z)
-    if dimension(y) != dimension(z)
-        throw(DimensionError())
-    else
-        error("promotion could not yield a common type.")
-    end
+# promote(1m,1.0N) == (1.0m,1.0N)
+function _fma(x, y, z)
+    dimension(x*y) != dimension(z) && throw(DimensionError())
+    uI = unit(x)*unit(y)
+    uF = promote_type(typeof(uI), typeof(unit(z)))()
+    c = fma(ustrip(x), ustrip(y), ustrip(uconvert(uI, z)))
+    Quantity(c, uF)
 end
 
 sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
