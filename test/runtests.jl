@@ -173,7 +173,13 @@ end
         @test @inferred(fma(2.0, 3.0m, 1.0m)) === 7.0m
         @test @inferred(fma(2.0, 3.0m, 35mm)) === 6.035m
         @test @inferred(fma(2m, 1/m, 3)) === 5
-        @test_throws DimensionError fma(2m, 1/m, 1m)
+        @test @inferred(fma(2m, 1/s, 3m/s)) === 5m/s
+        @test @inferred(fma(2, 1.0μm/m, 1)) === 1.000002
+        @test @inferred(fma(2, 1.0, 1μm/m)) === 2.000001
+        @test fma(2, 1μm/m, 1mm/m) === 501//500000       # TODO: add @inferred
+        @test_throws Unitful.DimensionError fma(2m, 1/m, 1m)
+        @test_throws Unitful.DimensionError fma(2, 1m, 1V)
+
     end
 
     @testset "> Addition and subtraction" begin
