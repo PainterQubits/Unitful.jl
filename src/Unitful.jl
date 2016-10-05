@@ -592,13 +592,30 @@ end
     c = fma(x, y.val, z.val)
     Quantity(c, U())
 end
-fma(x::Number, y::Quantity, z::Quantity) = fma(x, promote(y, z)...)
 
-"""
-```
-sqrt(x::Quantity)
-```
-"""
+fma(x::Number, y::Quantity, z::Quantity) = _fma(x, promote(y, z)...)
+
+# We also want the following, since you can add dimensionless quantities and Numbers
+fma(x::Number, y::Quantity, z::Number) = _fma(x, promote(y, z)...)
+fma(x::Number, y::Number, z::Quantity) = _fma(x, promote(y, z)...)
+
+# Promotion yielded a common Quantity type
+_fma{T,D,U}(x::Number, y::Quantity{T,D,U}, z::Quantity{T,D,U}) = fma(x,y,z)
+
+# Promotion yielded a common type that wasn't a Quantity, e.g.
+# promote(1μm/m, 2.0) == (1.0e-6,2.0)
+_fma(x::Number, y::Number, z::Number) = fma(x,y,z)
+
+# Promotion could not yield a common type, e.g.
+# promote(1.0m, 1.0N) == (1.0m, 1.0N)
+function _fma(x::Number, y, z)
+    if dimension(y) != dimension(z)
+        throw(DimensionError())
+    else
+        error("promotion could not yield a common type.")
+    end
+end
+
 sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
 
 # This is a generated function to ensure type stability and keep `sqrt` fast.
