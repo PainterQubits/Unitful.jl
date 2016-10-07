@@ -597,17 +597,20 @@ fma(x::Number, y::Quantity, z::Quantity)   = _fma(x, promote(y,z)...)
 fma(x::Number, y::Quantity, z::Number)     = _fma(x, promote(y,z)...)
 fma(x::Number, y::Number, z::Quantity)     = _fma(x, promote(y,z)...)
 
-@inline function _fma{T,D,U}(x::Number, y::Quantity{T,D,U}, z::Quantity{T,D,U})
+function _fma{T<:Quantity}(x::Number, y::T, z::T)
     dimension(x) != NoDims && throw(DimensionError())
+    fma(x,y,z)
+end
+
+@inline function fma{T,D,U}(x::Number, y::Quantity{T,D,U}, z::Quantity{T,D,U})
     c = fma(x, y.val, z.val)
     Quantity(c, U())
 end
 
-# # Promotion yielded a common Quantity type
-# @inline function _fma{T<:Quantity}(x, y::T, z::T)
-#     dimension(x) != NoDims && throw(DimensionError())
-#     fma(x,y,z)
-# end
+@inline function fma{T,U}(x::Number, y::Quantity{T,Dimensions{()},U},
+    z::Quantity{T,Dimensions{()},U})
+    fma(promote(x,y,z)...)
+end
 
 # Promotion yielded a common type that wasn't a Quantity, e.g.
 # promote(1μm/m, 2.0) == (1.0e-6,2.0)

@@ -177,6 +177,7 @@ end
         @test @inferred(fma(2m, 1/s, 3m/s)) === 5m/s
         @test @inferred(fma(2, 1.0μm/m, 1)) === 1.000002
         @test @inferred(fma(1.0mm/m, 1.0, 1.0)) === 1.001
+        @test @inferred(fma(1.0, 1.0μm/m, 1.0μm/m)) === 2.0e-6
         @test @inferred(fma(2, 1.0, 1μm/m)) === 2.000001
         @test fma(2, 1μm/m, 1mm/m) === 501//500000       # TODO: add @inferred
         @test_throws Unitful.DimensionError fma(2m, 1/m, 1m)
