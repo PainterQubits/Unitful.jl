@@ -589,39 +589,38 @@ end
 ^{T,D,U}(x::Quantity{T,D,U}, y::Real) = Quantity((x.val)^y, U()^y)
 
 # Other mathematical functions
+fma(x::Quantity, y::Quantity, z::Quantity) = _fma2(x,y,z)
 fma(x::Quantity, y::Number, z::Number)     = _fma(x, promote(y,z)...)
 fma(x::Quantity, y::Quantity, z::Number)   = _fma(x, promote(y,z)...)
 fma(x::Quantity, y::Number, z::Quantity)   = _fma(x, promote(y,z)...)
-fma(x::Quantity, y::Quantity, z::Quantity) = _fma(x, promote(y,z)...)
 fma(x::Number, y::Quantity, z::Quantity)   = _fma(x, promote(y,z)...)
 fma(x::Number, y::Quantity, z::Number)     = _fma(x, promote(y,z)...)
 fma(x::Number, y::Number, z::Quantity)     = _fma(x, promote(y,z)...)
 
-function _fma{T<:Quantity}(x::Number, y::T, z::T)
+# arguments were promoted: use one of the two methods implemented below.
+@inline _fma{T}(x,y::T,z::T) = fma(x,y,z)
+
+# arguments could not be promoted, but we can handle this case as if they were
+# all quantities... I think.
+@inline _fma(x,y,z) = _fma2(x,y,z)
+
+@inline function fma{T,D,U}(x::Number, y::Quantity{T,D,U}, z::Quantity{T,D,U})
     dimension(x) != NoDims && throw(DimensionError())
-    _fma1(x,y,z)
-end
-
-@inline function _fma1{T,D,U}(x::Number, y::Quantity{T,D,U}, z::Quantity{T,D,U})
-    c = fma(x, y.val, z.val)
-    Quantity(c, U())
-end
-
-@inline function _fma1{T,U}(x::Number, y::Quantity{T,Dimensions{()},U},
-    z::Quantity{T,Dimensions{()},U})
-    fma(promote(uconvert(NoUnits, x),y,z)...)
+    if dimension(y) == NoDims
+        fma(promote(uconvert(NoUnits, x),y*unit(x),z)...)
+    else
+        Quantity(fma(x, y.val, z.val), U())
+    end
 end
 
 # Promotion yielded a common type that wasn't a Quantity, e.g.
 # promote(1μm/m, 2.0) == (1.0e-6,2.0)
-@inline function _fma{T<:Number}(x, y::T, z::T)
+@inline function fma{T<:Number}(x::Quantity, y::T, z::T)
     dimension(x) != NoDims && throw(DimensionError())
     fma(promote(x,y,z)...)
 end
 
-# Promotion could not yield a common type, e.g.
-# promote(1m,1.0N) == (1.0m,1.0N)
-@inline function _fma(x, y, z)
+@inline function _fma2(x,y,z)
     dimension(x)*dimension(y) != dimension(z) && throw(DimensionError())
     uI = unit(x)*unit(y)
     uF = promote_type(typeof(uI), typeof(unit(z)))()

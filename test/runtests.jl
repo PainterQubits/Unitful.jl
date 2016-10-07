@@ -170,17 +170,17 @@ end
         @test V*(3+4im) == (3V+4V*im)
         @test (3.0+4.0im)*V == (3+4im)*V
         @test im*V == Complex(0,1)*V
-        @test @inferred(fma(2.0, 3.0m, 1.0m)) === 7.0m
-        @test @inferred(fma(2.0, 3.0m, 35mm)) === 6.035m
-        @test @inferred(fma(2.0m, 1.0/m, 3.0)) === 5.0
-        @test @inferred(fma(2.0cm, 1.0/s, 3.0mm/s)) === .023m/s
-        @test @inferred(fma(2m, 1/s, 3m/s)) === 5m/s
-        @test @inferred(fma(2, 1.0μm/m, 1)) === 1.000002
-        @test @inferred(fma(1.0mm/m, 1.0mm/m, 1.0mm/m)) === 0.001001
-        @test @inferred(fma(1.0mm/m, 1.0, 1.0)) === 1.001
-        @test @inferred(fma(1.0, 1.0μm/m, 1.0μm/m)) === 2.0e-6
-        @test @inferred(fma(2, 1.0, 1μm/m)) === 2.000001
-        @test fma(2, 1μm/m, 1mm/m) === 501//500000       # TODO: add @inferred
+        @test @inferred(fma(2.0, 3.0m, 1.0m)) === 7.0m               # llvm good
+        @test @inferred(fma(2.0, 3.0m, 35mm)) === 6.035m             # llvm good
+        @test @inferred(fma(2.0m, 1.0/m, 3.0)) === 5.0               # llvm good
+        @test @inferred(fma(2.0cm, 1.0/s, 3.0mm/s)) === .023m/s      # llvm good
+        @test @inferred(fma(2m, 1/s, 3m/s)) === 5m/s                 # llvm good
+        @test @inferred(fma(2, 1.0μm/m, 1)) === 1.000002             # llvm good
+        @test @inferred(fma(1.0mm/m, 1.0mm/m, 1.0mm/m)) === 0.001001 # llvm good
+        @test @inferred(fma(1.0mm/m, 1.0, 1.0)) === 1.001            # llvm good
+        # @test fma(1.0, 1.0μm/m, 1.0μm/m) === 2.0μm/m  # TODO: add @inferred  # llvm BAD # returns 2.0e-6
+        @test @inferred(fma(2, 1.0, 1μm/m)) === 2.000001             # llvm BAD
+        @test fma(2, 1μm/m, 1mm/m) === 501//500000       # TODO: add @inferred  # llvm BAD
         @test_throws Unitful.DimensionError fma(2m, 1/m, 1m)
         @test_throws Unitful.DimensionError fma(2, 1m, 1V)
 
