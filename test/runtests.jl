@@ -172,7 +172,8 @@ end
         @test im*V == Complex(0,1)*V
         @test @inferred(fma(2.0, 3.0m, 1.0m)) === 7.0m
         @test @inferred(fma(2.0, 3.0m, 35mm)) === 6.035m
-        @test @inferred(fma(2m, 1/m, 3)) === 5
+        @test @inferred(fma(2.0m, 1.0/m, 3.0)) === 5.0
+        @test @inferred(fma(2.0cm, 1.0/s, 3.0mm/s)) === .023m/s
         @test @inferred(fma(2m, 1/s, 3m/s)) === 5m/s
         @test @inferred(fma(2, 1.0μm/m, 1)) === 1.000002
         @test @inferred(fma(2, 1.0, 1μm/m)) === 2.000001
