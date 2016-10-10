@@ -111,9 +111,9 @@ end
         @test typeof([1.0m,1m]) == Array{typeof(1.0m),1}
         @test typeof([1.0m,1cm]) == Array{typeof(1.0m),1}
         @test typeof([1kg,1g]) == Array{typeof(1kg//1),1}
-        @test typeof([1.0m,1]) == Array{Number,1}
+        @test typeof([1.0m,1]) == Array{Quantity{Float64},1}
         @test typeof([1.0m,1kg]) == Array{Quantity{Float64},1}
-        @test typeof([1.0m/s 1; 1 0]) == Array{Number,2}
+        @test typeof([1.0m/s 1; 1 0]) == Array{Quantity{Float64},2}
     end
 end
 
