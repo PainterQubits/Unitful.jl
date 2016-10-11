@@ -219,6 +219,13 @@ macro prefixed_unit_symbols(symb,name)
         push!(expr.args, ea)
     end
 
+    # These lines allow for μ to be typed with option-m on a Mac.
+    s = Symbol(:µ, symb)
+    u = Unitful.Unit{name}(-6,1//1)
+    push!(expr.args, esc(quote
+        const $s = Unitful.Units{($u,),typeof(dimension($u))}()
+    end))
+    
     expr
 end
 

@@ -70,6 +70,14 @@ else
         @unit ac     "ac"       Acre        (316160658//78125)*m^2  false
         @unit a      "a"        Are         100m^2                  false
 
+        # Volume
+        @unit L      "L"        Liter       0.001m^3                true
+        # l is also an acceptable symbol for liters
+        for p in (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
+            Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
+            eval(Unitful, :(const \$(Symbol(p,:l)) = \$(Symbol(p,:L))))
+        end
+
         # The hectare is used more frequently than any other power-of-ten of an are.
         const ha = Unitful.Units{(Unitful.Unit{:Are}(2,1//1),), typeof(𝐋)}()
 
@@ -117,6 +125,11 @@ else
         @unit Gy     "Gy"       Gray        1J/kg                   true
         @unit Sv     "Sv"       Sievert     1J/kg                   true
         @unit kat    "kat"      Katal       1mol/s                  true
+
+        # Some non-SI pressure units
+        @unit bar    "bar"      Bar         100000Pa                true
+        @unit atm    "atm"      Atmosphere  101325Pa                false
+        @unit Torr   "Torr"     Torr        101325Pa//760           true
 
         # Constants (2014 CODATA values)    (uncertainties in final digits)
         const c0 = 299_792_458*m/s          # exact
@@ -170,14 +183,6 @@ else
 
         const si_no_prefix = (:m, :s, :A, :K, :cd, :g, :mol, :rad, :sr, :Hz, :N, :Pa,
             :J, :W, :C, :V, :F, :Ω, :S, :Wb, :T, :H, :°C, :lm, :lx, :Bq, :Gy, :Sv, :kat)
-
-        # These lines allow for μ to be typed with option-m on a Mac.
-        const macmu = :µ
-        const unicodemu = :μ
-        for u in si_no_prefix
-            eval(Unitful,
-                Expr(:const, Expr(:(=), Symbol(macmu, u), Symbol(unicodemu, u))))
-        end
 
         # `using Unitful.SIUnits` will bring all the base and derived SI units,
         # with SI prefixes, into the calling namespace.
