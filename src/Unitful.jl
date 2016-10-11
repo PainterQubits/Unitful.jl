@@ -590,65 +590,28 @@ end
 
 # Other mathematical functions
 
-function fma{S,D,U}(
-    x::Number, y::Quantity{S,D,U}, z::Quantity{S,D,U})
+# `fma`
+# The idea here is that if the numeric backing types are not the same, they
+# will be promoted to be the same by the generic `fma(::Number, ::Number, ::Number)`
+# method. We then catch the possible results and handle the units logic with one
+# performant method.
+@inline fma{T<:Number}(x::Quantity{T}, y::T, z::T) = _fma(x,y,z)
+@inline fma{T<:Number}(x::T, y::Quantity{T}, z::T) = _fma(x,y,z)
+@inline fma{T<:Number}(x::T, y::T, z::Quantity{T}) = _fma(x,y,z)
+@inline fma{T<:Number}(x::Quantity{T}, y::Quantity{T}, z::T) = _fma(x,y,z)
+@inline fma{T<:Number}(x::T, y::Quantity{T}, z::Quantity{T}) = _fma(x,y,z)
+@inline fma{T<:Number}(x::Quantity{T}, y::T, z::Quantity{T}) = _fma(x,y,z)
+@inline fma{T<:Number}(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}) = _fma(x,y,z)
 
-    dimension(x) != NoDims && throw(DimensionError())
-    Quantity(fma(x,y.val,z.val), U())
-end
-
-function fma{S,D,U1,U2}(
-    x::Number, y::Quantity{S,D,U1}, z::Quantity{S,D,U2})
-
-    dimension(x) != NoDims && throw(DimensionError())
-    fma(x, promote(y,z)...)
-end
-
-function fma{S,D1,D2,U1,U2}(
-    x::Number, y::Quantity{S,D1,U1}, z::Quantity{S,D2,U2})
-
+# It seems like most of this is optimized out by the compiler, including the
+# apparent runtime check of dimensions, which does not appear in @code_llvm.
+@inline function _fma(x,y,z)
     dimension(x) * dimension(y) != dimension(z) && throw(DimensionError())
     uI = unit(x)*unit(y)
     uF = promote_type(typeof(uI), typeof(unit(z)))()
     c = fma(ustrip(x), ustrip(y), ustrip(uconvert(uI, z)))
     uconvert(uF, Quantity(c, uI))
 end
-
-# function fma{S,U}(
-#     x::Number, y::DimensionlessQuantity{S,U}, z::DimensionlessQuantity{S,U})
-#
-#     dimension(x) != NoDims && throw(DimensionError())
-#     fma(promote(uconvert(NoUnits, x), y*unit(x), z)...)
-# end
-
-#
-# # arguments could not be promoted, but we can handle this case as if they were
-# # all quantities... I think.
-# @inline _fma(x,y,z) = _fma2(x,y,z)
-#
-# @inline function fma{T,D,U}(x::Number, y::Quantity{T,D,U}, z::Quantity{T,D,U})
-#     dimension(x) != NoDims && throw(DimensionError())
-#     if dimension(y) == NoDims
-#         fma(promote(uconvert(NoUnits, x),y*unit(x),z)...)
-#     else
-#         Quantity(fma(x, y.val, z.val), U())
-#     end
-# end
-#
-# # Promotion yielded a common type that wasn't a Quantity, e.g.
-# # promote(1μm/m, 2.0) == (1.0e-6,2.0)
-# @inline function fma{T<:Number}(x::Quantity, y::T, z::T)
-#     dimension(x) != NoDims && throw(DimensionError())
-#     fma(promote(x,y,z)...)
-# end
-#
-# fma
-#     dimension(x)*dimension(y) != dimension(z) && throw(DimensionError())
-#     uI = unit(x)*unit(y)
-#     uF = promote_type(typeof(uI), typeof(unit(z)))()
-#     c = fma(ustrip(x), ustrip(y), ustrip(uconvert(uI, z)))
-#     uconvert(uF, Quantity(c, uI))
-# end
 
 sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
 

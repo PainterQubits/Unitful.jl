@@ -1,5 +1,14 @@
 - v0.0.4 (upcoming)
- - Support `fma` for quantities
+ - Support `fma` for `Quantity`s.
+ - Promotion will wrap usual `Number` types in dimensionless, unitless `Quantity`
+   types. With `Quantity`s it is not always possible to promote to a common
+   concrete type, but we can at least ensure that the numeric backing types are
+   all promoted: (`promote(1.0u"m", 1u"N"//2, 0x08) == (1.0 m,0.5 N,8.0)`).
+   The usual outer constructor for `Quantity`s (`Quantity(val::T, unit)`)
+   continues to return a number of type `T` if the unit is `NoUnits`,
+   since most of the time the user does not want a dimensionless, unitless
+   quantity.
+
 - v0.0.3
  - Bug fix: `uconvert(°C, 0x01°C)` no longer disturbs the numeric type
  - Allow μ-prefixed units to be typed with option-m on a Mac, in addition to
