@@ -14,6 +14,7 @@ import Base.FastMath: @fastmath,
     ne_fast,
     lt_fast,
     le_fast,
+    pow_fast,
     fast_op
 
 sub_fast{T<:FloatTypes}(x::Quantity{T}) = typeof(x)(box(T,
@@ -119,7 +120,7 @@ le_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
         U = typeof(unit(x) / unit(y))
         Quantity{T,D,U}(Complex{T}(a.val*real(y.val), -a.val*imag(y.val))) / abs2(y)
     end
-    
+
     eq_fast{T<:ComplexTypes}(x::Quantity{T}, y::Quantity{T}) =
         (real(x)==real(y)) & (imag(x)==imag(y))
     # eq_fast{T<:FloatTypes}(x::Complex{T}, b::T) = #TODO
