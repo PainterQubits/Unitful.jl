@@ -1,4 +1,8 @@
-if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
+if isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
+    warn("Unitful.jl factory defaults have been revised. Please consider ",
+        "backing up the existing file at $(joinpath(dirname(@__FILE__),
+        "Defaults.jl")), then run `Pkg.build(\"Unitful\")`.")
+else
     info("Default units, dimensions, and logic are set in ",
         "$(escape_string(joinpath(dirname(@__FILE__), "Defaults.jl")))")
     open(joinpath(dirname(@__FILE__), "Defaults.jl"), "w") do f
@@ -54,10 +58,6 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         @preferunit cd
         @preferunit kg
         @preferunit mol
-
-        # These lines allow for μ to be typed with option-m on a Mac.
-        # The character encodings are different here so this is less crazy than it looks
-        const µm = μm
 
         # Length
         #key: Symbol Display    Name        Equivalent to           10^n prefixes?
@@ -136,7 +136,8 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         const mn = 1.674_927_471e-27*kg     # (21) neutron rest mass
         const mp = 1.672_621_898e-27*kg     # (21) proton rest mass
         const μB = e*ħ/(2*me)               # Bohr magneton
-        const Na = 6.022_140_857e23/mol       # (74) Avogadro constant
+        const µB = μB
+        const Na = 6.022_140_857e23/mol     # (74) Avogadro constant
         const R  = 8.314_459_8*J/(mol*K)    # (48) molar gass constant
         const k  = 1.380_648_52e-23*(J/K)   # (79) Boltzmann constant
         const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
@@ -150,7 +151,7 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
             dS = dimension(S())
             dT = dimension(T())
             dS != dT && error("Dimensions are unequal in call to `promote_rule`.")
-            typeof(dim2refunits(dS))
+            typeof(upreferred(dS))
         end
 
         # You could also add rules like the following, which will not interfere with
@@ -167,21 +168,31 @@ if !isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
         promote_rule{S<:MagneticFluxUnit, T<:MagneticFluxUnit}(::Type{S}, ::Type{T}) = typeof(Wb)
         promote_rule{S<:BFieldUnit, T<:BFieldUnit}(::Type{S}, ::Type{T}) = typeof(T)
 
+        const si_no_prefix = (:m, :s, :A, :K, :cd, :g, :mol, :rad, :sr, :Hz, :N, :Pa,
+            :J, :W, :C, :V, :F, :Ω, :S, :Wb, :T, :H, :°C, :lm, :lx, :Bq, :Gy, :Sv, :kat)
+
+        # These lines allow for μ to be typed with option-m on a Mac.
+        const macmu = :µ
+        const unicodemu = :μ
+        for u in si_no_prefix
+            eval(Unitful,
+                Expr(:const, Expr(:(=), Symbol(macmu, u), Symbol(unicodemu, u))))
+        end
+
         # `using Unitful.SIUnits` will bring all the base and derived SI units,
         # with SI prefixes, into the calling namespace.
         baremodule SIUnits
             import Unitful
+            import Unitful: si_no_prefix
 
-            for p in (:y, :z, :a, :f, :p, :n, :μ, :m, :c, :d,
+            # The following line has two different character encodings for μ
+            for p in (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
                 Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
-                for u in (:m, :s, :A, :K, :cd, :g, :mol, :rad, :sr, :Hz, :N,
-                    :Pa, :J, :W, :C, :V, :F, :Ω, :S, :Wb, :T, :H, :°C, :lm, :lx, :Bq,
-                    :Gy, :Sv, :kat)
+                for u in si_no_prefix
                     eval(SIUnits, Expr(:import, :Unitful, Symbol(p,u)))
                     eval(SIUnits, Expr(:export, Symbol(p,u)))
                 end
             end
-
         end
         """)
     end

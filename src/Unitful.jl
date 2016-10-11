@@ -3,7 +3,7 @@ module Unitful
 
 import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, .\, //, ^, .^
 import Base: show, convert
-import Base: abs, abs2, float, inv, sqrt
+import Base: abs, abs2, float, fma, inv, sqrt
 import Base: min, max, floor, ceil, log, log10, real, imag, conj
 
 import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
@@ -15,8 +15,9 @@ import Base: length, float, start, done, next, last, one, zero, colon#, range
 import Base: getindex, eltype, step, last, first, frexp
 import Base: Rational, typemin, typemax
 import Base: steprange_last, unitrange_last, unsigned
+import Base: @pure
 
-export unit, dimension, uconvert, ustrip
+export unit, dimension, uconvert, ustrip, upreferred
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
 export DimensionedQuantity, Quantity
 export DimensionlessQuantity
@@ -63,7 +64,7 @@ julia> uconvert(NoUnits, 2u"μm/m") == 2//1000000
 true
 ```
 """
-ustrip(x::Number) = x/unit(x)
+@inline ustrip(x::Number) = x/unit(x)
 
 """
 ```
@@ -94,7 +95,7 @@ julia> a[1] = 3u"m"; b
  2
 ```
 """
-ustrip{T,D,U}(x::Array{Quantity{T,D,U}}) = reinterpret(T, x)
+@inline ustrip{T,D,U}(x::Array{Quantity{T,D,U}}) = reinterpret(T, x)
 
 """
 ```
@@ -103,7 +104,7 @@ ustrip{T<:Number}(x::Array{T})
 
 Fall-back that returns `x`.
 """
-ustrip{T<:Number}(x::Array{T}) = x
+@inline ustrip{T<:Number}(x::Array{T}) = x
 
 """
 ```
@@ -122,7 +123,7 @@ julia> typeof(u"m")
 Unitful.Units{(Unitful.Unit{:Meter}(0,1//1),),Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}
 ```
 """
-unit{T,D,U}(x::Quantity{T,D,U}) = U()
+@inline unit{T,D,U}(x::Quantity{T,D,U}) = U()
 
 """
 ```
@@ -138,7 +139,7 @@ julia> unit(typeof(1.0u"m")) == u"m"
 true
 ```
 """
-unit{T,D,U}(::Type{Quantity{T,D,U}}) = U()
+@inline unit{T,D,U}(::Type{Quantity{T,D,U}}) = U()
 
 
 """
@@ -161,8 +162,8 @@ julia> unit(1.0) == NoUnits
 true
 ```
 """
-unit(x::Number) = NoUnits
-unit{T<:Number}(x::Type{T}) = NoUnits
+@inline unit(x::Number) = NoUnits
+@inline unit{T<:Number}(x::Type{T}) = NoUnits
 
 """
 ```
@@ -185,8 +186,8 @@ julia> dimension(1.0) == NoDims
 true
 ```
 """
-dimension(x::Number) = NoDims
-dimension{T<:Number}(x::Type{T}) = NoDims
+@inline dimension(x::Number) = NoDims
+@inline dimension{T<:Number}(x::Type{T}) = NoDims
 
 """
 ```
@@ -210,7 +211,7 @@ julia> typeof(dimension(u"m/km"))
 Unitful.Dimensions{()}
 ```
 """
-dimension{U,D}(u::Units{U,D}) = D()
+@inline dimension{U,D}(u::Units{U,D}) = D()
 
 """
 ```
@@ -231,9 +232,9 @@ julia> typeof(dimension(1.0u"m/μm"))
 Unitful.Dimensions{()}
 ```
 """
-dimension{D}(x::DimensionedQuantity{D}) = D()
-dimension{D}(x::Type{DimensionedQuantity{D}}) = D()
-dimension{T,D,U}(::Type{Quantity{T,D,Units{U,D}}}) = D()
+@inline dimension{D}(x::DimensionedQuantity{D}) = D()
+@inline dimension{D}(x::Type{DimensionedQuantity{D}}) = D()
+@inline dimension{T,D,U}(::Type{Quantity{T,D,Units{U,D}}}) = D()
 
 """
 ```
@@ -588,11 +589,30 @@ end
 ^{T,D,U}(x::Quantity{T,D,U}, y::Real) = Quantity((x.val)^y, U()^y)
 
 # Other mathematical functions
-"""
-```
-sqrt(x::Quantity)
-```
-"""
+
+# `fma`
+# The idea here is that if the numeric backing types are not the same, they
+# will be promoted to be the same by the generic `fma(::Number, ::Number, ::Number)`
+# method. We then catch the possible results and handle the units logic with one
+# performant method.
+@inline fma{T<:Number}(x::Quantity{T}, y::T, z::T) = _fma(x,y,z)
+@inline fma{T<:Number}(x::T, y::Quantity{T}, z::T) = _fma(x,y,z)
+@inline fma{T<:Number}(x::T, y::T, z::Quantity{T}) = _fma(x,y,z)
+@inline fma{T<:Number}(x::Quantity{T}, y::Quantity{T}, z::T) = _fma(x,y,z)
+@inline fma{T<:Number}(x::T, y::Quantity{T}, z::Quantity{T}) = _fma(x,y,z)
+@inline fma{T<:Number}(x::Quantity{T}, y::T, z::Quantity{T}) = _fma(x,y,z)
+@inline fma{T<:Number}(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}) = _fma(x,y,z)
+
+# It seems like most of this is optimized out by the compiler, including the
+# apparent runtime check of dimensions, which does not appear in @code_llvm.
+@inline function _fma(x,y,z)
+    dimension(x) * dimension(y) != dimension(z) && throw(DimensionError())
+    uI = unit(x)*unit(y)
+    uF = promote_type(typeof(uI), typeof(unit(z)))()
+    c = fma(ustrip(x), ustrip(y), ustrip(uconvert(uI, z)))
+    uconvert(uF, Quantity(c, uI))
+end
+
 sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
 
 # This is a generated function to ensure type stability and keep `sqrt` fast.

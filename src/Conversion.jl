@@ -1,6 +1,6 @@
 """
 ```
-uconvert{T,U}(a::Units, x::Quantity{T,U})
+uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
 ```
 
 Convert a [`Unitful.Quantity`](@ref) to different units. The conversion will
@@ -27,7 +27,7 @@ end
 
 """
 ```
-uconvert{T,U}(a::Units, x::Quantity{T,Dimensions{(Dimension{:Temperature}(1),)},U})
+uconvert{T,D,U}(a::Units, x::Quantity{T,D,Units{U,Dimensions{(Dimension{:Temperature}(1),)}}})
 ```
 
 In this method, we are special-casing temperature conversion to respect scale
@@ -35,7 +35,7 @@ offsets, if they do not appear in combination with other dimensions.
 """
 @generated function uconvert{T,D,U}(a::Units,
         x::Quantity{T,D,Units{U,Dimensions{(Dimension{:Temperature}(1),)}}})
-    if a == U
+    if a == typeof(unit(x))
         :(Quantity(x.val, a))
     else
         xunits = x.parameters[3]
@@ -133,6 +133,25 @@ function convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Number)
     else
         throw(DimensionError())
     end
+end
+
+"""
+```
+convert{T}(::Type{Quantity{T}}, x::Number)
+```
+
+Convert the numeric backing type of `x` to `T`. If `x <: Real`, for example,
+this method yields the same result as `convert(T, x)`. If `x <: Quantity{S,D,U}`,
+this method returns a `Quantity{T,D,U}` object.
+
+This method is used in promotion when trying to promote two quantities of
+different dimension.
+"""
+function convert{T}(::Type{Quantity{T}}, x::Number)
+    Quantity{T,typeof(NoDims),typeof(NoUnits)}(x)
+end
+function convert{T}(::Type{Quantity{T}}, x::Quantity)
+    Quantity(T(ustrip(x)), unit(x))
 end
 
 """

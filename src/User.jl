@@ -126,6 +126,41 @@ end
 
 """
 ```
+upreferred(x::Number)
+```
+
+Unit-convert `x` to units which are preferred for the dimensions of `x`,
+as specified by the [`@preferunit`](@ref) macro. If you are using the factory
+defaults in `deps/Defaults.jl`, this function will unit-convert to a product of
+powers of base SI units.
+"""
+upreferred(x::Number) = uconvert(dim2refunits(dimension(x)), x)
+
+"""
+```
+upreferred(x::Units)
+```
+
+Return units which are preferred for the dimensions of `x`, which may or may
+not be equal to `x`, as specified by the [`@preferunit`](@ref) macro. If you are
+using the factory defaults in `deps/Defaults.jl`, this function will return a
+product of powers of base SI units.
+"""
+upreferred(x::Units) = dim2refunits(dimension(x))
+
+"""
+```
+upreferred(x::Dimensions)
+```
+
+Return units which are preferred for dimensions `x`. If you are
+using the factory defaults in `deps/Defaults.jl`, this function will return a
+product of powers of base SI units.
+"""
+upreferred(x::Dimensions) = dim2refunits(x)
+
+"""
+```
 macro unit(symb,abbr,name,equals,tf)
 ```
 

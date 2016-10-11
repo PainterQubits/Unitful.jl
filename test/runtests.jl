@@ -2,7 +2,7 @@ using Unitful
 using Base.Test
 
 import Unitful: m, ac, g, A, kg, cm, inch, mi, ft, °Ra, °F, °C, μm,
-    s, A, K, mol, cd, rad, V, cm, hr, mm, km, minute, °, J
+    s, A, K, N, mol, cd, rad, V, cm, hr, mm, km, minute, °, J
 
 import Unitful: 𝐋, 𝐓, 𝐍
 
@@ -59,11 +59,11 @@ end
 
         end
         @testset ">> Intra-unit conversion" begin
-            @test @inferred(uconvert(g,1g)) == 1g
+            @test @inferred(uconvert(g,1g)) === 1g
             # an essentially no-op uconvert should not disturb numeric type
-            @test @inferred(uconvert(m,0x01*m)) == 0x01*m
+            @test @inferred(uconvert(m,0x01*m)) === 0x01*m
             # test special case of temperature
-            @test uconvert(°C, 0x01*°C) == 0x01*°C
+            @test uconvert(°C, 0x01*°C) === 0x01*°C
             @test 1kg === 1kg
             @test typeof(1m)(1m) === 1m
         end
@@ -75,6 +75,9 @@ end
             @test 1/mi == 1//(5280ft)
             @test 1J == 1u"kg*m^2/s^2"
             @test typeof(1cm)(1m) === 100cm
+            @test @inferred(upreferred(N)) == kg*m/s^2
+            @test @inferred(upreferred(dimension(N))) == kg*m/s^2
+            @test upreferred(1N) === (1//1)*kg*m/s^2  # TODO: add @inferred
         end
         @testset ">> Temperature conversion" begin
             # When converting a pure temperature, offsets in temperature are
@@ -108,9 +111,9 @@ end
         @test typeof([1.0m,1m]) == Array{typeof(1.0m),1}
         @test typeof([1.0m,1cm]) == Array{typeof(1.0m),1}
         @test typeof([1kg,1g]) == Array{typeof(1kg//1),1}
-        @test typeof([1.0m,1]) == Array{Number,1}
-        @test typeof([1.0m,1kg]) == Array{Number,1}
-        @test typeof([1.0m/s 1; 1 0]) == Array{Number,2}
+        @test typeof([1.0m,1]) == Array{Quantity{Float64},1}
+        @test typeof([1.0m,1kg]) == Array{Quantity{Float64},1}
+        @test typeof([1.0m/s 1; 1 0]) == Array{Quantity{Float64},2}
     end
 end
 
@@ -167,6 +170,20 @@ end
         @test V*(3+4im) == (3V+4V*im)
         @test (3.0+4.0im)*V == (3+4im)*V
         @test im*V == Complex(0,1)*V
+        @test @inferred(fma(2.0, 3.0m, 1.0m)) === 7.0m               # llvm good
+        @test @inferred(fma(2.0, 3.0m, 35mm)) === 6.035m             # llvm good
+        @test @inferred(fma(2.0m, 3.0, 35mm)) === 6.035m             # llvm good
+        @test @inferred(fma(2.0m, 1.0/m, 3.0)) === 5.0               # llvm good
+        @test @inferred(fma(2.0cm, 1.0/s, 3.0mm/s)) === .023m/s      # llvm good
+        @test @inferred(fma(2m, 1/s, 3m/s)) === 5m/s                 # llvm good
+        @test @inferred(fma(2, 1.0μm/m, 1)) === 1.000002             # llvm good
+        @test @inferred(fma(1.0mm/m, 1.0mm/m, 1.0mm/m)) === 0.001001 # llvm good
+        @test @inferred(fma(1.0mm/m, 1.0, 1.0)) ≈ 1.001              # llvm good
+        @test @inferred(fma(1.0, 1.0μm/m, 1.0μm/m)) === 2.0μm/m      # llvm good
+        @test @inferred(fma(2, 1.0, 1μm/m)) === 2.000001             # llvm BAD
+        @test fma(2, 1μm/m, 1mm/m) === 501//500000       # TODO: add @inferred  # llvm BAD
+        @test_throws Unitful.DimensionError fma(2m, 1/m, 1m)
+        @test_throws Unitful.DimensionError fma(2, 1m, 1V)
     end
 
     @testset "> Addition and subtraction" begin
