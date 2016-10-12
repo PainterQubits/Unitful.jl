@@ -15,7 +15,10 @@ import Base.FastMath: @fastmath,
     lt_fast,
     le_fast,
     pow_fast,
-    fast_op
+    sqrt_fast,
+    atan2_fast,
+    fast_op,
+    libm
 
 sub_fast{T<:FloatTypes}(x::Quantity{T}) = typeof(x)(box(T,
     Base.neg_float_fast(unbox(T,x.val))))
@@ -139,5 +142,17 @@ for op in (:+, :-, :*, :/, :(==), :!=, :<, :<=, :cmp, :mod, :rem)
     end
 end
 
-# exponentiation is not type-stable for Quantities anyway
+# exponentiation is not and cannot be type-stable for `Quantity`s,
+# so we will not fastmathify it
 pow_fast{T<:FloatTypes}(x::Quantity{T}, y::Integer) = x^y
+
+sqrt_fast{T<:FloatTypes}(x::Quantity{T}) =
+    Quantity(box(T, Base.sqrt_llvm_fast(unbox(T,x.val))), sqrt(unit(x)))
+
+
+atan2_fast(x::Quantity{Float32,D,U}, y::Quantity{Float32,D,U}) =
+    Quantity{Float32,D,U}(
+        ccall(("atan2f",libm), Float32, (Float32,Float32), x.val, y.val))
+atan2_fast(x::Quantity{Float64,D,U}, y::Quantity{Float64,D,U}) =
+    Quantity{Float64,D,U}(
+        ccall(("atan2",libm), Float64, (Float64,Float64), x.val, y.val))
