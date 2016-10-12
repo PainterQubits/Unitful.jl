@@ -1,6 +1,7 @@
 - v0.0.4 (upcoming)
  - Support relevant `@fastmath` operations for `Quantity`s.
- - Support `fma` for `Quantity`s.
+ - Implement `fma`, `atan2` for `Quantity`s.
+ - Implement `cis` for dimensionless `Quantity`s.
  - Promotion wraps usual `Number` types in dimensionless, unitless `Quantity`
    types when promoted together with dimensionful `Quantity`s.
    With `Quantity`s it is not always possible to promote to a common
@@ -16,6 +17,8 @@
    `deps/Defaults.jl` in the Unitful package directory to get the new units.
  - Two character encodings for `μ` in SI prefixes are now generated automatically
    (some logic moved out of defaults).
+ - Moved definition of `sin`, `cos`, `tan`, `sec`, `csc`, `cot` out of
+   `deps/build.jl` and into `src/Unitful.jl`.
 
 - v0.0.3
  - Bug fix: `uconvert(°C, 0x01°C)` no longer disturbs the numeric type

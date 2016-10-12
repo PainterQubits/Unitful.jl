@@ -86,16 +86,16 @@ le_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
     add_fast{T<:ComplexTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
         Quantity{T,D,U}(T(real(x.val)+real(y.val), imag(x.val)+imag(y.val)))
     add_fast{T<:FloatTypes,D,U}(x::Quantity{Complex{T},D,U}, b::Quantity{T,D,U}) =
-        Quantity{T,D,U}(Complex{T}(real(x.val)+b.val, imag(x.val)))
+        Quantity{Complex{T},D,U}(Complex{T}(real(x.val)+b.val, imag(x.val)))
     add_fast{T<:FloatTypes,D,U}(a::Quantity{T,D,U}, y::Quantity{Complex{T},D,U}) =
-        Quantity{T,D,U}(Complex{T}(a.val+real(y.val), imag(y.val)))
+        Quantity{Complex{T},D,U}(Complex{T}(a.val+real(y.val), imag(y.val)))
 
     sub_fast{T<:ComplexTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
         Quantity{T,D,U}(T(real(x.val)-real(y.val), imag(x.val)-imag(y.val)))
     sub_fast{T<:FloatTypes,D,U}(x::Quantity{Complex{T},D,U}, b::Quantity{T,D,U}) =
-        Quantity{T,D,U}(Complex{T}(real(x.val)-b.val, imag(x.val)))
+        Quantity{Complex{T},D,U}(Complex{T}(real(x.val)-b.val, imag(x.val)))
     sub_fast{T<:FloatTypes,D,U}(a::Quantity{T,D,U}, y::Quantity{Complex{T},D,U}) =
-        Quantity{T,D,U}(Complex{T}(a.val-real(y.val), -imag(y.val)))
+        Quantity{Complex{T},D,U}(Complex{T}(a.val-real(y.val), -imag(y.val)))
 
     function mul_fast{T<:ComplexTypes}(x::Quantity{T}, y::Quantity{T})
         D = typeof(dimension(x) * dimension(y))
@@ -104,13 +104,13 @@ le_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
           real(x.val)*imag(y.val) + imag(x.val)*real(y.val)))
     end
     function mul_fast{T<:FloatTypes}(x::Quantity{Complex{T}}, b::Quantity{T})
-        D = typeof(dimension(x) * dimension(y))
-        U = typeof(unit(x) * unit(y))
+        D = typeof(dimension(x) * dimension(b))
+        U = typeof(unit(x) * unit(b))
         Quantity{Complex{T},D,U}(Complex{T}(real(x.val)*b.val, imag(x.val)*b.val))
     end
     function mul_fast{T<:FloatTypes}(a::Quantity{T}, y::Quantity{Complex{T}})
-        D = typeof(dimension(x) * dimension(y))
-        U = typeof(unit(x) * unit(y))
+        D = typeof(dimension(a) * dimension(y))
+        U = typeof(unit(a) * unit(y))
         Quantity{Complex{T},D,U}(Complex{T}(a.val*real(y.val), a.val*imag(y.val)))
     end
 
@@ -126,8 +126,8 @@ le_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
         Quantity{Complex{T},D,U}(Complex{T}(real(x.val)/b.val, imag(x.val)/b.val))
     end
     function div_fast{T<:FloatTypes}(a::Quantity{T}, y::Quantity{Complex{T}})
-        D = typeof(dimension(a) / dimension(y))
-        U = typeof(unit(a) / unit(y))
+        D = typeof(dimension(a) * dimension(y))
+        U = typeof(unit(a) * unit(y))
         Quantity{Complex{T},D,U}(Complex{T}(a.val*real(y.val),
             -a.val*imag(y.val))) / abs2(y)
     end
@@ -152,7 +152,8 @@ end
 
 # exponentiation is not and cannot be type-stable for `Quantity`s,
 # so we will not fastmathify it
-pow_fast{T<:FloatTypes}(x::Quantity{T}, y::Integer) = x^y
+pow_fast(x::Quantity, y::Integer) = x^y
+pow_fast(x::Quantity, y::Rational) = x^y
 
 sqrt_fast{T<:FloatTypes}(x::Quantity{T}) =
     Quantity(box(T, Base.sqrt_llvm_fast(unbox(T,x.val))), sqrt(unit(x)))
@@ -168,11 +169,9 @@ for f in (:cos, :sin, :tan)
 end
 
 atan2_fast{D,U}(x::Quantity{Float32,D,U}, y::Quantity{Float32,D,U}) =
-    Quantity{Float32,D,U}(
-        ccall(("atan2f",libm), Float32, (Float32,Float32), x.val, y.val))
+    ccall(("atan2f",libm), Float32, (Float32,Float32), x.val, y.val)
 atan2_fast{D,U}(x::Quantity{Float64,D,U}, y::Quantity{Float64,D,U}) =
-    Quantity{Float64,D,U}(
-        ccall(("atan2",libm), Float64, (Float64,Float64), x.val, y.val))
+    ccall(("atan2",libm), Float64, (Float64,Float64), x.val, y.val)
 
 @fastmath begin
     hypot_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =

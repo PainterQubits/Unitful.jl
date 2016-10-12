@@ -5,7 +5,7 @@ import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, .\, //, ^, .^
 import Base: show, convert
 import Base: abs, abs2, float, fma, inv, sqrt
 import Base: min, max, floor, ceil, log, log10, real, imag, conj
-import Base: sin, cos, tan, cot, sec, csc
+import Base: sin, cos, tan, cot, sec, csc, atan2, cis
 
 import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isinf, isfinite, isnan
@@ -632,9 +632,14 @@ end
     :($y)
 end
 
-for _y in (:sin, :cos, :tan, :cot, :sec, :csc)
+for _y in (:sin, :cos, :tan, :cot, :sec, :csc, :cis)
     @eval ($_y)(x::DimensionlessQuantity) = ($_y)(uconvert(NoUnits, x))
 end
+
+atan2(y::Quantity, x::Quantity) = atan2(promote(y,x)...)
+atan2{T,D,U}(y::Quantity{T,D,U}, x::Quantity{T,D,U}) = atan2(y.val,x.val)
+atan2{T,D1,U1,D2,U2}(y::Quantity{T,D1,U1}, x::Quantity{T,D2,U2}) =
+    throw(DimensionError())
 
 for (f, F) in [(:min, :<), (:max, :>)]
     @eval @generated function ($f)(x::Quantity, y::Quantity)
