@@ -233,11 +233,17 @@ end
         @test @inferred(sqrt(m^2)) == m
         @test (2m)^3 == 8*m^3
         @test (8m)^(1//3) == 2*m^(1//3)
+        @test @inferred(cis(90°)) ≈ im
     end
 
     @testset "> Trigonometry" begin
         @test @inferred(sin(90°)) == 1                   # sin(degrees) works
         @test @inferred(cos(π*rad)) == -1                # ...radians work
+        @test @inferred(tan(45°)) ≈ 1
+        @test @inferred(csc(90°)) == 1
+        @test @inferred(sec(0°)) == 1
+        @test @inferred(cot(45°)) ≈ 1
+        @test @inferred(atan2(m*sqrt(3),1m)) ≈ 60°
     end
 
     @testset "> Is functions" begin
