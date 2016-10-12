@@ -317,6 +317,34 @@ end
                 @test !(@fastmath issubnormal(x))
             end
         end
+
+        for T in (Complex64, Complex128, Complex{BigFloat})
+            zero = convert(T, 0)*m
+            one = convert(T, 1)*m + im*eps(real(convert(T,1)))*m
+            two = convert(T, 2)*m + im*m//10
+            three = convert(T, 3)*m + im*m//100
+
+            @test isapprox((@fastmath +two), +two)
+            @test isapprox((@fastmath -two), -two)
+            @test isapprox((@fastmath zero+one+two), zero+one+two)
+            @test isapprox((@fastmath zero-one-two), zero-one-two)
+            @test isapprox((@fastmath one*two*three), one*two*three)
+            @test isapprox((@fastmath one/two/three), one/two/three)
+            @test (@fastmath three == two) == (three == two)
+            @test (@fastmath three != two) == (three != two)
+            @test isnan(@fastmath one/zero)  # must not throw
+            @test isnan(@fastmath -one/zero) # must not throw
+            @test isnan(@fastmath zero/zero) # must not throw
+
+            for x in (zero, two, convert(T, Inf)*m, convert(T, NaN)*m)
+                @test (@fastmath isfinite(x))
+                @test !(@fastmath isinf(x))
+                @test !(@fastmath isnan(x))
+                @test !(@fastmath issubnormal(x))
+            end
+        end
+
+        
     end
 end
 

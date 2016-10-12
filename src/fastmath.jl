@@ -106,29 +106,30 @@ le_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
     function mul_fast{T<:FloatTypes}(x::Quantity{Complex{T}}, b::Quantity{T})
         D = typeof(dimension(x) * dimension(y))
         U = typeof(unit(x) * unit(y))
-        Quantity{T,D,U}(Complex{T}(real(x.val)*b.val, imag(x.val)*b.val))
+        Quantity{Complex{T},D,U}(Complex{T}(real(x.val)*b.val, imag(x.val)*b.val))
     end
     function mul_fast{T<:FloatTypes}(a::Quantity{T}, y::Quantity{Complex{T}})
         D = typeof(dimension(x) * dimension(y))
         U = typeof(unit(x) * unit(y))
-        Quantity{T,D,U}(Complex{T}(a.val*real(y.val), a.val*imag(y.val)))
+        Quantity{Complex{T},D,U}(Complex{T}(a.val*real(y.val), a.val*imag(y.val)))
     end
 
     @inline function div_fast{T<:ComplexTypes}(x::Quantity{T}, y::Quantity{T})
-        D = typeof(dimension(x) / dimension(y))
-        U = typeof(unit(x) / unit(y))
+        D = typeof(dimension(x) * dimension(y))
+        U = typeof(unit(x) * unit(y))
         Quantity{T,D,U}(T(real(x.val)*real(y.val) + imag(x.val)*imag(y.val),
           imag(x.val)*real(y.val) - real(x.val)*imag(y.val))) / abs2(y)
     end
     function div_fast{T<:FloatTypes}(x::Quantity{Complex{T}}, b::Quantity{T})
-        D = typeof(dimension(x) / dimension(y))
-        U = typeof(unit(x) / unit(y))
-        Quantity{T,D,U}(Complex{T}(real(x.val)/b.val, imag(x.val)/b.val))
+        D = typeof(dimension(x) / dimension(b))
+        U = typeof(unit(x) / unit(b))
+        Quantity{Complex{T},D,U}(Complex{T}(real(x.val)/b.val, imag(x.val)/b.val))
     end
     function div_fast{T<:FloatTypes}(a::Quantity{T}, y::Quantity{Complex{T}})
-        D = typeof(dimension(x) / dimension(y))
-        U = typeof(unit(x) / unit(y))
-        Quantity{T,D,U}(Complex{T}(a.val*real(y.val), -a.val*imag(y.val))) / abs2(y)
+        D = typeof(dimension(a) / dimension(y))
+        U = typeof(unit(a) / unit(y))
+        Quantity{Complex{T},D,U}(Complex{T}(a.val*real(y.val),
+            -a.val*imag(y.val))) / abs2(y)
     end
 
     eq_fast{T<:ComplexTypes}(x::Quantity{T}, y::Quantity{T}) =
