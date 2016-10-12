@@ -17,6 +17,12 @@ import Base.FastMath: @fastmath,
     pow_fast,
     sqrt_fast,
     atan2_fast,
+    hypot_fast,
+    max_fast,
+    min_fast,
+    minmax_fast,
+    cis_fast,
+    angle_fast,
     fast_op,
     libm
 
@@ -45,10 +51,10 @@ end
 rem_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
     Quantity{T,D,U}(box(T, Base.rem_float_fast(unbox(T,x.val), unbox(T,y.val))))
 
-add_fast{T<:FloatTypes}(x::Quantity{T}, y::Quantity{T}, zs::Quantity{T}...) =
-    add_fast(add_fast(x, y), zs...)
-mul_fast{T<:FloatTypes}(x::Quantity{T}, y::Quantity{T}, zs::Quantity{T}...) =
-    mul_fast(mul_fast(x, y), zs...)
+add_fast{T<:FloatTypes}(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}, t::Quantity{T}...) =
+    add_fast(add_fast(add_fast(x, y), z), t...)
+mul_fast{T<:FloatTypes}(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}, t::Quantity{T}...) =
+    mul_fast(mul_fast(mul_fast(x, y), z), t...)
 
 @fastmath begin
     cmp_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
@@ -74,7 +80,8 @@ le_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
     conj_fast{T<:ComplexTypes,D,U}(x::Quantity{T,D,U}) =
         Quantity{T,D,U}(T(real(x.val), -imag(x.val)))
     inv_fast{T<:ComplexTypes,D,U}(x::Quantity{T,D,U}) = conj(x) / abs2(x)
-    # sign_fast{T<:ComplexTypes}(x::T) = x == 0 ? float(zero(x)) : x/abs(x) #TODO
+    sign_fast{T<:ComplexTypes,D,U}(x::Quantity{T,D,U}) =
+        x == Quantity(0, U()) ? float(zero(x)) : x/abs(x)
 
     add_fast{T<:ComplexTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
         Quantity{T,D,U}(T(real(x.val)+real(y.val), imag(x.val)+imag(y.val)))
@@ -126,10 +133,10 @@ le_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
 
     eq_fast{T<:ComplexTypes}(x::Quantity{T}, y::Quantity{T}) =
         (real(x)==real(y)) & (imag(x)==imag(y))
-    # eq_fast{T<:FloatTypes}(x::Complex{T}, b::T) = #TODO
-    #     (real(x)==b) & (imag(x)==T(0))
-    # eq_fast{T<:FloatTypes}(a::T, y::Complex{T}) =
-    #     (a==real(y)) & (T(0)==imag(y))
+    eq_fast{T<:FloatTypes}(x::Quantity{Complex{T}}, b::Quantity{T}) =
+        (real(x)==b) & (imag(x)==zero(b))
+    eq_fast{T<:FloatTypes}(a::Quantity{T}, y::Quantity{Complex{T}}) =
+        (a==real(y)) & (zero(a)==imag(y))
 
     ne_fast{T<:ComplexTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = !(x==y)
 end
@@ -149,10 +156,40 @@ pow_fast{T<:FloatTypes}(x::Quantity{T}, y::Integer) = x^y
 sqrt_fast{T<:FloatTypes}(x::Quantity{T}) =
     Quantity(box(T, Base.sqrt_llvm_fast(unbox(T,x.val))), sqrt(unit(x)))
 
+for f in (:cos, :sin, :tan)
+    f_fast = fast_op[f]
+    @eval begin
+        $f_fast{U}(x::DimensionlessQuantity{Float32,U}) =
+            ccall(($(string(f,"f")),libm), Float32, (Float32,), uconvert(x,NoUnits))
+        $f_fast{U}(x::DimensionlessQuantity{Float64,U}) =
+            ccall(($(string(f)),libm), Float64, (Float64,), uconvert(x,NoUnits))
+    end
+end
 
-atan2_fast(x::Quantity{Float32,D,U}, y::Quantity{Float32,D,U}) =
+atan2_fast{D,U}(x::Quantity{Float32,D,U}, y::Quantity{Float32,D,U}) =
     Quantity{Float32,D,U}(
         ccall(("atan2f",libm), Float32, (Float32,Float32), x.val, y.val))
-atan2_fast(x::Quantity{Float64,D,U}, y::Quantity{Float64,D,U}) =
+atan2_fast{D,U}(x::Quantity{Float64,D,U}, y::Quantity{Float64,D,U}) =
     Quantity{Float64,D,U}(
         ccall(("atan2",libm), Float64, (Float64,Float64), x.val, y.val))
+
+@fastmath begin
+    hypot_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
+        sqrt(x*x + y*y)
+
+    # Note: we use the same comparison for min, max, and minmax, so
+    # that the compiler can convert between them
+    max_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
+        ifelse(y > x, y, x)
+    min_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
+        ifelse(y > x, x, y)
+    minmax_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
+        ifelse(y > x, (x,y), (y,x))
+
+    # complex numbers
+
+    cis_fast{T<:FloatTypes,U}(x::DimensionlessQuantity{T,U}) =
+        Complex{T}(cos(x), sin(x))
+
+    angle_fast{T<:ComplexTypes}(x::Quantity{T}) = atan2(imag(x), real(x))
+end

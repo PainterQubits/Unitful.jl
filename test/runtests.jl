@@ -258,6 +258,66 @@ end
         @test unit(nextfloat(0.0m)) == m
         @test unit(prevfloat(0.0m)) == m
     end
+
+    @testset "> fastmath" begin
+        const one32 = one(Float32)*m
+        const eps32 = eps(Float32)*m
+        const eps32_2 = eps32/2
+
+        # Note: Cannot use local functions since these are not yet optimized
+        fm_ieee_32(x) = x + eps32_2 + eps32_2
+        fm_fast_32(x) = @fastmath x + eps32_2 + eps32_2
+        @test fm_ieee_32(one32) == one32
+        @test (fm_fast_32(one32) == one32 ||
+            fm_fast_32(one32) == one32 + eps32 > one32)
+
+        const one64 = one(Float64)*m
+        const eps64 = eps(Float64)*m
+        const eps64_2 = eps64/2
+
+        # Note: Cannot use local functions since these are not yet optimized
+        fm_ieee_64(x) = x + eps64_2 + eps64_2
+        fm_fast_64(x) = @fastmath x + eps64_2 + eps64_2
+        @test fm_ieee_64(one64) == one64
+        @test (fm_fast_64(one64) == one64 ||
+            fm_fast_64(one64) == one64 + eps64 > one64)
+
+        # check updating operators
+        fm_ieee_64_upd(x) = (r=x; r+=eps64_2; r+=eps64_2)
+        fm_fast_64_upd(x) = @fastmath (r=x; r+=eps64_2; r+=eps64_2)
+        @test fm_ieee_64_upd(one64) == one64
+        @test (fm_fast_64_upd(one64) == one64 ||
+            fm_fast_64_upd(one64) == one64 + eps64 > one64)
+
+        for T in (Float32, Float64, BigFloat)
+            zero = convert(T, 0)*m
+            one = convert(T, 1)*m + eps(T)*m
+            two = convert(T, 2)*m + 1m//10
+            three = convert(T, 3)*m + 1m//100
+
+            @test isapprox((@fastmath +two), +two)
+            @test isapprox((@fastmath -two), -two)
+            @test isapprox((@fastmath zero+one+two), zero+one+two)
+            @test isapprox((@fastmath zero-one-two), zero-one-two)
+            @test isapprox((@fastmath one*two*three), one*two*three)
+            @test isapprox((@fastmath one/two/three), one/two/three)
+            @test isapprox((@fastmath rem(two, three)), rem(two, three))
+            @test isapprox((@fastmath mod(two, three)), mod(two, three))
+            @test (@fastmath cmp(two, two)) == cmp(two, two)
+            @test (@fastmath cmp(two, three)) == cmp(two, three)
+            @test (@fastmath cmp(three, two)) == cmp(three, two)
+            @test (@fastmath one/zero) == convert(T, Inf)
+            @test (@fastmath -one/zero) == -convert(T, Inf)
+            @test isnan(@fastmath zero/zero) # must not throw
+
+            for x in (zero, two, convert(T, Inf)*m, convert(T, NaN)*m)
+                @test (@fastmath isfinite(x))
+                @test !(@fastmath isinf(x))
+                @test !(@fastmath isnan(x))
+                @test !(@fastmath issubnormal(x))
+            end
+        end
+    end
 end
 
 @testset "Rounding" begin
