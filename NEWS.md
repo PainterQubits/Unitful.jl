@@ -1,4 +1,5 @@
 - v0.0.4 (upcoming)
+ - Support relevant `@fastmath` operations for `Quantity`s.
  - Support `fma` for `Quantity`s.
  - Promotion wraps usual `Number` types in dimensionless, unitless `Quantity`
    types when promoted together with dimensionful `Quantity`s.
