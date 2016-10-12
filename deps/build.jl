@@ -1,5 +1,5 @@
 if isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
-    warn("Unitful.jl factory defaults have been revised. Please consider ",
+    warn("Unitful.jl factory defaults may have been revised. Please consider ",
         "backing up the existing file at $(joinpath(dirname(@__FILE__),
         "Defaults.jl")), then run `Pkg.build(\"Unitful\")`.")
 else
@@ -91,10 +91,6 @@ else
         @unit sr      "sr"      Steradian   1                       true
         @unit rad     "rad"     Radian      1                       true
         @unit °       "°"       Degree      pi/180                  false
-        import Base: sin, cos, tan, cot, sec, csc
-        for _y in [:sin, :cos, :tan, :cot, :sec, :csc]
-            @eval (\$_y)(x::DimensionlessQuantity) = (\$_y)(uconvert(NoUnits, x))
-        end
 
         # Temperature
         @unit °Ra    "°Ra"      Rankine     (5//9)*K                false

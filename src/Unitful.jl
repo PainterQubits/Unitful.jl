@@ -5,6 +5,7 @@ import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, .\, //, ^, .^
 import Base: show, convert
 import Base: abs, abs2, float, fma, inv, sqrt
 import Base: min, max, floor, ceil, log, log10, real, imag, conj
+import Base: sin, cos, tan, cot, sec, csc
 
 import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isinf, isfinite, isnan
@@ -629,6 +630,10 @@ end
     tup2 = map(x->x^(1//2),tup)
     y = *(Units{tup2,()}())    # sort appropriately
     :($y)
+end
+
+for _y in (:sin, :cos, :tan, :cot, :sec, :csc)
+    @eval ($_y)(x::DimensionlessQuantity) = ($_y)(uconvert(NoUnits, x))
 end
 
 for (f, F) in [(:min, :<), (:max, :>)]
