@@ -27,14 +27,16 @@ end
 
 """
 ```
-uconvert{T,D,U}(a::Units, x::Quantity{T,D,Units{U,Dimensions{(Dimension{:Temperature}(1),)}}})
+uconvert{T,D,U}(a::Units, x::Quantity{T,TempDim,Units{U,TempDim}})
 ```
 
 In this method, we are special-casing temperature conversion to respect scale
 offsets, if they do not appear in combination with other dimensions.
+We abbreviate `TempDim = Dimensions{(Dimension{:Temperature}(1),)}` for clarity.
 """
-@generated function uconvert{T,D,U}(a::Units,
-        x::Quantity{T,D,Units{U,Dimensions{(Dimension{:Temperature}(1),)}}})
+TempDim = Dimensions{(Dimension{:Temperature}(1),)}
+@generated function uconvert{T,U}(a::Units,
+        x::Quantity{T,TempDim,Units{U,TempDim}})
     if a == typeof(unit(x))
         :(Quantity(x.val, a))
     else
@@ -152,23 +154,6 @@ function convert{T}(::Type{Quantity{T}}, x::Number)
 end
 function convert{T}(::Type{Quantity{T}}, x::Quantity)
     Quantity(T(ustrip(x)), unit(x))
-end
-
-"""
-```
-convert{D}(::Type{DimensionedQuantity{D}}, x::Quantity)
-```
-
-Convert `x` to a [`Unitful.DimensionedQuantity`](@ref) type.
-If `x` is already of the specified dimensions, this is a no-op; if it is not, an
-`ErrorException` is thrown.
-"""
-function convert{D}(::Type{DimensionedQuantity{D}}, x::Quantity)
-    if dimension(x) == D()
-        return x
-    else
-        throw(DimensionError())
-    end
 end
 
 """

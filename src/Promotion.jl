@@ -9,7 +9,7 @@ for op in (.+, .-, +, -)
             throw(DimensionError())
         end
     end
-    @eval function promote_op{S<:DimensionedUnits,T<:DimensionedUnits}(
+    @eval function promote_op{S<:Units,T<:Units}(
         ::typeof($op), ::Type{S}, ::Type{T})
         if dimension(S())==dimension(T())
             promote_type(S,T)
@@ -44,12 +44,6 @@ function promote_op{T1,D1,U1,T2,D2,U2}(op, x::Type{Quantity{T1,D1,U1}},
     end
 end
 
-# dim'd, quantity
-promote_op{T2,D1,D2,U}(op, ::Type{DimensionedQuantity{D1}},
-    ::Type{Quantity{T2,D2,U}}) = DimensionedQuantity{promote_op(op,D1,D2)}
-promote_op{T2,D1,D2,U}(op, x::Type{Quantity{T2,D2,U}},
-    y::Type{DimensionedQuantity{D1}}) = DimensionedQuantity{promote_op(op,D2,D1)}
-
 # number, quantity
 function promote_op{R<:Number,S,D,U}(op, ::Type{R}, ::Type{Quantity{S,D,U}})
     unittype = promote_op(op, typeof(NoUnits), U)
@@ -80,15 +74,6 @@ function promote_op{R<:Number,S,D,U}(op, x::Type{Quantity{S,D,U}}, y::Type{R})
         Quantity{numtype, dimtype, unittype}
     end
 end
-
-# dim'd, dim'd
-promote_op{D1,D2}(op, ::Type{DimensionedQuantity{D1}},
-    ::Type{DimensionedQuantity{D2}}) = DimensionedQuantity{promote_op(op,D1,D2)}
-
-# dim'd, number
-promote_op{D}(op, ::Type{DimensionedQuantity{D}}, ::Type{Number}) = Number
-promote_op{D}(op, ::Type{Number}, ::Type{DimensionedQuantity{D}}) = Number
-
 
 # ------ promote_op with units ------
 
@@ -155,14 +140,6 @@ end
 promote_rule{S1,S2,D,U}(::Type{Quantity{S1,D,U}}, ::Type{Quantity{S2,D,U}}) =
     Quantity{promote_type(S1,S2),D,U}
 
-# dim'd, quantity (different dims)
-promote_rule{S2,D1,D2,U}(::Type{DimensionedQuantity{D1}},
-    ::Type{Quantity{S2,D2,U}}) = Number
-
-# dim'd, quantity (same dims)
-promote_rule{S2,D,U}(::Type{DimensionedQuantity{D}},
-    ::Type{Quantity{S2,D,U}}) = DimensionedQuantity{D}
-
 # number, quantity
 function promote_rule{S,T<:Number,D,U}(::Type{Quantity{S,D,U}}, ::Type{T})
     if D == Dimensions{()}
@@ -171,17 +148,6 @@ function promote_rule{S,T<:Number,D,U}(::Type{Quantity{S,D,U}}, ::Type{T})
         Quantity{promote_type(S,T)}
     end
 end
-
-# dim'd, dim'd (different dims)
-promote_rule{D1,D2}(::Type{DimensionedQuantity{D1}},
-    ::Type{DimensionedQuantity{D2}}) = Number
-
-# dim'd, dim'd (same dims)
-promote_rule{D}(::Type{DimensionedQuantity{D}},
-    ::Type{DimensionedQuantity{D}}) = DimensionedQuantity{D}
-
-# dim'd, number
-promote_rule{D,T<:Number}(::Type{DimensionedQuantity{D}}, ::Type{T}) = Number
 
 promote_rule{S,T<:Number}(::Type{Quantity{S}}, ::Type{T}) = Quantity{promote_type(S,T)}
 

@@ -20,7 +20,7 @@ import Base: @pure
 
 export unit, dimension, uconvert, ustrip, upreferred
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
-export DimensionedQuantity, Quantity
+export Quantity
 export DimensionlessQuantity
 export NoUnits, NoDims
 
@@ -216,7 +216,7 @@ Unitful.Dimensions{()}
 
 """
 ```
-dimension{D}(x::DimensionedQuantity{D})
+dimension{T,D}(x::Quantity{T,D})
 ```
 
 Returns a [`Unitful.Dimensions`](@ref) object `D()` corresponding to the
@@ -233,8 +233,7 @@ julia> typeof(dimension(1.0u"m/μm"))
 Unitful.Dimensions{()}
 ```
 """
-@inline dimension{D}(x::DimensionedQuantity{D}) = D()
-@inline dimension{D}(x::Type{DimensionedQuantity{D}}) = D()
+@inline dimension{T,D}(x::Quantity{T,D}) = D()
 @inline dimension{T,D,U}(::Type{Quantity{T,D,Units{U,D}}}) = D()
 
 """

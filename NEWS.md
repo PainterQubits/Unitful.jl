@@ -2,6 +2,11 @@
  - Support relevant `@fastmath` operations for `Quantity`s.
  - Implement `fma`, `atan2` for `Quantity`s.
  - Implement `cis` for dimensionless `Quantity`s.
+ - Removed `DimensionedUnits` and `DimensionedQuantity` abstract types.
+   They were of dubious utility, and this change shortened the promotion code
+   considerably. More importantly, this change has made it possible to write
+   methods like the following, without method ambiguities:
+   `uconvert(e::EnergyUnit, f::Frequency) = uconvert(e, u"h"*f)`.
  - Promotion wraps usual `Number` types in dimensionless, unitless `Quantity`
    types when promoted together with dimensionful `Quantity`s.
    With `Quantity`s it is not always possible to promote to a common

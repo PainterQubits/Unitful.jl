@@ -156,7 +156,7 @@ else
         # By default, pick the units specified by the @preferunit macro.
         # Our use of promote_rule here is only via promote_type;
         # We will never be promoting unit objects themselves.
-        function promote_rule{S<:DimensionedUnits,T<:DimensionedUnits}(::Type{S}, ::Type{T})
+        function promote_rule{S<:Units,T<:Units}(::Type{S}, ::Type{T})
             dS = dimension(S())
             dT = dimension(T())
             dS != dT && error("Dimensions are unequal in call to `promote_rule`.")

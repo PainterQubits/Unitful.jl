@@ -55,16 +55,7 @@ abstract Unitlike
 
 """
 ```
-abstract DimensionedUnits{D} <: Unitlike
-```
-
-Abstract type used in dispatching on the dimension of a unit.
-"""
-abstract DimensionedUnits{D} <: Unitlike
-
-"""
-```
-immutable Units{N,D} <: DimensionedUnits{D}
+immutable Units{N,D} <: Unitlike
 ```
 
 Instances of this object represent units, possibly combinations thereof.
@@ -73,7 +64,7 @@ Example: the unit `m` is actually a singleton of type
 After dividing by `s`, a singleton of type
 `Units{(Unit{:Meter}(0,1),Unit{:Second}(0,-1)), typeof(u"𝐋")}` is returned.
 """
-immutable Units{N,D} <: DimensionedUnits{D} end
+immutable Units{N,D} <: Unitlike end
 
 """
 ```
@@ -86,18 +77,7 @@ immutable Dimensions{N} <: Unitlike end
 
 """
 ```
-abstract DimensionedQuantity{D} <: Number
-```
-
-Super-type of [`Unitful.Quantity`](@ref) types. Used in dispatch on quantities
-of a particular dimension, without having to specify the units. The type
-parameter `D <: ` [`Unitful.Dimensions`](@ref).
-"""
-abstract DimensionedQuantity{D} <: Number
-
-"""
-```
-immutable Quantity{T,D,U} <: DimensionedQuantity{D}
+immutable Quantity{T,D,U} <: Number
 ```
 
 A quantity, which has dimensions and units specified in the type signature.
@@ -109,7 +89,7 @@ The type parameter `T` represents the numeric backing type. The type parameters
 Of course, the dimensions follow from the units, but the type parameters are
 kept separate to permit convenient dispatch on dimensions.
 """
-immutable Quantity{T,D,U} <: DimensionedQuantity{D}
+immutable Quantity{T,D,U} <: Number
     val::T
     Quantity(v::Number) = new(v)
     Quantity(v::Quantity) = convert(Quantity{T,D,U}, v)
