@@ -683,10 +683,24 @@ round(x::Quantity) = Quantity(round(x.val), unit(x))
 copysign(x::Quantity, y::Number) = Quantity(copysign(x.val,y/unit(y)), unit(x))
 flipsign(x::Quantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
 
-isless{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = isless(x.val, y.val)
-isless(x::Quantity, y::Quantity) = isless(uconvert(unit(y), x).val, y.val)
-<{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = (x.val < y.val)
-<(x::Quantity, y::Quantity) = <(uconvert(unit(y), x).val,y.val)
+
+@inline isless{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = _isless(x,y)
+@inline _isless{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = isless(x.val, y.val)
+@inline _isless{T,D1,D2,U1,U2}(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) = throw(DimensionError())
+@inline _isless(x,y) = isless(x,y)
+
+isless(x::Quantity, y::Quantity) = _isless(promote(x,y)...)
+isless(x::Quantity, y::Number) = _isless(promote(x,y)...)
+isless(x::Number, y::Quantity) = _isless(promote(x,y)...)
+
+@inline <{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = _lt(x,y)
+@inline _lt{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = <(x.val,y.val)
+@inline _lt{T,D1,D2,U1,U2}(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) = throw(DimensionError())
+@inline _lt(x,y) = <(x,y)
+
+<(x::Quantity, y::Quantity) = _lt(promote(x,y)...)
+<(x::Quantity, y::Number) = _lt(promote(x,y)...)
+<(x::Number, y::Quantity) = _lt(promote(x,y)...)
 
 isapprox{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = isapprox(x.val, y.val)
 isapprox(x::Quantity, y::Quantity) = isapprox(uconvert(unit(y), x).val, y.val)
