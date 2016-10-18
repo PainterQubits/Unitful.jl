@@ -1,4 +1,6 @@
-- v0.0.4 (upcoming)
+- v0.0.4
+ - Be aware, breaking changes to `deps/Defaults.jl` caused by some of the following!
+ - Fix [#30](https://github.com/ajkeller34/Unitful.jl/issues/33).
  - Support relevant `@fastmath` operations for `Quantity`s.
  - Implement `fma`, `atan2` for `Quantity`s.
  - Implement `cis` for dimensionless `Quantity`s.
