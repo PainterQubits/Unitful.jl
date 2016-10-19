@@ -247,12 +247,20 @@ end
     end
 
     @testset "> Trigonometry" begin
-        @test @inferred(sin(90°)) == 1                   # sin(degrees) works
-        @test @inferred(cos(π*rad)) == -1                # ...radians work
-        @test @inferred(tan(45°)) ≈ 1
+        @test @inferred(sin(0.0rad)) == 0.0
+        @test @inferred(cos(π*rad)) == -1
+        @test @inferred(tan(π*rad/4)) ≈ 1
+        @test @inferred(csc(π*rad/2)) == 1
+        @test @inferred(sec(0.0*rad)) == 1
+        @test @inferred(cot(π*rad/4)) ≈ 1
+        @test @inferred(sin(90.0°)) == 1
+            # note that there is a type instability for sind(90) on 0.5.0 which
+            # is gone in the nightlies, so for now I changed 90° to 90.0°
+        @test @inferred(cos(0.0°)) == 1
+        @test @inferred(tan(45°)) == 1
         @test @inferred(csc(90°)) == 1
         @test @inferred(sec(0°)) == 1
-        @test @inferred(cot(45°)) ≈ 1
+        @test @inferred(cot(45°)) == 1
         @test @inferred(atan2(m*sqrt(3),1m)) ≈ 60°
     end
 

@@ -250,19 +250,6 @@ end
 
 """
 ```
-defaults()
-```
-
-Includes the file `deps/Defaults.jl` from the Unitful package. This results in
-common units and dimensions being generated in the `Unitful` module.
-"""
-function defaults()
-    defpath = joinpath(Pkg.dir("Unitful"),"deps","Defaults.jl")
-    include(defpath)
-end
-
-"""
-```
 macro u_str(unit)
 ```
 

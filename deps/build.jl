@@ -1,7 +1,9 @@
 if isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
-    warn("Unitful.jl factory defaults may have been revised. Please consider ",
-        "backing up the existing file at $(joinpath(dirname(@__FILE__),
-        "Defaults.jl")), then run `Pkg.build(\"Unitful\")`.")
+    warn("`Pkg.build(\"Unitful.jl\")` was run, but $(joinpath(dirname(@__FILE__),
+        "Defaults.jl")) already exists. No action has been taken. ",
+        "If you have not already done so, you might consider backing up ",
+        "then deleting the existing file at $(joinpath(dirname(@__FILE__),
+        "Defaults.jl")), then running `Pkg.build(\"Unitful\")` again.")
 else
     info("Default units, dimensions, and logic are set in ",
         "$(escape_string(joinpath(dirname(@__FILE__), "Defaults.jl")))")
@@ -91,6 +93,13 @@ else
         @unit sr      "sr"      Steradian   1                       true
         @unit rad     "rad"     Radian      1                       true
         @unit °       "°"       Degree      pi/180                  false
+        # For numerical accuracy, specific to the degree
+        import Base: sind, cosd, tand, secd, cscd, cotd
+        for (_x,_y) in ((:sin,:sind), (:cos,:cosd), (:tan,:tand),
+                (:sec,:secd), (:csc,:cscd), (:cot,:cotd))
+            @eval (\$_x){T}(x::Quantity{T,typeof(NoDims),typeof(°)}) = (\$_y)(ustrip(x))
+            @eval (\$_y){T}(x::Quantity{T,typeof(NoDims),typeof(°)}) = (\$_y)(ustrip(x))
+        end
 
         # Temperature
         @unit °Ra    "°Ra"      Rankine     (5//9)*K                false
