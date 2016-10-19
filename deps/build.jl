@@ -1,7 +1,7 @@
 if isfile(joinpath(dirname(@__FILE__), "Defaults.jl"))
     warn("`Pkg.build(\"Unitful.jl\")` was run, but $(joinpath(dirname(@__FILE__),
         "Defaults.jl")) already exists. No action has been taken. ",
-        "If you have not already done so, you might consider backing up ",
+        "If you encounter problems, you might consider backing up ",
         "then deleting the existing file at $(joinpath(dirname(@__FILE__),
         "Defaults.jl")), then running `Pkg.build(\"Unitful\")` again.")
 else
