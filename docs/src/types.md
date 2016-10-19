@@ -26,11 +26,10 @@ quantity, staged functions can be used to offload as much of the unit
 computation to compile-time as is possible. By also having the dimensions
 explicitly in the type signature, dispatch can be done on dimensions:
 `isa(1m, Length) == true`. This works because `Length` is a type alias for
-some subset of [`Unitful.DimensionedQuantity`](@ref) subtypes.
+some subset of [`Unitful.Quantity`](@ref) subtypes.
 
 ## Quantities
 ```@docs
-    Unitful.DimensionedQuantity{D}
     Unitful.Quantity{T,D,U}
     Unitful.DimensionlessQuantity{T,U}
 ```

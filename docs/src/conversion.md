@@ -96,9 +96,9 @@ julia> [1.0u"m", 2.0u"cm"]
  0.02 m
 
 julia> [1.0u"m", 2.0]
-2-element Array{Number,1}:
+2-element Array{Unitful.Quantity{Float64,D,U},1}:
  1.0 m
-     2.0
+   2.0
 ```
 
 In the first case, an array with a concrete type is created. Good
@@ -116,7 +116,7 @@ julia> f([1.0u"m", 2.0u"cm"])
 1.02 m
 
 julia> f([1.0u"g", 2.0u"cm"])
-ERROR: MethodError: no method matching f(::Array{Number,1})
+ERROR: MethodError: no method matching f(::Array{Unitful.Quantity{Float64,D,U},1})
 ```
 
 ## Temperature conversion

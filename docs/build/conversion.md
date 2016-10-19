@@ -29,17 +29,7 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/8792f52b387782019e946f56b0520fdc2ff83657/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
-
-
-```
-uconvert{T,D,U}(a::Units, x::Quantity{T,D,Units{U,Dimensions{(Dimension{:Temperature}(1),)}}})
-```
-
-In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions.
-
-
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/8792f52b387782019e946f56b0520fdc2ff83657/src/Conversion.jl#L28-L35' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f73bc51dd8c5dd9f645fd55c96e4fdc4ed14858e/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 Since objects are callable, we can also make [`Unitful.Units`](types.md#Unitful.Units) callable with a `Number` as an argument, for a unit conversion shorthand:
@@ -123,9 +113,9 @@ julia> [1.0u"m", 2.0u"cm"]
  0.02 m
 
 julia> [1.0u"m", 2.0]
-2-element Array{Number,1}:
+2-element Array{Unitful.Quantity{Float64,D,U},1}:
  1.0 m
-     2.0
+   2.0
 ```
 
 
@@ -140,7 +130,7 @@ julia> f([1.0u"m", 2.0u"cm"])
 1.02 m
 
 julia> f([1.0u"g", 2.0u"cm"])
-ERROR: MethodError: no method matching f(::Array{Number,1})
+ERROR: MethodError: no method matching f(::Array{Unitful.Quantity{Float64,D,U},1})
 ```
 
 
