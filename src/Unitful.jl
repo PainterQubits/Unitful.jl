@@ -888,13 +888,13 @@ include("Promotion.jl")
 include("Conversion.jl")
 include("fastmath.jl")
 
-defpath = joinpath(Pkg.dir("Unitful"),"deps","Defaults.jl")
+defpath = joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl")
 if isfile(defpath)
     try
         include(defpath)
     catch
         error("bad defaults file. Backup then delete ",
-            "$(joinpath(Pkg.dir("Unitful"),"deps","Defaults.jl"))",
+            "$(joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl"))",
             ", then run `Pkg.build(\"Unitful\")` again in a new Julia session.",
             " You may then merge any changes you had made to the old defaults",
             " file and use Unitful. There is no need to backup the old file if",
@@ -903,7 +903,8 @@ if isfile(defpath)
             " limit how often this is required.)")
     end
 else
-    error("could not find $(joinpath(Pkg.dir("Unitful"),"deps","Defaults.jl")).",
+    error("could not find ",
+          "$(joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl")).",
           " Run `Pkg.build(\"Unitful\")` to generate this file.")
 end
 
