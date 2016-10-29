@@ -5,6 +5,7 @@ dimensional_space(units::Units)
 ```
 
 Aggregates the dimensions present in the units (whether or not they cancel out).
+Returns the dimensions present in the unit with a power of 1.
 
 ```jldoctest
 julia> dimensional_space(u"m/km")
@@ -34,9 +35,9 @@ dimensional_space(u::Units) = dimensional_space(typeof(u))
 
 """
 ```
-dimensional_points{Us <: Units}(::Type{Us}, dimspace::Dimensions)
-dimensional_points{Us <: Units}(::Type{Us})
-dimensional_points(units::Units)
+dimensional_matrix{Us <: Units}(::Type{Us}, dimspace::Dimensions)
+dimensional_matrix{Us <: Units}(::Type{Us})
+dimensional_matrix(units::Units)
 ```
 
 Transforms input unit to vectorial format, where each component in the vector is
@@ -46,15 +47,15 @@ Returns a matrix where each row corresponds to a direction and each column to a
 unit, and the second element is a tuple of dimensions (or row-labels)
 
 ```jldoctest
-julia> dimensional_points(u"J*m/s")
+julia> dimensional_matrix(u"J*m/s")
 3×3 Array{Rational{Int64},2}:
   2//1  1//1   0//1
   1//1  0//1   0//1
  -2//1  0//1  -1//1
 ```
 """
-function dimensional_points{Us <: Units, D <: Dimensions}(::Type{Us},
-    dimspace::Type{D})
+function dimensional_matrix{Us <: Units}(::Type{Us})
+    const dimspace = dimensional_space(Us)
     # return eltype
     const rtype = typeof(Dimension{:Length}(1).power)
 
@@ -74,31 +75,7 @@ function dimensional_points{Us <: Units, D <: Dimensions}(::Type{Us},
     result
 end
 
-dimensional_points{Us <: Units}(::Type{Us}) =
-    dimensional_points(Us, dimensional_space(Us))
-
-dimensional_points(u::Units) = dimensional_points(typeof(u))
-
-"""
-```
-independant_columns(matrix::Matrix)
-```
-
-Indices of a set of linearly independant column vectors, with a preference
-towards columns that have smaller norms.
-"""
-function independant_columns(matrix::Matrix)
-    size(matrix, 2) == 0 && return Int64[]
-    result = two_by_two_independant(matrix)
-
-    sort!(result, by=i->norm(matrix[:, i]))
-    freaking_rational_units(x) = det(convert(typeof(x), transpose(x) * x))
-    while abs(freaking_rational_units(matrix[:, result])) ≈ 0
-        pop!(result)
-    end
-    sort!(result)
-    result
-end
+dimensional_matrix(u::Units) = dimensional_matrix(typeof(u))
 
 """
 ```
@@ -109,7 +86,8 @@ Indices of a set of column vectors, with a preference towards columns that have
 smaller norms, such that no two column vectors are exactly colinear.
 """
 function two_by_two_independant(matrix::Matrix)
-    size(matrix, 2) == 0 && return Int64[]
+    size(matrix, 1) == 0 && return collect(1:size(matrix, 2))
+    size(matrix, 2) == 0 && return collect(1:2)[2:1]
     result = Int64[1]
     for i in 2:size(matrix, 2)
         const equiv = findfirst(result) do u
@@ -128,6 +106,27 @@ end
 
 """
 ```
+independant_columns(matrix::Matrix)
+```
+
+Indices of a set of linearly independant column vectors, with a preference
+towards columns that have smaller norms.
+"""
+function independant_columns(matrix::Matrix)
+    result = two_by_two_independant(matrix)
+    (length(result) == 0 || size(matrix, 1) == 0) && return result
+
+    sort!(result, by=i->norm(matrix[:, i]))
+    freaking_rational_units(x) = det(convert(typeof(x), transpose(x) * x))
+    while abs(freaking_rational_units(matrix[:, result])) ≈ 0
+        pop!(result)
+    end
+    sort!(result)
+    result
+end
+
+"""
+```
 project_on_basis(vector::Vector, matrix::Matrix; itermax=10, tolerance=0)
 ```
 
@@ -136,7 +135,8 @@ Describe a vector using a basis which may or may not be orthogonal.
 function project_on_basis(vector::Vector, matrix::Matrix;
                           itermax=10, tolerance=0)
     if itermax == 0 itermax = typemax(itermax); end
-    result = zeros(promote_type(eltype(vector), eltype(matrix)), size(matrix, 2))
+    const T = promote_type(eltype(vector), eltype(matrix))
+    result = zeros(typeof(one(T)/one(T)), size(matrix, 2))
     current = convert(typeof(result), copy(vector))
     for iter in 1:itermax
         for i in 1:size(matrix, 2)
@@ -176,7 +176,7 @@ julia> simplify(1u"m*m*km*J/cm/N")
 ```
 """
 function simplify{Us <: Units}(::Type{Us})
-    dimensions_as_matrix = dimensional_points(Us)
+    dimensions_as_matrix = dimensional_matrix(Us)
     current = vec(sum(dimensions_as_matrix, 2))
     result = Units[]
     basis_indices = independant_columns(dimensions_as_matrix)
