@@ -24,6 +24,7 @@ export Quantity
 export DimensionlessQuantity
 export NoUnits, NoDims
 export simplify
+export SI
 
 include("Types.jl")
 include("User.jl")
