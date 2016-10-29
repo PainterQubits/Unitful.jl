@@ -28,9 +28,10 @@ function dimensional_space{Us <: Units}(::Type{Us})
             push!(directions, typeof(d)(1))
         end
     end
-    length(directions) == 0 && return Dimension[]
-    collect(Dimension,
-		typeof(prod(Dimensions{(d,)}() for d in directions)).parameters[1])
+    result = Dimension[]
+	length(directions) == 0 && return result
+	const dimensions = prod(Dimensions{(d,)}() for d in directions)
+    append!(result, typeof(dimensions).parameters[1])
 end
 dimensional_space(u::Units) = dimensional_space(typeof(u))
 
@@ -56,9 +57,10 @@ function dimensional_space(args::Vararg{Units})
 			end
 		end
     end
-	length(directions) == 0 && return Dimensions{()}
-	collect(Dimension,
-		typeof(prod(Dimensions{(d,)}() for d in directions)).parameters[1])
+	result = Dimension[]
+	length(directions) == 0 && return result
+	const dimensions = prod(Dimensions{(d,)}() for d in directions)
+	append!(result, typeof(dimensions).parameters[1])
 end
 
 """

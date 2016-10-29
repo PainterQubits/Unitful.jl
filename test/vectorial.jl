@@ -6,8 +6,9 @@ using Unitful: dimensional_space, Dimensions, Dimension, dimensional_matrix,
 @testset "Type simplification - implementation" begin
     @testset "> Count dimensions in a unit" begin
         @test length(dimensional_space(u"m/m")) == 0
-        @test dimensional_space(u"m/km") == [Dimension{:Length}(1//1)]
-        @test dimensional_space(u"m/s") ==
+        @test @inferred(dimensional_space(u"m/km")) ==
+        	Dimension[Dimension{:Length}(1//1)]
+        @test @inferred(dimensional_space(u"m/s")) ==
             [Dimension{:Length}(1//1), Dimension{:Time}(1//1)]
         @test dimensional_space(u"m/s*J") ==
             [
@@ -16,9 +17,11 @@ using Unitful: dimensional_space, Dimensions, Dimension, dimensional_matrix,
                 Dimension{:Time}(1//1)
             ]
 
-        @test dimensional_space(u"m", u"km") == [Dimension{:Length}(1//1)]
-        @test dimensional_space(u"m", u"km/km") == [Dimension{:Length}(1//1)]
-        @test dimensional_space(u"m", u"m/s") ==
+        @test @inferred(dimensional_space(u"m", u"km")) ==
+ 			[Dimension{:Length}(1//1)]
+        @test @inferred(dimensional_space(u"m", u"km/km")) ==
+			[Dimension{:Length}(1//1)]
+        @test @inferred(dimensional_space(u"m", u"m/s")) ==
             [Dimension{:Length}(1//1), Dimension{:Time}(1//1)]
     end
 
