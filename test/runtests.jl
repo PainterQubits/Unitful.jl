@@ -264,6 +264,10 @@ end
         @test @inferred(atan2(m*sqrt(3),1m)) ≈ 60°
     end
 
+    @testset "> Matrix inversion" begin
+        @test inv([1 1; -1 1]u"nm") ≈ [0.5 -0.5; 0.5 0.5]u"nm^-1"
+    end
+
     @testset "> Is functions" begin
         @test isinteger(1.0m)
         @test !isinteger(1.4m)

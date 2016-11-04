@@ -559,6 +559,15 @@ end
     :($y)
 end
 
+function inv{T <: Quantity}(x::Matrix{T})
+    length(x) > 0 &&
+        any(dimension(x[1, 1]) .!= collect(dimension(u) for u in x)) &&
+        error("Matrix must have consistent dimensions to perform inversion")
+    # make sure that matrix we will invert has consistent units
+    # only then can we invert the underlying matrix
+    inv(ustrip(convert(Matrix{typeof(x[1])}, x))) * inv(unit(x[1]))
+end
+
 ^{T}(x::Unit{T}, y::Integer) = Unit{T}(tens(x),power(x)*y)
 ^{T}(x::Unit{T}, y) = Unit{T}(tens(x),power(x)*y)
 
