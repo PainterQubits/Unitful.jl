@@ -1,6 +1,8 @@
 __precompile__(true)
 module Unitful
 
+module Builder
+
 import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, .\, //, ^, .^
 import Base: show, convert
 import Base: abs, abs2, float, fma, inv, sqrt
@@ -19,10 +21,14 @@ import Base: steprange_last, unitrange_last, unsigned
 import Base: @pure
 
 export unit, dimension, uconvert, ustrip, upreferred
-export @dimension, @derived_dimension, @refunit, @unit, @u_str
+export abbr, dimension, basefactor, basefactorhelper, tensfactor, dim2refunits, offsettemp
+export @dimension, @derived_dimension, @refunit, @preferunit, @unit
 export Quantity
 export DimensionlessQuantity
 export NoUnits, NoDims
+export Dimensions, Dimension
+export Units, Unit, Unitlike
+export DimensionError
 
 include("Types.jl")
 include("User.jl")
@@ -889,24 +895,29 @@ include("Promotion.jl")
 include("Conversion.jl")
 include("fastmath.jl")
 
-defpath = joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl")
-if isfile(defpath)
-    try
-        include(defpath)
-    catch
-        error("bad defaults file. Backup then delete ",
-            "$(joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl"))",
-            ", then run `Pkg.build(\"Unitful\")` again in a new Julia session.",
-            " You may then merge any changes you had made to the old defaults",
-            " file and use Unitful. There is no need to backup the old file if",
-            " you did not change it. (This error can happen if changes are",
-            " required to the factory defaults following an update. We try to",
-            " limit how often this is required.)")
-    end
-else
-    error("could not find ",
-          "$(joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl")).",
-          " Run `Pkg.build(\"Unitful\")` to generate this file.")
 end
+
+include("Defaults.jl")
+
+# TODO: Provide a sane warning that this no longer works
+#defpath = joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl")
+#if isfile(defpath)
+#    try
+#        include(defpath)
+#    catch
+#        error("bad defaults file. Backup then delete ",
+#            "$(joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl"))",
+#            ", then run `Pkg.build(\"Unitful\")` again in a new Julia session.",
+#            " You may then merge any changes you had made to the old defaults",
+#            " file and use Unitful. There is no need to backup the old file if",
+#            " you did not change it. (This error can happen if changes are",
+#            " required to the factory defaults following an update. We try to",
+#            " limit how often this is required.)")
+#    end
+#else
+#    error("could not find ",
+#          "$(joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl")).",
+#          " Run `Pkg.build(\"Unitful\")` to generate this file.")
+#end
 
 end

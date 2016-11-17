@@ -1,28 +1,3 @@
-# Convenient dictionary for mapping powers of ten to an SI prefix.
-const prefixdict = Dict(
-    -24 => "y",
-    -21 => "z",
-    -18 => "a",
-    -15 => "f",
-    -12 => "p",
-    -9  => "n",
-    -6  => "μ",     # tab-complete \mu, not option-m on a Mac!
-    -3  => "m",
-    -2  => "c",
-    -1  => "d",
-    0   => "",
-    1   => "da",
-    2   => "h",
-    3   => "k",
-    6   => "M",
-    9   => "G",
-    12  => "T",
-    15  => "P",
-    18  => "E",
-    21  => "Z",
-    24  => "Y"
-)
-
 """
 `abbr(x)` provides abbreviations for units or dimensions. Since a method should
 always be defined for each unit and dimension type, absence of a method for a
