@@ -640,10 +640,22 @@ end
             @test !isapprox([1.0m], [1.0])
         end
 
-        @testset "Unit stripping" begin
+        @testset ">> Unit stripping" begin
             @test @inferred(ustrip([1u"m", 2u"m"])) == [1,2]
             @test @inferred(ustrip([1,2])) == [1,2]
             @test typeof(ustrip([1u"m", 2u"m"])) == Array{Int,1}
+            @test typeof(ustrip(Diagonal([1,2]u"m"))) == Diagonal{Int}
+            @test typeof(ustrip(Bidiagonal([1,2,3]u"m", [1,2]u"m", true))) ==
+                Bidiagonal{Int}
+            @test typeof(ustrip(Tridiagonal([1,2]u"m", [3,4,5]u"m", [6,7]u"m"))) ==
+                Tridiagonal{Int}
+            @test typeof(ustrip(SymTridiagonal([1,2,3]u"m", [4,5]u"m"))) ==
+                SymTridiagonal{Int}
+        end
+
+        @testset ">> Linear algebra" begin
+            @test istril([1 1; 0 1]u"m") == false
+            @test istriu([1 1; 0 1]u"m") == true
         end
     end
 end

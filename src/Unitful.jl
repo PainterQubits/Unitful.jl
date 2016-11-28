@@ -18,6 +18,8 @@ import Base: Rational, typemin, typemax
 import Base: steprange_last, unitrange_last, unsigned
 import Base: @pure
 
+import Base.LinAlg: istril, istriu
+
 export unit, dimension, uconvert, ustrip, upreferred
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
 export Quantity
@@ -100,12 +102,33 @@ julia> a[1] = 3u"m"; b
 
 """
 ```
-ustrip{T<:Number}(x::Array{T})
+ustrip{T,D,U}(x::AbstractArray{Quantity{T,D,U}})
+```
+
+Strip units from an `AbstractArray` by making a new array without units using
+array comprehensions.
+
+This function is provided primarily for compatibility purposes; you could pass
+the result to PyPlot, for example. This function may be deprecated in the future.
+"""
+ustrip{T,D,U}(A::AbstractArray{Quantity{T,D,U}}) = T[ustrip(x) for x in A]
+
+"""
+```
+ustrip{T<:Number}(x::AbstractArray{T})
 ```
 
 Fall-back that returns `x`.
 """
-@inline ustrip{T<:Number}(x::Array{T}) = x
+@inline ustrip{T<:Number}(A::AbstractArray{T}) = A
+
+ustrip{T<:Quantity}(A::Diagonal{T}) = Diagonal(ustrip(A.diag))
+ustrip{T<:Quantity}(A::Bidiagonal{T}) =
+    Bidiagonal(ustrip(A.dv), ustrip(A.ev), A.isupper)
+ustrip{T<:Quantity}(A::Tridiagonal{T}) =
+    Tridiagonal(ustrip(A.dl), ustrip(A.d), ustrip(A.du))
+ustrip{T<:Quantity}(A::SymTridiagonal{T}) =
+    SymTridiagonal(ustrip(A.dv), ustrip(A.ev))
 
 """
 ```
@@ -559,13 +582,15 @@ end
     :($y)
 end
 
-function inv{T <: Quantity}(x::Matrix{T})
-    length(x) > 0 &&
-        any(dimension(x[1, 1]) .!= collect(dimension(u) for u in x)) &&
-        error("Matrix must have consistent dimensions to perform inversion")
-    # make sure that matrix we will invert has consistent units
-    # only then can we invert the underlying matrix
-    inv(ustrip(convert(Matrix{typeof(x[1])}, x))) * inv(unit(x[1]))
+# Needed until LU factorization is made to work with unitful numbers
+function inv{T<:Quantity}(x::StridedMatrix{T})
+    m = inv(ustrip(x))
+    iq = eltype(m)
+    reinterpret(Quantity{iq, typeof(inv(dimension(T))), typeof(inv(unit(T)))}, m)
+end
+
+for x in (:istriu, :istril)
+    @eval ($x){T<:Quantity}(A::AbstractMatrix{T}) = ($x)(ustrip(A))
 end
 
 ^{T}(x::Unit{T}, y::Integer) = Unit{T}(tens(x),power(x)*y)

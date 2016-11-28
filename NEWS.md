@@ -1,3 +1,8 @@
+- v0.0.5
+ - Added some methods for `ustrip`
+ - Added matrix inversion for `StridedMatrix{T<:Quantity}`
+ - Added `istriu`, `istril` for `AbstractMatrix{T<:Quantity}`
+
 - v0.0.4
  - Be aware, breaking changes to `deps/Defaults.jl` caused by some of the following!
  - Fix [#40](https://github.com/ajkeller34/Unitful.jl/issues/40).
