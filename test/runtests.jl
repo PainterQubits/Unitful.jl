@@ -1,12 +1,13 @@
-using Unitful
+#using Unitful
 using Base.Test
 
-import Unitful: m, ac, g, A, kg, cm, inch, mi, ft, °Ra, °F, °C, μm,
+using Unitful.Defaults
+import Unitful.Defaults: m, ac, g, A, kg, cm, inch, mi, ft, °Ra, °F, °C, μm,
     s, A, K, N, mol, cd, rad, V, cm, hr, mm, km, minute, °, J
 
-import Unitful: 𝐋, 𝐓, 𝐍
+import Unitful.Defaults: 𝐋, 𝐓, 𝐍
 
-import Unitful:
+import Unitful.Defaults:
     Length, Area, Volume,
     Luminosity,
     Time, Frequency,
@@ -14,29 +15,31 @@ import Unitful:
     Current,
     Temperature
 
-import Unitful:
+import Unitful.Defaults:
     LengthUnit, AreaUnit, MassUnit
 
+importall Unitful.Builder
+
 @testset "Type construction" begin
-    @test typeof(𝐋) == Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
+    @test typeof(𝐋) == Dimensions{(Dimension{:Length}(1),)}
     @test typeof(1.0m) ==
-        Unitful.Quantity{Float64,
+        Quantity{Float64,
             typeof(𝐋),
-            Unitful.Units{(Unitful.Unit{:Meter}(0, 1),), typeof(𝐋)}}
+            Units{(Unit{:Meter}(0, 1),), typeof(𝐋)}}
     @test typeof(1m^2) ==
-        Unitful.Quantity{Int,
+        Quantity{Int,
             typeof(𝐋^2),
-            Unitful.Units{(Unitful.Unit{:Meter}(0, 2),), typeof(𝐋^2)}}
+            Units{(Unit{:Meter}(0, 2),), typeof(𝐋^2)}}
     @test typeof(1ac) ==
-        Unitful.Quantity{Int,
+        Quantity{Int,
             typeof(𝐋^2),
-            Unitful.Units{(Unitful.Unit{:Acre}(0, 1),), typeof(𝐋^2)}}
+            Units{(Unit{:Acre}(0, 1),), typeof(𝐋^2)}}
 end
 
 @testset "Conversion" begin
     @testset "> Unitless ↔ unitful conversion" begin
-        @test_throws Unitful.DimensionError convert(typeof(3m),1)
-        @test_throws Unitful.DimensionError convert(Float64, 3m)
+        @test_throws DimensionError convert(typeof(3m),1)
+        @test_throws DimensionError convert(Float64, 3m)
         @test @inferred(3m/unit(3m)) === 3
         @test @inferred(3.0g/unit(3.0g)) === 3.0
         @test @inferred(ustrip(3m)) === 3
@@ -45,9 +48,10 @@ end
         @test convert(typeof(1mm/m),3) == 3000mm/m
         @test convert(Int, 1m/mm) === 1000
 
-        # Issue 26
-        @unit altL "altL" altLiter 1000*cm^3 true
-        @test Float64(1altL/cm^3) === 1000.0
+        # TODO: re-enable this test (units need to live in modules now)
+        ## Issue 26
+        #@unit altL "altL" altLiter 1000*cm^3 true
+        #@test Float64(1altL/cm^3) === 1000.0
     end
 
     @testset "> Unitful ↔ unitful conversion" begin
@@ -176,10 +180,10 @@ end
         @test 1 > 1μm/m
         @test 1μm/m < 1mm/m
         @test 1mm/m > 1μm/m
-        @test_throws Unitful.DimensionError 1m < 1kg
-        @test_throws Unitful.DimensionError 1m < 1
-        @test_throws Unitful.DimensionError 1 < 1m
-        @test_throws Unitful.DimensionError 1mm/m < 1m
+        @test_throws DimensionError 1m < 1kg
+        @test_throws DimensionError 1m < 1
+        @test_throws DimensionError 1 < 1m
+        @test_throws DimensionError 1mm/m < 1m
         @test @inferred(fma(2.0, 3.0m, 1.0m)) === 7.0m               # llvm good
         @test @inferred(fma(2.0, 3.0m, 35mm)) === 6.035m             # llvm good
         @test @inferred(fma(2.0m, 3.0, 35mm)) === 6.035m             # llvm good
@@ -192,8 +196,8 @@ end
         @test @inferred(fma(1.0, 1.0μm/m, 1.0μm/m)) === 2.0μm/m      # llvm good
         @test @inferred(fma(2, 1.0, 1μm/m)) === 2.000001             # llvm BAD
         @test fma(2, 1μm/m, 1mm/m) === 501//500000       # TODO: add @inferred  # llvm BAD
-        @test_throws Unitful.DimensionError fma(2m, 1/m, 1m)
-        @test_throws Unitful.DimensionError fma(2, 1m, 1V)
+        @test_throws DimensionError fma(2m, 1/m, 1m)
+        @test_throws DimensionError fma(2, 1m, 1V)
     end
 
     @testset "> Addition and subtraction" begin
@@ -206,8 +210,8 @@ end
         @test @inferred(zero(typeof(1.0m))) === 0.0m
         @test @inferred(π/2*u"rad" + 90u"°") ≈ π         # Dimless quantities
         @test @inferred(π/2*u"rad" - 90u"°") ≈ 0         # Dimless quantities
-        @test_throws Unitful.DimensionError 1+1m                 # Dim mismatched
-        @test_throws Unitful.DimensionError 1-1m
+        @test_throws DimensionError 1+1m                 # Dim mismatched
+        @test_throws DimensionError 1-1m
     end
 
     @testset "> Multiplication" begin
@@ -281,7 +285,7 @@ end
         @test isapprox(1.0u"m",(1.0+eps(1.0))u"m")
         @test isapprox(1.0u"μm/m",1e-6)
         @test !isapprox(1.0u"μm/m",1e-7)
-        @test_throws Unitful.DimensionError isapprox(1.0u"m",5)
+        @test_throws DimensionError isapprox(1.0u"m",5)
         @test frexp(1.5m) == (0.75m, 1.0)
         @test unit(nextfloat(0.0m)) == m
         @test unit(prevfloat(0.0m)) == m
@@ -624,8 +628,8 @@ end
             @test typeof([1mm/m] + [1cm/m])          == Array{Rational{Int},1}
             @test @inferred([1mm/m] + [2])           == [2001//1000]
             @test typeof([1mm/m] + [2])              == Array{Rational{Int},1}
-            @test_throws Unitful.DimensionError [1m] + [2V]
-            @test_throws Unitful.DimensionError [1] + [1m]
+            @test_throws DimensionError [1m] + [2V]
+            @test_throws DimensionError [1] + [1m]
         end
 
         @testset ">> Element-wise addition" begin

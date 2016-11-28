@@ -25,8 +25,8 @@ macro dimension(symb, abbr, name)
     x = Expr(:quote, name)
     uname = Symbol(name,"Unit")
     esc(quote
-        Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
-        const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
+        abbr(::Dimension{$x}) = $abbr
+        const $s = Dimensions{(Dimension{$x}(1),)}()
         typealias $(name){T,U} Quantity{T,typeof($s),U}
         typealias $(uname){U} Units{U,typeof($s)}
     end)
@@ -56,6 +56,83 @@ macro derived_dimension(name, dims)
     end)
 end
 
+# Convenient dictionary for mapping powers of ten to an SI prefix.
+const prefixdict = Dict(
+    -24 => "y",
+    -21 => "z",
+    -18 => "a",
+    -15 => "f",
+    -12 => "p",
+    -9  => "n",
+    -6  => "μ",     # tab-complete \mu, not option-m on a Mac!
+    -3  => "m",
+    -2  => "c",
+    -1  => "d",
+    0   => "",
+    1   => "da",
+    2   => "h",
+    3   => "k",
+    6   => "M",
+    9   => "G",
+    12  => "T",
+    15  => "P",
+    18  => "E",
+    21  => "Z",
+    24  => "Y"
+)
+
+"""
+```
+prefixed_unit_symbols(symb,name)
+```
+
+Not called directly by the user. Given a unit symbol and a unit's name,
+will define units for each possible SI power-of-ten prefix on that unit.
+
+Example: `prefixed_unit_symbols(m, Meter)` results in nm, cm, m, km, ...
+all getting defined in the calling namespace.
+"""
+function prefixed_unit_symbols(symb,name)
+    expr = Expr(:block)
+
+    z = Expr(:quote, name)
+    for (k,v) in prefixdict
+        s = Symbol(v,symb)
+        u = Unit{name}(k,1//1)
+        ea = quote
+            const $s = Units{($u,),typeof(dimension($u))}()
+        end
+        push!(expr.args, ea)
+    end
+
+    # These lines allow for μ to be typed with option-m on a Mac.
+    s = Symbol(:µ, symb)
+    u = Unit{name}(-6,1//1)
+    push!(expr.args, quote
+        const $s = Units{($u,),typeof(dimension($u))}()
+    end)
+
+    expr
+end
+
+"""
+```
+unit_symbols(symb,name)
+```
+
+Not called directly by the user. Given a unit symbol and a unit's name,
+will define units without SI power-of-ten prefixes.
+
+Example: `unit_symbols(ft, Foot)` results in `ft` getting defined but not `kft`.
+"""
+function unit_symbols(symb,name)
+    s = Symbol(symb)
+    z = Expr(:quote, name)
+    u = Unit{name}(0,1//1)
+    quote
+        const $s = Units{($u,),typeof(dimension($u))}()
+    end
+end
 
 """
 ```
@@ -78,16 +155,18 @@ This example will generate `km`, `m`, `cm`, ...
 """
 macro refunit(symb, abbr, name, dimension, tf)
     x = Expr(:quote, name)
-    esc(quote
-        Unitful.abbr(::Unitful.Unit{$x}) = $abbr
-        Unitful.dimension(y::Unitful.Unit{$x}) = $dimension^y.power
-        Unitful.basefactor(y::Unitful.Unit{$x}) = (1.0, 1)
-        if $tf
-            Unitful.@prefixed_unit_symbols $symb $name
-        else
-            Unitful.@unit_symbols $symb $name
-        end
+    if tf
+        symbols = prefixed_unit_symbols(symb, name)
+    else
+        symbols = unit_symbols(symb, name)
+    end
+    output = esc(quote
+        abbr(::Unit{$x}) = $abbr
+        dimension(y::Unit{$x}) = $dimension^y.power
+        basefactor(y::Unit{$x}) = (1.0, 1)
+        $symbols
     end)
+    output
 end
 
 """
@@ -101,20 +180,20 @@ which is inferred from the given unit.
 Usage example: `@preferunit kg`
 """
 macro preferunit(unit)
-    quote
-        dim = dimension($unit)
-        if length(typeof(dim).parameters[1]) > 1
-            error("@prefer can only be used with a unit that has a pure ",
-            "dimension, like 𝐋 or 𝐓 but not 𝐋/𝐓.")
-        end
-        if length(typeof(dim).parameters[1]) == 1 &&
-            typeof(dim).parameters[1][1].power != 1
-            error("@prefer cannot handle powers of pure dimensions except 1. ",
-            "For instance, it should not be used with units of dimension 𝐋^2.")
-        end
-        Unitful.dim2refunits(y::typeof(typeof(dim).parameters[1][1])) =
-            $unit^y.power
+    dim = eval(current_module(), :(dimension($unit)))
+    if length(typeof(dim).parameters[1]) > 1
+        error("@prefer can only be used with a unit that has a pure ",
+        "dimension, like 𝐋 or 𝐓 but not 𝐋/𝐓.")
     end
+    if length(typeof(dim).parameters[1]) == 1 &&
+        typeof(dim).parameters[1][1].power != 1
+        error("@prefer cannot handle powers of pure dimensions except 1. ",
+        "For instance, it should not be used with units of dimension 𝐋^2.")
+    end
+    T = typeof(typeof(dim).parameters[1][1])
+    esc(quote
+        dim2refunits(y::$T) = $unit^y.power
+    end)
 end
 
 # Generated to force a concrete result type.
@@ -176,127 +255,25 @@ macro unit(symb,abbr,name,equals,tf)
     # name is a symbol
     # abbr is a string
     x = Expr(:quote, name)
-    quote
-        inex, ex = Unitful.basefactor(Unitful.unit($(esc(equals))))
-        t = Unitful.tensfactor(Unitful.unit($(esc(equals))))
-        eq = ($(esc(equals)))/Unitful.unit($(esc(equals)))
-        Base.isa(eq, Base.Integer) || Base.isa(eq, Base.Rational) ?
-             (ex *= eq) : (inex *= eq)
-        Unitful.abbr(::Unitful.Unit{$(esc(x))}) = $abbr
-        Unitful.dimension(y::Unitful.Unit{$(esc(x))}) =
-            Unitful.dimension($(esc(equals)))^y.power
-        Unitful.basefactor(y::Unitful.Unit{$(esc(x))}) =
-            Unitful.basefactorhelper(inex, ex, t, y.power)
-        if $tf
-            Unitful.@prefixed_unit_symbols $(esc(symb)) $(esc(name))
-        else
-            Unitful.@unit_symbols $(esc(symb)) $(esc(name))
-        end
+    inex, ex = eval(current_module(), :(basefactor(unit($equals))))
+    t = eval(current_module(), :(tensfactor(unit($equals))))
+    eq = eval(current_module(), :($equals/unit($equals)))
+    Base.isa(eq, Base.Integer) || Base.isa(eq, Base.Rational) ?
+        (ex *= eq) : (inex *= eq)
+    if tf
+        symbols = prefixed_unit_symbols(symb, name)
+    else
+        symbols = unit_symbols(symb, name)
     end
-end
-
-"""
-```
-macro prefixed_unit_symbols(symb,name)
-```
-
-Not called directly by the user. Given a unit symbol and a unit's name,
-will define units for each possible SI power-of-ten prefix on that unit.
-
-Example: `@prefixed_unit_symbols m Meter` results in nm, cm, m, km, ...
-all getting defined in the calling namespace.
-"""
-macro prefixed_unit_symbols(symb,name)
-    expr = Expr(:block)
-
-    z = Expr(:quote, name)
-    for (k,v) in prefixdict
-        s = Symbol(v,symb)
-        u = Unitful.Unit{name}(k,1//1)
-        ea = esc(quote
-            const $s = Unitful.Units{($u,),typeof(dimension($u))}()
-        end)
-        push!(expr.args, ea)
-    end
-
-    # These lines allow for μ to be typed with option-m on a Mac.
-    s = Symbol(:µ, symb)
-    u = Unitful.Unit{name}(-6,1//1)
-    push!(expr.args, esc(quote
-        const $s = Unitful.Units{($u,),typeof(dimension($u))}()
-    end))
-
-    expr
-end
-
-"""
-```
-macro unit_symbols(symb,name)
-```
-
-Not called directly by the user. Given a unit symbol and a unit's name,
-will define units without SI power-of-ten prefixes.
-
-Example: `@unit_symbols ft Foot` results in `ft` getting defined but not `kft`.
-"""
-macro unit_symbols(symb,name)
-    s = Symbol(symb)
-    z = Expr(:quote, name)
-    u = Unitful.Unit{name}(0,1//1)
     esc(quote
-        const $s = Unitful.Units{($u,),typeof(dimension($u))}()
+        abbr(::Unit{$x}) = $abbr
+        dimension(y::Unit{$x}) =
+            dimension($equals)^y.power
+        basefactor(y::Unit{$x}) =
+            basefactorhelper($inex, $ex, $t, y.power)
+        $symbols
     end)
 end
-
-"""
-```
-macro u_str(unit)
-```
-
-String macro to easily recall units, dimensions, or quantities defined in the
-Unitful module, which does not export such things to avoid namespace pollution.
-Note that for now, what goes inside must be parsable as a valid Julia expression.
-In other words, u"N m" will fail if you intended to write u"N*m".
-
-Examples:
-
-```jldoctest
-julia> 1.0u"m/s"
-1.0 m s^-1
-
-julia> 1.0u"N*m"
-1.0 m N
-
-julia> typeof(1.0u"m/s")
-Quantity{Float64, Dimensions:{𝐋 𝐓^-1}, Units:{m s^-1}}
-
-julia> u"ħ"
-1.0545718001391127e-34 J s
-```
-"""
-macro u_str(unit)
-    ex = parse(unit)
-    replace_value(ex)
-end
-
-const allowed_funcs = [:*, :/, :^, :sqrt, :√, :+, :-, ://]
-function replace_value(ex::Expr)
-    ex.head != :call && error("$(ex.head) != :call")
-    ex.args[1] in allowed_funcs ||
-        error("""$(ex.args[1]) is not a valid function call when parsing a unit.
-         Only the following functions are allowed: $allowed_funcs""")
-    for i=2:length(ex.args)
-        if typeof(ex.args[i])==Symbol || typeof(ex.args[i])==Expr
-            ex.args[i]=replace_value(ex.args[i])
-        end
-    end
-    ex
-end
-
-replace_value(sym::Symbol) = :(ustrcheck($sym))
-ustrcheck(x::Unitlike) = x
-ustrcheck(x::Quantity) = x
-ustrcheck(x) = error("Unexpected symbol in unit macro.")
 
 """
 ```
