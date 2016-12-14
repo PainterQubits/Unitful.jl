@@ -3,7 +3,7 @@ module Unitful
 
 import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, .\, //, ^, .^
 import Base: show, convert
-import Base: abs, abs2, float, fma, inv, sqrt
+import Base: abs, abs2, float, fma, muladd, inv, sqrt
 import Base: min, max, floor, ceil, log, log10, real, imag, conj
 import Base: sin, cos, tan, cot, sec, csc, atan2, cis
 
@@ -625,27 +625,30 @@ end
 
 # Other mathematical functions
 
-# `fma`
+# `fma` and `muladd`
 # The idea here is that if the numeric backing types are not the same, they
 # will be promoted to be the same by the generic `fma(::Number, ::Number, ::Number)`
 # method. We then catch the possible results and handle the units logic with one
 # performant method.
-@inline fma{T<:Number}(x::Quantity{T}, y::T, z::T) = _fma(x,y,z)
-@inline fma{T<:Number}(x::T, y::Quantity{T}, z::T) = _fma(x,y,z)
-@inline fma{T<:Number}(x::T, y::T, z::Quantity{T}) = _fma(x,y,z)
-@inline fma{T<:Number}(x::Quantity{T}, y::Quantity{T}, z::T) = _fma(x,y,z)
-@inline fma{T<:Number}(x::T, y::Quantity{T}, z::Quantity{T}) = _fma(x,y,z)
-@inline fma{T<:Number}(x::Quantity{T}, y::T, z::Quantity{T}) = _fma(x,y,z)
-@inline fma{T<:Number}(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}) = _fma(x,y,z)
 
-# It seems like most of this is optimized out by the compiler, including the
-# apparent runtime check of dimensions, which does not appear in @code_llvm.
-@inline function _fma(x,y,z)
-    dimension(x) * dimension(y) != dimension(z) && throw(DimensionError())
-    uI = unit(x)*unit(y)
-    uF = promote_type(typeof(uI), typeof(unit(z)))()
-    c = fma(ustrip(x), ustrip(y), ustrip(uconvert(uI, z)))
-    uconvert(uF, Quantity(c, uI))
+for (_x,_y) in [(:fma, :_fma), (:muladd, :_muladd)]
+    @eval @inline ($_x){T<:Number}(x::Quantity{T}, y::T, z::T) = ($_y)(x,y,z)
+    @eval @inline ($_x){T<:Number}(x::T, y::Quantity{T}, z::T) = ($_y)(x,y,z)
+    @eval @inline ($_x){T<:Number}(x::T, y::T, z::Quantity{T}) = ($_y)(x,y,z)
+    @eval @inline ($_x){T<:Number}(x::Quantity{T}, y::Quantity{T}, z::T) = ($_y)(x,y,z)
+    @eval @inline ($_x){T<:Number}(x::T, y::Quantity{T}, z::Quantity{T}) = ($_y)(x,y,z)
+    @eval @inline ($_x){T<:Number}(x::Quantity{T}, y::T, z::Quantity{T}) = ($_y)(x,y,z)
+    @eval @inline ($_x){T<:Number}(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}) = ($_y)(x,y,z)
+
+    # It seems like most of this is optimized out by the compiler, including the
+    # apparent runtime check of dimensions, which does not appear in @code_llvm.
+    @eval @inline function ($_y)(x,y,z)
+        dimension(x) * dimension(y) != dimension(z) && throw(DimensionError())
+        uI = unit(x)*unit(y)
+        uF = promote_type(typeof(uI), typeof(unit(z)))()
+        c = ($_x)(ustrip(x), ustrip(y), ustrip(uconvert(uI, z)))
+        uconvert(uF, Quantity(c, uI))
+    end
 end
 
 sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
