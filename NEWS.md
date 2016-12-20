@@ -2,6 +2,7 @@
  - Added some methods for `ustrip`
  - Added matrix inversion for `StridedMatrix{T<:Quantity}`
  - Added `istriu`, `istril` for `AbstractMatrix{T<:Quantity}`
+ - Implement `typemin`, `typemax` for `Quantity`s.
 
 - v0.0.4
  - Be aware, breaking changes to `deps/Defaults.jl` caused by some of the following!
