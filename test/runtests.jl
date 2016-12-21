@@ -1,3 +1,5 @@
+module UnitfulTests
+
 using Unitful
 using Base.Test
 
@@ -330,27 +332,27 @@ end
             fm_fast_64_upd(one64) == one64 + eps64 > one64)
 
         for T in (Float32, Float64, BigFloat)
-            zero = convert(T, 0)*m
-            one = convert(T, 1)*m + eps(T)*m
-            two = convert(T, 2)*m + 1m//10
-            three = convert(T, 3)*m + 1m//100
+            _zero = convert(T, 0)*m
+            _one = convert(T, 1)*m + eps(T)*m
+            _two = convert(T, 2)*m + 1m//10
+            _three = convert(T, 3)*m + 1m//100
 
-            @test isapprox((@fastmath +two), +two)
-            @test isapprox((@fastmath -two), -two)
-            @test isapprox((@fastmath zero+one+two), zero+one+two)
-            @test isapprox((@fastmath zero-one-two), zero-one-two)
-            @test isapprox((@fastmath one*two*three), one*two*three)
-            @test isapprox((@fastmath one/two/three), one/two/three)
-            @test isapprox((@fastmath rem(two, three)), rem(two, three))
-            @test isapprox((@fastmath mod(two, three)), mod(two, three))
-            @test (@fastmath cmp(two, two)) == cmp(two, two)
-            @test (@fastmath cmp(two, three)) == cmp(two, three)
-            @test (@fastmath cmp(three, two)) == cmp(three, two)
-            @test (@fastmath one/zero) == convert(T, Inf)
-            @test (@fastmath -one/zero) == -convert(T, Inf)
-            @test isnan(@fastmath zero/zero) # must not throw
+            @test isapprox((@fastmath +_two), +_two)
+            @test isapprox((@fastmath -_two), -_two)
+            @test isapprox((@fastmath _zero+_one+_two), _zero+_one+_two)
+            @test isapprox((@fastmath _zero-_one-_two), _zero-_one-_two)
+            @test isapprox((@fastmath _one*_two*_three), _one*_two*_three)
+            @test isapprox((@fastmath _one/_two/_three), _one/_two/_three)
+            @test isapprox((@fastmath rem(_two, _three)), rem(_two, _three))
+            @test isapprox((@fastmath mod(_two, _three)), mod(_two, _three))
+            @test (@fastmath cmp(_two, _two)) == cmp(_two, _two)
+            @test (@fastmath cmp(_two, _three)) == cmp(_two, _three)
+            @test (@fastmath cmp(_three, _two)) == cmp(_three, _two)
+            @test (@fastmath _one/_zero) == convert(T, Inf)
+            @test (@fastmath -_one/_zero) == -convert(T, Inf)
+            @test isnan(@fastmath _zero/_zero) # must not throw
 
-            for x in (zero, two, convert(T, Inf)*m, convert(T, NaN)*m)
+            for x in (_zero, _two, convert(T, Inf)*m, convert(T, NaN)*m)
                 @test (@fastmath isfinite(x))
                 @test !(@fastmath isinf(x))
                 @test !(@fastmath isnan(x))
@@ -359,24 +361,24 @@ end
         end
 
         for T in (Complex64, Complex128, Complex{BigFloat})
-            zero = convert(T, 0)*m
-            one = convert(T, 1)*m + im*eps(real(convert(T,1)))*m
-            two = convert(T, 2)*m + im*m//10
-            three = convert(T, 3)*m + im*m//100
+            _zero = convert(T, 0)*m
+            _one = convert(T, 1)*m + im*eps(real(convert(T,1)))*m
+            _two = convert(T, 2)*m + im*m//10
+            _three = convert(T, 3)*m + im*m//100
 
-            @test isapprox((@fastmath +two), +two)
-            @test isapprox((@fastmath -two), -two)
-            @test isapprox((@fastmath zero+one+two), zero+one+two)
-            @test isapprox((@fastmath zero-one-two), zero-one-two)
-            @test isapprox((@fastmath one*two*three), one*two*three)
-            @test isapprox((@fastmath one/two/three), one/two/three)
-            @test (@fastmath three == two) == (three == two)
-            @test (@fastmath three != two) == (three != two)
-            @test isnan(@fastmath one/zero)  # must not throw
-            @test isnan(@fastmath -one/zero) # must not throw
-            @test isnan(@fastmath zero/zero) # must not throw
+            @test isapprox((@fastmath +_two), +_two)
+            @test isapprox((@fastmath -_two), -_two)
+            @test isapprox((@fastmath _zero+_one+_two), _zero+_one+_two)
+            @test isapprox((@fastmath _zero-_one-_two), _zero-_one-_two)
+            @test isapprox((@fastmath _one*_two*_three), _one*_two*_three)
+            @test isapprox((@fastmath _one/_two/_three), _one/_two/_three)
+            @test (@fastmath _three == _two) == (_three == _two)
+            @test (@fastmath _three != _two) == (_three != _two)
+            @test isnan(@fastmath _one/_zero)  # must not throw
+            @test isnan(@fastmath -_one/_zero) # must not throw
+            @test isnan(@fastmath _zero/_zero) # must not throw
 
-            for x in (zero, two, convert(T, Inf)*m, convert(T, NaN)*m)
+            for x in (_zero, _two, convert(T, Inf)*m, convert(T, NaN)*m)
                 @test (@fastmath isfinite(x))
                 @test !(@fastmath isinf(x))
                 @test !(@fastmath isnan(x))
@@ -672,4 +674,4 @@ end
     end
 end
 
-nothing
+end

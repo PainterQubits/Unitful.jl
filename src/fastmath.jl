@@ -61,7 +61,7 @@ mul_fast{T<:FloatTypes}(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}, t::Quant
         ifelse(x==y, 0, ifelse(x<y, -1, +1))
     function mod_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U})
         r = rem(x,y)
-        ifelse((r > zero(Quantity{T,D,U})) $ (y > zero(Quantity{T,D,U})), r+y, r)
+        ifelse(xor((r > zero(Quantity{T,D,U})), (y > zero(Quantity{T,D,U}))), r+y, r)
     end
 end
 

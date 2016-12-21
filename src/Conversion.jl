@@ -99,7 +99,7 @@ Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.0
     if fpow > typemax(Int) || 1/(fpow) > typemax(Int)
         a *= fpow
     else
-        comp = (pow > 0 ? fpow * num(ex) : 1/fpow * den(ex))
+        comp = (pow > 0 ? fpow * numerator(ex) : 1/fpow * denominator(ex))
         if comp > typemax(Int)
             a *= fpow
         else

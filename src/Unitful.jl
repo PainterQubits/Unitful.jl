@@ -710,9 +710,6 @@ for (f, F) in [(:min, :<), (:max, :>)]
         unit(($f)(Quantity(1.0, x), Quantity(1.0, y)))
 end
 
-@vectorize_2arg Quantity max
-@vectorize_2arg Quantity min
-
 abs(x::Quantity) = Quantity(abs(x.val),  unit(x))
 abs2(x::Quantity) = Quantity(abs2(x.val), unit(x)*unit(x))
 
@@ -792,22 +789,7 @@ for f in (:zero, :floor, :ceil)
 end
 zero{T,D,U}(x::Type{Quantity{T,D,U}}) = zero(T)*U()
 
-"""
-```
-one(x::Quantity)
-```
-
-Returns the multiplicative identity for `x`.
-"""
 one(x::Quantity) = one(x.val)
-
-"""
-```
-one{T,D,U}(x::Type{Quantity{T,U}})
-```
-
-Returns the multiplicative identity for this type (it's `one(T)`).
-"""
 one{T,D,U}(x::Type{Quantity{T,D,U}}) = one(T)
 
 isinteger(x::Quantity) = isinteger(x.val)
