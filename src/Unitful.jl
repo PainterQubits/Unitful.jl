@@ -5,7 +5,7 @@ import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, .\, //, ^, .^
 import Base: show, convert
 import Base: abs, abs2, float, fma, muladd, inv, sqrt
 import Base: min, max, floor, ceil, log, log10, real, imag, conj
-import Base: sin, cos, tan, cot, sec, csc, atan2, cis
+import Base: sin, cos, tan, cot, sec, csc, atan2, cis, vecnorm
 
 import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isinf, isfinite, isnan
@@ -849,6 +849,8 @@ end
 _do_quadgk{Tw}(f, s, n, ::Type{Tw}, abstol, reltol, maxevals, nrm) =
     do_quadgk(f, s, n, Tw, abstol, reltol, maxevals, nrm)
 
+@inline vecnorm(x::Quantity, p::Real=2) =
+    p == 0 ? (x==zero(x) ? typeof(abs(x))(0) : typeof(abs(x))(1)) : abs(x)
 
 """
 ```
