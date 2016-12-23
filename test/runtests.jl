@@ -593,9 +593,9 @@ end
             @test @inferred([1V,2V]*[0.1/m, 0.4/m]') == [0.1V/m 0.4V/m; 0.2V/m 0.8V/m]
             @test @inferred([1m, 2m]' * [3/m, 4/m])  == [11]
             @test typeof([1m, 2m]' * [3/m, 4/m])     == Array{Int,1}
-            @test @inferred([1m, 2V]' * [3/m, 4/V])  == [11]
+            @test_broken @inferred([1m, 2V]' * [3/m, 4/V])  == [11]
             @test typeof([1m, 2V]' * [3/m, 4/V])     == Array{Int,1}
-            @test @inferred([1m, 2V] * [3/m, 4/V]')  == [3 4u"m*V^-1"; 6u"V*m^-1" 8]
+            @test_broken @inferred([1m, 2V] * [3/m, 4/V]')  == [3 4u"m*V^-1"; 6u"V*m^-1" 8]
             # Quantity, number or vice versa
             @test @inferred([1 2] * [3m,4m])         == [11m]
             @test typeof([1 2] * [3m,4m])            == Array{typeof(1u"m"),1}
