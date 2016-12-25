@@ -705,9 +705,6 @@ for (f, F) in [(:min, :<), (:max, :>)]
 
         :($($F)(x.val*$convx, y.val*$convy) ? x : y)
     end
-
-    @eval ($f)(x::Units, y::Units) =        # TODO remove
-        unit(($f)(Quantity(1.0, x), Quantity(1.0, y)))
 end
 
 abs(x::Quantity) = Quantity(abs(x.val),  unit(x))
