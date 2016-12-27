@@ -79,7 +79,11 @@ end
             @test typeof(1cm)(1m) === 100cm
             @test @inferred(upreferred(N)) == kg*m/s^2
             @test @inferred(upreferred(dimension(N))) == kg*m/s^2
-            @test @inferred(upreferred(1N)) === (1//1)*kg*m/s^2
+            @static if VERSION >= v"0.6.0-"
+                @test @inferred(upreferred(1N)) === (1//1)*kg*m/s^2
+            else
+                @test upreferred(1N) === (1//1)*kg*m/s^2
+            end
         end
         @testset ">> Temperature conversion" begin
             # When converting a pure temperature, offsets in temperature are
@@ -193,7 +197,11 @@ end
         @test @inferred(fma(1.0mm/m, 1.0, 1.0)) ≈ 1.001              # llvm good
         @test @inferred(fma(1.0, 1.0μm/m, 1.0μm/m)) === 2.0μm/m      # llvm good
         @test @inferred(fma(2, 1.0, 1μm/m)) === 2.000001             # llvm BAD
-        @test @inferred(fma(2, 1μm/m, 1mm/m)) === 501//500000        # llvm BAD
+        @static if VERSION >= v"0.6.0-"
+            @test @inferred(fma(2, 1μm/m, 1mm/m)) === 501//500000    # llvm BAD
+        else
+            @test fma(2, 1μm/m, 1mm/m) === 501//500000               # llvm BAD
+        end
         @test @inferred(muladd(2.0, 3.0m, 1.0m)) === 7.0m
         @test @inferred(muladd(2.0, 3.0m, 35mm)) === 6.035m
         @test @inferred(muladd(2.0m, 3.0, 35mm)) === 6.035m
@@ -205,7 +213,11 @@ end
         @test @inferred(muladd(1.0mm/m, 1.0, 1.0)) ≈ 1.001
         @test @inferred(muladd(1.0, 1.0μm/m, 1.0μm/m)) === 2.0μm/m
         @test @inferred(muladd(2, 1.0, 1μm/m)) === 2.000001
-        @test @inferred(muladd(2, 1μm/m, 1mm/m)) === 501//500000
+        @static if VERSION >= v"0.6.0-"
+            @test @inferred(muladd(2, 1μm/m, 1mm/m)) === 501//500000
+        else
+            @test muladd(2, 1μm/m, 1mm/m) === 501//500000
+        end
         @test_throws Unitful.DimensionError fma(2m, 1/m, 1m)
         @test_throws Unitful.DimensionError fma(2, 1m, 1V)
     end

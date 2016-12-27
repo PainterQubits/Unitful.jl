@@ -1,7 +1,13 @@
 __precompile__(true)
 module Unitful
 
-import Base: ==, <, <=, +, -, *, /, .+, .-, .*, ./, .\, //, ^, .^
+using Compat
+
+@static if VERSION < v"0.6.0-"
+    import Base: .+, .-, .*, ./, .\
+end
+
+import Base: ==, <, <=, +, -, *, /, //, ^
 import Base: show, convert
 import Base: abs, abs2, float, fma, muladd, inv, sqrt
 import Base: min, max, floor, ceil, log, log10, real, imag, conj
@@ -482,26 +488,29 @@ end
 
 # See operators.jl
 # Element-wise operations with units
-for (f,F) in [(:./, :/), (:.*, :*), (:.+, :+), (:.-, :-)]
-    @eval ($f)(x::Units, y::Units) = ($F)(x,y)
-    @eval ($f)(x::Number, y::Units)   = ($F)(x,y)
-    @eval ($f)(x::Units, y::Number)   = ($F)(x,y)
+@static if VERSION < v"0.6.0-"
+    for (f,F) in [(:./, :/), (:.*, :*), (:.+, :+), (:.-, :-)]
+        @eval ($f)(x::Units, y::Units) = ($F)(x,y)
+        @eval ($f)(x::Number, y::Units)   = ($F)(x,y)
+        @eval ($f)(x::Units, y::Number)   = ($F)(x,y)
+    end
+    .\(x::Unitlike, y::Unitlike) = y./x
+    .\(x::Number, y::Units) = y./x
+    .\(x::Units, y::Number) = y./x
+
+    # See arraymath.jl
+    ./(x::Units, Y::AbstractArray) =
+        reshape([ x ./ y for y in Y ], size(Y))
+    ./(X::AbstractArray, y::Units) =
+        reshape([ x ./ y for x in X ], size(X))
+    .\(x::Units, Y::AbstractArray) =
+        reshape([ x .\ y for y in Y ], size(Y))
+    .\(X::AbstractArray, y::Units) =
+        reshape([ x .\ y for x in X ], size(X))
 end
-.\(x::Unitlike, y::Unitlike) = y./x
-.\(x::Number, y::Units) = y./x
-.\(x::Units, y::Number) = y./x
 
-# See arraymath.jl
-./(x::Units, Y::AbstractArray) =
-    reshape([ x ./ y for y in Y ], size(Y))
-./(X::AbstractArray, y::Units) =
-    reshape([ x ./ y for x in X ], size(X))
-.\(x::Units, Y::AbstractArray) =
-    reshape([ x .\ y for y in Y ], size(Y))
-.\(X::AbstractArray, y::Units) =
-    reshape([ x .\ y for x in X ], size(X))
-
-for f in (:.*, :*) # looked in arraymath.jl for similar code
+# looked in arraymath.jl for similar code
+for f in @static if VERSION < v"0.6.0-"; (:.*, :*); else (:*,) end
     @eval begin
         function ($f){T}(A::Units, B::AbstractArray{T})
             F = similar(B, promote_op($f,typeof(A),T))
@@ -569,7 +578,7 @@ end
 @generated function inv(x::Dimensions)
     tup = x.parameters[1]
     length(tup) == 0 && return :(x)
-    tup2 = map(x->x^-1,tup)
+    tup2 = map(z->z^-1,tup)
     y = *(Dimensions{tup2}())
     :($y)
 end
@@ -705,6 +714,11 @@ for (f, F) in [(:min, :<), (:max, :>)]
 
         :($($F)(x.val*$convx, y.val*$convy) ? x : y)
     end
+end
+
+@static if VERSION < v"0.6.0-"
+    @vectorize_2arg Quantity max
+    @vectorize_2arg Quantity min
 end
 
 abs(x::Quantity) = Quantity(abs(x.val),  unit(x))
@@ -953,18 +967,18 @@ include("fastmath.jl")
 
 defpath = joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl")
 if isfile(defpath)
-    try
+    # try
         include(defpath)
-    catch
-        error("bad defaults file. Backup then delete ",
-            "$(joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl"))",
-            ", then run `Pkg.build(\"Unitful\")` again in a new Julia session.",
-            " You may then merge any changes you had made to the old defaults",
-            " file and use Unitful. There is no need to backup the old file if",
-            " you did not change it. (This error can happen if changes are",
-            " required to the factory defaults following an update. We try to",
-            " limit how often this is required.)")
-    end
+    # catch
+    #     error("bad defaults file. Backup then delete ",
+    #         "$(joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl"))",
+    #         ", then run `Pkg.build(\"Unitful\")` again in a new Julia session.",
+    #         " You may then merge any changes you had made to the old defaults",
+    #         " file and use Unitful. There is no need to backup the old file if",
+    #         " you did not change it. (This error can happen if changes are",
+    #         " required to the factory defaults following an update. We try to",
+    #         " limit how often this is required.)")
+    # end
 else
     error("could not find ",
           "$(joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl")).",
