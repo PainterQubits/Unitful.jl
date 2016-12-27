@@ -204,6 +204,9 @@ else
                 end
             end
         end
+
+        # Defines units preferred by the SI
+        const SI = (m, s, A, K, cd, kg, mol)
         """)
     end
 end

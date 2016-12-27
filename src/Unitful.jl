@@ -25,6 +25,8 @@ export @dimension, @derived_dimension, @refunit, @unit, @u_str
 export Quantity
 export DimensionlessQuantity
 export NoUnits, NoDims
+export simplify
+export SI
 
 include("Types.jl")
 include("User.jl")
@@ -931,6 +933,7 @@ include("Display.jl")
 include("Promotion.jl")
 include("Conversion.jl")
 include("fastmath.jl")
+include("VectorialSpace.jl")
 
 defpath = joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl")
 if isfile(defpath)
