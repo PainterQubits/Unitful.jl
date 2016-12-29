@@ -20,9 +20,8 @@ import Base: prevfloat, nextfloat, maxintfloat, rat, step #, linspace
 import Base: promote_op, promote_array_type, promote_rule, unsafe_getindex
 import Base: length, float, start, done, next, last, one, zero, colon#, range
 import Base: getindex, eltype, step, last, first, frexp
-import Base: Rational, typemin, typemax
+import Base: Integer, Rational, typemin, typemax
 import Base: steprange_last, unitrange_last, unsigned
-import Base: @pure
 
 import Base.LinAlg: istril, istriu
 import Base.QuadGK: quadgk, do_quadgk, rulekey, kronrod
@@ -284,6 +283,25 @@ Just calls `map(dimension, x)`.
 """
 dimension{T<:Units}(x::AbstractArray{T}) = map(dimension, x)
 
+"""
+```
+@generated function Quantity(x::Number, y::Units)
+```
+
+Outer constructor for `Quantity`s. This is a generated function to avoid
+determining the dimensions of a given set of units each time a new quantity is
+made.
+"""
+@generated function Quantity(x::Number, y::Units)
+    if y == typeof(NoUnits)
+        :(x)
+    else
+        u = y()
+        d = dimension(u)
+        :(Quantity{typeof(x), typeof($d), typeof($u)}(x))
+    end
+end
+
 function basefactorhelper(inex, ex, t, p)
     if isinteger(p)
         p = Integer(p)
@@ -367,7 +385,7 @@ end
 *(r::Range, y::Units, z::Units...) = *(x, *(y,z...))
 
 # These six are defined for use in `*(a0::Unitlike, a::Unitlike...)`
-unit{S}(x::Unit{S}) = S
+unit{S,D}(x::Unit{S,D}) = S
 unit{S}(x::Dimension{S}) = S
 tens(x::Unit) = x.tens
 tens(x::Dimension) = 0
@@ -376,18 +394,14 @@ power(x::Dimension) = x.power
 
 """
 ```
-*(a0::Unitlike, a::Unitlike...)
+*(a0::Dimensions, a::Dimensions...)
 ```
 
-Given however many unit-like objects, multiply them together. Both
-[`Unitful.Dimensions`](@ref) and [`Unitful.Units`](@ref) objects are considered
-to be `Unitlike` in the sense that you can multiply them, divide them, and
-collect powers. This function will fail if there is an attempt to multiply a
-unit by a dimension or vice versa.
+Given however many dimensions, multiply them together.
 
-Collect [`Unitful.Unit`](@ref) objects from the type parameter of the
-[`Unitful.Units`](@ref) objects. For identical units including SI prefixes
-(i.e. cm ≠ m), collect powers and sort uniquely by the name of the `Unit`.
+Collect [`Unitful.Dimension`](@ref) objects from the type parameter of the
+[`Unitful.Dimensions`](@ref) objects. For identical dimensions, collect powers
+and sort uniquely by the name of the `Dimension`.
 The unique sorting permits easy unit comparisons.
 
 Examples:
@@ -403,13 +417,9 @@ julia> typeof(u"m/s*kg/s") == typeof(u"kg*m/s^2")
 true
 ```
 """
-@generated function *(a0::Unitlike, a::Unitlike...)
-
-    # Sort the units uniquely. This is a generated function so that we
-    # don't have to figure out the units each time.
-
-    D = a0 <: Units ? Unit : Dimension
-    b = Array{D,1}()
+@generated function *(a0::Dimensions, a::Dimensions...)
+    # Implementation is very similar to *(::Units, ::Units...)
+    b = Vector{Dimension}()
     a0p = a0.parameters[1]
     length(a0p) > 0 && append!(b, a0p)
     for x in a
@@ -417,19 +427,10 @@ true
         length(xp) > 0 && append!(b, xp)
     end
 
-    # b is an Array containing all of the Unit or Dimension objects that were
-    # found in the type parameters of the Units or Dimensions object (a0, a...)
-
     sort!(b, by=x->power(x))
-    D == Unit && sort!(b, by=x->tens(x))
     sort!(b, by=x->unit(x))
 
-    # Units[m,m,cm,cm^2,cm^3,nm,m^4,µs,µs^2,s]
-    # reordered as:
-    # Units[nm,cm,cm^2,cm^3,m,m,m^4,µs,µs^2,s]
-
-    # Collect powers of a given unit
-    c = Array{D,1}()
+    c = Vector{Dimension}()
     if !isempty(b)
         i = start(b)
         oldstate = b[i]
@@ -440,30 +441,31 @@ true
                 p += power(state)
             else
                 if p != 0
-                    push!(c, D{unit(oldstate)}(tens(oldstate),p))
+                    push!(c, Dimension{unit(oldstate)}(tens(oldstate),p))
                 end
                 p = power(state)
             end
             oldstate = state
         end
         if p != 0
-            push!(c, D{unit(oldstate)}(tens(oldstate),p))
+            push!(c, Dimension{unit(oldstate)}(tens(oldstate),p))
         end
     end
-    # results in:
-    # Units[nm,cm^6,m^6,µs^3,s]
 
-    if a0 <: Units
-        T = Units
-        d = (c...)
-        f = typeof(mapreduce(dimension,*,NoDims,c))
-        :(($T){$d,$f}())
-    else
-        T = Dimensions
-        d = (c...)
-        :(($T){$d}())
-    end
+    d = (c...)
+    :(Dimensions{$d}())
 end
+
+# Both methods needed for ambiguity resolution
+^{T}(x::Dimension{T}, y::Integer) = Dimension{T}(power(x)*y)
+^{T}(x::Dimension{T}, y) = Dimension{T}(power(x)*y)
+
+# A word of caution:
+# Exponentiation is not type-stable for `Dimensions` objects.
+^{T}(x::Dimensions{T}, y::Integer) = *(Dimensions{map(a->a^y, T)}())
+^{T}(x::Dimensions{T}, y) = *(Dimensions{map(a->a^y, T)}())
+
+@inline dimension{U,D}(u::Unit{U,D}) = D()^u.power
 
 function *{T,D,U}(x::Quantity{T,D,U}, y::Units, z::Units...)
     result_units = *(U(),y,z...)
@@ -572,26 +574,6 @@ for f in (:mod, :rem)
     end
 end
 
-# Exponentiation is not type stable.
-# For now we define a special `inv` method to at least
-# enable division to be fast.
-@generated function inv(x::Dimensions)
-    tup = x.parameters[1]
-    length(tup) == 0 && return :(x)
-    tup2 = map(z->z^-1,tup)
-    y = *(Dimensions{tup2}())
-    :($y)
-end
-
-@generated function inv(x::Units)
-    tup = x.parameters[1]
-    length(tup) == 0 && return :(x)
-    tup2 = map(x->x^-1,tup)
-    D = typeof(mapreduce(dimension, *, NoDims, tup2))
-    y = *(Units{tup2, D}())
-    :($y)
-end
-
 # Needed until LU factorization is made to work with unitful numbers
 function inv{T<:Quantity}(x::StridedMatrix{T})
     m = inv(ustrip(x))
@@ -602,36 +584,6 @@ end
 for x in (:istriu, :istril)
     @eval ($x){T<:Quantity}(A::AbstractMatrix{T}) = ($x)(ustrip(A))
 end
-
-^{T}(x::Unit{T}, y::Integer) = Unit{T}(tens(x),power(x)*y)
-^{T}(x::Unit{T}, y) = Unit{T}(tens(x),power(x)*y)
-
-^{T}(x::Dimension{T}, y::Integer) = Dimension{T}(power(x)*y)
-^{T}(x::Dimension{T}, y) = Dimension{T}(power(x)*y)
-
-function ^{T}(x::Dimensions{T}, y::Integer)   # needed for ambiguity resolution
-    *(Dimensions{map(a->a^y, T)}())
-end
-
-function ^{T}(x::Dimensions{T}, y)
-    *(Dimensions{map(a->a^y, T)}())
-end
-
-function ^{U,D}(x::Units{U,D}, y::Integer)
-    utup = map(a->a^y, U)
-    *(Units{utup, ()}()) # dimensions get reconstructed anyway
-    # would use mapreduce(dimension, *, NoDims, utup)
-end
-
-function ^{U,D}(x::Units{U,D}, y)
-    utup = map(a->a^y, U)
-    *(Units{utup, ()}())
-end
-
-# All of these are needed for ambiguity resolution
-^{T,D,U}(x::Quantity{T,D,U}, y::Integer) = Quantity((x.val)^y, U()^y)
-^{T,D,U}(x::Quantity{T,D,U}, y::Rational) = Quantity((x.val)^y, U()^y)
-^{T,D,U}(x::Quantity{T,D,U}, y::Real) = Quantity((x.val)^y, U()^y)
 
 # Other mathematical functions
 
@@ -959,6 +911,121 @@ offsettemp(::Unit)
 For temperature units, this function is used to set the scale offset.
 """
 offsettemp(::Unit) = 0
+
+@inline dimtype{U,D}(u::Unit{U,D}) = D
+
+"""
+```
+*(a0::Units, a::Units...)
+```
+
+Given however many units, multiply them together.
+
+Collect [`Unitful.Unit`](@ref) objects from the type parameter of the
+[`Unitful.Units`](@ref) objects. For identical units including SI prefixes
+(i.e. cm ≠ m), collect powers and sort uniquely by the name of the `Unit`.
+The unique sorting permits easy unit comparisons.
+
+Examples:
+
+```jldoctest
+julia> u"kg*m/s^2"
+kg m s^-2
+
+julia> u"m/s*kg/s"
+kg m s^-2
+
+julia> typeof(u"m/s*kg/s") == typeof(u"kg*m/s^2")
+true
+```
+"""
+@generated function *(a0::Units, a::Units...)
+
+    # Sort the units uniquely. This is a generated function so that we
+    # don't have to figure out the units each time.
+    b = Vector{Unit}()
+    a0p = a0.parameters[1]
+    length(a0p) > 0 && append!(b, a0p)
+    for x in a
+        xp = x.parameters[1]
+        length(xp) > 0 && append!(b, xp)
+    end
+
+    # b is an Array containing all of the Unit objects that were
+    # found in the type parameters of the Units objects (a0, a...)
+    sort!(b, by=x->power(x))
+    sort!(b, by=x->tens(x))
+    sort!(b, by=x->unit(x))
+
+    # Units[m,m,cm,cm^2,cm^3,nm,m^4,µs,µs^2,s]
+    # reordered as:
+    # Units[nm,cm,cm^2,cm^3,m,m,m^4,µs,µs^2,s]
+
+    # Collect powers of a given unit
+    c = Vector{Unit}()
+    if !isempty(b)
+        i = start(b)
+        oldstate = b[i]
+        p=0//1
+        while !done(b, i)
+            (state, i) = next(b, i)
+            if tens(state) == tens(oldstate) && unit(state) == unit(oldstate)
+                p += power(state)
+            else
+                if p != 0
+                    push!(c, Unit{unit(oldstate),dimtype(oldstate)}(tens(oldstate),p))
+                end
+                p = power(state)
+            end
+            oldstate = state
+        end
+        if p != 0
+            push!(c, Unit{unit(oldstate),dimtype(oldstate)}(tens(oldstate),p))
+        end
+    end
+    # results in:
+    # Units[nm,cm^6,m^6,µs^3,s]
+
+    d = (c...)
+    f = typeof(mapreduce(dimension, *, NoDims, c))
+    :(Units{$d,$f}())
+end
+
+# Both methods needed for ambiguity resolution
+^{T,D}(x::Unit{T,D}, y::Integer) = Unit{T,typeof(D()^y)}(tens(x),power(x)*y)
+^{T,D}(x::Unit{T,D}, y) = Unit{T,typeof(D()^y)}(tens(x),power(x)*y)
+
+# A word of caution:
+# Exponentiation is not type-stable for `Units` objects.
+# Dimensions get reconstructed anyway so we pass () for the D type parameter...
+^{U,D}(x::Units{U,D}, y::Integer) = *(Units{map(a->a^y, U), ()}())
+^{U,D}(x::Units{U,D}, y) = *(Units{map(a->a^y, U), ()}())
+
+# All of these are needed for ambiguity resolution
+^{T,D,U}(x::Quantity{T,D,U}, y::Integer) = Quantity((x.val)^y, U()^y)
+^{T,D,U}(x::Quantity{T,D,U}, y::Rational) = Quantity((x.val)^y, U()^y)
+^{T,D,U}(x::Quantity{T,D,U}, y::Real) = Quantity((x.val)^y, U()^y)
+
+# Since exponentiation is not type stable, we define a special `inv` method to
+# enable fast division. For julia 0.6.0-dev.1711, the appropriate methods for ^
+# and * need to be defined before this one!
+
+@generated function inv(x::Dimensions)
+    tup = x.parameters[1]
+    length(tup) == 0 && return :(x)
+    y = *(Dimensions{tup.^-1}())
+    :($y)
+end
+
+@generated function inv(x::Units)
+    tup = x.parameters[1]
+    length(tup) == 0 && return :(x)
+    tup2 = tup.^-1#map(x->x^-1,tup)
+    D = typeof(mapreduce(dimension, *, NoDims, tup2))
+    y = *(Units{tup2, D}())
+    :($y)
+end
+
 
 include("Display.jl")
 include("Promotion.jl")

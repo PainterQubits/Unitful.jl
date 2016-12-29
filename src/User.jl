@@ -79,13 +79,12 @@ This example will generate `km`, `m`, `cm`, ...
 macro refunit(symb, abbr, name, dimension, tf)
     x = Expr(:quote, name)
     esc(quote
-        Unitful.abbr(::Unitful.Unit{$x}) = $abbr
-        Unitful.dimension(y::Unitful.Unit{$x}) = $dimension^y.power
-        Unitful.basefactor(y::Unitful.Unit{$x}) = (1.0, 1)
+        Unitful.abbr(::Unitful.Unit{$x,typeof($dimension)}) = $abbr
+        Unitful.basefactor(y::Unitful.Unit{$x,typeof($dimension)}) = (1.0, 1)
         if $tf
-            Unitful.@prefixed_unit_symbols $symb $name
+            Unitful.@prefixed_unit_symbols $symb $name $dimension
         else
-            Unitful.@unit_symbols $symb $name
+            Unitful.@unit_symbols $symb $name $dimension
         end
     end)
 end
@@ -178,20 +177,20 @@ macro unit(symb,abbr,name,equals,tf)
     x = Expr(:quote, name)
     quote
         inex, ex = Unitful.basefactor(Unitful.unit($(esc(equals))))
-        t = Unitful.tensfactor(Unitful.unit($(esc(equals))))
-        eq = ($(esc(equals)))/Unitful.unit($(esc(equals)))
-        Base.isa(eq, Base.Integer) || Base.isa(eq, Base.Rational) ?
-             (ex *= eq) : (inex *= eq)
-        Unitful.abbr(::Unitful.Unit{$(esc(x))}) = $abbr
-        Unitful.dimension(y::Unitful.Unit{$(esc(x))}) =
-            Unitful.dimension($(esc(equals)))^y.power
-        Unitful.basefactor(y::Unitful.Unit{$(esc(x))}) =
-            Unitful.basefactorhelper(inex, ex, t, y.power)
-        if $tf
-            Unitful.@prefixed_unit_symbols $(esc(symb)) $(esc(name))
-        else
-            Unitful.@unit_symbols $(esc(symb)) $(esc(name))
-        end
+        # t = Unitful.tensfactor(Unitful.unit($(esc(equals))))
+        # eq = ($(esc(equals)))/Unitful.unit($(esc(equals)))
+        # Base.isa(eq, Base.Integer) || Base.isa(eq, Base.Rational) ?
+        #      (ex *= eq) : (inex *= eq)
+        # Unitful.abbr(::Unitful.Unit{$(esc(x))}) = $abbr
+        # Unitful.dimension(y::Unitful.Unit{$(esc(x))}) =
+        #     Unitful.dimension($(esc(equals)))^y.power
+        # Unitful.basefactor(y::Unitful.Unit{$(esc(x))}) =
+        #     Unitful.basefactorhelper(inex, ex, t, y.power)
+        # if $tf
+        #     Unitful.@prefixed_unit_symbols $(esc(symb)) $(esc(name))
+        # else
+        #     Unitful.@unit_symbols $(esc(symb)) $(esc(name))
+        # end
     end
 end
 
@@ -203,16 +202,16 @@ macro prefixed_unit_symbols(symb,name)
 Not called directly by the user. Given a unit symbol and a unit's name,
 will define units for each possible SI power-of-ten prefix on that unit.
 
-Example: `@prefixed_unit_symbols m Meter` results in nm, cm, m, km, ...
+Example: `@prefixed_unit_symbols m Meter 𝐋` results in nm, cm, m, km, ...
 all getting defined in the calling namespace.
 """
-macro prefixed_unit_symbols(symb,name)
+macro prefixed_unit_symbols(symb,name,dimension)
     expr = Expr(:block)
 
     z = Expr(:quote, name)
     for (k,v) in prefixdict
         s = Symbol(v,symb)
-        u = Unitful.Unit{name}(k,1//1)
+        u = :(Unitful.Unit{$z, typeof($dimension)}($k,1//1))
         ea = esc(quote
             const $s = Unitful.Units{($u,),typeof(dimension($u))}()
         end)
@@ -221,7 +220,7 @@ macro prefixed_unit_symbols(symb,name)
 
     # These lines allow for μ to be typed with option-m on a Mac.
     s = Symbol(:µ, symb)
-    u = Unitful.Unit{name}(-6,1//1)
+    u = :(Unitful.Unit{$z, typeof($dimension)}(-6,1//1))
     push!(expr.args, esc(quote
         const $s = Unitful.Units{($u,),typeof(dimension($u))}()
     end))
@@ -237,12 +236,12 @@ macro unit_symbols(symb,name)
 Not called directly by the user. Given a unit symbol and a unit's name,
 will define units without SI power-of-ten prefixes.
 
-Example: `@unit_symbols ft Foot` results in `ft` getting defined but not `kft`.
+Example: `@unit_symbols ft Foot 𝐋` results in `ft` getting defined but not `kft`.
 """
-macro unit_symbols(symb,name)
+macro unit_symbols(symb,name,dimension)
     s = Symbol(symb)
     z = Expr(:quote, name)
-    u = Unitful.Unit{name}(0,1//1)
+    u = :(Unitful.Unit{$z,typeof($dimension)}(0,1//1))
     esc(quote
         const $s = Unitful.Units{($u,),typeof(dimension($u))}()
     end)

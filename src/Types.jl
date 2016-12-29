@@ -25,7 +25,7 @@ end
 
 """
 ```
-immutable Unit{U}
+immutable Unit{U,D}
     tens::Int
     power::Rational{Int}
 end
@@ -33,10 +33,11 @@ end
 
 Description of a physical unit, including powers-of-ten prefixes and powers of
 the unit. The name of the unit `U` is a symbol, e.g. `:Meter`, `:Second`,
-`:Gram`, etc. `Unit{U}` objects are collected in a tuple, which is used for the
-type parameter `N` of a [`Units{N,D}`](@ref) object.
+`:Gram`, etc. `D` contains dimension information, e.g.
+`Unit{:Meter, typeof(𝐋)}`. `Unit{U,D}` objects are collected in a tuple,
+which is used for the type parameter `N` of a [`Units{N,D}`](@ref) object.
 """
-immutable Unit{U}
+immutable Unit{U,D}
     tens::Int
     power::Rational{Int}
 end
@@ -111,22 +112,3 @@ true
 ```
 """
 typealias DimensionlessQuantity{T,U} Quantity{T, Dimensions{()}, U}
-
-"""
-```
-@generated function Quantity(x::Number, y::Units)
-```
-
-Outer constructor for `Quantity`s. This is a generated function to avoid
-determining the dimensions of a given set of units each time a new quantity is
-made.
-"""
-@generated function Quantity(x::Number, y::Units)
-    if y == typeof(NoUnits)
-        :(x)
-    else
-        u = y()
-        d = dimension(u)
-        :(Quantity{typeof(x), typeof($d), typeof($u)}(x))
-    end
-end
