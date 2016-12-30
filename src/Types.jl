@@ -3,8 +3,6 @@
 ```
 immutable Dimension{D}
     power::Rational{Int}
-    Dimension(p) = new(p)
-    Dimension(t,p) = new(p)
 end
 ```
 
@@ -13,14 +11,9 @@ Description of a dimension. The name of the dimension `D` is a symbol, e.g.
 
 `Dimension{D}` objects are collected in a tuple, which is used for the type
 parameter `N` of a [`Dimensions{N}`](@ref) object.
-
-The two-argument constructor ignores the first argument and is used only in the
-function [`*(::Unitlike,::Unitlike...)`](@ref).
 """
 immutable Dimension{D}
     power::Rational{Int}
-    Dimension(p) = new(p)
-    Dimension(t,p) = new(p)
 end
 
 """
@@ -40,6 +33,8 @@ which is used for the type parameter `N` of a [`Units{N,D}`](@ref) object.
 immutable Unit{U,D}
     tens::Int
     power::Rational{Int}
+    # inex::Float64
+    # ex::Rational{Int}
 end
 
 """

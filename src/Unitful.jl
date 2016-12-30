@@ -370,10 +370,9 @@ end
 *(r::Range, y::Units, z::Units...) = *(x, *(y,z...))
 
 # These six are defined for use in `*(a0::Unitlike, a::Unitlike...)`
-unit{S,D}(x::Unit{S,D}) = S
-unit{S}(x::Dimension{S}) = S
+name{S,D}(x::Unit{S,D}) = S
+name{S}(x::Dimension{S}) = S
 tens(x::Unit) = x.tens
-tens(x::Dimension) = 0
 power(x::Unit) = x.power
 power(x::Dimension) = x.power
 
@@ -427,7 +426,7 @@ true
     end
 
     sort!(b, by=x->power(x))
-    sort!(b, by=x->unit(x))
+    sort!(b, by=x->name(x))
 
     c = Vector{Dimension}()
     if !isempty(b)
@@ -436,18 +435,18 @@ true
         p=0//1
         while !done(b, i)
             (state, i) = next(b, i)
-            if tens(state) == tens(oldstate) && unit(state) == unit(oldstate)
+            if name(state) == name(oldstate)
                 p += power(state)
             else
                 if p != 0
-                    push!(c, Dimension{unit(oldstate)}(tens(oldstate),p))
+                    push!(c, Dimension{name(oldstate)}(p))
                 end
                 p = power(state)
             end
             oldstate = state
         end
         if p != 0
-            push!(c, Dimension{unit(oldstate)}(tens(oldstate),p))
+            push!(c, Dimension{name(oldstate)}(p))
         end
     end
 
@@ -954,7 +953,7 @@ true
     # found in the type parameters of the Units objects (a0, a...)
     sort!(b, by=x->power(x))
     sort!(b, by=x->tens(x))
-    sort!(b, by=x->unit(x))
+    sort!(b, by=x->name(x))
 
     # Units[m,m,cm,cm^2,cm^3,nm,m^4,µs,µs^2,s]
     # reordered as:
@@ -968,18 +967,18 @@ true
         p=0//1
         while !done(b, i)
             (state, i) = next(b, i)
-            if tens(state) == tens(oldstate) && unit(state) == unit(oldstate)
+            if tens(state) == tens(oldstate) && name(state) == name(oldstate)
                 p += power(state)
             else
                 if p != 0
-                    push!(c, Unit{unit(oldstate),dimtype(oldstate)}(tens(oldstate),p))
+                    push!(c, Unit{name(oldstate),dimtype(oldstate)}(tens(oldstate),p))
                 end
                 p = power(state)
             end
             oldstate = state
         end
         if p != 0
-            push!(c, Unit{unit(oldstate),dimtype(oldstate)}(tens(oldstate),p))
+            push!(c, Unit{name(oldstate),dimtype(oldstate)}(tens(oldstate),p))
         end
     end
     # results in:
