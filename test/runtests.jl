@@ -21,18 +21,19 @@ import Unitful:
 
 @testset "Type construction" begin
     @test typeof(𝐋) == Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
+    @test typeof(𝐋*𝐋) == typeof(𝐋^2)
     @test typeof(1.0m) ==
         Unitful.Quantity{Float64,
             typeof(𝐋),
-            Unitful.Units{(Unitful.Unit{:Meter}(0, 1),), typeof(𝐋)}}
+            Unitful.Units{(Unitful.Unit{:Meter, typeof(𝐋)}(0, 1),), typeof(𝐋)}}
     @test typeof(1m^2) ==
         Unitful.Quantity{Int,
             typeof(𝐋^2),
-            Unitful.Units{(Unitful.Unit{:Meter}(0, 2),), typeof(𝐋^2)}}
+            Unitful.Units{(Unitful.Unit{:Meter, typeof(𝐋)}(0, 2),), typeof(𝐋^2)}}
     @test typeof(1ac) ==
         Unitful.Quantity{Int,
             typeof(𝐋^2),
-            Unitful.Units{(Unitful.Unit{:Acre}(0, 1),), typeof(𝐋^2)}}
+            Unitful.Units{(Unitful.Unit{:Acre, typeof(𝐋^2)}(0, 1),), typeof(𝐋^2)}}
 end
 
 @testset "Conversion" begin

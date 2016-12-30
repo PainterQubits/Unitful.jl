@@ -322,26 +322,11 @@ function basefactorhelper(inex, ex, t, p)
     end
 end
 
-@generated function basefactor(x::Units)
-    tunits = x.parameters[1]
-    fact1 = map(basefactor, tunits)
+function basefactor{U}(x::Units{U})
+    fact1 = map(basefactor, U)
     inex1 = mapreduce(x->getfield(x,1), *, 1.0, fact1)
     ex1   = mapreduce(x->getfield(x,2), *, 1, fact1)
-    :(($inex1,$ex1))
-end
-
-function tensfactor(x::Unit)
-    p = power(x)
-    if isinteger(p)
-        p = Integer(p)
-    end
-    tens(x)*p
-end
-
-@generated function tensfactor(x::Units)
-    tunits = x.parameters[1]
-    a = mapreduce(tensfactor, +, 0, tunits)
-    :($a)
+    inex1, ex1
 end
 
 # Addition / subtraction
@@ -391,6 +376,20 @@ tens(x::Unit) = x.tens
 tens(x::Dimension) = 0
 power(x::Unit) = x.power
 power(x::Dimension) = x.power
+
+function tensfactor(x::Unit)
+    p = power(x)
+    if isinteger(p)
+        p = Integer(p)
+    end
+    tens(x)*p
+end
+
+@generated function tensfactor(x::Units)
+    tunits = x.parameters[1]
+    a = mapreduce(tensfactor, +, 0, tunits)
+    :($a)
+end
 
 """
 ```
@@ -992,8 +991,8 @@ true
 end
 
 # Both methods needed for ambiguity resolution
-^{T,D}(x::Unit{T,D}, y::Integer) = Unit{T,typeof(D()^y)}(tens(x),power(x)*y)
-^{T,D}(x::Unit{T,D}, y) = Unit{T,typeof(D()^y)}(tens(x),power(x)*y)
+^{T,D}(x::Unit{T,D}, y::Integer) = Unit{T,D}(tens(x),power(x)*y)
+^{T,D}(x::Unit{T,D}, y) = Unit{T,D}(tens(x),power(x)*y)
 
 # A word of caution:
 # Exponentiation is not type-stable for `Units` objects.

@@ -176,21 +176,20 @@ macro unit(symb,abbr,name,equals,tf)
     # abbr is a string
     x = Expr(:quote, name)
     quote
+        d = Unitful.dimension($(esc(equals)))
         inex, ex = Unitful.basefactor(Unitful.unit($(esc(equals))))
-        # t = Unitful.tensfactor(Unitful.unit($(esc(equals))))
-        # eq = ($(esc(equals)))/Unitful.unit($(esc(equals)))
-        # Base.isa(eq, Base.Integer) || Base.isa(eq, Base.Rational) ?
-        #      (ex *= eq) : (inex *= eq)
-        # Unitful.abbr(::Unitful.Unit{$(esc(x))}) = $abbr
-        # Unitful.dimension(y::Unitful.Unit{$(esc(x))}) =
-        #     Unitful.dimension($(esc(equals)))^y.power
-        # Unitful.basefactor(y::Unitful.Unit{$(esc(x))}) =
-        #     Unitful.basefactorhelper(inex, ex, t, y.power)
-        # if $tf
-        #     Unitful.@prefixed_unit_symbols $(esc(symb)) $(esc(name))
-        # else
-        #     Unitful.@unit_symbols $(esc(symb)) $(esc(name))
-        # end
+        t = Unitful.tensfactor(Unitful.unit($(esc(equals))))
+        eq = ($(esc(equals)))/Unitful.unit($(esc(equals)))
+        Base.isa(eq, Base.Integer) || Base.isa(eq, Base.Rational) ?
+             (ex *= eq) : (inex *= eq)
+        Unitful.abbr(::Unitful.Unit{$(esc(x)),typeof(d)}) = $abbr
+        Unitful.basefactor(y::Unitful.Unit{$(esc(x)),typeof(d)}) =
+            Unitful.basefactorhelper(inex, ex, t, y.power)
+        if $tf
+            Unitful.@prefixed_unit_symbols($(esc(symb)), $(esc(name)), d)
+        else
+            Unitful.@unit_symbols($(esc(symb)), $(esc(name)), d)
+        end
     end
 end
 
