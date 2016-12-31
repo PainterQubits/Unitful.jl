@@ -302,7 +302,13 @@ made.
     end
 end
 
-function basefactorhelper(inex, ex, t, p)
+@inline name{S,D}(x::Unit{S,D}) = S
+@inline name{S}(x::Dimension{S}) = S
+@inline tens(x::Unit) = x.tens
+@inline power(x::Unit) = x.power
+@inline power(x::Dimension) = x.power
+
+function basefactor(inex, ex, tens, p)
     if isinteger(p)
         p = Integer(p)
     end
@@ -310,17 +316,19 @@ function basefactorhelper(inex, ex, t, p)
     can_exact = (ex < typemax(Int))
     can_exact &= (1/ex < typemax(Int))
 
-    ex2 = 10.0^t*float(ex)^p
+    ex2 = 10.0^tens * float(ex)^p
     can_exact &= (ex2 < typemax(Int))
     can_exact &= (1/ex2 < typemax(Int))
     can_exact &= isinteger(p)
 
     if can_exact
-        (inex^p, (ex//1*(10//1)^t)^p)
+        (inex, (ex//1*(10//1)^tens)^p)
     else
-        ((inex * ex * 10.0^t)^p, 1)
+        ((inex * ex * 10.0^tens)^p, 1)
     end
 end
+
+@inline basefactor(x::Unit) = basefactor(x.inex, x.ex, 0, power(x))
 
 function basefactor{U}(x::Units{U})
     fact1 = map(basefactor, U)
@@ -368,13 +376,6 @@ end
 
 *(r::Range, y::Units) = range(first(r)*y, step(r)*y, length(r))
 *(r::Range, y::Units, z::Units...) = *(x, *(y,z...))
-
-# These six are defined for use in `*(a0::Unitlike, a::Unitlike...)`
-name{S,D}(x::Unit{S,D}) = S
-name{S}(x::Dimension{S}) = S
-tens(x::Unit) = x.tens
-power(x::Unit) = x.power
-power(x::Dimension) = x.power
 
 function tensfactor(x::Unit)
     p = power(x)
@@ -649,10 +650,10 @@ for (f, F) in [(:min, :<), (:max, :>)]
         xunits = x.parameters[3].parameters[1]
         yunits = y.parameters[3].parameters[1]
 
-        factx = mapreduce(.*, xunits) do x
+        factx = mapreduce((x,y)->broadcast(*,x,y), xunits) do x
             vcat(basefactor(x)...)
         end
-        facty = mapreduce(.*, yunits) do x
+        facty = mapreduce((x,y)->broadcast(*,x,y), yunits) do x
             vcat(basefactor(x)...)
         end
 
@@ -971,14 +972,16 @@ true
                 p += power(state)
             else
                 if p != 0
-                    push!(c, Unit{name(oldstate),dimtype(oldstate)}(tens(oldstate),p))
+                    push!(c, Unit{name(oldstate),dimtype(oldstate)}(
+                        tens(oldstate), p, oldstate.inex, oldstate.ex))
                 end
                 p = power(state)
             end
             oldstate = state
         end
         if p != 0
-            push!(c, Unit{name(oldstate),dimtype(oldstate)}(tens(oldstate),p))
+            push!(c, Unit{name(oldstate),dimtype(oldstate)}(
+                tens(oldstate), p, oldstate.inex, oldstate.ex))
         end
     end
     # results in:
@@ -990,8 +993,8 @@ true
 end
 
 # Both methods needed for ambiguity resolution
-^{T,D}(x::Unit{T,D}, y::Integer) = Unit{T,D}(tens(x),power(x)*y)
-^{T,D}(x::Unit{T,D}, y) = Unit{T,D}(tens(x),power(x)*y)
+^{T,D}(x::Unit{T,D}, y::Integer) = Unit{T,D}(tens(x), power(x)*y, x.inex, x.ex)
+^{T,D}(x::Unit{T,D}, y) = Unit{T,D}(tens(x), power(x)*y, x.inex, x.ex)
 
 # A word of caution:
 # Exponentiation is not type-stable for `Units` objects.

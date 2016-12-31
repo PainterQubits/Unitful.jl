@@ -21,20 +21,30 @@ end
 immutable Unit{U,D}
     tens::Int
     power::Rational{Int}
+    inex::Float64
+    ex::Rational{Int}
+    Unit(a,b,c,d) = new(a,b,c,d)
+    Unit(a,b,c::NTuple{2}) = new(a,b,c[1],c[2])
 end
 ```
 
 Description of a physical unit, including powers-of-ten prefixes and powers of
-the unit. The name of the unit `U` is a symbol, e.g. `:Meter`, `:Second`,
-`:Gram`, etc. `D` contains dimension information, e.g.
-`Unit{:Meter, typeof(𝐋)}`. `Unit{U,D}` objects are collected in a tuple,
-which is used for the type parameter `N` of a [`Units{N,D}`](@ref) object.
+the unit. The name of the unit is encoded in the type parameter `U` as a symbol,
+e.g. `:Meter`, `:Second`, `:Gram`, etc. The type parameter `D` contains dimension
+information, for instance `Unit{:Meter, typeof(𝐋)}` or `Unit{:Liter, typeof(𝐋^3)}`.
+Note that the dimension information refers to the unit, not powers of the unit.
+
+`Unit{U,D}` objects are almost never explicitly manipulated by the user. They
+are collected in a tuple, which is used for the type parameter `N` of a
+[`Units{N,D}`](@ref) object.
 """
 immutable Unit{U,D}
     tens::Int
     power::Rational{Int}
-    # inex::Float64
-    # ex::Rational{Int}
+    inex::Float64
+    ex::Rational{Int}
+    Unit(a,b,c,d) = new(a,b,c,d)
+    Unit(a,b,c::NTuple{2}) = new(a,b,c[1],c[2])
 end
 
 """
@@ -42,10 +52,8 @@ end
 abstract Unitlike
 ```
 
-Abstract container type for units or dimensions, which need similar
-manipulations for collecting powers and sorting. This abstract type is probably
-not strictly necessary but facilitates code reuse (see
-[`*(::Unitlike,::Unitlike...)`](@ref)).
+Abstract type facilitating code reuse between [`Unitful.Units`](@ref) and
+[`Unitful.Dimensions`](@ref) objects.
 """
 abstract Unitlike
 

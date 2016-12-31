@@ -80,11 +80,10 @@ macro refunit(symb, abbr, name, dimension, tf)
     x = Expr(:quote, name)
     esc(quote
         Unitful.abbr(::Unitful.Unit{$x,typeof($dimension)}) = $abbr
-        Unitful.basefactor(y::Unitful.Unit{$x,typeof($dimension)}) = (1.0, 1)
         if $tf
-            Unitful.@prefixed_unit_symbols $symb $name $dimension
+            Unitful.@prefixed_unit_symbols $symb $name $dimension (1.0, 1)
         else
-            Unitful.@unit_symbols $symb $name $dimension
+            Unitful.@unit_symbols $symb $name $dimension (1.0, 1)
         end
     end)
 end
@@ -183,34 +182,34 @@ macro unit(symb,abbr,name,equals,tf)
         Base.isa(eq, Base.Integer) || Base.isa(eq, Base.Rational) ?
              (ex *= eq) : (inex *= eq)
         Unitful.abbr(::Unitful.Unit{$(esc(x)),typeof(d)}) = $abbr
-        Unitful.basefactor(y::Unitful.Unit{$(esc(x)),typeof(d)}) =
-            Unitful.basefactorhelper(inex, ex, t, y.power)
         if $tf
-            Unitful.@prefixed_unit_symbols($(esc(symb)), $(esc(name)), d)
+            Unitful.@prefixed_unit_symbols($(esc(symb)), $(esc(name)), d,
+                Unitful.basefactor(inex, ex, t, 1))
         else
-            Unitful.@unit_symbols($(esc(symb)), $(esc(name)), d)
+            Unitful.@unit_symbols($(esc(symb)), $(esc(name)), d,
+                Unitful.basefactor(inex, ex, t, 1))
         end
     end
 end
 
 """
 ```
-macro prefixed_unit_symbols(symb,name)
+macro prefixed_unit_symbols(symb,name,dimension,basefactor)
 ```
 
 Not called directly by the user. Given a unit symbol and a unit's name,
 will define units for each possible SI power-of-ten prefix on that unit.
 
-Example: `@prefixed_unit_symbols m Meter 𝐋` results in nm, cm, m, km, ...
+Example: `@prefixed_unit_symbols m Meter 𝐋 (1.0,1)` results in nm, cm, m, km, ...
 all getting defined in the calling namespace.
 """
-macro prefixed_unit_symbols(symb,name,dimension)
+macro prefixed_unit_symbols(symb,name,dimension,basefactor)
     expr = Expr(:block)
 
     z = Expr(:quote, name)
     for (k,v) in prefixdict
         s = Symbol(v,symb)
-        u = :(Unitful.Unit{$z, typeof($dimension)}($k,1//1))
+        u = :(Unitful.Unit{$z, typeof($dimension)}($k,1//1,$basefactor))
         ea = esc(quote
             const $s = Unitful.Units{($u,),typeof(dimension($u))}()
         end)
@@ -219,7 +218,7 @@ macro prefixed_unit_symbols(symb,name,dimension)
 
     # These lines allow for μ to be typed with option-m on a Mac.
     s = Symbol(:µ, symb)
-    u = :(Unitful.Unit{$z, typeof($dimension)}(-6,1//1))
+    u = :(Unitful.Unit{$z, typeof($dimension)}(-6,1//1,$basefactor))
     push!(expr.args, esc(quote
         const $s = Unitful.Units{($u,),typeof(dimension($u))}()
     end))
@@ -237,10 +236,10 @@ will define units without SI power-of-ten prefixes.
 
 Example: `@unit_symbols ft Foot 𝐋` results in `ft` getting defined but not `kft`.
 """
-macro unit_symbols(symb,name,dimension)
+macro unit_symbols(symb,name,dimension,basefactor)
     s = Symbol(symb)
     z = Expr(:quote, name)
-    u = :(Unitful.Unit{$z,typeof($dimension)}(0,1//1))
+    u = :(Unitful.Unit{$z,typeof($dimension)}(0,1//1,$basefactor))
     esc(quote
         const $s = Unitful.Units{($u,),typeof(dimension($u))}()
     end)

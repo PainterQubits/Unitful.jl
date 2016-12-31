@@ -25,15 +25,18 @@ import Unitful:
     @test typeof(1.0m) ==
         Unitful.Quantity{Float64,
             typeof(𝐋),
-            Unitful.Units{(Unitful.Unit{:Meter, typeof(𝐋)}(0, 1),), typeof(𝐋)}}
+            Unitful.Units{(Unitful.Unit{:Meter, typeof(𝐋)}(0, 1, 1.0, 1//1),),
+                typeof(𝐋)}}
     @test typeof(1m^2) ==
         Unitful.Quantity{Int,
             typeof(𝐋^2),
-            Unitful.Units{(Unitful.Unit{:Meter, typeof(𝐋)}(0, 2),), typeof(𝐋^2)}}
+            Unitful.Units{(Unitful.Unit{:Meter, typeof(𝐋)}(0, 2, 1.0, 1//1),),
+                typeof(𝐋^2)}}
     @test typeof(1ac) ==
         Unitful.Quantity{Int,
             typeof(𝐋^2),
-            Unitful.Units{(Unitful.Unit{:Acre, typeof(𝐋^2)}(0, 1),), typeof(𝐋^2)}}
+            Unitful.Units{(Unitful.Unit{:Acre, typeof(𝐋^2)}(0, 1, 1.0, 316160658//78125),),
+                typeof(𝐋^2)}}
 end
 
 @testset "Conversion" begin
@@ -233,7 +236,7 @@ end
         @test @inferred(zero(typeof(1.0m))) === 0.0m
         @test @inferred(π/2*u"rad" + 90u"°") ≈ π         # Dimless quantities
         @test @inferred(π/2*u"rad" - 90u"°") ≈ 0         # Dimless quantities
-        @test_throws Unitful.DimensionError 1+1m                 # Dim mismatched
+        @test_throws Unitful.DimensionError 1+1m         # Dim mismatched
         @test_throws Unitful.DimensionError 1-1m
     end
 
@@ -264,8 +267,8 @@ end
     @testset "> Exponentiation" begin
         @test @inferred(m^3/m) == m^2
         @test @inferred(𝐋^3/𝐋) == 𝐋^2
-        @test @inferred(sqrt(4m^2)) == 2m                # sqrt works
-        @test sqrt(4m^(2//3)) == 2m^(1//3)    # less trivial example
+        @test @inferred(sqrt(4m^2)) == 2m
+        @test sqrt(4m^(2//3)) == 2m^(1//3)
         @test @inferred(sqrt(𝐋^2)) == 𝐋
         @test @inferred(sqrt(m^2)) == m
         @test (2m)^3 == 8*m^3
@@ -606,9 +609,9 @@ end
             @test @inferred([1V,2V]*[0.1/m, 0.4/m]') == [0.1V/m 0.4V/m; 0.2V/m 0.8V/m]
             @test @inferred([1m, 2m]' * [3/m, 4/m])  == [11]
             @test typeof([1m, 2m]' * [3/m, 4/m])     == Array{Int,1}
-            @test_broken @inferred([1m, 2V]' * [3/m, 4/V])  == [11]
+            @test @inferred([1m, 2V]' * [3/m, 4/V])  == [11]
             @test typeof([1m, 2V]' * [3/m, 4/V])     == Array{Int,1}
-            @test_broken @inferred([1m, 2V] * [3/m, 4/V]')  == [3 4u"m*V^-1"; 6u"V*m^-1" 8]
+            @test @inferred([1m, 2V] * [3/m, 4/V]')  == [3 4u"m*V^-1"; 6u"V*m^-1" 8]
             # Quantity, number or vice versa
             @test @inferred([1 2] * [3m,4m])         == [11m]
             @test typeof([1 2] * [3m,4m])            == Array{typeof(1u"m"),1}
@@ -627,9 +630,9 @@ end
             @test typeof([1m, 2m, 3m] * 5m)            == Array{typeof(1u"m^2"),1}
             @test @inferred(5m .* [1m, 2m, 3m])        == [5m^2, 10m^2, 15m^2]
             @test typeof(5m .* [1m, 2m, 3m])           == Array{typeof(1u"m^2"),1}
-            @test @inferred(eye(2).*V)                 == [1.0V 0.0V; 0.0V 1.0V]
+            @test_broken @inferred(eye(2).*V)          == [1.0V 0.0V; 0.0V 1.0V]
 
-            @test @inferred(V.*eye(2))                 == [1.0V 0.0V; 0.0V 1.0V]
+            @test_broken @inferred(V.*eye(2))          == [1.0V 0.0V; 0.0V 1.0V]
             @test @inferred([1V 2V; 0V 3V].*2)         == [2V 4V; 0V 6V]
             @test @inferred([1V, 2V] .* [true, false]) == [1V, 0V]
             @test @inferred([1.0m, 2.0m] ./ 3)         == [1m/3, 2m/3]
