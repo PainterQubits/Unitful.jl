@@ -1,7 +1,10 @@
 module UnitfulTests
 
 using Unitful
+import QuadGK
 using Base.Test
+
+import Unitful: DimensionError
 
 import Unitful: m, ac, g, A, kg, cm, inch, mi, ft, °Ra, °F, °C, μm,
     s, A, K, N, mol, cd, rad, V, cm, hr, mm, km, minute, °, J
@@ -41,8 +44,8 @@ end
 
 @testset "Conversion" begin
     @testset "> Unitless ↔ unitful conversion" begin
-        @test_throws Unitful.DimensionError convert(typeof(3m),1)
-        @test_throws Unitful.DimensionError convert(Float64, 3m)
+        @test_throws DimensionError convert(typeof(3m),1)
+        @test_throws DimensionError convert(Float64, 3m)
         @test @inferred(3m/unit(3m)) === 3
         @test @inferred(3.0g/unit(3.0g)) === 3.0
         @test @inferred(ustrip(3m)) === 3
@@ -186,10 +189,10 @@ end
         @test 1 > 1μm/m
         @test 1μm/m < 1mm/m
         @test 1mm/m > 1μm/m
-        @test_throws Unitful.DimensionError 1m < 1kg
-        @test_throws Unitful.DimensionError 1m < 1
-        @test_throws Unitful.DimensionError 1 < 1m
-        @test_throws Unitful.DimensionError 1mm/m < 1m
+        @test_throws DimensionError 1m < 1kg
+        @test_throws DimensionError 1m < 1
+        @test_throws DimensionError 1 < 1m
+        @test_throws DimensionError 1mm/m < 1m
         @test @inferred(fma(2.0, 3.0m, 1.0m)) === 7.0m               # llvm good
         @test @inferred(fma(2.0, 3.0m, 35mm)) === 6.035m             # llvm good
         @test @inferred(fma(2.0m, 3.0, 35mm)) === 6.035m             # llvm good
@@ -222,8 +225,8 @@ end
         else
             @test muladd(2, 1μm/m, 1mm/m) === 501//500000
         end
-        @test_throws Unitful.DimensionError fma(2m, 1/m, 1m)
-        @test_throws Unitful.DimensionError fma(2, 1m, 1V)
+        @test_throws DimensionError fma(2m, 1/m, 1m)
+        @test_throws DimensionError fma(2, 1m, 1V)
     end
 
     @testset "> Addition and subtraction" begin
@@ -236,8 +239,8 @@ end
         @test @inferred(zero(typeof(1.0m))) === 0.0m
         @test @inferred(π/2*u"rad" + 90u"°") ≈ π         # Dimless quantities
         @test @inferred(π/2*u"rad" - 90u"°") ≈ 0         # Dimless quantities
-        @test_throws Unitful.DimensionError 1+1m         # Dim mismatched
-        @test_throws Unitful.DimensionError 1-1m
+        @test_throws DimensionError 1+1m         # Dim mismatched
+        @test_throws DimensionError 1-1m
     end
 
     @testset "> Multiplication" begin
@@ -311,10 +314,35 @@ end
         @test isapprox(1.0u"m",(1.0+eps(1.0))u"m")
         @test isapprox(1.0u"μm/m",1e-6)
         @test !isapprox(1.0u"μm/m",1e-7)
-        @test_throws Unitful.DimensionError isapprox(1.0u"m",5)
+        @test_throws DimensionError isapprox(1.0u"m",5)
         @test frexp(1.5m) == (0.75m, 1.0)
         @test unit(nextfloat(0.0m)) == m
         @test unit(prevfloat(0.0m)) == m
+    end
+
+    @testset "> QuadGK" begin
+        # Test physical quantity-valued functions
+        @test QuadGK.quadgk(x->x*m, 0.0, 1.0, abstol=0.0m)[1] ≈ 0.5m
+
+        # Test integration over an axis with units
+        @test QuadGK.quadgk(x->ustrip(x), 0.0m, 1.0m, abstol=0.0m)[1] ≈ 0.5m
+
+        # Test integration where the unitful domain is infinite or semi-infinite
+        @test QuadGK.quadgk(x->exp(-x/(1.0m)), 0.0m, Inf*m, abstol=0.0m)[1] ≈ 1.0m
+        @test QuadGK.quadgk(x->exp(x/(1.0m)), -Inf*m, 0.0m, abstol=0.0m)[1] ≈ 1.0m
+        @test QuadGK.quadgk(x->exp(-abs(x/(1.0m))),
+            -Inf*m, Inf*m, abstol=0.0m)[1] ≈ 2.0m
+
+        # Test mixed case (physical quantity-valued f and unitful domain)
+        @test QuadGK.quadgk(t->ustrip(t)*m/s, 0.0s, 2.0s, abstol=0.0m)[1] ≈ 2.0m
+
+        # Test that errors are thrown when dimensionally unsound
+        @test_throws DimensionError QuadGK.quadgk(x->ustrip(x), 0.0m, 1.0s)[1]
+        @test_throws DimensionError QuadGK.quadgk(x->ustrip(x), 0.0, 1.0m)[1]
+
+        # Test that we throw an error when abstol is not specified (at present
+        # I believe it is only possible to check when the domain is unitful)
+        @test_throws ErrorException QuadGK.quadgk(x->ustrip(x), 0.0m, 1.0m)
     end
 
     @testset "> fastmath" begin
@@ -658,8 +686,8 @@ end
             @test typeof([1mm/m] + [1cm/m])          == Array{Rational{Int},1}
             @test @inferred([1mm/m] + [2])           == [2001//1000]
             @test typeof([1mm/m] + [2])              == Array{Rational{Int},1}
-            @test_throws Unitful.DimensionError [1m] + [2V]
-            @test_throws Unitful.DimensionError [1] + [1m]
+            @test_throws DimensionError [1m] + [2V]
+            @test_throws DimensionError [1] + [1m]
         end
 
         @testset ">> Element-wise addition" begin

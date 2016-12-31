@@ -24,7 +24,8 @@ import Base: Integer, Rational, typemin, typemax
 import Base: steprange_last, unitrange_last, unsigned
 
 import Base.LinAlg: istril, istriu
-import Base.QuadGK: quadgk, do_quadgk, rulekey, kronrod
+
+import QuadGK
 
 export unit, dimension, uconvert, ustrip, upreferred
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
@@ -769,12 +770,32 @@ real(x::Quantity) = Quantity(real(x.val), unit(x))
 imag(x::Quantity) = Quantity(imag(x.val), unit(x))
 conj(x::Quantity) = Quantity(conj(x.val), unit(x))
 
-quadgk(f, a::Quantity, b::Quantity, c::Quantity...; kw...) = throw(DimensionError())
+function QuadGK.quadgk(f, a::Quantity, b::Quantity, c::Quantity...; kws...)
+    d = dimension(a)
+    d != dimension(b) && throw(DimensionError())
+    for x in c
+        d != dimension(x) && throw(DimensionError())
+    end
+    QuadGK.quadgk(f, promote(a,b,c...)...; kws...)
+end
 
-function quadgk{T<:AbstractFloat,D,U}(f, a::Quantity{T,D,U}, b::Quantity{T,D,U},
-    c::Quantity{T,D,U}...; abstol=zero(f(a)*a), reltol=sqrt(eps(T)),
+function QuadGK.quadgk{T<:AbstractFloat,D,U}(f, a::Quantity{T,D,U},
+    b::Quantity{T,D,U}, c::Quantity{T,D,U}...; abstol=NaN, reltol=sqrt(eps(T)),
     maxevals=10^7, order=7, norm=vecnorm)
+    if isnan(abstol)
+        error("must provide an explicit abstol keyword argument, e.g. ",
+              "`zero(f(a)*a)` supposing f is defined at a.")
+    end
+    _do_quadgk(f, [a, b, c...], order, T, abstol, reltol, maxevals, norm)
+end
 
+function QuadGK.quadgk{T<:AbstractFloat,D,U}(f, a::Quantity{Complex{T},D,U},
+    b::Quantity{Complex{T},D,U}, c::Quantity{Complex{T},D,U}...; abstol=NaN,
+    reltol=sqrt(eps(T)), maxevals=10^7, order=7, norm=vecnorm)
+    if isnan(abstol)
+        error("must provide an explicit abstol keyword argument, e.g. ",
+              "`zero(f(a)*a)` supposing f is defined at a.")
+    end
     _do_quadgk(f, [a, b, c...], order, T, abstol, reltol, maxevals, norm)
 end
 
@@ -786,7 +807,7 @@ function _do_quadgk{Tw,T<:Real,D,U}(f, s::Array{Quantity{T,D,U},1}, n, ::Type{Tw
     s1 = s_no_u[1]; s2 = s_no_u[end]; inf1 = isinf(s1); inf2 = isinf(s2)
     if inf1 || inf2
         if inf1 && inf2 # x = t/(1-t^2) coordinate transformation
-            return do_quadgk(t -> begin t2 = t*t; den = 1 / (1 - t2);
+            return QuadGK.do_quadgk(t -> begin t2 = t*t; den = 1 / (1 - t2);
                                     f(t*den*U())*U() * (1+t2)*den*den; end,
                              map(x -> isinf(x) ? copysign(one(x), x) :
                                  2x / (1+hypot(1,2x)), s_no_u),
@@ -794,22 +815,22 @@ function _do_quadgk{Tw,T<:Real,D,U}(f, s::Array{Quantity{T,D,U},1}, n, ::Type{Tw
         end
         s0,si = inf1 ? (s2,s1) : (s1,s2)
         if si < 0 # x = s0 - t/(1-t)
-            return do_quadgk(t -> begin den = 1 / (1 - t);
+            return QuadGK.do_quadgk(t -> begin den = 1 / (1 - t);
                                     f((s0 - t*den)*U())*U() * den*den; end,
                              reverse!(map(x -> 1 / (1 + 1 / (s0 - x)), s_no_u)),
                              n, T, abstol, reltol, maxevals, nrm)
         else # x = s0 + t/(1-t)
-            return do_quadgk(t -> begin den = 1 / (1 - t);
+            return QuadGK.do_quadgk(t -> begin den = 1 / (1 - t);
                                     f((s0 + t*den)*U())*U() * den*den; end,
                              map(x -> 1 / (1 + 1 / (x - s0)), s_no_u),
                              n, T, abstol, reltol, maxevals, nrm)
         end
     end
-    do_quadgk(f, s, n, Tw, abstol, reltol, maxevals, nrm)
+    QuadGK.do_quadgk(f, s, n, Tw, abstol, reltol, maxevals, nrm)
 end
 
 _do_quadgk{Tw}(f, s, n, ::Type{Tw}, abstol, reltol, maxevals, nrm) =
-    do_quadgk(f, s, n, Tw, abstol, reltol, maxevals, nrm)
+    QuadGK.do_quadgk(f, s, n, Tw, abstol, reltol, maxevals, nrm)
 
 @inline vecnorm(x::Quantity, p::Real=2) =
     p == 0 ? (x==zero(x) ? typeof(abs(x))(0) : typeof(abs(x))(1)) : abs(x)
