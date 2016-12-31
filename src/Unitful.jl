@@ -1014,14 +1014,14 @@ end
 @generated function inv(x::Dimensions)
     tup = x.parameters[1]
     length(tup) == 0 && return :(x)
-    y = *(Dimensions{tup.^-1}())
+    y = *(Dimensions{map(x->x^-1,tup)}())
     :($y)
 end
 
 @generated function inv(x::Units)
     tup = x.parameters[1]
     length(tup) == 0 && return :(x)
-    tup2 = tup.^-1#map(x->x^-1,tup)
+    tup2 = map(x->x^-1,tup)
     D = typeof(mapreduce(dimension, *, NoDims, tup2))
     y = *(Units{tup2, D}())
     :($y)

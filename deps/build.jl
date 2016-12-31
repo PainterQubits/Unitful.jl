@@ -81,7 +81,8 @@ else
         end
 
         # The hectare is used more frequently than any other power-of-ten of an are.
-        const ha = Unitful.Units{(Unitful.Unit{:Are}(2,1//1),), typeof(𝐋)}()
+        const ha = Unitful.Units{(Unitful.Unit{:Are, Unitful.Dimensions{
+            (Unitful.Dimension{:Length}(2//1),)}}(2,1//1,1.0,100//1),), typeof(𝐋^2)}()
 
         # Time
         @unit minute "min"      Minute      60s                     false
