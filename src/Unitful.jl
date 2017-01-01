@@ -151,7 +151,7 @@ julia> unit(1.0u"m") == u"m"
 true
 
 julia> typeof(u"m")
-Unitful.Units{(Unitful.Unit{:Meter}(0,1//1),),Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}
+Unitful.Units{(Unitful.Unit{:Meter,Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}(0,1//1,1.0,1//1),),Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}
 ```
 """
 @inline unit{T,D,U}(x::Quantity{T,D,U}) = U()

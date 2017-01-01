@@ -4,8 +4,9 @@ DocTestSetup = quote
 end
 ```
 ## Overview
-We define a [`Unitful.Unit{U}`](@ref) type to represent a unit (`U` is a symbol,
-like `:Meter`). `Unit`s keep track of a rational exponents and a power-of-ten
+We define a [`Unitful.Unit{U,D}`](@ref) type to represent a unit (`U` is a symbol,
+like `:Meter`, and `D` keeps track of dimensional information).
+Fields of a `Unit` object keep track of a rational exponents and a power-of-ten
 prefix. We don't allow arbitrary floating point exponents of units because they
 probably aren't very useful. The prefixes on units (e.g. `nm` or `km`) may help
 to avoid overflow issues and general ugliness.
@@ -39,6 +40,6 @@ some subset of [`Unitful.Quantity`](@ref) subtypes.
     Unitful.Unitlike
     Unitful.Units{N}
     Unitful.Dimensions{N}
-    Unitful.Unit{U}
+    Unitful.Unit{U,D}
     Unitful.Dimension{D}
 ```

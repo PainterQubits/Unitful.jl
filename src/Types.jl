@@ -52,7 +52,7 @@ end
 abstract Unitlike
 ```
 
-Abstract type facilitating code reuse between [`Unitful.Units`](@ref) and
+Abstract type facilitating some code reuse between [`Unitful.Units`](@ref) and
 [`Unitful.Dimensions`](@ref) objects.
 """
 abstract Unitlike
@@ -64,9 +64,9 @@ immutable Units{N,D} <: Unitlike
 
 Instances of this object represent units, possibly combinations thereof.
 Example: the unit `m` is actually a singleton of type
-`Units{(Unit{:Meter}(0,1),), typeof(u"𝐋")}`.
+`Unitful.Units{(Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1,1.0,1//1),),typeof(𝐋)`.
 After dividing by `s`, a singleton of type
-`Units{(Unit{:Meter}(0,1),Unit{:Second}(0,-1)), typeof(u"𝐋")}` is returned.
+`Unitful.Units{(Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1,1.0,1//1),Unitful.Unit{:Second,typeof(𝐓)}(0,-1//1,1.0,1//1)),typeof(𝐋/𝐓)}` is returned.
 """
 immutable Units{N,D} <: Unitlike end
 

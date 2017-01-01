@@ -29,7 +29,7 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f73bc51dd8c5dd9f645fd55c96e4fdc4ed14858e/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/d2424123e50241db7a88b81f66f302923fb394fe/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 Since objects are callable, we can also make [`Unitful.Units`](types.md#Unitful.Units) callable with a `Number` as an argument, for a unit conversion shorthand:

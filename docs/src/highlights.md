@@ -75,7 +75,7 @@ julia> @unit c "c" SpeedOfLight 299792458u"m/s" false
 c
 
 julia> Diagonal([-1.0c^2, 1.0, 1.0, 1.0])
-4×4 Diagonal{Number}:
+4×4 Diagonal{Unitful.Quantity{Float64,D,U}}:
  -1.0 c^2   ⋅    ⋅    ⋅
        ⋅   1.0   ⋅    ⋅
        ⋅    ⋅   1.0   ⋅
@@ -84,14 +84,14 @@ julia> Diagonal([-1.0c^2, 1.0, 1.0, 1.0])
 
 ## Units with rational exponents
 
-```
+```jldoctest
 julia> 1.0u"V/sqrt(Hz)"
 1.0 Hz^-1/2 V
 ```
 
 ## Exact conversions respected
 
-```
+```jldoctest
 julia> uconvert(u"ft",1u"inch")
 1//12 ft
 ```
