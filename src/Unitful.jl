@@ -26,7 +26,7 @@ import Base: steprange_last, unitrange_last, unsigned
 import Base.LinAlg: istril, istriu
 
 export unit, dimension, uconvert, ustrip, upreferred
-export @register, @dimension, @derived_dimension, @refunit, @unit, @u_str
+export @dimension, @derived_dimension, @refunit, @unit, @u_str
 export Quantity
 export DimensionlessQuantity
 export NoUnits, NoDims
@@ -40,6 +40,10 @@ const NoUnits = Units{(), Dimensions{()}}()
 const NoDims = Dimensions{()}()
 
 (y::Units)(x::Number) = uconvert(y,x)
+
+function __init__()
+    Unitful.register(Unitful)
+end
 
 """
 ```
@@ -988,14 +992,15 @@ include("Display.jl")
 include("Promotion.jl")
 include("Conversion.jl")
 include("fastmath.jl")
+include("pkgdefaults.jl")
 
-defpath = joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl")
+defpath = joinpath(dirname(dirname(@__FILE__)),"deps","userdefaults.jl")
 if isfile(defpath)
     try
         include(defpath)
     catch
         error("bad defaults file. Backup then delete ",
-            "$(joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl"))",
+            "$(joinpath(dirname(dirname(@__FILE__)),"deps","userdefaults.jl"))",
             ", then run `Pkg.build(\"Unitful\")` again in a new Julia session.",
             " You may then merge any changes you had made to the old defaults",
             " file and use Unitful. There is no need to backup the old file if",
@@ -1005,7 +1010,7 @@ if isfile(defpath)
     end
 else
     error("could not find ",
-          "$(joinpath(dirname(dirname(@__FILE__)),"deps","Defaults.jl")).",
+          "$(joinpath(dirname(dirname(@__FILE__)),"deps","userdefaults.jl")).",
           " Run `Pkg.build(\"Unitful\")` to generate this file.")
 end
 

@@ -9,15 +9,22 @@ Typically this macro is used in a module and not called directly by the user.
 Example:
 ```
 function __init__()
-    @register UnitfulSI
+    Unitful.@register UnitfulSI
 end
 ```
 """
-macro register(unit_module)
-    esc(quote
-        push!(Unitful.unitmodules, $unit_module)
-    end)
-end
+register(unit_module::Module) = push!(Unitful.unitmodules, unit_module)
+
+"""
+```
+macro deregister_all()
+```
+
+Makes the [`@u_str`](@ref) macro unaware of units defined in unit modules.
+
+Example: `Unitful.@deregister_all`
+"""
+deregister_all() = empty!(Unitful.unitmodules)
 
 """
 ```
