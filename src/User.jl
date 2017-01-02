@@ -1,5 +1,26 @@
 """
 ```
+macro register(unit_module)
+```
+
+Makes the [`@u_str`](@ref) macro aware of units defined in new unit modules.
+Typically this macro is used in a module and not called directly by the user.
+
+Example:
+```
+function __init__()
+    @register UnitfulSI
+end
+```
+"""
+macro register(unit_module)
+    esc(quote
+        push!(Unitful.unitmodules, $unit_module)
+    end)
+end
+
+"""
+```
 macro dimension(symb, abbr, name)
 ```
 
@@ -254,8 +275,12 @@ end
 macro u_str(unit)
 ```
 
-String macro to easily recall units, dimensions, or quantities defined in the
-Unitful module, which does not export such things to avoid namespace pollution.
+String macro to easily recall units, dimensions, or quantities defined in
+unit modules that have been registered with [`Unitful.@register`](@ref).
+
+If the same symbol is used for a [`Unitful.Units`](@ref) object defined in
+different modules, then the most recently defined object will be used.
+
 Note that for now, what goes inside must be parsable as a valid Julia expression.
 In other words, u"N m" will fail if you intended to write u"N*m".
 
@@ -277,7 +302,7 @@ julia> u"ħ"
 """
 macro u_str(unit)
     ex = parse(unit)
-    replace_value(ex)
+    esc(replace_value(ex))
 end
 
 const allowed_funcs = [:*, :/, :^, :sqrt, :√, :+, :-, ://]
@@ -294,10 +319,17 @@ function replace_value(ex::Expr)
     ex
 end
 
-replace_value(sym::Symbol) = :(ustrcheck($sym))
+function replace_value(sym::Symbol)
+    for i in reverse(eachindex(unitmodules))
+        m = unitmodules[i]
+        isdefined(m, sym) && return :(Unitful.ustrcheck($m.$sym))
+    end
+    error("Symbol $sym could not be found in registered unit modules.")
+end
+
 ustrcheck(x::Unitlike) = x
 ustrcheck(x::Quantity) = x
-ustrcheck(x) = error("Unexpected symbol in unit macro.")
+ustrcheck(x) = error("Symbol $x is not a unit, dimension, or quantity.")
 
 """
 ```

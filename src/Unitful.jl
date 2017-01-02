@@ -26,11 +26,12 @@ import Base: steprange_last, unitrange_last, unsigned
 import Base.LinAlg: istril, istriu
 
 export unit, dimension, uconvert, ustrip, upreferred
-export @dimension, @derived_dimension, @refunit, @unit, @u_str
+export @register, @dimension, @derived_dimension, @refunit, @unit, @u_str
 export Quantity
 export DimensionlessQuantity
 export NoUnits, NoDims
 
+const unitmodules = Vector{Module}()
 const basefactors = Dict{Symbol,Tuple{Float64,Rational{Int}}}()
 
 include("Types.jl")
@@ -681,7 +682,6 @@ round(x::Quantity) = Quantity(round(x.val), unit(x))
 
 copysign(x::Quantity, y::Number) = Quantity(copysign(x.val,y/unit(y)), unit(x))
 flipsign(x::Quantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
-
 
 @inline isless{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = _isless(x,y)
 @inline _isless{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = isless(x.val, y.val)
