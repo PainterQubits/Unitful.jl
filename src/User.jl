@@ -94,7 +94,8 @@ macro preferunit(unit)
 ```
 
 This macro specifies the default unit for promotion for a given dimension,
-which is inferred from the given unit.
+which is inferred from the given unit. All invocations of this macro must
+occur before promotion is done, or before [`Unitful.upreferred`](@ref) is called.
 
 Usage example: `@preferunit kg`
 """
@@ -209,8 +210,9 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
     z = Expr(:quote, name)
     for (k,v) in prefixdict
         s = Symbol(v,symb)
-        u = :(Unitful.Unit{$z, typeof($dimension)}($k,1//1,$basefactor))
+        u = :(Unitful.Unit{$z, typeof($dimension)}($k,1//1))
         ea = esc(quote
+            Unitful.basefactors[$z] = $basefactor
             const $s = Unitful.Units{($u,),typeof(dimension($u))}()
         end)
         push!(expr.args, ea)
@@ -218,8 +220,9 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
 
     # These lines allow for μ to be typed with option-m on a Mac.
     s = Symbol(:µ, symb)
-    u = :(Unitful.Unit{$z, typeof($dimension)}(-6,1//1,$basefactor))
+    u = :(Unitful.Unit{$z, typeof($dimension)}(-6,1//1))
     push!(expr.args, esc(quote
+        Unitful.basefactors[$z] = $basefactor
         const $s = Unitful.Units{($u,),typeof(dimension($u))}()
     end))
 
@@ -239,8 +242,9 @@ Example: `@unit_symbols ft Foot 𝐋` results in `ft` getting defined but not `k
 macro unit_symbols(symb,name,dimension,basefactor)
     s = Symbol(symb)
     z = Expr(:quote, name)
-    u = :(Unitful.Unit{$z,typeof($dimension)}(0,1//1,$basefactor))
+    u = :(Unitful.Unit{$z,typeof($dimension)}(0,1//1))
     esc(quote
+        Unitful.basefactors[$z] = $basefactor
         const $s = Unitful.Units{($u,),typeof(dimension($u))}()
     end)
 end

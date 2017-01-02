@@ -29,7 +29,17 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/d2424123e50241db7a88b81f66f302923fb394fe/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7e2bcafd586b931bcf54614391f674155722838d/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+
+
+```
+uconvert{T,D,U}(a::Units, x::Quantity{T,TempDim,Units{U,TempDim}})
+```
+
+In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions. We abbreviate `TempDim = Dimensions{(Dimension{:Temperature}(1),)}` for clarity.
+
+
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7e2bcafd586b931bcf54614391f674155722838d/src/Conversion.jl#L85-L93' class='documenter-source'>source</a><br>
 
 
 Since objects are callable, we can also make [`Unitful.Units`](types.md#Unitful.Units) callable with a `Number` as an argument, for a unit conversion shorthand:

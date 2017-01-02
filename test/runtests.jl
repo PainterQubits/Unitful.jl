@@ -28,17 +28,17 @@ import Unitful:
     @test typeof(1.0m) ==
         Unitful.Quantity{Float64,
             typeof(𝐋),
-            Unitful.Units{(Unitful.Unit{:Meter, typeof(𝐋)}(0, 1, 1.0, 1//1),),
+            Unitful.Units{(Unitful.Unit{:Meter, typeof(𝐋)}(0, 1),),
                 typeof(𝐋)}}
     @test typeof(1m^2) ==
         Unitful.Quantity{Int,
             typeof(𝐋^2),
-            Unitful.Units{(Unitful.Unit{:Meter, typeof(𝐋)}(0, 2, 1.0, 1//1),),
+            Unitful.Units{(Unitful.Unit{:Meter, typeof(𝐋)}(0, 2),),
                 typeof(𝐋^2)}}
     @test typeof(1ac) ==
         Unitful.Quantity{Int,
             typeof(𝐋^2),
-            Unitful.Units{(Unitful.Unit{:Acre, typeof(𝐋^2)}(0, 1, 1.0, 316160658//78125),),
+            Unitful.Units{(Unitful.Unit{:Acre, typeof(𝐋^2)}(0, 1),),
                 typeof(𝐋^2)}}
 end
 
@@ -318,31 +318,6 @@ end
         @test frexp(1.5m) == (0.75m, 1.0)
         @test unit(nextfloat(0.0m)) == m
         @test unit(prevfloat(0.0m)) == m
-    end
-
-    @testset "> QuadGK" begin
-        # Test physical quantity-valued functions
-        @test QuadGK.quadgk(x->x*m, 0.0, 1.0, abstol=0.0m)[1] ≈ 0.5m
-
-        # Test integration over an axis with units
-        @test QuadGK.quadgk(x->ustrip(x), 0.0m, 1.0m, abstol=0.0m)[1] ≈ 0.5m
-
-        # Test integration where the unitful domain is infinite or semi-infinite
-        @test QuadGK.quadgk(x->exp(-x/(1.0m)), 0.0m, Inf*m, abstol=0.0m)[1] ≈ 1.0m
-        @test QuadGK.quadgk(x->exp(x/(1.0m)), -Inf*m, 0.0m, abstol=0.0m)[1] ≈ 1.0m
-        @test QuadGK.quadgk(x->exp(-abs(x/(1.0m))),
-            -Inf*m, Inf*m, abstol=0.0m)[1] ≈ 2.0m
-
-        # Test mixed case (physical quantity-valued f and unitful domain)
-        @test QuadGK.quadgk(t->ustrip(t)*m/s, 0.0s, 2.0s, abstol=0.0m)[1] ≈ 2.0m
-
-        # Test that errors are thrown when dimensionally unsound
-        @test_throws DimensionError QuadGK.quadgk(x->ustrip(x), 0.0m, 1.0s)[1]
-        @test_throws DimensionError QuadGK.quadgk(x->ustrip(x), 0.0, 1.0m)[1]
-
-        # Test that we throw an error when abstol is not specified (at present
-        # I believe it is only possible to check when the domain is unitful)
-        @test_throws ErrorException QuadGK.quadgk(x->ustrip(x), 0.0m, 1.0m)
     end
 
     @testset "> fastmath" begin

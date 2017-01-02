@@ -21,10 +21,6 @@ end
 immutable Unit{U,D}
     tens::Int
     power::Rational{Int}
-    inex::Float64
-    ex::Rational{Int}
-    Unit(a,b,c,d) = new(a,b,c,d)
-    Unit(a,b,c::NTuple{2}) = new(a,b,c[1],c[2])
 end
 ```
 
@@ -41,10 +37,6 @@ are collected in a tuple, which is used for the type parameter `N` of a
 immutable Unit{U,D}
     tens::Int
     power::Rational{Int}
-    inex::Float64
-    ex::Rational{Int}
-    Unit(a,b,c,d) = new(a,b,c,d)
-    Unit(a,b,c::NTuple{2}) = new(a,b,c[1],c[2])
 end
 
 """
