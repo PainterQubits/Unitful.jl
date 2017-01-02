@@ -1,7 +1,6 @@
 module UnitfulTests
 
 using Unitful
-import QuadGK
 using Base.Test
 
 import Unitful: DimensionError
