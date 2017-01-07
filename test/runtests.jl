@@ -131,7 +131,7 @@ end
 end
 
 @testset "Unit string macro" begin
-    @test @macroexpand(u"m") == :(Unitful.ustrcheck(Unitful.m))
+    @test macroexpand(:(u"m")) == :(Unitful.ustrcheck(Unitful.m))
     @test macroexpand(:(u"m,s")) ==
         :(Unitful.ustrcheck(Unitful.m), Unitful.ustrcheck(Unitful.s))
     @test macroexpand(:(u"1.0")) == 1.0
