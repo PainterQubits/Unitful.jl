@@ -29,7 +29,7 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7e2bcafd586b931bcf54614391f674155722838d/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/4dff77ea1e2efbb4a80488849882a36498d62b83/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 ```
@@ -39,7 +39,7 @@ uconvert{T,D,U}(a::Units, x::Quantity{T,TempDim,Units{U,TempDim}})
 In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions. We abbreviate `TempDim = Dimensions{(Dimension{:Temperature}(1),)}` for clarity.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7e2bcafd586b931bcf54614391f674155722838d/src/Conversion.jl#L85-L93' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/4dff77ea1e2efbb4a80488849882a36498d62b83/src/Conversion.jl#L85-L93' class='documenter-source'>source</a><br>
 
 
 Since objects are callable, we can also make [`Unitful.Units`](types.md#Unitful.Units) callable with a `Number` as an argument, for a unit conversion shorthand:
@@ -97,7 +97,7 @@ julia> Float64(1.0u"μm/m")
 Exact conversions between units are respected where possible. If rational arithmetic would result in an overflow, then floating-point conversion should proceed. Use of floating-point numbers inhibits exact conversion.
 
 
-We decide the result units for addition and subtraction operations based on looking at the types only. We can't take runtime values into account without compromising runtime performance. If two quantities with the same units are added or subtracted, then the result units will be the same. If two quantities with differing units (but same dimension) are added or subtracted, then the result units will be specified by promotion. The [`Unitful.@preferunit`](newunits.md#Unitful.@preferunit) macro is used in `deps/Defaults.jl` to designate preferred units for each pure dimension for promotion. Adding two masses with different units will give a result in `kg`. Adding two velocities with different units will give `m/s`, and so on. You can special case for "mixed" dimensions, e.g. such that the preferred units of energy are `J`. The behaviors can be changed in `deps/Defaults.jl`.
+We decide the result units for addition and subtraction operations based on looking at the types only. We can't take runtime values into account without compromising runtime performance. If two quantities with the same units are added or subtracted, then the result units will be the same. If two quantities with differing units (but same dimension) are added or subtracted, then the result units will be specified by promotion. The [`Unitful.@preferunit`](@ref) macro is used in `deps/Defaults.jl` to designate preferred units for each pure dimension for promotion. Adding two masses with different units will give a result in `kg`. Adding two velocities with different units will give `m/s`, and so on. You can special case for "mixed" dimensions, e.g. such that the preferred units of energy are `J`. The behaviors can be changed in `deps/Defaults.jl`.
 
 
 For multiplication and division, note that powers-of-ten prefixes are significant in unit cancellation. For instance, `mV/V` is not simplified, although `V/V` is. Also, `N*m/J` is not simplified: there is currently no logic to decide whether or not units on a dimensionless quantity seem "intentional" or not.

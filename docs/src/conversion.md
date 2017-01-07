@@ -67,7 +67,7 @@ without compromising runtime performance. If two quantities with the same units
 are added or subtracted, then the result units will be the same. If two quantities
 with differing units (but same dimension) are added or subtracted, then
 the result units will be specified by promotion. The
-[`Unitful.@preferunit`](@ref) macro is used in `deps/Defaults.jl` to designate
+[`Unitful.preferunits`](@ref) function is used to designate
 preferred units for each pure dimension for promotion. Adding two masses with
 different units will give a result in `kg`. Adding two velocities with different
 units will give `m/s`, and so on. You can special case for "mixed" dimensions,

@@ -202,72 +202,6 @@ end
 
 function preferredunit end
 
-# """
-# ```
-# macro preferunits(units...)
-# ```
-#
-# This macro specifies the default fallback units for promotion.
-# Units provided to this macro must have a pure dimension of power 1, like 𝐋 or 𝐓
-# but not 𝐋/𝐓 or 𝐋^2. The macro will complain if this is not the case. Additionally,
-# the macro will complain if you provide two units with the same dimension, as a
-# courtesy to the user.
-#
-# Once [`Unitful.upreferred`](@ref) has been called or quantities have been promoted,
-# this macro will no longer work properly.
-#
-# Usage example: `@preferunits u"m,s,A,K,cd,kg,mol"...`
-# """
-# macro preferunits(unit, units...)
-#     isa(unit, Expr) && unit.head == :tuple &&
-#         error("please splat out the tuple, e.g. `@preferunits u\"m,kg\"...`")
-#
-#     expr = Expr(:block)
-#
-#     push!(expr.args, quote
-#         units = $(Expr(:tuple, unit, units...))
-#         dims = map(dimension, units)
-#         if length(union(dims)) != length(dims)
-#                 error("@preferunits received more than one unit of a given ",
-#                 "dimension.")
-#         end
-#     end)
-#
-#     for i in eachindex((unit,units...))
-#         unit = gensym("unit")
-#         dim = gensym("dim")
-#         push!(expr.args, quote
-#             $unit, $dim = units[$i], dims[$i]
-#             if length(typeof($dim).parameters[1]) > 1
-#                 error("@preferunits can only be used with a unit that has a pure ",
-#                 "dimension, like 𝐋 or 𝐓 but not 𝐋/𝐓.")
-#             end
-#             if length(typeof($dim).parameters[1]) == 1 &&
-#                 typeof($dim).parameters[1][1].power != 1
-#                 error("@preferunits cannot handle powers of pure dimensions except 1. ",
-#                 "For instance, it should not be used with units of dimension 𝐋^2.")
-#             end
-#             Unitful.preferredunit(y::typeof(typeof($dim).parameters[1][1])) =
-#                 $unit^y.power
-#         end)
-#     end
-#
-#     # Redefine `preferredunits` to reset cache (I hope this works...)
-#     # Must be generated to force a concrete result type.
-#     push!(expr.args, esc(quote
-#         eval(Unitful, quote
-#             @generated function preferredunits(x::Dimensions)
-#                 dim = x.parameters[1]
-#                 y = mapreduce(preferredunit, *, NoUnits, dim)
-#                 :($y)
-#             end
-#         end)
-#         nothing
-#     end))
-#
-#     expr
-# end
-
 """
 ```
 function preferunits(u0::Units, u::Units...)
@@ -327,9 +261,8 @@ upreferred(x::Number)
 ```
 
 Unit-convert `x` to units which are preferred for the dimensions of `x`,
-as specified by the [`@preferunit`](@ref) macro. If you are using the factory
-defaults in `deps/Defaults.jl`, this function will unit-convert to a product of
-powers of base SI units.
+as specified by the [`preferunits`](@ref) function. If you are using the factory
+defaults, this function will unit-convert to a product of powers of base SI units.
 """
 upreferred(x::Number) = uconvert(preferredunits(dimension(x)), x)
 
@@ -339,9 +272,9 @@ upreferred(x::Units)
 ```
 
 Return units which are preferred for the dimensions of `x`, which may or may
-not be equal to `x`, as specified by the [`@preferunit`](@ref) macro. If you are
-using the factory defaults in `deps/Defaults.jl`, this function will return a
-product of powers of base SI units.
+not be equal to `x`, as specified by the [`preferunits`](@ref) function. If you
+are using the factory defaults, this function will return a product of powers of
+base SI units.
 """
 upreferred(x::Units) = preferredunits(dimension(x))
 
@@ -350,9 +283,8 @@ upreferred(x::Units) = preferredunits(dimension(x))
 upreferred(x::Dimensions)
 ```
 
-Return units which are preferred for dimensions `x`. If you are
-using the factory defaults in `deps/Defaults.jl`, this function will return a
-product of powers of base SI units.
+Return units which are preferred for dimensions `x`. If you are using the
+factory defaults, this function will return a product of powers of base SI units.
 """
 upreferred(x::Dimensions) = preferredunits(x)
 

@@ -30,7 +30,7 @@ Finally, type aliases are created that allow the user to dispatch on [`Unitful.Q
 Usage example: `@dimension 𝐋 "L" Length` (see `src/Defaults.jl`.)
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7e2bcafd586b931bcf54614391f674155722838d/src/User.jl#L1-L22' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/4dff77ea1e2efbb4a80488849882a36498d62b83/src/User.jl#L22-L43' class='documenter-source'>source</a><br>
 
 <a id='Unitful.@derived_dimension' href='#Unitful.@derived_dimension'>#</a>
 **`Unitful.@derived_dimension`** &mdash; *Macro*.
@@ -51,7 +51,7 @@ Usage examples:
   * `@derived_dimension Speed 𝐋/𝐓` gives `Speed` and `SpeedUnit` type aliases
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7e2bcafd586b931bcf54614391f674155722838d/src/User.jl#L35-L50' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/4dff77ea1e2efbb4a80488849882a36498d62b83/src/User.jl#L56-L71' class='documenter-source'>source</a><br>
 
 <a id='Unitful.@refunit' href='#Unitful.@refunit'>#</a>
 **`Unitful.@refunit`** &mdash; *Macro*.
@@ -71,23 +71,7 @@ Usage example: `@refunit m "m" Meter 𝐋 true`
 This example will generate `km`, `m`, `cm`, ...
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7e2bcafd586b931bcf54614391f674155722838d/src/User.jl#L60-L78' class='documenter-source'>source</a><br>
-
-<a id='Unitful.@preferunit' href='#Unitful.@preferunit'>#</a>
-**`Unitful.@preferunit`** &mdash; *Macro*.
-
-
-
-```
-macro preferunit(unit)
-```
-
-This macro specifies the default unit for promotion for a given dimension, which is inferred from the given unit. All invocations of this macro must occur before promotion is done, or before [`Unitful.upreferred`](manipulations.md#Unitful.upreferred) is called.
-
-Usage example: `@preferunit kg`
-
-
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7e2bcafd586b931bcf54614391f674155722838d/src/User.jl#L91-L101' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/4dff77ea1e2efbb4a80488849882a36498d62b83/src/User.jl#L81-L99' class='documenter-source'>source</a><br>
 
 <a id='Unitful.@unit' href='#Unitful.@unit'>#</a>
 **`Unitful.@unit`** &mdash; *Macro*.
@@ -105,7 +89,25 @@ Usage example: `@unit mi "mi" Mile (201168//125)*m false`
 This example will *not* generate `kmi` (kilomiles).
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7e2bcafd586b931bcf54614391f674155722838d/src/User.jl#L161-L173' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/4dff77ea1e2efbb4a80488849882a36498d62b83/src/User.jl#L112-L124' class='documenter-source'>source</a><br>
+
+<a id='Unitful.preferunits' href='#Unitful.preferunits'>#</a>
+**`Unitful.preferunits`** &mdash; *Function*.
+
+
+
+```
+function preferunits(u0::Units, u::Units...)
+```
+
+This function specifies the default fallback units for promotion. Units provided to this function must have a pure dimension of power 1, like 𝐋 or 𝐓 but not 𝐋/𝐓 or 𝐋^2. The function will complain if this is not the case. Additionally, the function will complain if you provide two units with the same dimension, as a courtesy to the user.
+
+Once [`Unitful.upreferred`](manipulations.md#Unitful.upreferred) has been called or quantities have been promoted, this function will no longer work properly.
+
+Usage example: `preferunits(u"m,s,A,K,cd,kg,mol"...)`
+
+
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/4dff77ea1e2efbb4a80488849882a36498d62b83/src/User.jl#L205-L220' class='documenter-source'>source</a><br>
 
 <a id='Unitful.offsettemp' href='#Unitful.offsettemp'>#</a>
 **`Unitful.offsettemp`** &mdash; *Function*.
@@ -119,7 +121,7 @@ offsettemp(::Unit)
 For temperature units, this function is used to set the scale offset.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7e2bcafd586b931bcf54614391f674155722838d/src/Unitful.jl#L864-L870' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/4dff77ea1e2efbb4a80488849882a36498d62b83/src/Unitful.jl#L864-L870' class='documenter-source'>source</a><br>
 
 
 <a id='Internals-1'></a>
@@ -140,7 +142,7 @@ Not called directly by the user. Given a unit symbol and a unit's name, will def
 Example: `@prefixed_unit_symbols m Meter 𝐋 (1.0,1)` results in nm, cm, m, km, ... all getting defined in the calling namespace.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7e2bcafd586b931bcf54614391f674155722838d/src/User.jl#L196-L206' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/4dff77ea1e2efbb4a80488849882a36498d62b83/src/User.jl#L147-L157' class='documenter-source'>source</a><br>
 
 <a id='Unitful.@unit_symbols' href='#Unitful.@unit_symbols'>#</a>
 **`Unitful.@unit_symbols`** &mdash; *Macro*.
@@ -156,7 +158,7 @@ Not called directly by the user. Given a unit symbol and a unit's name, will def
 Example: `@unit_symbols ft Foot 𝐋` results in `ft` getting defined but not `kft`.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7e2bcafd586b931bcf54614391f674155722838d/src/User.jl#L232-L241' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/4dff77ea1e2efbb4a80488849882a36498d62b83/src/User.jl#L183-L192' class='documenter-source'>source</a><br>
 
 <a id='Unitful.basefactor' href='#Unitful.basefactor'>#</a>
 **`Unitful.basefactor`** &mdash; *Function*.
@@ -170,5 +172,5 @@ basefactor(x::Unit)
 Specifies conversion factors to reference units. It returns a tuple. The first value is any irrational part of the conversion, and the second value is a rational component. This segregation permits exact conversions within unit systems that have no rational conversion to the reference units.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/7e2bcafd586b931bcf54614391f674155722838d/src/User.jl#L302-L312' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/4dff77ea1e2efbb4a80488849882a36498d62b83/src/User.jl#L381-L391' class='documenter-source'>source</a><br>
 

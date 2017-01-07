@@ -6,6 +6,7 @@ end
 
 ```@docs
 Unitful.@u_str
+Unitful.register
 Unitful.unit
 Unitful.ustrip
 Unitful.upreferred

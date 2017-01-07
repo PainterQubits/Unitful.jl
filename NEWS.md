@@ -1,16 +1,17 @@
-- v0.0.5
+- v0.1.0
  - Julia 0.6 compatibility.
- - Added some methods for `ustrip`
- - Added matrix inversion for `StridedMatrix{T<:Quantity}`
- - Added `istriu`, `istril` for `AbstractMatrix{T<:Quantity}`
- - The `Unitful.SIUnits` module has been renamed to `Unitful.DefaultSymbols`.
  - `deps/Defaults.jl` is dead. Long live `deps/Defaults.jl`. To define your own
    units, dimensions, and so on, you should now put them in a module, or ideally
    a package so that others can use the definitions too. You can override default
    promotion rules after loading Unitful and dependent packages; this will
-   generate method overwrite warnings on Julia 0.5.
+   generate method overwrite warnings on Julia 0.5 but not on 0.6.
  - `@u_str` macro has been improved. It can now traverse separate unit packages,
    as well as return tuples of `Units` objects.
+ - `@preferunit` has been replaced with a function `preferunits`.
+ - Added some methods for `ustrip`.
+ - Added matrix inversion for `StridedMatrix{T<:Quantity}`.
+ - Added `istriu`, `istril` for `AbstractMatrix{T<:Quantity}`.
+ - The `Unitful.SIUnits` module has been renamed to `Unitful.DefaultSymbols`.
 
 - v0.0.4
  - Be aware, breaking changes to `deps/Defaults.jl` caused by some of the following!

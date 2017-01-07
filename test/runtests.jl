@@ -730,7 +730,7 @@ end
 # Test that the @u_str macro will find units in other modules.
 module ShadowUnits
     using Unitful
-    @unit m "m" MyMeter 1 false
+    @unit m "m" MyMeter 1u"m" false
     Unitful.register(ShadowUnits)
 end
 
@@ -739,8 +739,10 @@ let fname = tempname()
         ret = open(fname, "w") do f
             redirect_stderr(f) do
                 # wrap in eval to catch the STDERR output...
-                @test eval(:(typeof(u"m"))) == Unitful.Units{(Unitful.Unit{:MyMeter,
-                    Unitful.Dimensions{()}}(0,1//1),),Unitful.Dimensions{()}}
+                @test eval(:(typeof(u"m"))) == Unitful.Units{
+                    (Unitful.Unit{:MyMeter,Unitful.Dimensions{
+                    (Unitful.Dimension{:Length}(1//1),)}}(0,1//1),),
+                    Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}
             end
         end
     finally
@@ -748,7 +750,9 @@ let fname = tempname()
     end
 end
 
-# TODO: @test_warn "ShadowUnits" eval(:(u"m")) # check for the warning...
-
+@static if VERSION >= v"0.6.0-"
+    # check for the warning...
+    @test_warn "ShadowUnits" eval(:(u"m"))
+end
 
 end

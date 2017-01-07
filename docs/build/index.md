@@ -27,17 +27,14 @@ We want to support not only SI units but also any other unit system. We also wan
   * `using Unitful`
 
 
-In `deps/Defaults.jl` of the package directory, you can see what is defined by default. Feel free to edit this file to suit your needs. The Unitful package will need to be reloaded for changes to take place. To recover the "factory  defaults," delete `deps/Defaults.jl` and run `Pkg.build("Unitful")` again.
-
-
-Here is a summary of the defaults file contents:
+Unitful aims for generality, but has some useful functionality out of the box:
 
 
   * Base dimensions like length, mass, time, etc. are defined.
   * Derived dimensions like volume, energy, momentum, etc. are defined.
   * Base and derived SI units with their power-of-ten prefixes are defined.
   * Some other units (imperial units) are defined, without power-of-ten prefixes.
-  * Promotion behavior is specified.
+  * Sensible default promotion behavior is specified.
 
 
 Some unit abbreviations conflict with other definitions or syntax:
@@ -58,7 +55,15 @@ Units, dimensions, and fundamental constants are not exported from Unitful. This
 
 1. Use the [`@u_str`](manipulations.md#Unitful.@u_str) string macro.
 2. Explicitly import from the `Unitful` package to bring specific symbols into the calling namespace.
-3. `using Unitful.SIUnits` will bring all base and derived SI units, with SI prefixes, into the calling namespace. If you have been using the [SIUnits.jl](https://github.com/keno/SIUnits.jl) package, this is not unlike typing `using SIUnits.ShortUnits` with that package.
+3. `using Unitful.DefaultSymbols` will bring the following symbols into the calling namespace:
+
+      * Dimensions `𝐋,𝐌,𝐓,𝐈,𝚯,𝐉,𝐍`
+      * Base and derived SI units, with SI prefixes (see `src/pkgdefaults.jl` for specifics)
+      * `Hz2π` (angular frequency)
+      * `°` (degrees)
+
+
+If you have been using the [SIUnits.jl](https://github.com/keno/SIUnits.jl)   package, this is not unlike typing `using SIUnits.ShortUnits` with that package.
 
 
 <a id='Usage-examples-1'></a>
