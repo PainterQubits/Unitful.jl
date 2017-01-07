@@ -860,6 +860,12 @@ function Base.steprange_last{T<:Number,D,U}(start::Quantity{T,D,U}, step, stop)
     last
 end
 
+typemin{T,D,U}(::Type{Quantity{T,D,U}}) = typemin(T)*U()
+typemin{T}(x::Quantity{T}) = typemin(T)*unit(x)
+
+typemax{T,D,U}(::Type{Quantity{T,D,U}}) = typemax(T)*U()
+typemax{T}(x::Quantity{T}) = typemax(T)*unit(x)
+
 """
 ```
 offsettemp(::Unit)
