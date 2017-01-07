@@ -368,7 +368,6 @@ for op in [:+, :-]
     end
 
     @eval ($op)(x::Quantity) = Quantity(($op)(x.val),unit(x))
-    # @eval ($op){T<:Unitlike}(::T, ::T) = T()
 end
 
 *(x::Number, y::Units, z::Units...) = Quantity(x,*(y,z...))

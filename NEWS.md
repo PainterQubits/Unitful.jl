@@ -1,10 +1,13 @@
 - v0.1.0
  - Julia 0.6 compatibility.
- - `deps/Defaults.jl` is dead. Long live `deps/Defaults.jl`. To define your own
+ - Fix [#33](https://github.com/ajkeller34/Unitful.jl/issues/33),
+   [#42](https://github.com/ajkeller34/Unitful.jl/issues/42),
+   and [#50](https://github.com/ajkeller34/Unitful.jl/issues/50).
+   `deps/Defaults.jl` is dead. Long live `deps/Defaults.jl`. To define your own
    units, dimensions, and so on, you should now put them in a module, or ideally
    a package so that others can use the definitions too. You can override default
-   promotion rules after loading Unitful and dependent packages; this will
-   generate method overwrite warnings on Julia 0.5 but not on 0.6.
+   promotion rules immediately after loading Unitful and dependent packages; this
+   will generate method overwrite warnings on Julia 0.5 but not on 0.6.
  - `@u_str` macro has been improved. It can now traverse separate unit packages,
    as well as return tuples of `Units` objects.
  - `@preferunit` has been replaced with a function `preferunits`.

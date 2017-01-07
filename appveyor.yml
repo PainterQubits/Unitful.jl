@@ -31,4 +31,4 @@ build_script:
       Pkg.clone(pwd(), \"Unitful\"); Pkg.build(\"Unitful\")"
 
 test_script:
-  - C:\projects\julia\bin\julia --check-bounds=yes -e "Pkg.test(\"Unitful\")"
+  - C:\projects\julia\bin\julia -e "Pkg.test(\"Unitful\")"
