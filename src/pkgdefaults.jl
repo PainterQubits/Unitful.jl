@@ -27,6 +27,7 @@
 @derived_dimension MagneticFlux     𝐈^-1*𝐋^2*𝐌*𝐓^-2
 @derived_dimension HField           𝐈/𝐋
 @derived_dimension BField           𝐈^-1*𝐌*𝐓^-2
+@derived_dimension Action           𝐋^2*𝐌*𝐓^-1
 
 # Define base units. This is not to imply g is the base SI unit instead of kg.
 # See the documentation for further details.
@@ -147,7 +148,7 @@ Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
 
 #########
 
-# `using Unitful.Defaults` will bring the following into the calling namespace:
+# `using Unitful.DefaultSymbols` will bring the following into the calling namespace:
 # - Dimensions 𝐋,𝐌,𝐓,𝐈,𝚯,𝐉,𝐍
 # - Base and derived SI units, with SI prefixes
 # - Hz2π, i.e. angular frequency
@@ -160,23 +161,23 @@ const si_prefixes = (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
 const si_no_prefix = (:m, :s, :A, :K, :cd, :g, :mol, :rad, :sr, :Hz, :N, :Pa,
     :J, :W, :C, :V, :F, :Ω, :S, :Wb, :T, :H, :°C, :lm, :lx, :Bq, :Gy, :Sv, :kat)
 
-baremodule Defaults
+baremodule DefaultSymbols
     import Unitful
 
     for u in (:𝐋,:𝐌,:𝐓,:𝐈,:𝚯,:𝐉,:𝐍)
-        eval(Defaults, Expr(:import, :Unitful, u))
-        eval(Defaults, Expr(:export, u))
+        eval(DefaultSymbols, Expr(:import, :Unitful, u))
+        eval(DefaultSymbols, Expr(:export, u))
     end
 
     for p in Unitful.si_prefixes
         for u in Unitful.si_no_prefix
-            eval(Defaults, Expr(:import, :Unitful, Symbol(p,u)))
-            eval(Defaults, Expr(:export, Symbol(p,u)))
+            eval(DefaultSymbols, Expr(:import, :Unitful, Symbol(p,u)))
+            eval(DefaultSymbols, Expr(:export, Symbol(p,u)))
         end
     end
 
     for u in (:Hz2π, :°)
-        eval(Defaults, Expr(:import, :Unitful, u))
-        eval(Defaults, Expr(:export, u))
+        eval(DefaultSymbols, Expr(:import, :Unitful, u))
+        eval(DefaultSymbols, Expr(:export, u))
     end
 end

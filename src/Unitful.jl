@@ -41,10 +41,6 @@ const NoDims = Dimensions{()}()
 
 (y::Units)(x::Number) = uconvert(y,x)
 
-function __init__()
-    Unitful.register(Unitful)
-end
-
 """
 ```
 type DimensionError <: Exception end
@@ -994,24 +990,30 @@ include("Conversion.jl")
 include("fastmath.jl")
 include("pkgdefaults.jl")
 
-defpath = joinpath(dirname(dirname(@__FILE__)),"deps","userdefaults.jl")
-if isfile(defpath)
-    try
-        include(defpath)
-    catch
-        error("bad defaults file. Backup then delete ",
-            "$(joinpath(dirname(dirname(@__FILE__)),"deps","userdefaults.jl"))",
-            ", then run `Pkg.build(\"Unitful\")` again in a new Julia session.",
-            " You may then merge any changes you had made to the old defaults",
-            " file and use Unitful. There is no need to backup the old file if",
-            " you did not change it. (This error can happen if changes are",
-            " required to the factory defaults following an update. We try to",
-            " limit how often this is required.)")
+function __init__()
+    Unitful.register(Unitful)
+
+    preferunits(m,s,A,K,cd,kg,mol)
+
+    function Base.promote_rule{S<:Units,T<:Units}(::Type{S}, ::Type{T})
+        dS = dimension(S())
+        dT = dimension(T())
+        dS != dT && error("Dimensions are unequal in call to `promote_rule`.")
+        typeof(upreferred(dS))
     end
-else
-    error("could not find ",
-          "$(joinpath(dirname(dirname(@__FILE__)),"deps","userdefaults.jl")).",
-          " Run `Pkg.build(\"Unitful\")` to generate this file.")
+
+    Base.promote_rule{S<:EnergyUnit, T<:EnergyUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.J)
+    Base.promote_rule{S<:ForceUnit, T<:ForceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.N)
+    Base.promote_rule{S<:PowerUnit, T<:PowerUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.W)
+    Base.promote_rule{S<:PressureUnit, T<:PressureUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Pa)
+    Base.promote_rule{S<:ChargeUnit, T<:ChargeUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.C)
+    Base.promote_rule{S<:VoltageUnit, T<:VoltageUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.V)
+    Base.promote_rule{S<:ResistanceUnit, T<:ResistanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Ω)
+    Base.promote_rule{S<:CapacitanceUnit, T<:CapacitanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.F)
+    Base.promote_rule{S<:InductanceUnit, T<:InductanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.H)
+    Base.promote_rule{S<:MagneticFluxUnit, T<:MagneticFluxUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Wb)
+    Base.promote_rule{S<:BFieldUnit, T<:BFieldUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.T)
+    Base.promote_rule{S<:ActionUnit, T<:ActionUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.J * Unitful.s)
 end
 
 end

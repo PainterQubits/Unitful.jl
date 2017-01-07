@@ -16,7 +16,8 @@ import Unitful:
     Time, Frequency,
     Mass,
     Current,
-    Temperature
+    Temperature,
+    Action
 
 import Unitful:
     LengthUnit, AreaUnit, MassUnit
@@ -81,7 +82,7 @@ end
             @test 1inch == (254//100)*cm
             @test 1ft == 12inch
             @test 1/mi == 1//(5280ft)
-            @test 1J == 1u"kg*m^2/s^2"
+            @test 1J == 1kg*m^2/s^2
             @test typeof(1cm)(1m) === 100cm
             @test @inferred(upreferred(N)) == kg*m/s^2
             @test @inferred(upreferred(dimension(N))) == kg*m/s^2
@@ -129,6 +130,27 @@ end
     end
 end
 
+@testset "Unit string macro" begin
+    @test @macroexpand(u"m") == :(Unitful.ustrcheck(Unitful.m))
+    @test macroexpand(:(u"m,s")) ==
+        :(Unitful.ustrcheck(Unitful.m), Unitful.ustrcheck(Unitful.s))
+    @test macroexpand(:(u"1.0")) == 1.0
+    @test macroexpand(:(u"m/s")) ==
+        :(Unitful.ustrcheck(Unitful.m) / Unitful.ustrcheck(Unitful.s))
+    @test macroexpand(:(u"1.0m/s")) ==
+        :((1.0 * Unitful.ustrcheck(Unitful.m)) / Unitful.ustrcheck(Unitful.s))
+    @test macroexpand(:(u"m^-1")) ==
+        :(Unitful.ustrcheck(Unitful.m) ^ -1)
+    @test isa(macroexpand(:(u"N m")).args[1], ParseError)
+    @test isa(macroexpand(:(u"abs(2)")).args[1], ErrorException)
+
+    # test ustrcheck(::Quantity)
+    @test u"h" == Unitful.h
+
+    # test ustrcheck(x) fallback to catch non-units / quantities
+    @test_throws ErrorException u"ustrcheck"
+end
+
 @testset "Unit and dimensional analysis" begin
     @test @inferred(unit(1m^2)) == m^2
     @test @inferred(unit(typeof(1m^2))) == m^2
@@ -163,6 +185,7 @@ end
     @test isa(1K, Temperature)
     @test isa(1cd, Luminosity)
     @test isa(2π*rad*1.0m, Length)
+    @test isa(u"h", Action)
 end
 
 @testset "Mathematics" begin
@@ -611,9 +634,11 @@ end
             @test @inferred([1V,2V]*[0.1/m, 0.4/m]') == [0.1V/m 0.4V/m; 0.2V/m 0.8V/m]
             @test @inferred([1m, 2m]' * [3/m, 4/m])  == [11]
             @test typeof([1m, 2m]' * [3/m, 4/m])     == Array{Int,1}
-            @test @inferred([1m, 2V]' * [3/m, 4/V])  == [11]
+            @test_broken @inferred([1m, 2V]' * [3/m, 4/V])  == [11]
             @test typeof([1m, 2V]' * [3/m, 4/V])     == Array{Int,1}
-            @test @inferred([1m, 2V] * [3/m, 4/V]')  == [3 4u"m*V^-1"; 6u"V*m^-1" 8]
+            @test_broken @inferred([1m, 2V] * [3/m, 4/V]') ==
+                [3 4u"m*V^-1"; 6u"V*m^-1" 8]
+
             # Quantity, number or vice versa
             @test @inferred([1 2] * [3m,4m])         == [11m]
             @test typeof([1 2] * [3m,4m])            == Array{typeof(1u"m"),1}
@@ -695,5 +720,29 @@ end
         end
     end
 end
+
+# Test that the @u_str macro will find units in other modules.
+module ShadowUnits
+    using Unitful
+    @unit m "m" MyMeter 1 false
+    Unitful.register(ShadowUnits)
+end
+
+let fname = tempname()
+    try
+        ret = open(fname, "w") do f
+            redirect_stderr(f) do
+                # wrap in eval to catch the STDERR output...
+                @test eval(:(typeof(u"m"))) == Unitful.Units{(Unitful.Unit{:MyMeter,
+                    Unitful.Dimensions{()}}(0,1//1),),Unitful.Dimensions{()}}
+            end
+        end
+    finally
+        rm(fname, force=true)
+    end
+end
+
+# TODO: @test_warn "ShadowUnits" eval(:(u"m")) # check for the warning...
+
 
 end

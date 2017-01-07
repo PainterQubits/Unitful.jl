@@ -1,30 +1,23 @@
 """
 ```
-macro register(unit_module)
+function register(unit_module::Module)
 ```
 
 Makes the [`@u_str`](@ref) macro aware of units defined in new unit modules.
-Typically this macro is used in a module and not called directly by the user.
 
 Example:
 ```
+# somewhere in a custom units package...
+module MyUnitsPackage
+using Unitful
+
 function __init__()
-    Unitful.@register UnitfulSI
+    Unitful.register(MyUnitsPackage)
 end
+end #module
 ```
 """
 register(unit_module::Module) = push!(Unitful.unitmodules, unit_module)
-
-"""
-```
-macro deregister_all()
-```
-
-Makes the [`@u_str`](@ref) macro unaware of units defined in unit modules.
-
-Example: `Unitful.@deregister_all`
-"""
-deregister_all() = empty!(Unitful.unitmodules)
 
 """
 ```
@@ -118,76 +111,6 @@ end
 
 """
 ```
-macro preferunit(unit)
-```
-
-This macro specifies the default unit for promotion for a given dimension,
-which is inferred from the given unit. All invocations of this macro must
-occur before promotion is done, or before [`Unitful.upreferred`](@ref) is called.
-
-Usage example: `@preferunit kg`
-"""
-macro preferunit(unit)
-    quote
-        dim = dimension($unit)
-        if length(typeof(dim).parameters[1]) > 1
-            error("@prefer can only be used with a unit that has a pure ",
-            "dimension, like 𝐋 or 𝐓 but not 𝐋/𝐓.")
-        end
-        if length(typeof(dim).parameters[1]) == 1 &&
-            typeof(dim).parameters[1][1].power != 1
-            error("@prefer cannot handle powers of pure dimensions except 1. ",
-            "For instance, it should not be used with units of dimension 𝐋^2.")
-        end
-        Unitful.dim2refunits(y::typeof(typeof(dim).parameters[1][1])) =
-            $unit^y.power
-    end
-end
-
-# Generated to force a concrete result type.
-@generated function dim2refunits(x::Dimensions)
-    dim = x.parameters[1]
-    y = mapreduce(dim2refunits, *, NoUnits, dim)
-    :($y)
-end
-
-"""
-```
-upreferred(x::Number)
-```
-
-Unit-convert `x` to units which are preferred for the dimensions of `x`,
-as specified by the [`@preferunit`](@ref) macro. If you are using the factory
-defaults in `deps/Defaults.jl`, this function will unit-convert to a product of
-powers of base SI units.
-"""
-upreferred(x::Number) = uconvert(dim2refunits(dimension(x)), x)
-
-"""
-```
-upreferred(x::Units)
-```
-
-Return units which are preferred for the dimensions of `x`, which may or may
-not be equal to `x`, as specified by the [`@preferunit`](@ref) macro. If you are
-using the factory defaults in `deps/Defaults.jl`, this function will return a
-product of powers of base SI units.
-"""
-upreferred(x::Units) = dim2refunits(dimension(x))
-
-"""
-```
-upreferred(x::Dimensions)
-```
-
-Return units which are preferred for dimensions `x`. If you are
-using the factory defaults in `deps/Defaults.jl`, this function will return a
-product of powers of base SI units.
-"""
-upreferred(x::Dimensions) = dim2refunits(x)
-
-"""
-```
 macro unit(symb,abbr,name,equals,tf)
 ```
 
@@ -277,18 +200,175 @@ macro unit_symbols(symb,name,dimension,basefactor)
     end)
 end
 
+function preferredunit end
+
+# """
+# ```
+# macro preferunits(units...)
+# ```
+#
+# This macro specifies the default fallback units for promotion.
+# Units provided to this macro must have a pure dimension of power 1, like 𝐋 or 𝐓
+# but not 𝐋/𝐓 or 𝐋^2. The macro will complain if this is not the case. Additionally,
+# the macro will complain if you provide two units with the same dimension, as a
+# courtesy to the user.
+#
+# Once [`Unitful.upreferred`](@ref) has been called or quantities have been promoted,
+# this macro will no longer work properly.
+#
+# Usage example: `@preferunits u"m,s,A,K,cd,kg,mol"...`
+# """
+# macro preferunits(unit, units...)
+#     isa(unit, Expr) && unit.head == :tuple &&
+#         error("please splat out the tuple, e.g. `@preferunits u\"m,kg\"...`")
+#
+#     expr = Expr(:block)
+#
+#     push!(expr.args, quote
+#         units = $(Expr(:tuple, unit, units...))
+#         dims = map(dimension, units)
+#         if length(union(dims)) != length(dims)
+#                 error("@preferunits received more than one unit of a given ",
+#                 "dimension.")
+#         end
+#     end)
+#
+#     for i in eachindex((unit,units...))
+#         unit = gensym("unit")
+#         dim = gensym("dim")
+#         push!(expr.args, quote
+#             $unit, $dim = units[$i], dims[$i]
+#             if length(typeof($dim).parameters[1]) > 1
+#                 error("@preferunits can only be used with a unit that has a pure ",
+#                 "dimension, like 𝐋 or 𝐓 but not 𝐋/𝐓.")
+#             end
+#             if length(typeof($dim).parameters[1]) == 1 &&
+#                 typeof($dim).parameters[1][1].power != 1
+#                 error("@preferunits cannot handle powers of pure dimensions except 1. ",
+#                 "For instance, it should not be used with units of dimension 𝐋^2.")
+#             end
+#             Unitful.preferredunit(y::typeof(typeof($dim).parameters[1][1])) =
+#                 $unit^y.power
+#         end)
+#     end
+#
+#     # Redefine `preferredunits` to reset cache (I hope this works...)
+#     # Must be generated to force a concrete result type.
+#     push!(expr.args, esc(quote
+#         eval(Unitful, quote
+#             @generated function preferredunits(x::Dimensions)
+#                 dim = x.parameters[1]
+#                 y = mapreduce(preferredunit, *, NoUnits, dim)
+#                 :($y)
+#             end
+#         end)
+#         nothing
+#     end))
+#
+#     expr
+# end
+
+"""
+```
+function preferunits(u0::Units, u::Units...)
+```
+
+This function specifies the default fallback units for promotion.
+Units provided to this function must have a pure dimension of power 1, like 𝐋 or 𝐓
+but not 𝐋/𝐓 or 𝐋^2. The function will complain if this is not the case. Additionally,
+the function will complain if you provide two units with the same dimension, as a
+courtesy to the user.
+
+Once [`Unitful.upreferred`](@ref) has been called or quantities have been promoted,
+this function will no longer work properly.
+
+Usage example: `preferunits(u"m,s,A,K,cd,kg,mol"...)`
+"""
+function preferunits(u0::Units, u::Units...)
+    units = (u0, u...)
+    dims = map(dimension, units)
+    if length(union(dims)) != length(dims)
+            error("preferunits received more than one unit of a given ",
+            "dimension.")
+    end
+
+    for i in eachindex(units)
+        unit, dim = units[i], dims[i]
+        if length(typeof(dim).parameters[1]) > 1
+            error("preferunits can only be used with a unit that has a pure ",
+            "dimension, like 𝐋 or 𝐓 but not 𝐋/𝐓.")
+        end
+        if length(typeof(dim).parameters[1]) == 1 &&
+            typeof(dim).parameters[1][1].power != 1
+            error("preferunits cannot handle powers of pure dimensions except 1. ",
+            "For instance, it should not be used with units of dimension 𝐋^2.")
+        end
+        Unitful.preferredunit(y::typeof(typeof(dim).parameters[1][1])) =
+            unit^y.power
+    end
+
+    # Define / redefine `preferredunits` so methods for `preferredunit` are
+    # in a world older than the one where `preferredunits` is defined.
+    # Must be generated to force a concrete result type.
+    eval(Unitful, quote
+        @generated function preferredunits(x::Dimensions)
+            dim = x.parameters[1]
+            y = mapreduce(preferredunit, *, NoUnits, dim)
+            :($y)
+        end
+    end)
+
+    nothing
+end
+
+"""
+```
+upreferred(x::Number)
+```
+
+Unit-convert `x` to units which are preferred for the dimensions of `x`,
+as specified by the [`@preferunit`](@ref) macro. If you are using the factory
+defaults in `deps/Defaults.jl`, this function will unit-convert to a product of
+powers of base SI units.
+"""
+upreferred(x::Number) = uconvert(preferredunits(dimension(x)), x)
+
+"""
+```
+upreferred(x::Units)
+```
+
+Return units which are preferred for the dimensions of `x`, which may or may
+not be equal to `x`, as specified by the [`@preferunit`](@ref) macro. If you are
+using the factory defaults in `deps/Defaults.jl`, this function will return a
+product of powers of base SI units.
+"""
+upreferred(x::Units) = preferredunits(dimension(x))
+
+"""
+```
+upreferred(x::Dimensions)
+```
+
+Return units which are preferred for dimensions `x`. If you are
+using the factory defaults in `deps/Defaults.jl`, this function will return a
+product of powers of base SI units.
+"""
+upreferred(x::Dimensions) = preferredunits(x)
+
 """
 ```
 macro u_str(unit)
 ```
 
 String macro to easily recall units, dimensions, or quantities defined in
-unit modules that have been registered with [`Unitful.@register`](@ref).
+unit modules that have been registered with [`Unitful.register`](@ref).
 
 If the same symbol is used for a [`Unitful.Units`](@ref) object defined in
-different modules, then the most recently defined object will be used.
+different modules, then the symbol found in the most recently registered module
+will be used.
 
-Note that for now, what goes inside must be parsable as a valid Julia expression.
+Note that what goes inside must be parsable as a valid Julia expression.
 In other words, u"N m" will fail if you intended to write u"N*m".
 
 Examples:
@@ -299,6 +379,9 @@ julia> 1.0u"m/s"
 
 julia> 1.0u"N*m"
 1.0 m N
+
+julia> u"m,kg,s"
+(m,kg,s)
 
 julia> typeof(1.0u"m/s")
 Quantity{Float64, Dimensions:{𝐋 𝐓^-1}, Units:{m s^-1}}
@@ -314,25 +397,50 @@ end
 
 const allowed_funcs = [:*, :/, :^, :sqrt, :√, :+, :-, ://]
 function replace_value(ex::Expr)
-    ex.head != :call && error("$(ex.head) != :call")
-    ex.args[1] in allowed_funcs ||
-        error("""$(ex.args[1]) is not a valid function call when parsing a unit.
-         Only the following functions are allowed: $allowed_funcs""")
-    for i=2:length(ex.args)
-        if typeof(ex.args[i])==Symbol || typeof(ex.args[i])==Expr
-            ex.args[i]=replace_value(ex.args[i])
+    if ex.head == :call
+        ex.args[1] in allowed_funcs ||
+            error("""$(ex.args[1]) is not a valid function call when parsing a unit.
+             Only the following functions are allowed: $allowed_funcs""")
+        for i=2:length(ex.args)
+            if typeof(ex.args[i])==Symbol || typeof(ex.args[i])==Expr
+                ex.args[i]=replace_value(ex.args[i])
+            end
         end
+        return ex
+    elseif ex.head == :tuple
+        for i=1:length(ex.args)
+            if typeof(ex.args[i])==Symbol
+                ex.args[i]=replace_value(ex.args[i])
+            else
+                error("only use symbols inside the tuple.")
+            end
+        end
+        return ex
+    else
+        error("Expr head $(ex.head) must equal :call or :tuple")
     end
-    ex
 end
 
+dottify(s, t, u...) = dottify(Expr(:(.), s, QuoteNode(t)), u...)
+dottify(s) = s
+
 function replace_value(sym::Symbol)
-    for i in reverse(eachindex(unitmodules))
-        m = unitmodules[i]
-        isdefined(m, sym) && return :(Unitful.ustrcheck($m.$sym))
+    where = [isdefined(unitmodules[i], sym) for i in eachindex(unitmodules)]
+    count = reduce(+, 0, where)
+    if count == 0
+        error("Symbol $sym could not be found in registered unit modules.")
     end
-    error("Symbol $sym could not be found in registered unit modules.")
+
+    m = unitmodules[findlast(where)]
+    expr = Expr(:(.), dottify(fullname(m)...), QuoteNode(sym))
+    if count > 1
+        warn("Symbol $sym was found in multiple registered unit modules. ",
+        "We will use the one from $m.")
+    end
+    return :(Unitful.ustrcheck($expr))
 end
+
+replace_value(literal::Number) = literal
 
 ustrcheck(x::Unitlike) = x
 ustrcheck(x::Quantity) = x
