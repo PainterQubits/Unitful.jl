@@ -131,15 +131,13 @@ macro unit(symb,abbr,name,equals,tf)
         inex, ex = Unitful.basefactor(Unitful.unit($(esc(equals))))
         t = Unitful.tensfactor(Unitful.unit($(esc(equals))))
         eq = ($(esc(equals)))/Unitful.unit($(esc(equals)))
-        Base.isa(eq, Base.Integer) || Base.isa(eq, Base.Rational) ?
-             (ex *= eq) : (inex *= eq)
         Unitful.abbr(::Unitful.Unit{$(esc(x)),typeof(d)}) = $abbr
         if $tf
             Unitful.@prefixed_unit_symbols($(esc(symb)), $(esc(name)), d,
-                Unitful.basefactor(inex, ex, t, 1))
+                Unitful.basefactor(inex, ex, eq, t, 1))
         else
             Unitful.@unit_symbols($(esc(symb)), $(esc(name)), d,
-                Unitful.basefactor(inex, ex, t, 1))
+                Unitful.basefactor(inex, ex, eq, t, 1))
         end
     end
 end

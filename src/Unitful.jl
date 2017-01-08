@@ -310,27 +310,67 @@ end
 @inline power(x::Unit) = x.power
 @inline power(x::Dimension) = x.power
 
-function basefactor(inex, ex, tens, p)
+# This is type unstable but
+# a) this method is not called by the user
+# b) ultimately the instability will only be present at compile time as it is
+# hidden behind a "generated function barrier"
+function basefactor(inex, ex, eq, tens, p)
+    # Sometimes (x::Rational)^1 can fail for large rationals because the result
+    # is of type x*x so we do a hack here
+    function dpow(x,p)
+        if p == 0
+            1
+        elseif p == 1
+            x
+        elseif p == -1
+            1//x
+        else
+            x^p
+        end
+    end
+
     if isinteger(p)
         p = Integer(p)
     end
 
-    can_exact = (ex < typemax(Int))
-    can_exact &= (1/ex < typemax(Int))
+    eqisexact = false
+    ex2 = (10.0^tens * float(ex))^p
+    eq2 = float(eq)^p
+    if isa(eq, Integer) || isa(eq, Rational)
+        ex2 *= eq2
+        eqisexact = true
+    end
 
-    ex2 = 10.0^tens * float(ex)^p
-    can_exact &= (ex2 < typemax(Int))
+    can_exact = (ex2 < typemax(Int))
     can_exact &= (1/ex2 < typemax(Int))
     can_exact &= isinteger(p)
 
+    can_exact2 = (eq2 < typemax(Int))
+    can_exact2 &= (1/eq2 < typemax(Int))
+    can_exact2 &= isinteger(p)
+
     if can_exact
-        (inex, (ex//1*(10//1)^tens)^p)
+        if eqisexact
+            # If we got here then p is an integer.
+            # Note that sometimes x^1 can cause an overflow error if
+            # x is large because of how power_by_squaring is implemented
+            x = dpow(eq*ex*(10//1)^tens, p)
+            return (inex^p, isinteger(x) ? Int(x) : x)
+        else
+            x = dpow(ex*(10//1)^tens, p)
+            return ((inex*eq)^p, isinteger(x) ? Int(x) : x)
+        end
     else
-        ((inex * ex * 10.0^tens)^p, 1)
+        if eqisexact && can_exact2
+            x = dpow(eq,p)
+            return ((inex * ex * 10.0^tens)^p, isinteger(x) ? Int(x) : x)
+        else
+            return ((inex * ex * 10.0^tens * eq)^p, 1)
+        end
     end
 end
 
-@inline basefactor{U}(x::Unit{U}) = basefactor(basefactors[U]..., 0, power(x))
+@inline basefactor{U}(x::Unit{U}) = basefactor(basefactors[U]..., 1, 0, power(x))
 
 function basefactor{U}(x::Units{U})
     fact1 = map(basefactor, U)
@@ -994,29 +1034,6 @@ include("Promotion.jl")
 include("Conversion.jl")
 include("fastmath.jl")
 include("pkgdefaults.jl")
-
-# Finish up with promotion defaults (these can be overridden)
-preferunits(m,s,A,K,cd,kg,mol)
-
-function Base.promote_rule{S<:Units,T<:Units}(::Type{S}, ::Type{T})
-    dS = dimension(S())
-    dT = dimension(T())
-    dS != dT && error("Dimensions are unequal in call to `promote_rule`.")
-    typeof(upreferred(dS))
-end
-
-Base.promote_rule{S<:EnergyUnit, T<:EnergyUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.J)
-Base.promote_rule{S<:ForceUnit, T<:ForceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.N)
-Base.promote_rule{S<:PowerUnit, T<:PowerUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.W)
-Base.promote_rule{S<:PressureUnit, T<:PressureUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Pa)
-Base.promote_rule{S<:ChargeUnit, T<:ChargeUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.C)
-Base.promote_rule{S<:VoltageUnit, T<:VoltageUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.V)
-Base.promote_rule{S<:ResistanceUnit, T<:ResistanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Ω)
-Base.promote_rule{S<:CapacitanceUnit, T<:CapacitanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.F)
-Base.promote_rule{S<:InductanceUnit, T<:InductanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.H)
-Base.promote_rule{S<:MagneticFluxUnit, T<:MagneticFluxUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Wb)
-Base.promote_rule{S<:BFieldUnit, T<:BFieldUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.T)
-Base.promote_rule{S<:ActionUnit, T<:ActionUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.J * Unitful.s)
 
 function __init__()
     # @u_str should be aware of units defined in module Unitful

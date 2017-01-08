@@ -148,7 +148,7 @@ const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
 Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
 
 # Masses
-@unit lb        "lb"       Pound        0.45359237kg            false  # is exact
+@unit lb        "lb"       Pound        0.45359237kg            false # is exact
 @unit oz        "oz"       Ounce        lb//16                  false
 @unit dr        "dr"       Dram         oz//16                  false
 @unit gr        "gr"       Grain        (32//875)*dr            false
@@ -188,3 +188,28 @@ baremodule DefaultSymbols
         eval(DefaultSymbols, Expr(:export, u))
     end
 end
+
+#########
+
+# Finish up with promotion defaults (these can be overridden)
+preferunits(m,s,A,K,cd,kg,mol)
+
+function Base.promote_rule{S<:Units,T<:Units}(::Type{S}, ::Type{T})
+    dS = dimension(S())
+    dT = dimension(T())
+    dS != dT && error("Dimensions are unequal in call to `promote_rule`.")
+    typeof(upreferred(dS))
+end
+
+Base.promote_rule{S<:EnergyUnit, T<:EnergyUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.J)
+Base.promote_rule{S<:ForceUnit, T<:ForceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.N)
+Base.promote_rule{S<:PowerUnit, T<:PowerUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.W)
+Base.promote_rule{S<:PressureUnit, T<:PressureUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Pa)
+Base.promote_rule{S<:ChargeUnit, T<:ChargeUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.C)
+Base.promote_rule{S<:VoltageUnit, T<:VoltageUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.V)
+Base.promote_rule{S<:ResistanceUnit, T<:ResistanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Ω)
+Base.promote_rule{S<:CapacitanceUnit, T<:CapacitanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.F)
+Base.promote_rule{S<:InductanceUnit, T<:InductanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.H)
+Base.promote_rule{S<:MagneticFluxUnit, T<:MagneticFluxUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Wb)
+Base.promote_rule{S<:BFieldUnit, T<:BFieldUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.T)
+Base.promote_rule{S<:ActionUnit, T<:ActionUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.J * Unitful.s)
