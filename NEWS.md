@@ -16,6 +16,7 @@
  - Added matrix inversion for `StridedMatrix{T<:Quantity}`.
  - Added `istriu`, `istril` for `AbstractMatrix{T<:Quantity}`.
  - The `Unitful.SIUnits` module has been renamed to `Unitful.DefaultSymbols`.
+ - Add `lb`, `oz`, `dr`, `gr` to Unitful (international Avoirdupois mass units).
 
 - v0.0.4
  - Be aware, breaking changes to `deps/Defaults.jl` caused by some of the following!
