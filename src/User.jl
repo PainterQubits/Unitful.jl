@@ -164,7 +164,7 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
         u = :(Unitful.Unit{$z, typeof($dimension)}($k,1//1))
         ea = esc(quote
             Unitful.basefactors[$z] = $basefactor
-            const $s = Unitful.Units{($u,),typeof(dimension($u))}()
+            const $s = Unitful.Units{($u,),typeof(Unitful.dimension($u))}()
         end)
         push!(expr.args, ea)
     end
@@ -174,7 +174,7 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
     u = :(Unitful.Unit{$z, typeof($dimension)}(-6,1//1))
     push!(expr.args, esc(quote
         Unitful.basefactors[$z] = $basefactor
-        const $s = Unitful.Units{($u,),typeof(dimension($u))}()
+        const $s = Unitful.Units{($u,),typeof(Unitful.dimension($u))}()
     end))
 
     expr
@@ -196,11 +196,12 @@ macro unit_symbols(symb,name,dimension,basefactor)
     u = :(Unitful.Unit{$z,typeof($dimension)}(0,1//1))
     esc(quote
         Unitful.basefactors[$z] = $basefactor
-        const $s = Unitful.Units{($u,),typeof(dimension($u))}()
+        const $s = Unitful.Units{($u,),typeof(Unitful.dimension($u))}()
     end)
 end
 
 function preferredunit end
+function preferredunits end
 
 """
 ```
@@ -244,13 +245,11 @@ function preferunits(u0::Units, u::Units...)
     # Define / redefine `preferredunits` so methods for `preferredunit` are
     # in a world older than the one where `preferredunits` is defined.
     # Must be generated to force a concrete result type.
-    eval(Unitful, quote
-        @generated function preferredunits(x::Dimensions)
-            dim = x.parameters[1]
-            y = mapreduce(preferredunit, *, NoUnits, dim)
-            :($y)
-        end
-    end)
+    @generated function Unitful.preferredunits(x::Dimensions)
+        dim = x.parameters[1]
+        y = mapreduce(Unitful.preferredunit, *, NoUnits, dim)
+        :($y)
+    end
 
     nothing
 end
