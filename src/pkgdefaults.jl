@@ -91,7 +91,7 @@ const ha = Unitful.Units{(Unitful.Unit{:Are, Unitful.Dimensions{
 
 # Volume
 # `l` is also an acceptable symbol for liters
-@unit L      "L"        Liter       0.001m^3                true
+@unit L      "L"        Liter       m^3//1000                true
 for p in (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
     Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
     eval(Unitful, :(const $(Symbol(p,:l)) = $(Symbol(p,:L))))
