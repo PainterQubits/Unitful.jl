@@ -7,9 +7,13 @@ end
 ## Converting between units
 
 Since `convert` in Julia already means something specific (conversion between
-Julia types), we define `uconvert` for conversion between units. Typically
+Julia types), we define [`uconvert`](@ref) for conversion between units. Typically
 this will also involve a conversion between types, but this function takes care
 of figuring out which type is appropriate for representing the desired units.
+
+Exact conversions between units are respected where possible. If rational
+arithmetic would result in an overflow, then floating-point conversion should
+proceed. Use of floating-point numbers inhibits exact conversion.
 
 ```@docs
 uconvert
@@ -55,11 +59,14 @@ julia> Float64(1.0u"μm/m")
 1.0e-6
 ```
 
-## Basic conversion and promotion mechanisms
+### Temperature conversion
 
-Exact conversions between units are respected where possible. If rational
-arithmetic would result in an overflow, then floating-point conversion should
-proceed. Use of floating-point numbers inhibits exact conversion.
+If the dimension of a `Quantity` is purely temperature, then conversion
+respects scale offsets. For instance, converting 0°C to °F returns the expected
+result, 32°F. If instead temperature appears in combination with other units,
+scale offsets don't make sense and we consider temperature *intervals*.
+
+## Promotion mechanisms
 
 We decide the result units for addition and subtraction operations based
 on looking at the types only. We can't take runtime values into account
@@ -71,15 +78,14 @@ the result units will be specified by promotion. The
 preferred units for each pure dimension for promotion. Adding two masses with
 different units will give a result in `kg`. Adding two velocities with different
 units will give `m/s`, and so on. You can special case for "mixed" dimensions,
-e.g. such that the preferred units of energy are `J`. The behaviors can be
-changed in `deps/Defaults.jl`.
+e.g. such that the preferred units of energy are `J`.
 
 For multiplication and division, note that powers-of-ten prefixes are significant
 in unit cancellation. For instance, `mV/V` is not simplified, although `V/V` is.
 Also, `N*m/J` is not simplified: there is currently no logic to decide
 whether or not units on a dimensionless quantity seem "intentional" or not.
 
-## Array promotion
+### Array promotion
 
 Arrays are typed with as much specificity as possible upon creation. consider
 the following three cases:
@@ -118,10 +124,3 @@ julia> f([1.0u"m", 2.0u"cm"])
 julia> f([1.0u"g", 2.0u"cm"])
 ERROR: MethodError: no method matching f(::Array{Unitful.Quantity{Float64,D,U},1})
 ```
-
-## Temperature conversion
-
-If the dimension of a `Quantity` is purely temperature, then conversion
-respects scale offsets. For instance, converting 0°C to °F returns the expected
-result, 32°F. If instead temperature appears in combination with other units,
-scale offsets don't make sense and we consider temperature *intervals*.

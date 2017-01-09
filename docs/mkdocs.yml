@@ -29,8 +29,9 @@ pages:
 - Highlighted features: highlights.md
 - Types: types.md
 - Defining new units: newunits.md
-- Conversion: conversion.md
-- Manipulations: manipulations.md
+- Conversion / promotion: conversion.md
+- Manipulating units: manipulations.md
 - How units are displayed: display.md
+- Extending Unitful: extending.md
 - Troubleshooting: trouble.md
 - License: LICENSE.md

@@ -6,7 +6,10 @@
 ## Converting between units
 
 
-Since `convert` in Julia already means something specific (conversion between Julia types), we define `uconvert` for conversion between units. Typically this will also involve a conversion between types, but this function takes care of figuring out which type is appropriate for representing the desired units.
+Since `convert` in Julia already means something specific (conversion between Julia types), we define [`uconvert`](conversion.md#Unitful.uconvert) for conversion between units. Typically this will also involve a conversion between types, but this function takes care of figuring out which type is appropriate for representing the desired units.
+
+
+Exact conversions between units are respected where possible. If rational arithmetic would result in an overflow, then floating-point conversion should proceed. Use of floating-point numbers inhibits exact conversion.
 
 <a id='Unitful.uconvert' href='#Unitful.uconvert'>#</a>
 **`Unitful.uconvert`** &mdash; *Function*.
@@ -29,7 +32,7 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/4dff77ea1e2efbb4a80488849882a36498d62b83/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/ba121919582e915d4bacefa92a766a0b348b2120/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 ```
@@ -39,7 +42,7 @@ uconvert{T,D,U}(a::Units, x::Quantity{T,TempDim,Units{U,TempDim}})
 In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions. We abbreviate `TempDim = Dimensions{(Dimension{:Temperature}(1),)}` for clarity.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/4dff77ea1e2efbb4a80488849882a36498d62b83/src/Conversion.jl#L85-L93' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/ba121919582e915d4bacefa92a766a0b348b2120/src/Conversion.jl#L85-L93' class='documenter-source'>source</a><br>
 
 
 Since objects are callable, we can also make [`Unitful.Units`](types.md#Unitful.Units) callable with a `Number` as an argument, for a unit conversion shorthand:
@@ -89,15 +92,20 @@ julia> Float64(1.0u"μm/m")
 ```
 
 
-<a id='Basic-conversion-and-promotion-mechanisms-1'></a>
+<a id='Temperature-conversion-1'></a>
 
-## Basic conversion and promotion mechanisms
-
-
-Exact conversions between units are respected where possible. If rational arithmetic would result in an overflow, then floating-point conversion should proceed. Use of floating-point numbers inhibits exact conversion.
+### Temperature conversion
 
 
-We decide the result units for addition and subtraction operations based on looking at the types only. We can't take runtime values into account without compromising runtime performance. If two quantities with the same units are added or subtracted, then the result units will be the same. If two quantities with differing units (but same dimension) are added or subtracted, then the result units will be specified by promotion. The [`Unitful.@preferunit`](@ref) macro is used in `deps/Defaults.jl` to designate preferred units for each pure dimension for promotion. Adding two masses with different units will give a result in `kg`. Adding two velocities with different units will give `m/s`, and so on. You can special case for "mixed" dimensions, e.g. such that the preferred units of energy are `J`. The behaviors can be changed in `deps/Defaults.jl`.
+If the dimension of a `Quantity` is purely temperature, then conversion respects scale offsets. For instance, converting 0°C to °F returns the expected result, 32°F. If instead temperature appears in combination with other units, scale offsets don't make sense and we consider temperature *intervals*.
+
+
+<a id='Promotion-mechanisms-1'></a>
+
+## Promotion mechanisms
+
+
+We decide the result units for addition and subtraction operations based on looking at the types only. We can't take runtime values into account without compromising runtime performance. If two quantities with the same units are added or subtracted, then the result units will be the same. If two quantities with differing units (but same dimension) are added or subtracted, then the result units will be specified by promotion. The [`Unitful.preferunits`](newunits.md#Unitful.preferunits) function is used to designate preferred units for each pure dimension for promotion. Adding two masses with different units will give a result in `kg`. Adding two velocities with different units will give `m/s`, and so on. You can special case for "mixed" dimensions, e.g. such that the preferred units of energy are `J`.
 
 
 For multiplication and division, note that powers-of-ten prefixes are significant in unit cancellation. For instance, `mV/V` is not simplified, although `V/V` is. Also, `N*m/J` is not simplified: there is currently no logic to decide whether or not units on a dimensionless quantity seem "intentional" or not.
@@ -105,7 +113,7 @@ For multiplication and division, note that powers-of-ten prefixes are significan
 
 <a id='Array-promotion-1'></a>
 
-## Array promotion
+### Array promotion
 
 
 Arrays are typed with as much specificity as possible upon creation. consider the following three cases:
@@ -142,12 +150,4 @@ julia> f([1.0u"m", 2.0u"cm"])
 julia> f([1.0u"g", 2.0u"cm"])
 ERROR: MethodError: no method matching f(::Array{Unitful.Quantity{Float64,D,U},1})
 ```
-
-
-<a id='Temperature-conversion-1'></a>
-
-## Temperature conversion
-
-
-If the dimension of a `Quantity` is purely temperature, then conversion respects scale offsets. For instance, converting 0°C to °F returns the expected result, 32°F. If instead temperature appears in combination with other units, scale offsets don't make sense and we consider temperature *intervals*.
 

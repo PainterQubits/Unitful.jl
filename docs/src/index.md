@@ -24,14 +24,15 @@ that are found in Julia base.
 - `Pkg.add("Unitful")`
 - `using Unitful`
 
-Unitful aims for generality, but has some useful functionality out of the box:
+Unitful aims for generality, but has some useful functionality out of the box.
 - Base dimensions like length, mass, time, etc. are defined.
 - Derived dimensions like volume, energy, momentum, etc. are defined.
 - Base and derived SI units with their power-of-ten prefixes are defined.
-- Some other units (imperial units) are defined, without power-of-ten prefixes.
+- Some other common units are defined, without power-of-ten prefixes.
 - Sensible default promotion behavior is specified.
 
-Some unit abbreviations conflict with other definitions or syntax:
+Take a look at `src/pkgdefaults.jl` for a complete list. Note that some unit
+abbreviations conflict with other definitions or syntax:
 
 - `inch` is used instead of `in`, since `in` conflicts with Julia syntax
 - `minute` is used instead of `min`, since `min` is a commonly used function
@@ -48,10 +49,9 @@ retrieve them from Unitful in one of three ways:
    into the calling namespace.
 3. `using Unitful.DefaultSymbols` will bring the following symbols into the
    calling namespace:
-     - Dimensions `𝐋,𝐌,𝐓,𝐈,𝚯,𝐉,𝐍`
-     - Base and derived SI units, with SI prefixes (see `src/pkgdefaults.jl`
-       for specifics)
-     - `Hz2π` (angular frequency)
+     - Dimensions `𝐋,𝐌,𝐓,𝐈,𝚯,𝐉,𝐍` for length, mass, time, current, temperature,
+     luminosity, and amount, respectively.
+     - Base and derived SI units, with SI prefixes.
      - `°` (degrees)
   If you have been using the [SIUnits.jl](https://github.com/keno/SIUnits.jl)
   package, this is not unlike typing `using SIUnits.ShortUnits` with that package.

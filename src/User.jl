@@ -6,12 +6,13 @@ function register(unit_module::Module)
 Makes the [`@u_str`](@ref) macro aware of units defined in new unit modules.
 
 Example:
-```
+```jl
 # somewhere in a custom units package...
 module MyUnitsPackage
 using Unitful
 
 function __init__()
+    ...
     Unitful.register(MyUnitsPackage)
 end
 end #module
@@ -39,7 +40,7 @@ Finally, type aliases are created that allow the user to dispatch on
 defined dimension. The type alias for quantities is simply given by `name`,
 and the type alias for units is given by `name*"Unit"`, e.g. `LengthUnit`.
 
-Usage example: `@dimension 𝐋 "L" Length` (see `src/Defaults.jl`.)
+Usage example from `src/pkgdefaults.jl`: `@dimension 𝐋 "L" Length`
 """
 macro dimension(symb, abbr, name)
     s = Symbol(symb)
@@ -93,9 +94,17 @@ for every power of ten of the unit, using the standard SI prefixes. A `dimension
 must be given ([`Unitful.Dimensions`](@ref) object) that specifies the dimension
 of the reference unit.
 
+In principle, users can use this macro, but it probably does not make much sense
+to do so. If you define a new (probably unphysical) dimension using
+[`@dimension`](@ref), then this macro will be necessary. With existing dimensions,
+you will almost certainly cause confusion if you use this macro. One potential
+use case would be to define a unit system without reference to SI. However,
+there's no explicit barrier to prevent attempting conversions between SI and this
+hypothetical unit system, which could yield unexpected results.
+
 Usage example: `@refunit m "m" Meter 𝐋 true`
 
-This example will generate `km`, `m`, `cm`, ...
+This example, found in `src/pkgdefaults.jl`, generates `km`, `m`, `cm`, ...
 """
 macro refunit(symb, abbr, name, dimension, tf)
     x = Expr(:quote, name)
@@ -213,7 +222,7 @@ the function will complain if you provide two units with the same dimension, as 
 courtesy to the user.
 
 Once [`Unitful.upreferred`](@ref) has been called or quantities have been promoted,
-this function will no longer work properly.
+this function will appear to have no effect.
 
 Usage example: `preferunits(u"m,s,A,K,cd,kg,mol"...)`
 """

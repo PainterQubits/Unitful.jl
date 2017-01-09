@@ -158,7 +158,6 @@ Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
 # `using Unitful.DefaultSymbols` will bring the following into the calling namespace:
 # - Dimensions 𝐋,𝐌,𝐓,𝐈,𝚯,𝐉,𝐍
 # - Base and derived SI units, with SI prefixes
-# - Hz2π, i.e. angular frequency
 # - Degrees: °
 
 # The following line has two different character encodings for μ
@@ -183,10 +182,8 @@ baremodule DefaultSymbols
         end
     end
 
-    for u in (:Hz2π, :°)
-        eval(DefaultSymbols, Expr(:import, :Unitful, u))
-        eval(DefaultSymbols, Expr(:export, u))
-    end
+    eval(DefaultSymbols, Expr(:import, :Unitful, :°))
+    eval(DefaultSymbols, Expr(:export, :°))
 end
 
 #########
