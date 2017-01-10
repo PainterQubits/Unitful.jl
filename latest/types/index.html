@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Types - Unitful.jl</title>
+      
+      
+      
+      
+        <meta name="author" content="Andrew Keller">
+      
+    
+    <meta property="og:url" content="None">
+    <meta property="og:title" content="Unitful.jl">
+    <meta property="og:image" content="None/../">
+    <meta name="apple-mobile-web-app-title" content="Unitful.jl">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
+    <link rel="icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../assets/fonts/icon.eot?52m981');
+      	src: url('../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../assets/stylesheets/application-a422ff04cc.css">
+    
+      <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <style>
+        body, input {
+          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="../assets/Documenter.css">
+    
+    <script src="../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-indigo palette-accent-blue">
+    
+      
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+          </span>
+        
+        Types
+      </div>
+    </div>
+    
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/ajkeller34/Unitful.jl" class="project">
+    <div class="banner">
+      
+      <div class="name">
+        <strong>
+          Unitful.jl
+          <span class="version">
+            
+          </span>
+        </strong>
+        
+          <br>
+          ajkeller34/Unitful.jl
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/ajkeller34/Unitful.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/ajkeller34/Unitful.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Highlighted features" href="../highlights/">
+      Highlighted features
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="current" title="Types" href="./">
+      Types
+    </a>
+    
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="Overview" href="#overview">
+                Overview
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Quantities" href="#quantities">
+                Quantities
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Units and dimensions" href="#units-and-dimensions">
+                Units and dimensions
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Defining new units" href="../newunits/">
+      Defining new units
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Conversion / promotion" href="../conversion/">
+      Conversion / promotion
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Manipulating units" href="../manipulations/">
+      Manipulating units
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="How units are displayed" href="../display/">
+      How units are displayed
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Extending Unitful" href="../extending/">
+      Extending Unitful
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Troubleshooting" href="../trouble/">
+      Troubleshooting
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="License" href="../LICENSE/">
+      License
+    </a>
+    
+  </li>
+
+          
+        </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+            <h1>Types</h1>
+          
+          <p><a id='Overview-1'></a></p>
+<h2 id="overview">Overview</h2>
+<p>We define a <a href="./#Unitful.Unit"><code>Unitful.Unit{U,D}</code></a> type to represent a unit (<code>U</code> is a symbol, like <code>:Meter</code>, and <code>D</code> keeps track of dimensional information). Fields of a <code>Unit</code> object keep track of a rational exponents and a power-of-ten prefix. We don't allow arbitrary floating point exponents of units because they probably aren't very useful. The prefixes on units (e.g. <code>nm</code> or <code>km</code>) may help to avoid overflow issues and general ugliness.</p>
+<p>We define the immutable singleton <a href="./#Unitful.Units"><code>Unitful.Units{N,D}</code></a>, where <code>N</code> is always a tuple of <code>Unit</code> objects, and <code>D</code> is some type, like <code>typeof(Unitful.𝐋)</code>, where <code>𝐋</code> is the object representing the length dimension. Usually, the user interacts only with <code>Units</code> objects, not <code>Unit</code> objects.</p>
+<p>We define a function <a href="../manipulations/#Unitful.dimension-Tuple{Number}"><code>dimension</code></a> that turns, for example, <code>acre^2</code> into <code>𝐋^4</code>. We can add quantities with the same dimension, regardless of specific units. Note that dimensions cannot be determined by powers of the units: <code>ft^2</code> is an area, but so is <code>ac^1</code> (an acre).</p>
+<p>We define physical quantity types as <a href="./#Unitful.Quantity"><code>Quantity{T&lt;:Number, D, U}</code></a>, where <code>D &lt;: Dimensions</code> and <code>U &lt;: Units</code>. By putting units in the type signature of a quantity, staged functions can be used to offload as much of the unit computation to compile-time as is possible. By also having the dimensions explicitly in the type signature, dispatch can be done on dimensions: <code>isa(1m, Length) == true</code>. This works because <code>Length</code> is a type alias for some subset of <a href="./#Unitful.Quantity"><code>Unitful.Quantity</code></a> subtypes.</p>
+<p><a id='Quantities-1'></a></p>
+<h2 id="quantities">Quantities</h2>
+<p><a id='Unitful.Quantity' href='#Unitful.Quantity'>#</a>
+<strong><code>Unitful.Quantity</code></strong> &mdash; <em>Type</em>.</p>
+<pre class="codehilite"><code>immutable Quantity{T,D,U} &lt;: Number</code></pre>
+
+
+<p>A quantity, which has dimensions and units specified in the type signature. The dimensions and units are allowed to be the empty set, in which case a dimensionless, unitless number results.</p>
+<p>The type parameter <code>T</code> represents the numeric backing type. The type parameters <code>D &lt;:</code> <a href="./#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> and <code>U &lt;:</code> <a href="./#Unitful.Units"><code>Unitful.Units</code></a>. Of course, the dimensions follow from the units, but the type parameters are kept separate to permit convenient dispatch on dimensions.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Types.jl#L74-L87' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.DimensionlessQuantity' href='#Unitful.DimensionlessQuantity'>#</a>
+<strong><code>Unitful.DimensionlessQuantity</code></strong> &mdash; <em>Constant</em>.</p>
+<pre class="codehilite"><code>typealias DimensionlessQuantity{T,U} Quantity{T, Dimensions{()},U}</code></pre>
+
+
+<p>Useful for dispatching on <a href="./#Unitful.Quantity"><code>Unitful.Quantity</code></a> types that may have units but no dimensions. (Units with differing power-of-ten prefixes are not canceled out.)</p>
+<p>Example:</p>
+<pre class="codehilite"><code class="language-jlcon">julia&gt; isa(1.0u&quot;mV/V&quot;, DimensionlessQuantity)
+true</code></pre>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Types.jl#L94-L108' class='documenter-source'>source</a><br></p>
+<p><a id='Units-and-dimensions-1'></a></p>
+<h2 id="units-and-dimensions">Units and dimensions</h2>
+<p><a id='Unitful.Unitlike' href='#Unitful.Unitlike'>#</a>
+<strong><code>Unitful.Unitlike</code></strong> &mdash; <em>Type</em>.</p>
+<pre class="codehilite"><code>abstract Unitlike</code></pre>
+
+
+<p>Abstract type facilitating some code reuse between <a href="./#Unitful.Units"><code>Unitful.Units</code></a> and <a href="./#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> objects.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Types.jl#L42-L49' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.Units' href='#Unitful.Units'>#</a>
+<strong><code>Unitful.Units</code></strong> &mdash; <em>Type</em>.</p>
+<pre class="codehilite"><code>immutable Units{N,D} &lt;: Unitlike</code></pre>
+
+
+<p>Instances of this object represent units, possibly combinations thereof. Example: the unit <code>m</code> is actually a singleton of type <code>Unitful.Units{(Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1,1.0,1//1),),typeof(𝐋)</code>. After dividing by <code>s</code>, a singleton of type <code>Unitful.Units{(Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1,1.0,1//1),Unitful.Unit{:Second,typeof(𝐓)}(0,-1//1,1.0,1//1)),typeof(𝐋/𝐓)}</code> is returned.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Types.jl#L52-L62' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.Dimensions' href='#Unitful.Dimensions'>#</a>
+<strong><code>Unitful.Dimensions</code></strong> &mdash; <em>Type</em>.</p>
+<pre class="codehilite"><code>immutable Dimensions{N} &lt;: Unitlike</code></pre>
+
+
+<p>Instances of this object represent dimensions, possibly combinations thereof.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Types.jl#L65-L71' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.Unit' href='#Unitful.Unit'>#</a>
+<strong><code>Unitful.Unit</code></strong> &mdash; <em>Type</em>.</p>
+<pre class="codehilite"><code>immutable Unit{U,D}
+    tens::Int
+    power::Rational{Int}
+end</code></pre>
+
+
+<p>Description of a physical unit, including powers-of-ten prefixes and powers of the unit. The name of the unit is encoded in the type parameter <code>U</code> as a symbol, e.g. <code>:Meter</code>, <code>:Second</code>, <code>:Gram</code>, etc. The type parameter <code>D</code> contains dimension information, for instance <code>Unit{:Meter, typeof(𝐋)}</code> or <code>Unit{:Liter, typeof(𝐋^3)}</code>. Note that the dimension information refers to the unit, not powers of the unit.</p>
+<p><code>Unit{U,D}</code> objects are almost never explicitly manipulated by the user. They are collected in a tuple, which is used for the type parameter <code>N</code> of a <a href="./#Unitful.Units"><code>Units{N,D}</code></a> object.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Types.jl#L19-L36' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.Dimension' href='#Unitful.Dimension'>#</a>
+<strong><code>Unitful.Dimension</code></strong> &mdash; <em>Type</em>.</p>
+<pre class="codehilite"><code>immutable Dimension{D}
+    power::Rational{Int}
+end</code></pre>
+
+
+<p>Description of a dimension. The name of the dimension <code>D</code> is a symbol, e.g. <code>:Length</code>, <code>:Time</code>, <code>:Mass</code>, etc.</p>
+<p><code>Dimension{D}</code> objects are collected in a tuple, which is used for the type parameter <code>N</code> of a <a href="./#Unitful.Dimensions"><code>Dimensions{N}</code></a> object.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Types.jl#L2-L14' class='documenter-source'>source</a><br></p>
+          <aside class="copyright" role="note">
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../highlights/" title="Highlighted features">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                Highlighted features
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+        <a href="../newunits/" title="Defining new units">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                Defining new units
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '..';
+      var repo_id  = 'ajkeller34/Unitful.jl';
+    </script>
+    <script src="../assets/javascripts/application-997097ee0c.js"></script>
+    
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+    
+      <script src="../assets/mathjaxhelper.js"></script>
+    
+    
+  </body>
+</html>

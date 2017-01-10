@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Extending Unitful - Unitful.jl</title>
+      
+      
+      
+      
+        <meta name="author" content="Andrew Keller">
+      
+    
+    <meta property="og:url" content="None">
+    <meta property="og:title" content="Unitful.jl">
+    <meta property="og:image" content="None/../">
+    <meta name="apple-mobile-web-app-title" content="Unitful.jl">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
+    <link rel="icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../assets/fonts/icon.eot?52m981');
+      	src: url('../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../assets/stylesheets/application-a422ff04cc.css">
+    
+      <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
+      <style>
+        body, input {
+          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="../assets/Documenter.css">
+    
+    <script src="../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-indigo palette-accent-blue">
+    
+      
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+          </span>
+        
+        Extending Unitful
+      </div>
+    </div>
+    
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/ajkeller34/Unitful.jl" class="project">
+    <div class="banner">
+      
+      <div class="name">
+        <strong>
+          Unitful.jl
+          <span class="version">
+            
+          </span>
+        </strong>
+        
+          <br>
+          ajkeller34/Unitful.jl
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/ajkeller34/Unitful.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/ajkeller34/Unitful.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Highlighted features" href="../highlights/">
+      Highlighted features
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Types" href="../types/">
+      Types
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Defining new units" href="../newunits/">
+      Defining new units
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Conversion / promotion" href="../conversion/">
+      Conversion / promotion
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Manipulating units" href="../manipulations/">
+      Manipulating units
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="How units are displayed" href="../display/">
+      How units are displayed
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="current" title="Extending Unitful" href="./">
+      Extending Unitful
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="Making your own units package" href="#making-your-own-units-package">
+                Making your own units package
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Some limitations" href="#some-limitations">
+                Some limitations
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Troubleshooting" href="../trouble/">
+      Troubleshooting
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="License" href="../LICENSE/">
+      License
+    </a>
+    
+  </li>
+
+          
+        </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <p><a id='Extending-Unitful-1'></a></p>
+<h1 id="extending-unitful">Extending Unitful</h1>
+<p><a id='Making-your-own-units-package-1'></a></p>
+<h2 id="making-your-own-units-package">Making your own units package</h2>
+<p>New units or dimensions can be defined from the Julia REPL or from within other packages. To avoid duplication of code and effort, it is advised to put new unit definitions into a Julia package that is then published for others to use. For an example of how to do this, examine the code in <a href="https://github.com/ajkeller34/UnitfulUS.jl"><code>UnitfulUS.jl</code></a>, which defines U.S. customary units. It's actually very easy! Just make sure you read the cautionary notes below.</p>
+<p>If you make a units package for Unitful, please submit a pull request so that I can provide a link from Unitful's README!</p>
+<p><a id='Some-limitations-1'></a></p>
+<h2 id="some-limitations">Some limitations</h2>
+<p><a id='Precompilation-1'></a></p>
+<h3 id="precompilation">Precompilation</h3>
+<p>When creating new units in a precompiled package that need to persist into run-time (usually true), it is important that the following or something very similar make it into your code:</p>
+<pre class="codehilite"><code class="language-jl">const localunits = Unitful.basefactors
+const localpromotion = Unitful.promotion # only if you've used @dimension
+function __init__()
+    merge!(Unitful.basefactors, localunits)
+    merge!(Unitful.promotion, localpromotion) # only if you've used @dimension
+end</code></pre>
+
+
+<p>The definition of <code>localunits</code> (<code>localpromotion</code>) must happen <em>after all new units (dimensions) have been defined</em>.</p>
+<p>The problem is that the <a href="../newunits/#Unitful.@unit"><code>@unit</code></a> macro needs to add some information to a dictionary defined in Unitful, regardless of where the macro is executed (the use of this dictionary does not lead to run-time penalties, if you were wondering). However, because Unitful is precompiled, changes made to it from another module at compile-time will not persist.</p>
+<p>The <code>const localunits = Unitful.basefactors</code> line makes a copy of the compile-time-modified dictionary, which can be precompiled into the module where this code appears, and then the dictionary is merged into Unitful's dictionary at runtime.</p>
+<p>If you'd like, you can also consider adding a call to <a href="../manipulations/#Unitful.register"><code>Unitful.register</code></a> in your <code>__init__</code> function, which will make your units accessible using Unitful's <a href="../manipulations/#Unitful.@u_str"><code>@u_str</code></a> macro. Your unit symbols should ideally be distinctive to avoid colliding with symbols defined in other packages or in Unitful. If there is a collision, the <a href="../manipulations/#Unitful.@u_str"><code>@u_str</code></a> macro will still work, but it will use the unit found in whichever package was registered most recently, and it will omit a warning every time.</p>
+<p><a id='Type-uniqueness-1'></a></p>
+<h3 id="type-uniqueness">Type uniqueness</h3>
+<p>Currently, when the <a href="../newunits/#Unitful.@dimension"><code>@dimension</code></a>, <a href="../newunits/#Unitful.@derived_dimension"><code>@derived_dimension</code></a>, <a href="../newunits/#Unitful.@refunit"><code>@refunit</code></a>, or <a href="../newunits/#Unitful.@unit"><code>@unit</code></a> macros are used, some unique symbols must be provided which are used to differentiate types in dispatch. These are typically the names of dimensions or units (e.g. <code>Length</code>, <code>Meter</code>, etc.) One problem that could occur is that if multiple units or dimensions are defined with the same name, then they will be indistinguishable in dispatch and errors will result.</p>
+<p>I don't expect a flood of units packages to come out, so probably the likelihood of name collision is pretty small. When defining units yourself, do take care to use unique symbols, perhaps with the aid of <code>Base.gensym()</code> if creating units at runtime. When making packages, look and see what symbols are used by existing units packages to avoid trouble.</p>
+          <aside class="copyright" role="note">
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../display/" title="How units are displayed">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                How units are displayed
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+        <a href="../trouble/" title="Troubleshooting">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                Troubleshooting
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '..';
+      var repo_id  = 'ajkeller34/Unitful.jl';
+    </script>
+    <script src="../assets/javascripts/application-997097ee0c.js"></script>
+    
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+    
+      <script src="../assets/mathjaxhelper.js"></script>
+    
+    
+  </body>
+</html>
