@@ -35,10 +35,14 @@ is not exported.
 This macro extends [`Unitful.abbr`](@ref) to display the new dimension in an
 abbreviated format using the string `abbr`.
 
-Finally, type aliases are created that allow the user to dispatch on
+Type aliases are created that allow the user to dispatch on
 [`Unitful.Quantity`](@ref) and [`Unitful.Units`](@ref) objects of the newly
 defined dimension. The type alias for quantities is simply given by `name`,
 and the type alias for units is given by `name*"Unit"`, e.g. `LengthUnit`.
+
+Finally, if you define new dimensions with [`@dimension`](@ref) you will need
+to specify a preferred unit for that dimension with [`Unitful.preferunits`](@ref),
+otherwise promotion will not work with that dimension.
 
 Usage example from `src/pkgdefaults.jl`: `@dimension 𝐋 "L" Length`
 """
@@ -227,6 +231,7 @@ this function will appear to have no effect.
 Usage example: `preferunits(u"m,s,A,K,cd,kg,mol"...)`
 """
 function preferunits(u0::Units, u::Units...)
+
     units = (u0, u...)
     dims = map(dimension, units)
     if length(union(dims)) != length(dims)
@@ -245,17 +250,8 @@ function preferunits(u0::Units, u::Units...)
             error("preferunits cannot handle powers of pure dimensions except 1. ",
             "For instance, it should not be used with units of dimension 𝐋^2.")
         end
-        Unitful.preferredunit(y::typeof(typeof(dim).parameters[1][1])) =
-            unit^y.power
-    end
-
-    # Define / redefine `preferredunits` so methods for `preferredunit` are
-    # in a world older than the one where `preferredunits` is defined.
-    # Must be generated to force a concrete result type.
-    @generated function Unitful.preferredunits(x::Dimensions)
-        dim = x.parameters[1]
-        y = mapreduce(Unitful.preferredunit, *, NoUnits, dim)
-        :($y)
+        y = typeof(dim).parameters[1][1]
+        promotion[name(y)] = unit
     end
 
     nothing

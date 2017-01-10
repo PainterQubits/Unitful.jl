@@ -17,6 +17,11 @@ A Julia package for physical units. Available [here](https://github.com/ajkeller
 We want to support not only SI units but also any other unit system. We also want to minimize or in some cases eliminate the run-time penalty of units. There should be facilities for dimensional analysis. All of this should integrate easily with the usual mathematical operations and collections that are found in Julia base.
 
 
+!!! note
+    If you have been previously using Unitful 0.0.4 or earlier, the defaults mechanism has been completely rewritten. This means you will now need to define new units in your `.juliarc.jl` file or in a new module. See [Defining new units](newunits.md#Defining-new-units-1) and [Extending Unitful](extending.md#Extending-Unitful-1) for details. Additionally, to specify custom rules for promotion, see [Promotion mechanisms](conversion.md#Promotion-mechanisms-1).
+
+
+
 <a id='Quick-start-1'></a>
 
 ## Quick start

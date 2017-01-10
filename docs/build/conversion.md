@@ -32,7 +32,7 @@ julia> uconvert(u"J",1.0u"N*m")
 ```
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/ba121919582e915d4bacefa92a766a0b348b2120/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/bf0bb83e82f4b1bac8ed249c4fb8ab986d568100/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br>
 
 
 ```
@@ -42,7 +42,7 @@ uconvert{T,D,U}(a::Units, x::Quantity{T,TempDim,Units{U,TempDim}})
 In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions. We abbreviate `TempDim = Dimensions{(Dimension{:Temperature}(1),)}` for clarity.
 
 
-<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/ba121919582e915d4bacefa92a766a0b348b2120/src/Conversion.jl#L85-L93' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/bf0bb83e82f4b1bac8ed249c4fb8ab986d568100/src/Conversion.jl#L85-L93' class='documenter-source'>source</a><br>
 
 
 Since objects are callable, we can also make [`Unitful.Units`](types.md#Unitful.Units) callable with a `Number` as an argument, for a unit conversion shorthand:
@@ -105,10 +105,106 @@ If the dimension of a `Quantity` is purely temperature, then conversion respects
 ## Promotion mechanisms
 
 
-We decide the result units for addition and subtraction operations based on looking at the types only. We can't take runtime values into account without compromising runtime performance. If two quantities with the same units are added or subtracted, then the result units will be the same. If two quantities with differing units (but same dimension) are added or subtracted, then the result units will be specified by promotion. The [`Unitful.preferunits`](newunits.md#Unitful.preferunits) function is used to designate preferred units for each pure dimension for promotion. Adding two masses with different units will give a result in `kg`. Adding two velocities with different units will give `m/s`, and so on. You can special case for "mixed" dimensions, e.g. such that the preferred units of energy are `J`.
+We decide the result units for addition and subtraction operations based on looking at the types only. We can't take runtime values into account without compromising runtime performance. If two quantities with the same units are added or subtracted, then the result units will be the same. If two quantities with differing units (but same dimension) are added or subtracted, then the result units will be specified by promotion.
 
 
-For multiplication and division, note that powers-of-ten prefixes are significant in unit cancellation. For instance, `mV/V` is not simplified, although `V/V` is. Also, `N*m/J` is not simplified: there is currently no logic to decide whether or not units on a dimensionless quantity seem "intentional" or not.
+<a id='Promotion-rules-for-specific-dimensions-1'></a>
+
+### Promotion rules for specific dimensions
+
+
+You can specify the result units for promoting quantities of a specific dimension once at the start of a Julia session, specifically *before* `upreferred` *has been called or quantities have been promoted*. For example, you can specify that when promoting two quantities with different energy units, the resulting quantities should be in `g*cm^2/s^2`. This is accomplished by defining a `Base.promote_rule` for the units themselves. Here's an example.
+
+
+```jlcon
+julia> using Unitful
+
+julia> Base.promote_rule{S<:Unitful.EnergyUnit, T<:Unitful.EnergyUnit}(::Type{S}, ::Type{T}) = typeof(u"g*cm^2/s^2")
+
+julia> promote(2.0u"J", 1.0u"kg*m^2/s^2")
+(2.0e7 g cm^2 s^-2,1.0e7 g cm^2 s^-2)
+
+julia> Base.promote_rule{S<:Unitful.EnergyUnit, T<:Unitful.EnergyUnit}(::Type{S}, ::Type{T}) = typeof(u"J")
+
+julia> promote(2.0u"J", 1.0u"kg*m^2/s^2")
+(2.0e7 g cm^2 s^-2,1.0e7 g cm^2 s^-2)
+```
+
+
+Notice how the first definition of `Base.promote_rule` had a permanent effect. This is true of promotion rules for types defined in Base too; try defining a new promotion rule for `Int` and `Float64` and you'll see it has no effect.
+
+
+If you're wondering where `Unitful.EnergyUnit` comes from, it is defined in `src/pkgdefaults.jl` by the [`@derived_dimension`](newunits.md#Unitful.@derived_dimension) macro. Similarly, the calls to the [`@dimension`](newunits.md#Unitful.@dimension) macro define `Unitful.LengthUnit`, `Unitful.MassUnit`, etc. None of these are exported.
+
+
+Existing users of Unitful may want to call [`Unitful.promote_to_derived`](conversion.md#Unitful.promote_to_derived) after Unitful loads to give similar behavior to Unitful 0.0.4 and below. It is not called by default because otherwise users who want different behavior would have to suffer through method redefinition warnings every time.
+
+<a id='Unitful.promote_to_derived' href='#Unitful.promote_to_derived'>#</a>
+**`Unitful.promote_to_derived`** &mdash; *Function*.
+
+
+
+```
+Unitful.promote_to_derived()
+```
+
+Defines promotion rules to use derived SI units in promotion for common dimensions of quantities:
+
+  * `J` (joule) for energy
+  * `N` (newton) for force
+  * `W` (watt) for power
+  * `Pa` (pascal) for pressure
+  * `C` (coulomb) for charge
+  * `V` (volt) for voltage
+  * `Ω` (ohm) for resistance
+  * `F` (farad) for capacitance
+  * `H` (henry) for inductance
+  * `Wb` (weber) for magnetic flux
+  * `T` (tesla) for B-field
+  * `J*s` (joule-second) for action
+
+If you want this as default behavior (it was for versions of Unitful prior to 0.1.0), consider invoking this function in your `.juliarc.jl` file which is loaded when you open Julia. This function is not exported.
+
+
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/bf0bb83e82f4b1bac8ed249c4fb8ab986d568100/src/pkgdefaults.jl#L202-L226' class='documenter-source'>source</a><br>
+
+
+<a id='Fallback-promotion-rules-1'></a>
+
+### Fallback promotion rules
+
+
+The [`Unitful.preferunits`](conversion.md#Unitful.preferunits) function is used to designate fallback preferred units for each pure dimension for promotion. Such a fallback is required because you need some generic logic to take over when manipulating quantities with arbitrary dimensions.
+
+
+The default behavior is to promote to a combination of the base SI units, i.e. a quantity of dimension `𝐌*𝐋^2/(𝐓^2*𝚯)` would be converted to `kg*m^2/(s^2*K)`:
+
+
+```jlcon
+julia> promote(1.0u"J/K", 1.0u"g*cm^2/s^2/K")
+(1.0 kg K^-1 m^2 s^-2,1.0e-7 kg K^-1 m^2 s^-2)
+```
+
+
+You can however override this behavior by calling [`Unitful.preferunits`](conversion.md#Unitful.preferunits) at the start of a Julia session, specifically *before* `upreferred` *has been called or quantities have been promoted*.
+
+<a id='Unitful.preferunits' href='#Unitful.preferunits'>#</a>
+**`Unitful.preferunits`** &mdash; *Function*.
+
+
+
+```
+function preferunits(u0::Units, u::Units...)
+```
+
+This function specifies the default fallback units for promotion. Units provided to this function must have a pure dimension of power 1, like 𝐋 or 𝐓 but not 𝐋/𝐓 or 𝐋^2. The function will complain if this is not the case. Additionally, the function will complain if you provide two units with the same dimension, as a courtesy to the user.
+
+Once [`Unitful.upreferred`](manipulations.md#Unitful.upreferred) has been called or quantities have been promoted, this function will appear to have no effect.
+
+Usage example: `preferunits(u"m,s,A,K,cd,kg,mol"...)`
+
+
+<a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/bf0bb83e82f4b1bac8ed249c4fb8ab986d568100/src/User.jl#L217-L232' class='documenter-source'>source</a><br>
 
 
 <a id='Array-promotion-1'></a>
@@ -150,4 +246,12 @@ julia> f([1.0u"m", 2.0u"cm"])
 julia> f([1.0u"g", 2.0u"cm"])
 ERROR: MethodError: no method matching f(::Array{Unitful.Quantity{Float64,D,U},1})
 ```
+
+
+<a id='Unit-cancellation-1'></a>
+
+## Unit cancellation
+
+
+For multiplication and division, note that powers-of-ten prefixes are significant in unit cancellation. For instance, `mV/V` is not simplified, although `V/V` is. Also, `N*m/J` is not simplified: there is currently no logic to decide whether or not units on a dimensionless quantity seem "intentional" or not.
 

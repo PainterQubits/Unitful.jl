@@ -198,15 +198,43 @@ function Base.promote_rule{S<:Units,T<:Units}(::Type{S}, ::Type{T})
     typeof(upreferred(dS))
 end
 
-Base.promote_rule{S<:EnergyUnit, T<:EnergyUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.J)
-Base.promote_rule{S<:ForceUnit, T<:ForceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.N)
-Base.promote_rule{S<:PowerUnit, T<:PowerUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.W)
-Base.promote_rule{S<:PressureUnit, T<:PressureUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Pa)
-Base.promote_rule{S<:ChargeUnit, T<:ChargeUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.C)
-Base.promote_rule{S<:VoltageUnit, T<:VoltageUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.V)
-Base.promote_rule{S<:ResistanceUnit, T<:ResistanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Ω)
-Base.promote_rule{S<:CapacitanceUnit, T<:CapacitanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.F)
-Base.promote_rule{S<:InductanceUnit, T<:InductanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.H)
-Base.promote_rule{S<:MagneticFluxUnit, T<:MagneticFluxUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Wb)
-Base.promote_rule{S<:BFieldUnit, T<:BFieldUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.T)
-Base.promote_rule{S<:ActionUnit, T<:ActionUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.J * Unitful.s)
+
+"""
+```
+Unitful.promote_to_derived()
+```
+
+Defines promotion rules to use derived SI units in promotion for common dimensions
+of quantities:
+
+- `J` (joule) for energy
+- `N` (newton) for force
+- `W` (watt) for power
+- `Pa` (pascal) for pressure
+- `C` (coulomb) for charge
+- `V` (volt) for voltage
+- `Ω` (ohm) for resistance
+- `F` (farad) for capacitance
+- `H` (henry) for inductance
+- `Wb` (weber) for magnetic flux
+- `T` (tesla) for B-field
+- `J*s` (joule-second) for action
+
+If you want this as default behavior (it was for versions of Unitful prior to 0.1.0),
+consider invoking this function in your `.juliarc.jl` file which is loaded when
+you open Julia. This function is not exported.
+"""
+function promote_to_derived()
+    Base.promote_rule{S<:EnergyUnit, T<:EnergyUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.J)
+    Base.promote_rule{S<:ForceUnit, T<:ForceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.N)
+    Base.promote_rule{S<:PowerUnit, T<:PowerUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.W)
+    Base.promote_rule{S<:PressureUnit, T<:PressureUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Pa)
+    Base.promote_rule{S<:ChargeUnit, T<:ChargeUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.C)
+    Base.promote_rule{S<:VoltageUnit, T<:VoltageUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.V)
+    Base.promote_rule{S<:ResistanceUnit, T<:ResistanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Ω)
+    Base.promote_rule{S<:CapacitanceUnit, T<:CapacitanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.F)
+    Base.promote_rule{S<:InductanceUnit, T<:InductanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.H)
+    Base.promote_rule{S<:MagneticFluxUnit, T<:MagneticFluxUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Wb)
+    Base.promote_rule{S<:BFieldUnit, T<:BFieldUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.T)
+    Base.promote_rule{S<:ActionUnit, T<:ActionUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.J * Unitful.s)
+end

@@ -1,5 +1,10 @@
 [![Build Status](https://travis-ci.org/ajkeller34/Unitful.jl.svg?branch=master)](https://travis-ci.org/ajkeller34/Unitful.jl)
-[![codecov](https://codecov.io/gh/ajkeller34/Unitful.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/ajkeller34/Unitful.jl)
+[![Coverage Status](https://coveralls.io/repos/ajkeller34/Unitful.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/ajkeller34/Unitful.jl?branch=master)
+[![codecov.io](http://codecov.io/github/ajkeller34/Unitful.jl/coverage.svg?branch=master)](http://codecov.io/github/ajkeller34/Unitful.jl?branch=master)
+
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://ajkeller34.github.io/Unitful.jl/stable)
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://ajkeller34.github.io/Unitful.jl/latest)
+
 # Unitful.jl
 
 Unitful is a Julia package for physical units. Available
@@ -17,4 +22,5 @@ are found in Julia base.
 
 ## Documentation
 
-[Available here](http://ajkeller34.github.io/Unitful.jl)
+[Stable](http://ajkeller34.github.io/Unitful.jl) and
+[latest](https://ajkeller34.github.io/Unitful.jl/latest) versions available.

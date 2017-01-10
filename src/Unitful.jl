@@ -35,6 +35,8 @@ const unitmodules = Vector{Module}()
 const basefactors = Dict{Symbol,Tuple{Float64,Rational{Int}}}()
 
 include("Types.jl")
+const promotion = Dict{Symbol,Units}()
+
 include("User.jl")
 const NoUnits = Units{(), Dimensions{()}}()
 const NoDims = Dimensions{()}()
@@ -310,6 +312,12 @@ end
 @inline power(x::Unit) = x.power
 @inline power(x::Dimension) = x.power
 
+@generated function Unitful.preferredunits(x::Dimensions)
+    dim = x.parameters[1]
+    y = mapreduce(z->Unitful.promotion[name(z)]^z.power, *, NoUnits, dim)
+    :($y)
+end
+
 # This is type unstable but
 # a) this method is not called by the user
 # b) ultimately the instability will only be present at compile time as it is
@@ -442,18 +450,17 @@ Given however many dimensions, multiply them together.
 Collect [`Unitful.Dimension`](@ref) objects from the type parameter of the
 [`Unitful.Dimensions`](@ref) objects. For identical dimensions, collect powers
 and sort uniquely by the name of the `Dimension`.
-The unique sorting permits easy unit comparisons.
 
 Examples:
 
 ```jldoctest
-julia> u"kg*m/s^2"
-kg m s^-2
+julia> u"𝐌*𝐋/𝐓^2"
+𝐋 𝐌 𝐓^-2
 
-julia> u"m/s*kg/s"
-kg m s^-2
+julia> u"𝐋*𝐌/𝐓^2"
+𝐋 𝐌 𝐓^-2
 
-julia> typeof(u"m/s*kg/s") == typeof(u"kg*m/s^2")
+julia> typeof(u"𝐋*𝐌/𝐓^2") == typeof(u"𝐌*𝐋/𝐓^2")
 true
 ```
 """

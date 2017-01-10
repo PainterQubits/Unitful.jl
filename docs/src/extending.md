@@ -1,3 +1,5 @@
+# Extending Unitful
+
 ## Making your own units package
 
 New units or dimensions can be defined from the Julia REPL or from within
@@ -21,12 +23,15 @@ similar make it into your code:
 
 ```jl
 const localunits = Unitful.basefactors
+const localpromotion = Unitful.promotion # only if you've used @dimension
 function __init__()
     merge!(Unitful.basefactors, localunits)
+    merge!(Unitful.promotion, localpromotion) # only if you've used @dimension
 end
 ```
 
-The definition of `localunits` must happen *after all new units have been defined*.
+The definition of `localunits` (`localpromotion`) must happen
+*after all new units (dimensions) have been defined*.
 
 The problem is that the [`@unit`](@ref) macro needs to add some information to
 a dictionary defined in Unitful, regardless of where the macro is executed

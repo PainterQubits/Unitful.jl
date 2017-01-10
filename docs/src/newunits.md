@@ -1,3 +1,5 @@
+# Defining new units
+
 The package automatically generates a useful set of units and dimensions in the
 `Unitful` module in `src/pkgdefaults.jl`.
 
@@ -17,7 +19,6 @@ Unitful.@dimension
 Unitful.@derived_dimension
 Unitful.@refunit
 Unitful.@unit
-Unitful.preferunits
 Unitful.offsettemp
 ```
 

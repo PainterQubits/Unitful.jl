@@ -18,6 +18,14 @@ There should be facilities for dimensional analysis. All of this should
 integrate easily with the usual mathematical operations and collections
 that are found in Julia base.
 
+!!! note
+    If you have been previously using Unitful 0.0.4 or earlier, the defaults
+    mechanism has been completely rewritten. This means you will now need to
+    define new units in your `.juliarc.jl` file or in a new module. See
+    [Defining new units](@ref) and [Extending Unitful](@ref) for details.
+    Additionally, to specify custom rules for promotion, see
+    [Promotion mechanisms](@ref).
+
 ## Quick start
 
 - This package requires Julia 0.5. Older versions will not be supported.
