@@ -294,7 +294,7 @@ julia&gt; u&quot;ħ&quot;
 1.0545718001391127e-34 J s</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/User.jl#L293-L326' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/User.jl#L293-L326' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.register' href='#Unitful.register'>#</a>
 <strong><code>Unitful.register</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>function register(unit_module::Module)</code></pre>
@@ -313,7 +313,7 @@ end
 end #module</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/User.jl#L1-L20' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/User.jl#L1-L20' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.unit' href='#Unitful.unit'>#</a>
 <strong><code>Unitful.unit</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>unit{T,D,U}(x::Quantity{T,D,U})</code></pre>
@@ -328,7 +328,7 @@ julia&gt; typeof(u&quot;m&quot;)
 Unitful.Units{(Unitful.Unit{:Meter,Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}(0,1//1),),Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Unitful.jl#L143-L159' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/Unitful.jl#L143-L159' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>unit{T,D,U}(x::Type{Quantity{T,D,U}})</code></pre>
 
 
@@ -338,7 +338,7 @@ Unitful.Units{(Unitful.Unit{:Meter,Unitful.Dimensions{(Unitful.Dimension{:Length
 true</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Unitful.jl#L162-L175' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/Unitful.jl#L162-L175' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>unit(x::Number)</code></pre>
 
 
@@ -352,7 +352,7 @@ julia&gt; unit(1.0) == NoUnits
 true</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Unitful.jl#L179-L198' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/Unitful.jl#L179-L198' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.ustrip' href='#Unitful.ustrip'>#</a>
 <strong><code>Unitful.ustrip</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>ustrip(x::Number)</code></pre>
@@ -368,7 +368,7 @@ julia&gt; uconvert(NoUnits, 2u&quot;μm/m&quot;) == 2//1000000
 true</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Unitful.jl#L55-L79' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/Unitful.jl#L55-L79' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>ustrip{T,D,U}(x::Array{Quantity{T,D,U}})</code></pre>
 
 
@@ -390,35 +390,35 @@ julia&gt; a[1] = 3u&quot;m&quot;; b
  2</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Unitful.jl#L82-L110' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/Unitful.jl#L82-L110' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>ustrip{T,D,U}(x::AbstractArray{Quantity{T,D,U}})</code></pre>
 
 
 <p>Strip units from an <code>AbstractArray</code> by making a new array without units using array comprehensions.</p>
 <p>This function is provided primarily for compatibility purposes; you could pass the result to PyPlot, for example. This function may be deprecated in the future.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Unitful.jl#L113-L123' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/Unitful.jl#L113-L123' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>ustrip{T&lt;:Number}(x::AbstractArray{T})</code></pre>
 
 
 <p>Fall-back that returns <code>x</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Unitful.jl#L126-L132' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/Unitful.jl#L126-L132' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.upreferred' href='#Unitful.upreferred'>#</a>
 <strong><code>Unitful.upreferred</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>upreferred(x::Number)</code></pre>
 
 
 <p>Unit-convert <code>x</code> to units which are preferred for the dimensions of <code>x</code>, as specified by the <a href="../conversion/#Unitful.preferunits"><code>preferunits</code></a> function. If you are using the factory defaults, this function will unit-convert to a product of powers of base SI units.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/User.jl#L260-L268' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/User.jl#L260-L268' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>upreferred(x::Units)</code></pre>
 
 
 <p>Return units which are preferred for the dimensions of <code>x</code>, which may or may not be equal to <code>x</code>, as specified by the <a href="../conversion/#Unitful.preferunits"><code>preferunits</code></a> function. If you are using the factory defaults, this function will return a product of powers of base SI units.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/User.jl#L271-L280' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/User.jl#L271-L280' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>upreferred(x::Dimensions)</code></pre>
 
 
 <p>Return units which are preferred for dimensions <code>x</code>. If you are using the factory defaults, this function will return a product of powers of base SI units.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/User.jl#L283-L290' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/User.jl#L283-L290' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Tuple{Number}' href='#Unitful.dimension-Tuple{Number}'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
 <pre class="codehilite"><code>dimension(x::Number)
@@ -435,7 +435,7 @@ julia&gt; dimension(1.0) == NoDims
 true</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Unitful.jl#L202-L222' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/Unitful.jl#L202-L222' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Tuple{Unitful.Units{U,D}}' href='#Unitful.dimension-Tuple{Unitful.Units{U,D}}'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
 <pre class="codehilite"><code>dimension{U,D}(u::Units{U,D})</code></pre>
@@ -453,7 +453,7 @@ julia&gt; typeof(dimension(u&quot;m/km&quot;))
 Unitful.Dimensions{()}</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Unitful.jl#L226-L247' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/Unitful.jl#L226-L247' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Tuple{Unitful.Quantity{T,D,U}}' href='#Unitful.dimension-Tuple{Unitful.Quantity{T,D,U}}'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
 <pre class="codehilite"><code>dimension{T,D}(x::Quantity{T,D})</code></pre>
@@ -468,14 +468,14 @@ julia&gt; typeof(dimension(1.0u&quot;m/μm&quot;))
 Unitful.Dimensions{()}</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Unitful.jl#L250-L268' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/Unitful.jl#L250-L268' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Tuple{AbstractArray{T<:Unitful.Units,N}}' href='#Unitful.dimension-Tuple{AbstractArray{T<:Unitful.Units,N}}'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
 <pre class="codehilite"><code>dimension{T&lt;:Units}(x::AbstractArray{T})</code></pre>
 
 
 <p>Just calls <code>map(dimension, x)</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Unitful.jl#L281-L287' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/Unitful.jl#L281-L287' class='documenter-source'>source</a><br></p>
 <p><a id='Base.:*-Tuple{Unitful.Units,Vararg{Unitful.Units,N}}' href='#Base.:*-Tuple{Unitful.Units,Vararg{Unitful.Units,N}}'>#</a>
 <strong><code>Base.:*</code></strong> &mdash; <em>Method</em>.</p>
 <pre class="codehilite"><code>*(a0::Units, a::Units...)</code></pre>
@@ -494,7 +494,7 @@ julia&gt; typeof(u&quot;m/s*kg/s&quot;) == typeof(u&quot;kg*m/s^2&quot;)
 true</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Unitful.jl#L927-L951' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/Unitful.jl#L927-L951' class='documenter-source'>source</a><br></p>
 <p><a id='Base.:*-Tuple{Unitful.Dimensions,Vararg{Unitful.Dimensions,N}}' href='#Base.:*-Tuple{Unitful.Dimensions,Vararg{Unitful.Dimensions,N}}'>#</a>
 <strong><code>Base.:*</code></strong> &mdash; <em>Method</em>.</p>
 <pre class="codehilite"><code>*(a0::Dimensions, a::Dimensions...)</code></pre>
@@ -513,7 +513,7 @@ julia&gt; typeof(u&quot;𝐋*𝐌/𝐓^2&quot;) == typeof(u&quot;𝐌*𝐋/𝐓^
 true</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/56f83fe064546d495898441bf124ef5a6e663c02/src/Unitful.jl#L443-L466' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/Unitful.jl#L443-L466' class='documenter-source'>source</a><br></p>
           <aside class="copyright" role="note">
             
             Documentation built with
