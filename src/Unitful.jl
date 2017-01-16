@@ -641,12 +641,11 @@ end
 # performant method.
 
 for (_x,_y) in [(:fma, :_fma), (:muladd, :_muladd)]
-    @eval @inline ($_x){T<:Number}(x::Quantity{T}, y::T, z::T) = ($_y)(x,y,z)
-    @eval @inline ($_x){T<:Number}(x::T, y::Quantity{T}, z::T) = ($_y)(x,y,z)
-    @eval @inline ($_x){T<:Number}(x::T, y::T, z::Quantity{T}) = ($_y)(x,y,z)
-    @eval @inline ($_x){T<:Number}(x::Quantity{T}, y::Quantity{T}, z::T) = ($_y)(x,y,z)
-    @eval @inline ($_x){T<:Number}(x::T, y::Quantity{T}, z::Quantity{T}) = ($_y)(x,y,z)
-    @eval @inline ($_x){T<:Number}(x::Quantity{T}, y::T, z::Quantity{T}) = ($_y)(x,y,z)
+    # Catch some signatures pre-promotion
+    @eval @inline ($_x)(x::Number, y::Quantity, z::Quantity) = ($_y)(x,y,z)
+    @eval @inline ($_x)(x::Quantity, y::Number, z::Quantity) = ($_y)(x,y,z)
+
+    # Post-promotion
     @eval @inline ($_x){T<:Number}(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}) = ($_y)(x,y,z)
 
     # It seems like most of this is optimized out by the compiler, including the

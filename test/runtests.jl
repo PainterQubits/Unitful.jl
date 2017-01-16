@@ -634,11 +634,19 @@ end
     @testset "> Arrays" begin
         @testset ">> Array multiplication" begin
             # Quantity, quantity
-            @test @inferred([1m, 2m]' * [3m, 4m])    == [11m^2]
+            @static if VERSION >= v"0.6.0-" # RowVector change...
+                @test @inferred([1m, 2m]' * [3m, 4m])    == 11m^2
+                @test @inferred([1m, 2m]' * [3/m, 4/m])  == 11
+                @test typeof([1m, 2m]' * [3/m, 4/m])     == Int
+                @test typeof([1m, 2V]' * [3/m, 4/V])     == Int
+            else
+                @test @inferred([1m, 2m]' * [3m, 4m])    == [11m^2]
+                @test @inferred([1m, 2m]' * [3/m, 4/m])  == [11]
+                @test typeof([1m, 2m]' * [3/m, 4/m])     == Array{Int,1}
+                @test typeof([1m, 2V]' * [3/m, 4/V])     == Array{Int,1}
+            end
             @test @inferred([1V,2V]*[0.1/m, 0.4/m]') == [0.1V/m 0.4V/m; 0.2V/m 0.8V/m]
-            @test @inferred([1m, 2m]' * [3/m, 4/m])  == [11]
-            @test typeof([1m, 2m]' * [3/m, 4/m])     == Array{Int,1}
-            @test typeof([1m, 2V]' * [3/m, 4/V])     == Array{Int,1}
+
             @static if VERSION >= v"0.6.0-"
                 @test_broken @inferred([1m, 2V]' * [3/m, 4/V])  == [11]
                 @test_broken @inferred([1m, 2V] * [3/m, 4/V]') ==
@@ -652,12 +660,20 @@ end
             # Quantity, number or vice versa
             @test @inferred([1 2] * [3m,4m])         == [11m]
             @test typeof([1 2] * [3m,4m])            == Array{typeof(1u"m"),1}
-            @test @inferred([1,2] * [3m 4m])         == [3m 4m; 6m 8m]
-            @test typeof([1,2] * [3m 4m])            == Array{typeof(1u"m"),2}
             @test @inferred([3m 4m] * [1,2])         == [11m]
             @test typeof([3m 4m] * [1,2])            == Array{typeof(1u"m"),1}
-            @test @inferred([3m,4m] * [1 2])         == [3m 6m; 4m 8m]
-            @test typeof([3m,4m] * [1 2])            == Array{typeof(1u"m"),2}
+
+            @static if VERSION >= v"0.6.0-"
+                @test @inferred([1,2] * [3m,4m]')    == [3m 4m; 6m 8m]
+                @test typeof([1,2] * [3m,4m]')       == Array{typeof(1u"m"),2}
+                @test @inferred([3m,4m] * [1,2]')    == [3m 6m; 4m 8m]
+                @test typeof([3m,4m] * [1,2]')       == Array{typeof(1u"m"),2}
+            else
+                @test @inferred([1,2] * [3m 4m])     == [3m 4m; 6m 8m]
+                @test typeof([1,2] * [3m 4m])        == Array{typeof(1u"m"),2}
+                @test @inferred([3m,4m] * [1 2])     == [3m 6m; 4m 8m]
+                @test typeof([3m,4m] * [1 2])        == Array{typeof(1u"m"),2}
+            end
         end
 
         @testset ">> Element-wise multiplication" begin
@@ -754,7 +770,7 @@ let fname = tempname()
     end
 end
 
-@static if VERSION >= v"0.6.0-"
+@static if VERSION >= v"0.6.0-" #test_warn commit
     # check for the warning...
     @test_warn "ShadowUnits" eval(:(u"m"))
 end
