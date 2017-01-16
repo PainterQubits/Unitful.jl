@@ -1,297 +1,480 @@
+
 <!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
-<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
-<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+<html class="no-js">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <title>Conversion / promotion - Unitful.jl</title>
-      
+        <meta name="description" content="Package for units.">
       
       
       
         <meta name="author" content="Andrew Keller">
       
-    
-    <meta property="og:url" content="None">
-    <meta property="og:title" content="Unitful.jl">
-    <meta property="og:image" content="None/../">
-    <meta name="apple-mobile-web-app-title" content="Unitful.jl">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    
-    <link rel="shortcut icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
-    <link rel="icon" type="image/x-icon" href="../assets/images/favicon-e565ddfa3b.ico">
-    <style>
-      @font-face {
-      	font-family: 'Icon';
-      	src: url('../assets/fonts/icon.eot?52m981');
-      	src: url('../assets/fonts/icon.eot?#iefix52m981')
-               format('embedded-opentype'),
-      		   url('../assets/fonts/icon.woff?52m981')
-               format('woff'),
-      		   url('../assets/fonts/icon.ttf?52m981')
-               format('truetype'),
-      		   url('../assets/fonts/icon.svg?52m981#icon')
-               format('svg');
-      	font-weight: normal;
-      	font-style: normal;
-      }
-    </style>
-    <link rel="stylesheet" href="../assets/stylesheets/application-a422ff04cc.css">
-    
-      <link rel="stylesheet" href="../assets/stylesheets/palettes-05ab2406df.css">
+      
+        <link rel="shortcut icon" href="../assets/images/favicon.ico">
+      
+      <meta name="generator" content="mkdocs+mkdocs-material#1.0.2">
     
     
       
+        <title>Conversion / promotion - Unitful.jl</title>
+      
+    
+    
+      <script src="../assets/javascripts/modernizr-facb31f4a3.js"></script>
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application-1b8b9fdf68.css">
+      
+        <link rel="stylesheet" href="../assets/stylesheets/application-02ce7adcc2.palette.css">
       
       
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,700|Ubuntu+Mono">
-      <style>
-        body, input {
-          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
-        }
-        pre, code {
-          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
-        }
-      </style>
+        <link rel="stylesheet" href="../assets/Documenter.css">
+      
     
-    
-      <link rel="stylesheet" href="../assets/Documenter.css">
-    
-    <script src="../assets/javascripts/modernizr-4ab42b99fd.js"></script>
     
   </head>
   
   
   
-  <body class="palette-primary-indigo palette-accent-blue">
-    
-      
-      
-    
-    <div class="backdrop">
-      <div class="backdrop-paper"></div>
-    </div>
-    <input class="toggle" type="checkbox" id="toggle-drawer">
-    <input class="toggle" type="checkbox" id="toggle-search">
-    <label class="toggle-button overlay" for="toggle-drawer"></label>
-    <header class="header">
-      <nav aria-label="Header">
-  <div class="bar default">
-    <div class="button button-menu" role="button" aria-label="Menu">
-      <label class="toggle-button icon icon-menu" for="toggle-drawer">
-        <span></span>
-      </label>
-    </div>
-    <div class="stretch">
-      <div class="title">
-        
-          <span class="path">
-            
-          </span>
-        
-        Conversion / promotion
-      </div>
-    </div>
-    
-    
-    <div class="button button-search" role="button" aria-label="Search">
-      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
-    </div>
-  </div>
-  <div class="bar search">
-    <div class="button button-close" role="button" aria-label="Close">
-      <label class="toggle-button icon icon-back" for="toggle-search"></label>
-    </div>
-    <div class="stretch">
-      <div class="field">
-        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
-      </div>
-    </div>
-    <div class="button button-reset" role="button" aria-label="Search">
-      <button class="toggle-button icon icon-close" id="reset-search"></button>
-    </div>
-  </div>
-</nav>
-    </header>
-    <main class="main">
-      
-      <div class="drawer">
-        <nav aria-label="Navigation">
   
-  <a href="https://github.com/ajkeller34/Unitful.jl" class="project">
-    <div class="banner">
-      
-      <div class="name">
-        <strong>
-          Unitful.jl
-          <span class="version">
-            
-          </span>
-        </strong>
+    <body data-md-color-primary="indigo" data-md-color-accent="blue">
+  
+    <svg class="md-svg">
+      <defs>
         
-          <br>
-          ajkeller34/Unitful.jl
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="Unitful.jl" class=" md-icon md-icon--home  md-header-nav__button">
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+            
+            Conversion / promotion
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search">
+  <div class="md-search__overlay"></div>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false">
+      <label class="md-icon md-search__icon" for="search"></label>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result"></div>
+      </div>
+    </div>
+  </div>
+</div>
         
       </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+              
+
+
+  
+
+
+  <a href="https://github.com/ajkeller34/Unitful.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
     </div>
   </a>
-  <div class="scrollable">
-    <div class="wrapper">
+
+            
+          </div>
+      </div>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    <i class=" md-icon md-icon--home  md-nav__button">
       
-        <ul class="repo">
-          <li class="repo-download">
-            
-            <a href="https://github.com/ajkeller34/Unitful.jl/archive/master.zip" target="_blank" title="Download" data-action="download">
-              <i class="icon icon-download"></i> Download
-            </a>
-          </li>
-          <li class="repo-stars">
-            <a href="https://github.com/ajkeller34/Unitful.jl/stargazers" target="_blank" title="Stargazers" data-action="star">
-              <i class="icon icon-star"></i> Stars
-              <span class="count">&ndash;</span>
-            </a>
-          </li>
-        </ul>
-        <hr>
+    </i>
+    Unitful.jl
+  </label>
+  
+    <div class="md-nav__source">
       
-      <div class="toc">
-        <ul>
-          
-            
-  <li>
-    <a class="" title="Home" href="..">
-      Home
-    </a>
+
+
+  
+
+
+  <a href="https://github.com/ajkeller34/Unitful.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href=".." title="Home" class="md-nav__link">
+        Home
+      </a>
     
   </li>
 
-          
-            
-  <li>
-    <a class="" title="Highlighted features" href="../highlights/">
-      Highlighted features
-    </a>
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../highlights/" title="Highlighted features" class="md-nav__link">
+        Highlighted features
+      </a>
     
   </li>
 
-          
-            
-  <li>
-    <a class="" title="Types" href="../types/">
-      Types
-    </a>
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../types/" title="Types" class="md-nav__link">
+        Types
+      </a>
     
   </li>
 
-          
-            
-  <li>
-    <a class="" title="Defining new units" href="../newunits/">
-      Defining new units
-    </a>
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../newunits/" title="Defining new units" class="md-nav__link">
+        Defining new units
+      </a>
     
   </li>
 
-          
-            
-  <li>
-    <a class="current" title="Conversion / promotion" href="./">
+    
+      
+      
+  <li class="md-nav__item">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Conversion / promotion
+      </label>
+    
+    <a href="./" title="Conversion / promotion" class="md-nav__link md-nav__link--active">
       Conversion / promotion
     </a>
     
       
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
       
-        <ul>
-          
-            <li class="anchor">
-              <a title="Converting between units" href="#converting-between-units">
-                Converting between units
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Promotion mechanisms" href="#promotion-mechanisms">
-                Promotion mechanisms
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Unit cancellation" href="#unit-cancellation">
-                Unit cancellation
-              </a>
-            </li>
-          
-        </ul>
-      
-    
-  </li>
-
-          
-            
-  <li>
-    <a class="" title="Manipulating units" href="../manipulations/">
-      Manipulating units
-    </a>
-    
-  </li>
-
-          
-            
-  <li>
-    <a class="" title="How units are displayed" href="../display/">
-      How units are displayed
-    </a>
-    
-  </li>
-
-          
-            
-  <li>
-    <a class="" title="Extending Unitful" href="../extending/">
-      Extending Unitful
-    </a>
-    
-  </li>
-
-          
-            
-  <li>
-    <a class="" title="Troubleshooting" href="../trouble/">
-      Troubleshooting
-    </a>
-    
-  </li>
-
-          
-            
-  <li>
-    <a class="" title="License" href="../LICENSE/">
-      License
-    </a>
-    
-  </li>
-
-          
-        </ul>
+        <li class="md-nav__item">
+  <a href="#converting-between-units" title="Converting between units" class="md-nav__link">
+    Converting between units
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
         
-      </div>
-    </div>
-  </div>
+          <li class="md-nav__item">
+  <a href="#dimensionless-quantities" title="Dimensionless quantities" class="md-nav__link">
+    Dimensionless quantities
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temperature-conversion" title="Temperature conversion" class="md-nav__link">
+    Temperature conversion
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#promotion-mechanisms" title="Promotion mechanisms" class="md-nav__link">
+    Promotion mechanisms
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#promotion-rules-for-specific-dimensions" title="Promotion rules for specific dimensions" class="md-nav__link">
+    Promotion rules for specific dimensions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fallback-promotion-rules" title="Fallback promotion rules" class="md-nav__link">
+    Fallback promotion rules
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array-promotion" title="Array promotion" class="md-nav__link">
+    Array promotion
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unit-cancellation" title="Unit cancellation" class="md-nav__link">
+    Unit cancellation
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
-      </div>
-      <article class="article">
-        <div class="wrapper">
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../manipulations/" title="Manipulating units" class="md-nav__link">
+        Manipulating units
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../display/" title="How units are displayed" class="md-nav__link">
+        How units are displayed
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../extending/" title="Extending Unitful" class="md-nav__link">
+        Extending Unitful
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../trouble/" title="Troubleshooting" class="md-nav__link">
+        Troubleshooting
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../LICENSE/" title="License" class="md-nav__link">
+        License
+      </a>
+    
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#converting-between-units" title="Converting between units" class="md-nav__link">
+    Converting between units
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dimensionless-quantities" title="Dimensionless quantities" class="md-nav__link">
+    Dimensionless quantities
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temperature-conversion" title="Temperature conversion" class="md-nav__link">
+    Temperature conversion
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#promotion-mechanisms" title="Promotion mechanisms" class="md-nav__link">
+    Promotion mechanisms
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#promotion-rules-for-specific-dimensions" title="Promotion rules for specific dimensions" class="md-nav__link">
+    Promotion rules for specific dimensions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fallback-promotion-rules" title="Fallback promotion rules" class="md-nav__link">
+    Fallback promotion rules
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array-promotion" title="Array promotion" class="md-nav__link">
+    Array promotion
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unit-cancellation" title="Unit cancellation" class="md-nav__link">
+    Unit cancellation
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
-            <h1>Conversion / promotion</h1>
-          
-          <p><a id='Converting-between-units-1'></a></p>
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+               
+                 <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/conversion.md" title="Edit this page" class="md-icon md-content__edit">edit</a>
+               
+              
+                
+                  <h1>Conversion / promotion</h1>
+                
+                <p><a id='Converting-between-units-1'></a></p>
 <h2 id="converting-between-units">Converting between units</h2>
 <p>Since <code>convert</code> in Julia already means something specific (conversion between Julia types), we define <a href="./#Unitful.uconvert"><code>uconvert</code></a> for conversion between units. Typically this will also involve a conversion between types, but this function takes care of figuring out which type is appropriate for representing the desired units.</p>
 <p>Exact conversions between units are respected where possible. If rational arithmetic would result in an overflow, then floating-point conversion should proceed. Use of floating-point numbers inhibits exact conversion.</p>
@@ -308,12 +491,12 @@ julia&gt; uconvert(u&quot;J&quot;,1.0u&quot;N*m&quot;)
 1.0 J</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/67e8f77193d365ecb36b2ff7d0c62f7f056c38ed/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>uconvert{T,D,U}(a::Units, x::Quantity{T,TempDim,Units{U,TempDim}})</code></pre>
 
 
 <p>In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions. We abbreviate <code>TempDim = Dimensions{(Dimension{:Temperature}(1),)}</code> for clarity.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/Conversion.jl#L85-L93' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/67e8f77193d365ecb36b2ff7d0c62f7f056c38ed/src/Conversion.jl#L85-L93' class='documenter-source'>source</a><br></p>
 <p>Since objects are callable, we can also make <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> callable with a <code>Number</code> as an argument, for a unit conversion shorthand:</p>
 <pre class="codehilite"><code class="language-jlcon">julia&gt; u&quot;cm&quot;(1u&quot;m&quot;)
 100//1 cm</code></pre>
@@ -386,7 +569,7 @@ julia&gt; promote(2.0u&quot;J&quot;, 1.0u&quot;kg*m^2/s^2&quot;)
 <li><code>J*s</code> (joule-second) for action</li>
 </ul>
 <p>If you want this as default behavior (it was for versions of Unitful prior to 0.1.0), consider invoking this function in your <code>.juliarc.jl</code> file which is loaded when you open Julia. This function is not exported.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/pkgdefaults.jl#L202-L226' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/67e8f77193d365ecb36b2ff7d0c62f7f056c38ed/src/pkgdefaults.jl#L202-L226' class='documenter-source'>source</a><br></p>
 <p><a id='Fallback-promotion-rules-1'></a></p>
 <h3 id="fallback-promotion-rules">Fallback promotion rules</h3>
 <p>The <a href="./#Unitful.preferunits"><code>Unitful.preferunits</code></a> function is used to designate fallback preferred units for each pure dimension for promotion. Such a fallback is required because you need some generic logic to take over when manipulating quantities with arbitrary dimensions.</p>
@@ -404,7 +587,7 @@ julia&gt; promote(2.0u&quot;J&quot;, 1.0u&quot;kg*m^2/s^2&quot;)
 <p>This function specifies the default fallback units for promotion. Units provided to this function must have a pure dimension of power 1, like 𝐋 or 𝐓 but not 𝐋/𝐓 or 𝐋^2. The function will complain if this is not the case. Additionally, the function will complain if you provide two units with the same dimension, as a courtesy to the user.</p>
 <p>Once <a href="../manipulations/#Unitful.upreferred"><code>Unitful.upreferred</code></a> has been called or quantities have been promoted, this function will appear to have no effect.</p>
 <p>Usage example: <code>preferunits(u"m,s,A,K,cd,kg,mol"...)</code></p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/b11cb01e16c3e3a8a011853c5b6701b675484c76/src/User.jl#L217-L232' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/67e8f77193d365ecb36b2ff7d0c62f7f056c38ed/src/User.jl#L217-L232' class='documenter-source'>source</a><br></p>
 <p><a id='Array-promotion-1'></a></p>
 <h3 id="array-promotion">Array promotion</h3>
 <p>Arrays are typed with as much specificity as possible upon creation. consider the following three cases:</p>
@@ -438,83 +621,79 @@ ERROR: MethodError: no method matching f(::Array{Unitful.Quantity{Float64,D,U},1
 <p><a id='Unit-cancellation-1'></a></p>
 <h2 id="unit-cancellation">Unit cancellation</h2>
 <p>For multiplication and division, note that powers-of-ten prefixes are significant in unit cancellation. For instance, <code>mV/V</code> is not simplified, although <code>V/V</code> is. Also, <code>N*m/J</code> is not simplified: there is currently no logic to decide whether or not units on a dimensionless quantity seem "intentional" or not.</p>
-          <aside class="copyright" role="note">
-            
-            Documentation built with
-            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
-            using the
-            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
-              Material
-            </a>
-            theme.
-          </aside>
-          
-            <footer class="footer">
               
-  <nav class="pagination" aria-label="Footer">
-    <div class="previous">
+            </article>
+          </div>
+        </div>
+      </main>
       
-        <a href="../newunits/" title="Defining new units">
-          <span class="direction">
-            Previous
-          </span>
-          <div class="page">
-            <div class="button button-previous" role="button" aria-label="Previous">
-              <i class="icon icon-back"></i>
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../newunits/" title="Defining new units" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
-            <div class="stretch">
-              <div class="title">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
                 Defining new units
-              </div>
+              </span>
             </div>
-          </div>
-        </a>
-      
-    </div>
-    <div class="next">
-      
-        <a href="../manipulations/" title="Manipulating units">
-          <span class="direction">
-            Next
-          </span>
-          <div class="page">
-            <div class="stretch">
-              <div class="title">
+          </a>
+        
+        
+          <a href="../manipulations/" title="Manipulating units" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
                 Manipulating units
-              </div>
+              </span>
             </div>
-            <div class="button button-next" role="button" aria-label="Next">
-              <i class="icon icon-forward"></i>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
             </div>
-          </div>
-        </a>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
       
     </div>
-  </nav>
-
-            </footer>
-          
-        </div>
-      </article>
-      <div class="results" role="status" aria-live="polite">
-        <div class="scrollable">
-          <div class="wrapper">
-            <div class="meta"></div>
-            <div class="list"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-    <script>
-      var base_url = '..';
-      var repo_id  = 'ajkeller34/Unitful.jl';
-    </script>
-    <script src="../assets/javascripts/application-997097ee0c.js"></script>
+  </div>
+</footer>
+      
+    </div>
     
-      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+      <script src="../assets/javascripts/application-16f434a21a.js"></script>
+      <script>var config={url:{base:".."}},app=new Application(config);app.initialize()</script>
+      
+        <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+      
+        <script src="../assets/mathjaxhelper.js"></script>
+      
     
-      <script src="../assets/mathjaxhelper.js"></script>
     
+      
     
   </body>
 </html>
