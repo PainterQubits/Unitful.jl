@@ -2,7 +2,7 @@
 [![Coverage Status](https://coveralls.io/repos/ajkeller34/Unitful.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/ajkeller34/Unitful.jl?branch=master)
 [![codecov.io](http://codecov.io/github/ajkeller34/Unitful.jl/coverage.svg?branch=master)](http://codecov.io/github/ajkeller34/Unitful.jl?branch=master)
 
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://ajkeller34.github.io/Unitful.jl/stable)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://ajkeller34.github.io/Unitful.jl/)
 [![](https://img.shields.io/badge/docs-latest-blue.svg)](https://ajkeller34.github.io/Unitful.jl/latest)
 
 # Unitful.jl
