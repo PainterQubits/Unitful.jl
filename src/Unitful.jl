@@ -21,7 +21,7 @@ import Base: promote_op, promote_array_type, promote_rule, unsafe_getindex
 import Base: length, float, start, done, next, last, one, zero, colon#, range
 import Base: getindex, eltype, step, last, first, frexp
 import Base: Integer, Rational, typemin, typemax
-import Base: steprange_last, unitrange_last, unsigned
+import Base: steprange_last, unsigned
 
 import Base.LinAlg: istril, istriu
 
@@ -1048,7 +1048,11 @@ end
 include("Display.jl")
 include("Promotion.jl")
 include("Conversion.jl")
-include("fastmath.jl")
+@static if VERSION >= v"0.6.0-"
+    include("fastmath.jl")
+else
+    include("fastmath_v05.jl")
+end
 include("pkgdefaults.jl")
 
 function __init__()

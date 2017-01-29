@@ -1,18 +1,5 @@
 import Base.FastMath
-import Core.Intrinsics:
-    powi_llvm,
-    sqrt_llvm_fast,
-    neg_float_fast,
-    add_float_fast,
-    sub_float_fast,
-    mul_float_fast,
-    div_float_fast,
-    rem_float_fast,
-    eq_float_fast,
-    ne_float_fast,
-    lt_float_fast,
-    le_float_fast
-
+import Core.Intrinsics: box, unbox, powi_llvm, sqrt_llvm_fast
 import Base.FastMath: @fastmath,
     FloatTypes,
     ComplexTypes,
@@ -39,27 +26,30 @@ import Base.FastMath: @fastmath,
     fast_op,
     libm
 
-sub_fast{T<:FloatTypes}(x::Quantity{T}) = typeof(x)(neg_float_fast(x.val))
+sub_fast{T<:FloatTypes}(x::Quantity{T}) = typeof(x)(box(T,
+    Base.neg_float_fast(unbox(T,x.val))))
 
 add_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
-    Quantity{T,D,U}(add_float_fast(x.val, y.val))
+    Quantity{T,D,U}(box(T,
+        Base.add_float_fast(unbox(T,x.val), unbox(T,y.val))))
 
 sub_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
-    Quantity{T,D,U}(sub_float_fast(x.val, y.val))
+    Quantity{T,D,U}(box(T,
+        Base.sub_float_fast(unbox(T,x.val), unbox(T,y.val))))
 
 function mul_fast{T<:FloatTypes}(x::Quantity{T}, y::Quantity{T})
     D = typeof(dimension(x) * dimension(y))
     U = typeof(unit(x) * unit(y))
-    Quantity{T,D,U}(mul_float_fast(x.val, y.val))
+    Quantity{T,D,U}(box(T, Base.mul_float_fast(unbox(T,x.val), unbox(T,y.val))))
 end
 function div_fast{T<:FloatTypes}(x::Quantity{T}, y::Quantity{T})
     D = typeof(dimension(x) / dimension(y))
     U = typeof(unit(x) / unit(y))
-    Quantity{T,D,U}(div_float_fast(x.val, y.val))
+    Quantity{T,D,U}(box(T, Base.div_float_fast(unbox(T,x.val), unbox(T,y.val))))
 end
 
 rem_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
-    Quantity{T,D,U}(rem_float_fast(x.val, y.val))
+    Quantity{T,D,U}(box(T, Base.rem_float_fast(unbox(T,x.val), unbox(T,y.val))))
 
 add_fast{T<:FloatTypes}(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}, t::Quantity{T}...) =
     add_fast(add_fast(add_fast(x, y), z), t...)
@@ -76,13 +66,13 @@ mul_fast{T<:FloatTypes}(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}, t::Quant
 end
 
 eq_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
-    eq_float_fast(x.val,y.val)
+    Base.eq_float_fast(unbox(T,x.val),unbox(T,y.val))
 ne_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
-    ne_float_fast(x.val,y.val)
+    Base.ne_float_fast(unbox(T,x.val),unbox(T,y.val))
 lt_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
-    lt_float_fast(x.val,y.val)
+    Base.lt_float_fast(unbox(T,x.val),unbox(T,y.val))
 le_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
-    le_float_fast(x.val,y.val)
+    Base.le_float_fast(unbox(T,x.val),unbox(T,y.val))
 
 @fastmath begin
     abs_fast{T<:ComplexTypes}(x::Quantity{T}) = hypot(real(x), imag(x))
@@ -166,7 +156,7 @@ pow_fast(x::Quantity, y::Integer) = x^y
 pow_fast(x::Quantity, y::Rational) = x^y
 
 sqrt_fast{T<:FloatTypes}(x::Quantity{T}) =
-    Quantity(sqrt_llvm_fast(x.val), sqrt(unit(x)))
+    Quantity(box(T, Base.sqrt_llvm_fast(unbox(T,x.val))), sqrt(unit(x)))
 
 for f in (:cos, :sin, :tan)
     f_fast = fast_op[f]
