@@ -3,6 +3,10 @@ module Unitful
 
 using Compat
 
+@static if VERSION < v"0.6.0-dev.2390"
+    using Ranges
+end
+
 @static if VERSION < v"0.6.0-"
     import Base: .+, .-, .*, ./, .\
 end
@@ -887,8 +891,39 @@ Returns a `Quantity` with the same units.
 """
 Rational(x::Quantity) = Quantity(Rational(x.val), unit(x))
 
-colon(start::Quantity, step::Quantity, stop::Quantity) =
-    StepRange(promote(start, step, stop)...)
+if VERSION < v"0.6.0-dev.2390"
+    function colon{T1<:Integer,T2<:Integer,T3<:Integer}(start::Quantity{T1}, step::Quantity{T2}, stop::Quantity{T3})
+        StepRange(promote(start, step, stop)...)
+    end
+
+    function colon(start::Quantity, step::Quantity, stop::Quantity)
+        step == zero(step) && throw(ArgumentError("step cannot be zero"))
+        len = floor(Int, (stop-start)/step + 1)
+        stop′ = start + len*step
+        len += (start < stop′ <= stop) + (start > stop′ >= stop)
+        len = max(zero(len), len)
+        len == 1 && return Ranges.linspace(start, start, len)
+        Ranges.linspace(promote(start, stop)..., len)
+    end
+
+    function Base.range{T1<:Integer,T2<:Integer}(start::Quantity{T1}, step::Quantity{T2}, len::Integer)
+        StepRange(start, step, start+(len-1)*step)
+    end
+
+    function Base.range(start::Quantity, step::Quantity, len::Integer)
+        stop = start + (len-1)*step
+        Ranges.linspace(promote(start, stop)..., max(0, len))
+    end
+
+    Base.linspace(start::Quantity, stop::Quantity, len::Integer) =
+        Ranges.linspace(promote(start, stop)..., len)
+else
+    colon{Q<:Quantity}(start::Q, step::Q, stop::Q) = colon(ustrip(start), ustrip(step), ustrip(stop))*unit(Q)
+    colon(start::Quantity, step::Quantity, stop::Quantity) =
+        colon(Base.promote_noncircular(start, step, stop)...)
+    Base.linspace{T<:Integer,Q<:Quantity{T}}(start::Q, stop::Q, len::Integer) =
+        linspace(1.0*start, 1.0*stop, len)  # prevents InexactErrors
+end
 
 function Base.steprange_last{T<:Number,D,U}(start::Quantity{T,D,U}, step, stop)
     z = zero(step)
