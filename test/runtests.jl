@@ -22,6 +22,12 @@ import Unitful:
 import Unitful:
     LengthUnit, AreaUnit, MassUnit
 
+if VERSION < v"0.6.0-dev.2390"
+    using Ranges
+    linspace = Ranges.linspace
+    LinSpace = Ranges.LinSpace
+end
+
 @testset "Type construction" begin
     @test typeof(𝐋) == Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
     @test typeof(𝐋*𝐋) == typeof(𝐋^2)
@@ -555,20 +561,20 @@ end
 
         @testset ">> Some of test/ranges.jl, with units" begin
             @test @inferred(size(10m:1m:0m)) == (0,)
-            # @test length(1m:.2m:2m) == 6
-            # @test length(1.0m:.2m:2.0m) == 6
-            # @test length(2m:-.2m:1m) == 6
-            # @test length(2.0m:-.2m:1.0m) == 6
+            @test length(1m:.2m:2m) == 6
+            @test length(1.0m:.2m:2.0m) == 6
+            @test length(2m:-.2m:1m) == 6
+            @test length(2.0m:-.2m:1.0m) == 6
             @test @inferred(length(2m:.2m:1m)) == 0
             @test length(2.0m:.2m:1.0m) == 0
 
             @test length(1m:2m:0m) == 0
-    #         L32 = linspace(Int32(1)*m, Int32(4)*m, 4)
-    #         L64 = linspace(Int64(1)*m, Int64(4)*m, 4)
-    #         @test L32[1] == 1m && L64[1] == 1m
-    #         @test L32[2] == 2m && L64[2] == 2m
-    #         @test L32[3] == 3m && L64[3] == 3m
-    #         @test L32[4] == 4m && L64[4] == 4m
+            L32 = linspace(Int32(1)*m, Int32(4)*m, 4)
+            L64 = linspace(Int64(1)*m, Int64(4)*m, 4)
+            @test L32[1] == 1m && L64[1] == 1m
+            @test L32[2] == 2m && L64[2] == 2m
+            @test L32[3] == 3m && L64[3] == 3m
+            @test L32[4] == 4m && L64[4] == 4m
 
             r = 5m:-1m:1m
             @test @inferred(r[1])==5m
@@ -577,7 +583,7 @@ end
             @test r[4]==2m
             @test r[5]==1m
 
-            # @test length(.1m:.1m:.3m) == 3
+            @test length(.1m:.1m:.3m) == 3
             # @test length(1.1m:1.1m:3.3m) == 3
             @test @inferred(length(1.1m:1.3m:3m)) == 2
             @test length(1m:1m:1.8m) == 1
@@ -596,33 +602,33 @@ end
         end
 
         @testset ">> Float StepRange" begin
-            @test isa(@inferred(colon(1.0m, 1m, 5m)), StepRange{typeof(1.0m)})
+            # @test isa(@inferred(colon(1.0m, 1m, 5m)), StepRange{typeof(1.0m)})
             @test @inferred(length(1.0m:1m:5m)) === 5
             @test @inferred(step(1.0m:1m:5m)) === 1.0m
 
             @test_throws ArgumentError 1.0m:0.0m:5.0m
         end
-    #     @testset ">> LinSpace" begin
-    #         @test isa(linspace(1.0m, 3.0m, 5), LinSpace{typeof(1.0m)})
-    #         @test isa(linspace(1.0m, 10m, 5), LinSpace{typeof(1.0m)})
-    #         @test isa(linspace(1m, 10.0m, 5), LinSpace{typeof(1.0m)})
-    #         @test isa(linspace(1m, 10m, 5), LinSpace{typeof(1.0m)})
-    #         @test_throws ErrorException linspace(1m, 10, 5)
-    #         @test_throws ErrorException linspace(1, 10m, 5)
-    #     end
-    #
-    #     @testset ">> Range → Range" begin
-    #         @test isa((1m:5m)*2, StepRange)
-    #         @test isa((1m:5m)/2, FloatRange)
-    #         @test isa((1m:2m:5m)/2, FloatRange)
-    #     end
-    #
-    #     @testset ">> Range → Array" begin
-    #         @test isa(collect(1m:5m), Array{typeof(1m),1})
-    #         @test isa(collect(1m:2m:10m), Array{typeof(1m),1})
-    #         @test isa(collect(1.0m:2m:10m), Array{typeof(1.0m),1})
-    #         @test isa(collect(linspace(1.0m,10.0m,5)), Array{typeof(1.0m),1})
-    #     end
+        @testset ">> LinSpace" begin
+            @test isa(linspace(1.0m, 3.0m, 5), LinSpace{typeof(1.0m)})
+            @test isa(linspace(1.0m, 10m, 5), LinSpace{typeof(1.0m)})
+            @test isa(linspace(1m, 10.0m, 5), LinSpace{typeof(1.0m)})
+            @test isa(linspace(1m, 10m, 5), LinSpace{typeof(1.0m)})
+            @test_throws Unitful.DimensionError linspace(1m, 10, 5)
+            @test_throws Unitful.DimensionError linspace(1, 10m, 5)
+        end
+
+        @testset ">> Range → Range" begin
+            # @test isa((1m:5m)*2, StepRange)
+            # @test isa((1m:5m)/2, FloatRange)
+            # @test isa((1m:2m:5m)/2, FloatRange)
+        end
+
+        @testset ">> Range → Array" begin
+            @test isa(collect(1m:1m:5m), Array{typeof(1m),1})
+            @test isa(collect(1m:2m:10m), Array{typeof(1m),1})
+            @test isa(collect(1.0m:2m:10m), Array{typeof(1.0m),1})
+            @test isa(collect(linspace(1.0m,10.0m,5)), Array{typeof(1.0m),1})
+        end
 
         @testset ">> unit multiplication" begin
             @test @inferred((1:5)*mm) === 1mm:1mm:5mm
