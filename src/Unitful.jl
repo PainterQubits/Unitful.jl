@@ -427,9 +427,6 @@ end
 # Kind of weird, but okay, no need to make things noncommutative.
 *(x::Units, y::Number) = *(y,x)
 
-*(r::Range, y::Units) = range(first(r)*y, step(r)*y, length(r))
-*(r::Range, y::Units, z::Units...) = *(x, *(y,z...))
-
 function tensfactor(x::Unit)
     p = power(x)
     if isinteger(p)
@@ -891,8 +888,13 @@ Returns a `Quantity` with the same units.
 """
 Rational(x::Quantity) = Quantity(Rational(x.val), unit(x))
 
-if VERSION < v"0.6.0-dev.2390"
-    function colon{T1<:Integer,T2<:Integer,T3<:Integer}(start::Quantity{T1}, step::Quantity{T2}, stop::Quantity{T3})
+*(y::Units, r::Range) = *(r,y)
+*(r::Range, y::Units) = range(first(r)*y, step(r)*y, length(r))
+*(r::Range, y::Units, z::Units...) = *(x, *(y,z...))
+
+@static if VERSION < v"0.6.0-dev.2390"
+    function colon{T1<:Integer,T2<:Integer,T3<:Integer}(start::Quantity{T1},
+            step::Quantity{T2}, stop::Quantity{T3})
         StepRange(promote(start, step, stop)...)
     end
 
@@ -906,7 +908,8 @@ if VERSION < v"0.6.0-dev.2390"
         Ranges.linspace(promote(start, stop)..., len)
     end
 
-    function Base.range{T1<:Integer,T2<:Integer}(start::Quantity{T1}, step::Quantity{T2}, len::Integer)
+    function Base.range{T1<:Integer,T2<:Integer}(start::Quantity{T1},
+            step::Quantity{T2}, len::Integer)
         StepRange(start, step, start+(len-1)*step)
     end
 
@@ -917,38 +920,100 @@ if VERSION < v"0.6.0-dev.2390"
 
     Base.linspace(start::Quantity, stop::Quantity, len::Integer) =
         Ranges.linspace(promote(start, stop)..., len)
-else
-    colon{Q<:Quantity}(start::Q, step::Q, stop::Q) = colon(ustrip(start), ustrip(step), ustrip(stop))*unit(Q)
-    colon(start::Quantity, step::Quantity, stop::Quantity) =
-        colon(Base.promote_noncircular(start, step, stop)...)
-    Base.linspace{T<:Integer,Q<:Quantity{T}}(start::Q, stop::Q, len::Integer) =
-        linspace(1.0*start, 1.0*stop, len)  # prevents InexactErrors
-end
 
-function Base.steprange_last{T<:Number,D,U}(start::Quantity{T,D,U}, step, stop)
-    z = zero(step)
-    step == z && throw(ArgumentError("step cannot be zero"))
-    if stop == start
-        last = stop
-    else
-        if (step > z) != (stop > start)
-            last = start - step
+    function Base.steprange_last{T<:Number,D,U}(start::Quantity{T,D,U}, step, stop)
+        z = zero(step)
+        step == z && throw(ArgumentError("step cannot be zero"))
+        if stop == start
+            last = stop
         else
-            diff = stop - start
-            if T<:Signed && (diff > zero(diff)) != (stop > start)
-                # handle overflowed subtraction with unsigned rem
-                if diff > zero(diff)
-                    remain = -convert(typeof(start), unsigned(-diff) % step)
-                else
-                    remain = convert(typeof(start), unsigned(diff) % step)
-                end
+            if (step > z) != (stop > start)
+                last = start - step
             else
-                remain = Base.steprem(start,stop,step)
+                diff = stop - start
+                if T<:Signed && (diff > zero(diff)) != (stop > start)
+                    # handle overflowed subtraction with unsigned rem
+                    if diff > zero(diff)
+                        remain = -convert(typeof(start), unsigned(-diff) % step)
+                    else
+                        remain = convert(typeof(start), unsigned(diff) % step)
+                    end
+                else
+                    remain = Base.steprem(start,stop,step)
+                end
+                last = stop - remain
             end
-            last = stop - remain
         end
+        last
     end
-    last
+else
+
+    # Base.linspace{T<:Integer,Q<:Quantity{T}}(start::Q, stop::Q, len::Integer) =
+    #     linspace(1.0*start, 1.0*stop, len)  # prevents InexactErrors
+
+    @compat Base.linspace(start::Quantity{<:Real}, stop, len::Integer) =
+        _linspace(promote(start, stop)..., len)
+    @compat Base.linspace(start, stop::Quantity{<:Real}, len::Integer) =
+        _linspace(promote(start, stop)..., len)
+    @compat Base.linspace(start::Quantity{<:Real}, stop::Quantity{<:Real}, len::Integer) =
+        _linspace(promote(start, stop)..., len)
+    (Base.linspace(start::T, stop::T, len::Integer) where (T<:Quantity{<:Real})) =
+        LinSpace{T}(start, stop, len)
+    (Base.linspace(start::T, stop::T, len::Integer) where (T<:Quantity{<:Integer})) =
+        linspace(Float64, ustrip(start), ustrip(stop), len, 1)*unit(T)
+
+    function _linspace{T}(start::Quantity{T}, stop::Quantity{T}, len::Integer)
+        dimension(start) != dimension(stop) && throw(DimensionError())
+        linspace(start, stop, len)
+    end
+
+    @compat function colon(start::Quantity{<:Real}, step, stop::Quantity{<:Real})
+        dimension(start) != dimension(stop) && throw(DimensionError())
+        T = promote_type(typeof(start),typeof(stop))
+        return colon(convert(T,start), step, convert(T,stop))
+    end
+
+    function colon(start::A, step::B, stop::A) where (A<:Quantity{S},
+            B<:Quantity{T}) where (S<:Real, T<:Real)
+        dimension(start) != dimension(step) && throw(DimensionError())
+        colon(promote(start, step, stop)...)
+    end
+
+    # Traits for quantities using triangular dispatch
+    import Base: TypeOrder, TypeArithmetic, HasOrder,
+        ArithmeticRounds, ArithmeticOverflows
+    @compat (::Type{TypeOrder})(::Type{<:Quantity{<:Real}}) = HasOrder()
+    @compat (::Type{TypeArithmetic})(::Type{<:Quantity{<:AbstractFloat}}) =
+        ArithmeticRounds()
+    @compat (::Type{TypeArithmetic})(::Type{<:Quantity{<:Integer}}) =
+        ArithmeticOverflows()
+
+    @compat (colon(start::T, step::T, stop::T) where T <: Quantity{<:Real}) =
+        _colon(TypeOrder(T), TypeArithmetic(T), start, step, stop)
+    _colon{T}(::HasOrder, ::Any, start::T, step, stop::T) = StepRange(start, step, stop)
+    _colon{T}(::HasOrder, ::ArithmeticRounds, start::T, step, stop::T) =
+        StepRangeLen(start, step, floor(Int, (stop-start)/step)+1)
+    _colon{T}(::Any, ::Any, start::T, step, stop::T) =
+        StepRangeLen(start, step, floor(Int, (stop-start)/step)+1)
+
+    # Opt into TwicePrecision functionality
+    *(x::Base.TwicePrecision, y::Units) = Base.TwicePrecision(x.hi*y, x.lo*y)
+    function colon(start::T, step::T, stop::T) where (T<:Quantity{S}
+        where S<:Union{Float16,Float32,Float64})
+        # This will always return a StepRangeLen
+        r = colon(ustrip(start), ustrip(step), ustrip(stop))
+        return r*unit(T)
+    end
+    function Base.linspace(start::T, stop::T, len::Integer) where (T<:Quantity{S}
+        where S<:Union{Float16,Float32,Float64})
+        linspace(ustrip(start), ustrip(stop), len)*unit(T)
+    end
+
+    # No need to confuse things by changing the type once units are on there,
+    # if we can help it.
+    *(r::StepRangeLen, y::Units) = StepRangeLen(r.ref*y, r.step*y, length(r), r.offset)
+    *(r::LinSpace, y::Units) = LinSpace(r.start*y, r.stop*y, length(r))
+    *(r::StepRange, y::Units) = StepRange(r.start*y, r.step*y, r.stop*y)
 end
 
 typemin{T,D,U}(::Type{Quantity{T,D,U}}) = typemin(T)*U()

@@ -609,10 +609,23 @@ end
             @test_throws ArgumentError 1.0m:0.0m:5.0m
         end
         @testset ">> LinSpace" begin
-            @test isa(linspace(1.0m, 3.0m, 5), LinSpace{typeof(1.0m)})
-            @test isa(linspace(1.0m, 10m, 5), LinSpace{typeof(1.0m)})
-            @test isa(linspace(1m, 10.0m, 5), LinSpace{typeof(1.0m)})
-            @test isa(linspace(1m, 10m, 5), LinSpace{typeof(1.0m)})
+            # Behavior of `linspace` changed, so results differ depending on
+            # which version of Julia you are running...
+            @static if VERSION < v"0.6.0-dev.2390"
+                @test isa(@inferred(linspace(1.0m, 3.0m, 5)), LinSpace{typeof(1.0m)})
+                @test isa(@inferred(linspace(1.0m, 10m, 5)), LinSpace{typeof(1.0m)})
+                @test isa(@inferred(linspace(1m, 10.0m, 5)), LinSpace{typeof(1.0m)})
+                @test isa(@inferred(linspace(1m, 10m, 5)), LinSpace{typeof(1.0m)})
+            else
+                @test isa(@inferred(linspace(1.0m, 3.0m, 5)),
+                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+                @test isa(@inferred(linspace(1.0m, 10m, 5)),
+                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+                @test isa(@inferred(linspace(1m, 10.0m, 5)),
+                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+                @test isa(@inferred(linspace(1m, 10m, 5)),
+                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+            end
             @test_throws Unitful.DimensionError linspace(1m, 10, 5)
             @test_throws Unitful.DimensionError linspace(1, 10m, 5)
         end
