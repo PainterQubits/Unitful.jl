@@ -1,5 +1,8 @@
 - v0.1.0
  - Julia 0.6 compatibility.
+ - Fix [#45](https://github.com/ajkeller34/Unitful.jl/issues/45). Ranges should
+   work as expected on Julia 0.6. On Julia 0.5, [Ranges.jl](https://github.com/JuliaArrays/Ranges.jl)
+   is used to make ranges work as well as possible given limitations in Base.
  - Fix [#33](https://github.com/ajkeller34/Unitful.jl/issues/33),
    [#42](https://github.com/ajkeller34/Unitful.jl/issues/42),
    and [#50](https://github.com/ajkeller34/Unitful.jl/issues/50).
