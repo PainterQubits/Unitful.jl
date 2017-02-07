@@ -15,7 +15,7 @@
       
         <link rel="shortcut icon" href="../assets/images/favicon.ico">
       
-      <meta name="generator" content="mkdocs+mkdocs-material#1.0.2">
+      <meta name="generator" content="mkdocs+mkdocs-material#1.0.3">
     
     
       
@@ -36,7 +36,7 @@
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/application-1b8b9fdf68.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application-f3ab63f78a.css">
       
         <link rel="stylesheet" href="../assets/stylesheets/application-02ce7adcc2.palette.css">
       
@@ -312,6 +312,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#archaic-or-fictitious-unit-systems" title="Archaic or fictitious unit systems" class="md-nav__link">
+    Archaic or fictitious unit systems
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -395,6 +402,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#archaic-or-fictitious-unit-systems" title="Archaic or fictitious unit systems" class="md-nav__link">
+    Archaic or fictitious unit systems
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -414,8 +428,7 @@
 <h1 id="extending-unitful">Extending Unitful</h1>
 <p><a id='Making-your-own-units-package-1'></a></p>
 <h2 id="making-your-own-units-package">Making your own units package</h2>
-<p>New units or dimensions can be defined from the Julia REPL or from within other packages. To avoid duplication of code and effort, it is advised to put new unit definitions into a Julia package that is then published for others to use. For an example of how to do this, examine the code in <a href="https://github.com/ajkeller34/UnitfulUS.jl"><code>UnitfulUS.jl</code></a>, which defines U.S. customary units. It's actually very easy! Just make sure you read the cautionary notes below.</p>
-<p>If you make a units package for Unitful, please submit a pull request so that I can provide a link from Unitful's README!</p>
+<p>New units or dimensions can be defined from the Julia REPL or from within other packages. To avoid duplication of code and effort, it is advised to put new unit definitions into a Julia package that is then published for others to use. For an example of how to do this, examine the code in <a href="https://github.com/ajkeller34/UnitfulUS.jl"><code>UnitfulUS.jl</code></a>, which defines U.S. customary units. It's actually very easy! Just make sure you read all of the cautionary notes on this page. If you make a units package for Unitful, please submit a pull request so that I can provide a link from Unitful's README!</p>
 <p><a id='Some-limitations-1'></a></p>
 <h2 id="some-limitations">Some limitations</h2>
 <p><a id='Precompilation-1'></a></p>
@@ -437,6 +450,10 @@ end</code></pre>
 <h3 id="type-uniqueness">Type uniqueness</h3>
 <p>Currently, when the <a href="../newunits/#Unitful.@dimension"><code>@dimension</code></a>, <a href="../newunits/#Unitful.@derived_dimension"><code>@derived_dimension</code></a>, <a href="../newunits/#Unitful.@refunit"><code>@refunit</code></a>, or <a href="../newunits/#Unitful.@unit"><code>@unit</code></a> macros are used, some unique symbols must be provided which are used to differentiate types in dispatch. These are typically the names of dimensions or units (e.g. <code>Length</code>, <code>Meter</code>, etc.) One problem that could occur is that if multiple units or dimensions are defined with the same name, then they will be indistinguishable in dispatch and errors will result.</p>
 <p>I don't expect a flood of units packages to come out, so probably the likelihood of name collision is pretty small. When defining units yourself, do take care to use unique symbols, perhaps with the aid of <code>Base.gensym()</code> if creating units at runtime. When making packages, look and see what symbols are used by existing units packages to avoid trouble.</p>
+<p><a id='Archaic-or-fictitious-unit-systems-1'></a></p>
+<h2 id="archaic-or-fictitious-unit-systems">Archaic or fictitious unit systems</h2>
+<p>In the rare event that you want to define physical units which are not convertible to SI units, you need to do a bit of extra work. To be clear, such a conversion should always exist, in principle. One can imagine, however, archaic or fictitious unit systems for which a precise conversion to SI units is unknown. For example, a <a href="https://en.wikipedia.org/wiki/Cullishigay">cullishigay</a> is one-third of a mudi, but only <em>approximately</em> 1.25 imperial bushels. There may be cases where you don't even have an approximate conversion to imperial bushels. At such a time, you may feel uncomfortable specifying the "base unit" of this hypothetical unit system in terms of an SI quantity, and may want to explicitly forbid any attempt to convert to SI units.</p>
+<p>One can achieve this by defining new dimensions with the <a href="../newunits/#Unitful.@dimension"><code>@dimension</code></a> or <a href="../newunits/#Unitful.@derived_dimension"><code>@derived_dimension</code></a> macros. The trick is to define dimensions that display suggestively like physical dimensions, like 𝐋<em>, 𝐓</em> etc., but are distinct as far as Julia's type system is concerned. Then, you can use <a href="../@ref"><code>@ref_unit</code></a> to base units for these new dimensions without reference to SI. The result will be that attempted conversion between the hypothetical unit system and SI will fail with a <code>DimensionError</code>, so be sure you provide some hints in how your new dimensions are displayed to avoid confusing users. It would be confusing to throw a <code>DimensionError</code> when attempting to convert between lengths which are incompatible in the sense of the previous paragraph, when both lengths display their dimension as 𝐋.</p>
               
             </article>
           </div>
@@ -500,7 +517,7 @@ end</code></pre>
       
     </div>
     
-      <script src="../assets/javascripts/application-16f434a21a.js"></script>
+      <script src="../assets/javascripts/application-2afe21e0b2.js"></script>
       <script>var config={url:{base:".."}},app=new Application(config);app.initialize()</script>
       
         <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
