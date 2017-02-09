@@ -20,8 +20,7 @@ end
     return colon(convert(T,start), step, convert(T,stop))
 end
 
-function colon(start::A, step::B, stop::A) where (A<:Quantity{S},
-        B<:Quantity{T}) where (S<:Real, T<:Real)
+function colon(start::A, step::B, stop::A) where A<:Quantity{<:Real} where B<:Quantity{<:Real}
     dimension(start) != dimension(step) && throw(DimensionError())
     colon(promote(start, step, stop)...)
 end
