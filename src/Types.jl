@@ -41,13 +41,13 @@ end
 
 """
 ```
-abstract Unitlike
+abstract type Unitlike end
 ```
 
 Abstract type facilitating some code reuse between [`Unitful.Units`](@ref) and
 [`Unitful.Dimensions`](@ref) objects.
 """
-abstract Unitlike
+@compat abstract type Unitlike end
 
 """
 ```
