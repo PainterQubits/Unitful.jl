@@ -7,7 +7,7 @@ using Compat
     using Ranges
 end
 
-@static if VERSION < v"0.6.0-"
+@static if VERSION < v"0.6.0-dev.1632" # Julia PR #17623
     import Base: .+, .-, .*, ./, .\
 end
 
@@ -538,7 +538,7 @@ end
 
 # See operators.jl
 # Element-wise operations with units
-@static if VERSION < v"0.6.0-"
+@static if VERSION < v"0.6.0-dev.1632"  # Julia PR #17623
     for (f,F) in [(:./, :/), (:.*, :*), (:.+, :+), (:.-, :-)]
         @eval ($f)(x::Units, y::Units) = ($F)(x,y)
         @eval ($f)(x::Number, y::Units)   = ($F)(x,y)
@@ -560,7 +560,7 @@ end
 end
 
 # looked in arraymath.jl for similar code
-for f in @static if VERSION < v"0.6.0-"; (:.*, :*); else (:*,) end
+for f in @static if VERSION < v"0.6.0-dev.1632"; (:.*, :*); else (:*,) end
     @eval begin
         function ($f){T}(A::Units, B::AbstractArray{T})
             F = similar(B, promote_op($f,typeof(A),T))
@@ -725,7 +725,7 @@ for (f, F) in [(:min, :<), (:max, :>)]
     end
 end
 
-@static if VERSION < v"0.6.0-"
+@static if VERSION < v"0.6.0-dev.477"
     @vectorize_2arg Quantity max
     @vectorize_2arg Quantity min
 end
@@ -1031,7 +1031,7 @@ end
 include("Display.jl")
 include("Promotion.jl")
 include("Conversion.jl")
-@static if VERSION >= v"0.6.0-"
+@static if VERSION >= v"0.6.0-dev.2218" # Julia PR 18754
     include("fastmath.jl")
 else
     include("fastmath_v05.jl")

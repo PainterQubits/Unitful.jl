@@ -85,7 +85,7 @@ The type parameter `T` represents the numeric backing type. The type parameters
 Of course, the dimensions follow from the units, but the type parameters are
 kept separate to permit convenient dispatch on dimensions.
 """
-@static if VERSION < v"0.6.0-"
+@static if VERSION < v"0.6.0-dev.2643"
     immutable Quantity{T,D,U} <: Number
         val::T
         Quantity(v::Number) = new(v)
