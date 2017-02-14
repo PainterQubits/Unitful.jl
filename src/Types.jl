@@ -85,15 +85,23 @@ The type parameter `T` represents the numeric backing type. The type parameters
 Of course, the dimensions follow from the units, but the type parameters are
 kept separate to permit convenient dispatch on dimensions.
 """
-immutable Quantity{T,D,U} <: Number
-    val::T
-    Quantity(v::Number) = new(v)
-    Quantity(v::Quantity) = convert(Quantity{T,D,U}, v)
+@static if VERSION < v"0.6.0-"
+    immutable Quantity{T,D,U} <: Number
+        val::T
+        Quantity(v::Number) = new(v)
+        Quantity(v::Quantity) = convert(Quantity{T,D,U}, v)
+    end
+else
+    immutable Quantity{T,D,U} <: Number
+        val::T
+        Quantity{T,D,U}(v::Number) where {T,D,U} = new(v)
+        Quantity{T,D,U}(v::Quantity) where {T,D,U} = convert(Quantity{T,D,U}, v)
+    end
 end
 
 """
 ```
-typealias DimensionlessQuantity{T,U} Quantity{T, Dimensions{()},U}
+DimensionlessQuantity{T,U} = Quantity{T, Dimensions{()},U}
 ```
 
 Useful for dispatching on [`Unitful.Quantity`](@ref) types that may have units
@@ -106,4 +114,4 @@ julia> isa(1.0u"mV/V", DimensionlessQuantity)
 true
 ```
 """
-typealias DimensionlessQuantity{T,U} Quantity{T, Dimensions{()}, U}
+@compat DimensionlessQuantity{T,U} = Quantity{T, Dimensions{()}, U}

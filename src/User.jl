@@ -53,8 +53,8 @@ macro dimension(symb, abbr, name)
     esc(quote
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
         const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
-        typealias $(name){T,U} Unitful.Quantity{T,typeof($s),U}
-        typealias $(uname){U} Unitful.Units{U,typeof($s)}
+        @compat $(name){T,U} = Unitful.Quantity{T,typeof($s),U}
+        @compat $(uname){U} = Unitful.Units{U,typeof($s)}
     end)
 end
 
@@ -77,8 +77,8 @@ Usage examples:
 macro derived_dimension(name, dims)
     uname = Symbol(name,"Unit")
     esc(quote
-        typealias ($name){T,U} Unitful.Quantity{T,typeof($dims),U}
-        typealias ($uname){U} Unitful.Units{U,typeof($dims)}
+        @compat ($name){T,U} = Unitful.Quantity{T,typeof($dims),U}
+        @compat ($uname){U} = Unitful.Units{U,typeof($dims)}
     end)
 end
 
