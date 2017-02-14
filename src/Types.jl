@@ -71,6 +71,25 @@ Instances of this object represent dimensions, possibly combinations thereof.
 """
 immutable Dimensions{N} <: Unitlike end
 
+
+@static if VERSION < v"0.6.0-dev.2643"
+    include_string("""
+    immutable Quantity{T,D,U} <: Number
+        val::T
+        Quantity(v::Number) = new(v)
+        Quantity(v::Quantity) = convert(Quantity{T,D,U}, v)
+    end
+    """)
+else
+    include_string("""
+    immutable Quantity{T,D,U} <: Number
+        val::T
+        Quantity{T,D,U}(v::Number) where {T,D,U} = new(v)
+        Quantity{T,D,U}(v::Quantity) where {T,D,U} = convert(Quantity{T,D,U}, v)
+    end
+    """)
+end
+
 """
 ```
 immutable Quantity{T,D,U} <: Number
@@ -85,19 +104,7 @@ The type parameter `T` represents the numeric backing type. The type parameters
 Of course, the dimensions follow from the units, but the type parameters are
 kept separate to permit convenient dispatch on dimensions.
 """
-@static if VERSION < v"0.6.0-dev.2643"
-    immutable Quantity{T,D,U} <: Number
-        val::T
-        Quantity(v::Number) = new(v)
-        Quantity(v::Quantity) = convert(Quantity{T,D,U}, v)
-    end
-else
-    immutable Quantity{T,D,U} <: Number
-        val::T
-        Quantity{T,D,U}(v::Number) where {T,D,U} = new(v)
-        Quantity{T,D,U}(v::Quantity) where {T,D,U} = convert(Quantity{T,D,U}, v)
-    end
-end
+Quantity
 
 """
 ```
