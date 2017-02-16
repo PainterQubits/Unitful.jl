@@ -491,12 +491,12 @@ julia&gt; uconvert(u&quot;J&quot;,1.0u&quot;N*m&quot;)
 1.0 J</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/82806521f1c71c558b9d8eb6a2af7ef4820102f9/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/96bad5decd1bf8729b42e6fa30a1e9ed90880e25/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>uconvert{T,D,U}(a::Units, x::Quantity{T,TempDim,Units{U,TempDim}})</code></pre>
 
 
 <p>In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions. We abbreviate <code>TempDim = Dimensions{(Dimension{:Temperature}(1),)}</code> for clarity.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/82806521f1c71c558b9d8eb6a2af7ef4820102f9/src/Conversion.jl#L85-L93' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/96bad5decd1bf8729b42e6fa30a1e9ed90880e25/src/Conversion.jl#L85-L93' class='documenter-source'>source</a><br></p>
 <p>Since objects are callable, we can also make <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> callable with a <code>Number</code> as an argument, for a unit conversion shorthand:</p>
 <pre class="codehilite"><code class="language-jlcon">julia&gt; u&quot;cm&quot;(1u&quot;m&quot;)
 100//1 cm</code></pre>
@@ -569,7 +569,7 @@ julia&gt; promote(2.0u&quot;J&quot;, 1.0u&quot;kg*m^2/s^2&quot;)
 <li><code>J*s</code> (joule-second) for action</li>
 </ul>
 <p>If you want this as default behavior (it was for versions of Unitful prior to 0.1.0), consider invoking this function in your <code>.juliarc.jl</code> file which is loaded when you open Julia. This function is not exported.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/82806521f1c71c558b9d8eb6a2af7ef4820102f9/src/pkgdefaults.jl#L202-L226' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/96bad5decd1bf8729b42e6fa30a1e9ed90880e25/src/pkgdefaults.jl#L202-L226' class='documenter-source'>source</a><br></p>
 <p><a id='Fallback-promotion-rules-1'></a></p>
 <h3 id="fallback-promotion-rules">Fallback promotion rules</h3>
 <p>The <a href="./#Unitful.preferunits"><code>Unitful.preferunits</code></a> function is used to designate fallback preferred units for each pure dimension for promotion. Such a fallback is required because you need some generic logic to take over when manipulating quantities with arbitrary dimensions.</p>
@@ -587,7 +587,7 @@ julia&gt; promote(2.0u&quot;J&quot;, 1.0u&quot;kg*m^2/s^2&quot;)
 <p>This function specifies the default fallback units for promotion. Units provided to this function must have a pure dimension of power 1, like 𝐋 or 𝐓 but not 𝐋/𝐓 or 𝐋^2. The function will complain if this is not the case. Additionally, the function will complain if you provide two units with the same dimension, as a courtesy to the user.</p>
 <p>Once <a href="../manipulations/#Unitful.upreferred"><code>Unitful.upreferred</code></a> has been called or quantities have been promoted, this function will appear to have no effect.</p>
 <p>Usage example: <code>preferunits(u"m,s,A,K,cd,kg,mol"...)</code></p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/82806521f1c71c558b9d8eb6a2af7ef4820102f9/src/User.jl#L217-L232' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/96bad5decd1bf8729b42e6fa30a1e9ed90880e25/src/User.jl#L217-L232' class='documenter-source'>source</a><br></p>
 <p><a id='Array-promotion-1'></a></p>
 <h3 id="array-promotion">Array promotion</h3>
 <p>Arrays are typed with as much specificity as possible upon creation. consider the following three cases:</p>
