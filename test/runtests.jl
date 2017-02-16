@@ -302,6 +302,10 @@ end
         @test sqrt(4m^(2//3)) == 2m^(1//3)
         @test @inferred(sqrt(𝐋^2)) == 𝐋
         @test @inferred(sqrt(m^2)) == m
+        @test @inferred(cbrt(8m^3)) == 2m
+        @test cbrt(8m) == 2m^(1//3)
+        @test @inferred(cbrt(𝐋^3)) == 𝐋
+        @test @inferred(cbrt(m^3)) == m
         @test (2m)^3 == 8*m^3
         @test (8m)^(1//3) == 2*m^(1//3)
         @test @inferred(cis(90°)) ≈ im

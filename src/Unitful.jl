@@ -13,7 +13,7 @@ end
 
 import Base: ==, <, <=, +, -, *, /, //, ^
 import Base: show, convert
-import Base: abs, abs2, float, fma, muladd, inv, sqrt
+import Base: abs, abs2, float, fma, muladd, inv, sqrt, cbrt
 import Base: min, max, floor, ceil, log, log10, real, imag, conj
 import Base: sin, cos, tan, cot, sec, csc, atan2, cis, vecnorm
 
@@ -671,8 +671,9 @@ for (_x,_y) in [(:fma, :_fma), (:muladd, :_muladd)]
 end
 
 sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
+cbrt(x::Quantity) = Quantity(cbrt(x.val), cbrt(unit(x)))
 
-# This is a generated function to ensure type stability and keep `sqrt` fast.
+# The following are generated functions to ensure type stability.
 @generated function sqrt(x::Dimensions)
     tup = x.parameters[1]
     tup2 = map(x->x^(1//2),tup)
@@ -680,13 +681,28 @@ sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
     :($y)
 end
 
-# This is a generated function to ensure type stability and keep `sqrt` fast.
 @generated function sqrt(x::Units)
     tup = x.parameters[1]
     tup2 = map(x->x^(1//2),tup)
     y = *(Units{tup2,()}())    # sort appropriately
     :($y)
 end
+
+# The following are generated functions to ensure type stability.
+@generated function cbrt(x::Dimensions)
+    tup = x.parameters[1]
+    tup2 = map(x->x^(1//3),tup)
+    y = *(Dimensions{tup2}())    # sort appropriately
+    :($y)
+end
+
+@generated function cbrt(x::Units)
+    tup = x.parameters[1]
+    tup2 = map(x->x^(1//3),tup)
+    y = *(Units{tup2,()}())    # sort appropriately
+    :($y)
+end
+
 
 for _y in (:sin, :cos, :tan, :cot, :sec, :csc, :cis)
     @eval ($_y)(x::DimensionlessQuantity) = ($_y)(uconvert(NoUnits, x))

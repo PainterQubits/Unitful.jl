@@ -15,7 +15,7 @@
    as well as return tuples of `Units` objects.
  - `@preferunit` has been replaced with a function `preferunits`.
  - Added some methods for `ustrip`.
- - Implement `typemin`, `typemax` for `Quantity`s.
+ - Implement `typemin`, `typemax`, `cbrt` for `Quantity`s.
  - Added matrix inversion for `StridedMatrix{T<:Quantity}`.
  - Added `istriu`, `istril` for `AbstractMatrix{T<:Quantity}`.
  - The `Unitful.SIUnits` module has been renamed to `Unitful.DefaultSymbols`.
