@@ -506,11 +506,13 @@ end
 
 # Both methods needed for ambiguity resolution
 ^{T}(x::Dimension{T}, y::Integer) = Dimension{T}(power(x)*y)
+^{T,y}(x::Dimension{T}, ::Type{Val{y}}) = Dimension{T}(power(x)*y)
 ^{T}(x::Dimension{T}, y) = Dimension{T}(power(x)*y)
 
 # A word of caution:
 # Exponentiation is not type-stable for `Dimensions` objects.
 ^{T}(x::Dimensions{T}, y::Integer) = *(Dimensions{map(a->a^y, T)}())
+^{T,y}(x::Dimensions{T}, ::Type{Val{y}}) = *(Dimensions{map(a->a^y, T)}())
 ^{T}(x::Dimensions{T}, y) = *(Dimensions{map(a->a^y, T)}())
 
 @inline dimension{U,D}(u::Unit{U,D}) = D()^u.power
@@ -1011,12 +1013,14 @@ end
 
 # Both methods needed for ambiguity resolution
 ^{U,D}(x::Unit{U,D}, y::Integer) = Unit{U,D}(tens(x), power(x)*y)
+^{U,D,y}(x::Unit{U,D}, ::Type{Val{y}}) = Unit{U,D}(tens(x), power(x)*y)
 ^{U,D}(x::Unit{U,D}, y) = Unit{U,D}(tens(x), power(x)*y)
 
 # A word of caution:
 # Exponentiation is not type-stable for `Units` objects.
 # Dimensions get reconstructed anyway so we pass () for the D type parameter...
 ^{U,D}(x::Units{U,D}, y::Integer) = *(Units{map(a->a^y, U), ()}())
+^{U,D,y}(x::Units{U,D}, ::Type{Val{y}}) = *(Units{map(a->a^y, U), ()}())
 ^{U,D}(x::Units{U,D}, y) = *(Units{map(a->a^y, U), ()}())
 
 # All of these are needed for ambiguity resolution
