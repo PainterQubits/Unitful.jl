@@ -1,5 +1,7 @@
 - v0.1.0
  - Julia 0.6 compatibility.
+ - On Julia 0.6, exponentiation by a literal is now type stable for
+   common integer powers: -3, -2, -1, 0, 1, 2, 3.
  - Fix [#45](https://github.com/ajkeller34/Unitful.jl/issues/45). Ranges should
    work as expected on Julia 0.6. On Julia 0.5, [Ranges.jl](https://github.com/JuliaArrays/Ranges.jl)
    is used to make ranges work as well as possible given limitations in Base.
@@ -20,6 +22,7 @@
  - Added `istriu`, `istril` for `AbstractMatrix{T<:Quantity}`.
  - The `Unitful.SIUnits` module has been renamed to `Unitful.DefaultSymbols`.
  - Add `lb`, `oz`, `dr`, `gr` to Unitful (international Avoirdupois mass units).
+
 
 - v0.0.4
  - Be aware, breaking changes to `deps/Defaults.jl` caused by some of the following!
