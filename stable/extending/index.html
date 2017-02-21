@@ -1,0 +1,532 @@
+
+<!DOCTYPE html>
+<html class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Package for units.">
+      
+      
+      
+        <meta name="author" content="Andrew Keller">
+      
+      
+        <link rel="shortcut icon" href="../assets/images/favicon.ico">
+      
+      <meta name="generator" content="mkdocs-0.16.1, mkdocs-material-1.0.5">
+    
+    
+      
+        <title>Extending Unitful - Unitful.jl</title>
+      
+    
+    
+      <script src="../assets/javascripts/modernizr-56ade86843.js"></script>
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application-9c62e3c932.css">
+      
+        <link rel="stylesheet" href="../assets/stylesheets/application-02ce7adcc2.palette.css">
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+      <link rel="stylesheet" href="../assets/Documenter.css">
+    
+    
+  </head>
+  
+  
+  
+  
+    <body data-md-color-primary="indigo" data-md-color-accent="blue">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="Unitful.jl" class=" md-icon md-icon--home  md-header-nav__button">
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+            
+            Extending Unitful
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search">
+  <div class="md-search__overlay"></div>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false">
+      <label class="md-icon md-search__icon" for="search"></label>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+              
+
+
+  
+
+
+  <a href="https://github.com/ajkeller34/Unitful.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+            
+          </div>
+      </div>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    <i class=" md-icon md-icon--home  md-nav__button">
+      
+    </i>
+    Unitful.jl
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/ajkeller34/Unitful.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href=".." title="Home" class="md-nav__link">
+        Home
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../highlights/" title="Highlighted features" class="md-nav__link">
+        Highlighted features
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../types/" title="Types" class="md-nav__link">
+        Types
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../newunits/" title="Defining new units" class="md-nav__link">
+        Defining new units
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../conversion/" title="Conversion / promotion" class="md-nav__link">
+        Conversion / promotion
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../manipulations/" title="Manipulating units" class="md-nav__link">
+        Manipulating units
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../display/" title="How units are displayed" class="md-nav__link">
+        How units are displayed
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Extending Unitful
+      </label>
+    
+    <a href="./" title="Extending Unitful" class="md-nav__link md-nav__link--active">
+      Extending Unitful
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#making-your-own-units-package" title="Making your own units package" class="md-nav__link">
+    Making your own units package
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#some-limitations" title="Some limitations" class="md-nav__link">
+    Some limitations
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#precompilation" title="Precompilation" class="md-nav__link">
+    Precompilation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-uniqueness" title="Type uniqueness" class="md-nav__link">
+    Type uniqueness
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#archaic-or-fictitious-unit-systems" title="Archaic or fictitious unit systems" class="md-nav__link">
+    Archaic or fictitious unit systems
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../trouble/" title="Troubleshooting" class="md-nav__link">
+        Troubleshooting
+      </a>
+    
+  </li>
+
+    
+      
+      
+  <li class="md-nav__item">
+    
+      <a href="../LICENSE/" title="License" class="md-nav__link">
+        License
+      </a>
+    
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#making-your-own-units-package" title="Making your own units package" class="md-nav__link">
+    Making your own units package
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#some-limitations" title="Some limitations" class="md-nav__link">
+    Some limitations
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#precompilation" title="Precompilation" class="md-nav__link">
+    Precompilation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-uniqueness" title="Type uniqueness" class="md-nav__link">
+    Type uniqueness
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#archaic-or-fictitious-unit-systems" title="Archaic or fictitious unit systems" class="md-nav__link">
+    Archaic or fictitious unit systems
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+               
+                 <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/extending.md" title="Edit this page" class="md-icon md-content__edit">edit</a>
+               
+              
+                
+                <p><a id='Extending-Unitful-1'></a></p>
+<h1 id="extending-unitful">Extending Unitful</h1>
+<p><a id='Making-your-own-units-package-1'></a></p>
+<h2 id="making-your-own-units-package">Making your own units package</h2>
+<p>New units or dimensions can be defined from the Julia REPL or from within other packages. To avoid duplication of code and effort, it is advised to put new unit definitions into a Julia package that is then published for others to use. For an example of how to do this, examine the code in <a href="https://github.com/ajkeller34/UnitfulUS.jl"><code>UnitfulUS.jl</code></a>, which defines U.S. customary units. It's actually very easy! Just make sure you read all of the cautionary notes on this page. If you make a units package for Unitful, please submit a pull request so that I can provide a link from Unitful's README!</p>
+<p><a id='Some-limitations-1'></a></p>
+<h2 id="some-limitations">Some limitations</h2>
+<p><a id='Precompilation-1'></a></p>
+<h3 id="precompilation">Precompilation</h3>
+<p>When creating new units in a precompiled package that need to persist into run-time (usually true), it is important that the following or something very similar make it into your code:</p>
+<pre class="codehilite"><code class="language-jl">const localunits = Unitful.basefactors
+const localpromotion = Unitful.promotion # only if you've used @dimension
+function __init__()
+    merge!(Unitful.basefactors, localunits)
+    merge!(Unitful.promotion, localpromotion) # only if you've used @dimension
+end</code></pre>
+
+
+<p>The definition of <code>localunits</code> (<code>localpromotion</code>) must happen <em>after all new units (dimensions) have been defined</em>.</p>
+<p>The problem is that the <a href="../newunits/#Unitful.@unit"><code>@unit</code></a> macro needs to add some information to a dictionary defined in Unitful, regardless of where the macro is executed (the use of this dictionary does not lead to run-time penalties, if you were wondering). However, because Unitful is precompiled, changes made to it from another module at compile-time will not persist.</p>
+<p>The <code>const localunits = Unitful.basefactors</code> line makes a copy of the compile-time-modified dictionary, which can be precompiled into the module where this code appears, and then the dictionary is merged into Unitful's dictionary at runtime.</p>
+<p>If you'd like, you can also consider adding a call to <a href="../manipulations/#Unitful.register"><code>Unitful.register</code></a> in your <code>__init__</code> function, which will make your units accessible using Unitful's <a href="../manipulations/#Unitful.@u_str"><code>@u_str</code></a> macro. Your unit symbols should ideally be distinctive to avoid colliding with symbols defined in other packages or in Unitful. If there is a collision, the <a href="../manipulations/#Unitful.@u_str"><code>@u_str</code></a> macro will still work, but it will use the unit found in whichever package was registered most recently, and it will omit a warning every time.</p>
+<p><a id='Type-uniqueness-1'></a></p>
+<h3 id="type-uniqueness">Type uniqueness</h3>
+<p>Currently, when the <a href="../newunits/#Unitful.@dimension"><code>@dimension</code></a>, <a href="../newunits/#Unitful.@derived_dimension"><code>@derived_dimension</code></a>, <a href="../newunits/#Unitful.@refunit"><code>@refunit</code></a>, or <a href="../newunits/#Unitful.@unit"><code>@unit</code></a> macros are used, some unique symbols must be provided which are used to differentiate types in dispatch. These are typically the names of dimensions or units (e.g. <code>Length</code>, <code>Meter</code>, etc.) One problem that could occur is that if multiple units or dimensions are defined with the same name, then they will be indistinguishable in dispatch and errors will result.</p>
+<p>I don't expect a flood of units packages to come out, so probably the likelihood of name collision is pretty small. When defining units yourself, do take care to use unique symbols, perhaps with the aid of <code>Base.gensym()</code> if creating units at runtime. When making packages, look and see what symbols are used by existing units packages to avoid trouble.</p>
+<p><a id='Archaic-or-fictitious-unit-systems-1'></a></p>
+<h2 id="archaic-or-fictitious-unit-systems">Archaic or fictitious unit systems</h2>
+<p>In the rare event that you want to define physical units which are not convertible to SI units, you need to do a bit of extra work. To be clear, such a conversion should always exist, in principle. One can imagine, however, archaic or fictitious unit systems for which a precise conversion to SI units is unknown. For example, a <a href="https://en.wikipedia.org/wiki/Cullishigay">cullishigay</a> is one-third of a mudi, but only <em>approximately</em> 1.25 imperial bushels. There may be cases where you don't even have an approximate conversion to imperial bushels. At such a time, you may feel uncomfortable specifying the "base unit" of this hypothetical unit system in terms of an SI quantity, and may want to explicitly forbid any attempt to convert to SI units.</p>
+<p>One can achieve this by defining new dimensions with the <a href="../newunits/#Unitful.@dimension"><code>@dimension</code></a> or <a href="../newunits/#Unitful.@derived_dimension"><code>@derived_dimension</code></a> macros. The trick is to define dimensions that display suggestively like physical dimensions, like 𝐋<em>, 𝐓</em> etc., but are distinct as far as Julia's type system is concerned. Then, you can use <a href="../@ref"><code>@ref_unit</code></a> to base units for these new dimensions without reference to SI. The result will be that attempted conversion between the hypothetical unit system and SI will fail with a <code>DimensionError</code>, so be sure you provide some hints in how your new dimensions are displayed to avoid confusing users. It would be confusing to throw a <code>DimensionError</code> when attempting to convert between lengths which are incompatible in the sense of the previous paragraph, when both lengths display their dimension as 𝐋.</p>
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../display/" title="How units are displayed" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                How units are displayed
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../trouble/" title="Troubleshooting" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Troubleshooting
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application-f7ac33b6fb.js"></script>
+      <script>app.initialize({url:{base:".."}})</script>
+      
+        <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+      
+        <script src="../assets/mathjaxhelper.js"></script>
+      
+    
+    
+      
+    
+  </body>
+</html>
