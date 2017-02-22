@@ -212,12 +212,17 @@ end
         @test V*(3+4im) == (3V+4V*im)
         @test (3.0+4.0im)*V == (3+4im)*V
         @test im*V == Complex(0,1)*V
-        @test 2.0m < 3.0m
-        @test 2m < 3.0m
-        @test 1μm/m < 1
-        @test 1 > 1μm/m
-        @test 1μm/m < 1mm/m
-        @test 1mm/m > 1μm/m
+        @test @inferred(2.0m < 3.0m)
+        @test @inferred(2.0m .< 3.0m)
+        @test !(3.0m .< 3.0m)
+        @test @inferred(2.0m <= 3.0m)
+        @test 3.0m <= 3.0m
+        @test @inferred(2.0m .<= 3.0m)
+        @test 3.0m .<= 3.0m
+        @test @inferred(1μm/m < 1)
+        @test @inferred(1 > 1μm/m)
+        @test @inferred(1μm/m < 1mm/m)
+        @test @inferred(1mm/m > 1μm/m)
         @test_throws DimensionError 1m < 1kg
         @test_throws DimensionError 1m < 1
         @test_throws DimensionError 1 < 1m

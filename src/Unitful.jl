@@ -8,7 +8,7 @@ using Compat
 end
 
 @static if VERSION < v"0.6.0-dev.1632" # Julia PR #17623
-    import Base: .+, .-, .*, ./, .\
+    import Base: .+, .-, .*, ./, .\, .<, .<=
 end
 
 import Base: ==, <, <=, +, -, *, /, //, ^
@@ -781,6 +781,15 @@ isless(x::Number, y::Quantity) = _isless(promote(x,y)...)
 <(x::Quantity, y::Quantity) = _lt(promote(x,y)...)
 <(x::Quantity, y::Number) = _lt(promote(x,y)...)
 <(x::Number, y::Quantity) = _lt(promote(x,y)...)
+
+@static if VERSION < v"0.6.0-dev.1632" # Julia PR #17623
+    .<(x::Quantity, y::Quantity) = x < y
+    .<(x::Quantity, y::Number) = x < y
+    .<(x::Number, y::Quantity) = x < y
+    .<=(x::Quantity, y::Quantity) = x <= y
+    .<=(x::Quantity, y::Number) = x <= y
+    .<=(x::Number, y::Quantity) = x <= y
+end
 
 isapprox{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = isapprox(x.val, y.val)
 isapprox(x::Quantity, y::Quantity) = isapprox(uconvert(unit(y), x).val, y.val)
