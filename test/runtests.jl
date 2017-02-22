@@ -22,7 +22,7 @@ import Unitful:
 import Unitful:
     LengthUnit, AreaUnit, MassUnit
 
-if VERSION < v"0.6.0-dev.2390"
+if VERSION < v"0.6.0-dev.2390"  # Make LinSpace generic, PR 18777
     using Ranges
     linspace = Ranges.linspace
     LinSpace = Ranges.LinSpace
@@ -92,7 +92,8 @@ end
             @test typeof(1cm)(1m) === 100cm
             @test @inferred(upreferred(N)) == kg*m/s^2
             @test @inferred(upreferred(dimension(N))) == kg*m/s^2
-            @static if VERSION >= v"0.6.0-"
+            # The following seems to have broken on the release-0.5 branch, I guess
+            @static if VERSION >= v"0.6.0-dev+0" # works here, broken on 0.5.0
                 @test @inferred(upreferred(1N)) === (1//1)*kg*m/s^2
             else
                 @test upreferred(1N) === (1//1)*kg*m/s^2
@@ -232,7 +233,7 @@ end
         @test @inferred(fma(1.0mm/m, 1.0, 1.0)) ≈ 1.001              # llvm good
         @test @inferred(fma(1.0, 1.0μm/m, 1.0μm/m)) === 2.0μm/m      # llvm good
         @test @inferred(fma(2, 1.0, 1μm/m)) === 2.000001             # llvm BAD
-        @static if VERSION >= v"0.6.0-"
+        @static if VERSION >= v"0.6.0-dev+0"    # works here, broken on 0.5.0
             @test @inferred(fma(2, 1μm/m, 1mm/m)) === 501//500000    # llvm BAD
         else
             @test fma(2, 1μm/m, 1mm/m) === 501//500000               # llvm BAD
@@ -248,7 +249,7 @@ end
         @test @inferred(muladd(1.0mm/m, 1.0, 1.0)) ≈ 1.001
         @test @inferred(muladd(1.0, 1.0μm/m, 1.0μm/m)) === 2.0μm/m
         @test @inferred(muladd(2, 1.0, 1μm/m)) === 2.000001
-        @static if VERSION >= v"0.6.0-"
+        @static if VERSION >= v"0.6.0-dev+0"    # works here, broken on 0.5.0
             @test @inferred(muladd(2, 1μm/m, 1mm/m)) === 501//500000
         else
             @test muladd(2, 1μm/m, 1mm/m) === 501//500000
@@ -615,7 +616,7 @@ end
         @testset ">> LinSpace" begin
             # Behavior of `linspace` changed, so results differ depending on
             # which version of Julia you are running...
-            @static if VERSION < v"0.6.0-dev.2390"
+            @static if VERSION < v"0.6.0-dev.2390" # Make LinSpace generic, PR 18777
                 @test isa(@inferred(linspace(1.0m, 3.0m, 5)), LinSpace{typeof(1.0m)})
                 @test isa(@inferred(linspace(1.0m, 10m, 5)), LinSpace{typeof(1.0m)})
                 @test isa(@inferred(linspace(1m, 10.0m, 5)), LinSpace{typeof(1.0m)})
@@ -657,7 +658,7 @@ end
     @testset "> Arrays" begin
         @testset ">> Array multiplication" begin
             # Quantity, quantity
-            @static if VERSION >= v"0.6.0-" # RowVector change...
+            @static if VERSION >= v"0.6.0-dev.2074" # RowVector, PR 19670
                 @test @inferred([1m, 2m]' * [3m, 4m])    == 11m^2
                 @test @inferred([1m, 2m]' * [3/m, 4/m])  == 11
                 @test typeof([1m, 2m]' * [3/m, 4/m])     == Int
@@ -670,7 +671,8 @@ end
             end
             @test @inferred([1V,2V]*[0.1/m, 0.4/m]') == [0.1V/m 0.4V/m; 0.2V/m 0.8V/m]
 
-            @static if VERSION >= v"0.6.0-"
+            @static if VERSION >= v"0.6.0-" # Probably broken as soon as we stopped
+                                            # using custom promote_op methods
                 @test_broken @inferred([1m, 2V]' * [3/m, 4/V])  == [11]
                 @test_broken @inferred([1m, 2V] * [3/m, 4/V]') ==
                     [3 4u"m*V^-1"; 6u"V*m^-1" 8]
@@ -686,12 +688,14 @@ end
             @test @inferred([3m 4m] * [1,2])         == [11m]
             @test typeof([3m 4m] * [1,2])            == Array{typeof(1u"m"),1}
 
-            @static if VERSION >= v"0.6.0-"
-                @test @inferred([1,2] * [3m,4m]')    == [3m 4m; 6m 8m]
-                @test typeof([1,2] * [3m,4m]')       == Array{typeof(1u"m"),2}
-                @test @inferred([3m,4m] * [1,2]')    == [3m 6m; 4m 8m]
-                @test typeof([3m,4m] * [1,2]')       == Array{typeof(1u"m"),2}
-            else
+            @test @inferred([1,2] * [3m,4m]')    == [3m 4m; 6m 8m]
+            @test typeof([1,2] * [3m,4m]')       == Array{typeof(1u"m"),2}
+            @test @inferred([3m,4m] * [1,2]')    == [3m 6m; 4m 8m]
+            @test typeof([3m,4m] * [1,2]')       == Array{typeof(1u"m"),2}
+
+            # re-allow vector*(1-row matrix), PR 20423
+            @static if VERSION >= v"0.6.0-dev.2614" || # re-allow vector*(1-row matrix), PR 20423
+                       VERSION < v"0.6.0-dev.2074"     # RowVector, PR 19670
                 @test @inferred([1,2] * [3m 4m])     == [3m 4m; 6m 8m]
                 @test typeof([1,2] * [3m 4m])        == Array{typeof(1u"m"),2}
                 @test @inferred([3m,4m] * [1 2])     == [3m 6m; 4m 8m]
@@ -706,7 +710,9 @@ end
             @test typeof([1m, 2m, 3m] * 5m)            == Array{typeof(1u"m^2"),1}
             @test @inferred(5m .* [1m, 2m, 3m])        == [5m^2, 10m^2, 15m^2]
             @test typeof(5m .* [1m, 2m, 3m])           == Array{typeof(1u"m^2"),1}
-            @static if VERSION >= v"0.6.0-"
+            @test @inferred(eye(2)*V)                  == [1.0V 0.0V; 0.0V 1.0V]
+            @test @inferred(V*eye(2))                  == [1.0V 0.0V; 0.0V 1.0V]
+            @static if VERSION >= v"0.6.0-dev.1632" # Make dot ops fusing, PR 17623
                 @test_broken @inferred(eye(2).*V)      == [1.0V 0.0V; 0.0V 1.0V]
                 @test_broken @inferred(V.*eye(2))      == [1.0V 0.0V; 0.0V 1.0V]
             else
@@ -793,7 +799,7 @@ let fname = tempname()
     end
 end
 
-@static if VERSION >= v"0.6.0-" #test_warn commit
+@static if VERSION >= v"0.6.0-dev.1980" # test_warn PR 19903
     # check for the warning...
     @test_warn "ShadowUnits" eval(:(u"m"))
 end
