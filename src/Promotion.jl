@@ -2,14 +2,17 @@
     # ------ promote_op with dimensions and units ------
 
     for op in (.+, .-, +, -)
-        @eval function promote_op{S<:Dimensions,T<:Dimensions}(::typeof($op),
-            ::Type{S}, ::Type{T})
-            if S==T   # add or subtract same dimension, get same dimension
-                x
+        @eval function promote_op{S<:Units,T<:Units}(
+            ::typeof($op), ::Type{S}, ::Type{T})
+            if dimension(S())==dimension(T())
+                promote_type(S,T)
             else
                 throw(DimensionError())
             end
         end
+    end
+
+    for op in (.<, .<=, <, <=)
         @eval function promote_op{S<:Units,T<:Units}(
             ::typeof($op), ::Type{S}, ::Type{T})
             if dimension(S())==dimension(T())
@@ -27,6 +30,14 @@
     # ------ promote_op with quantities ------
 
     # quantity, quantity
+    function promote_op{T1,D1,U1,T2,D2,U2}(op::Union{Base.typesof(
+        <, .<, <=, .<=, >, .>, >=, .>=, ==, .==).parameters...},
+        ::Type{Quantity{T1,D1,U1}}, ::Type{Quantity{T2,D2,U2}})
+        # figuring out numeric type can be subtle if D1 == D2 but U1 != U2.
+        # in particular, consider adding 1m + 1cm... the numtype is not Int.
+        D1 != D2 && throw(DimensionError())
+        return Bool
+    end
     function promote_op{T1,D1,U1,T2,D2,U2}(op, x::Type{Quantity{T1,D1,U1}},
         y::Type{Quantity{T2,D2,U2}})
         # figuring out numeric type can be subtle if D1 == D2 but U1 != U2.
@@ -46,6 +57,14 @@
     end
 
     # number, quantity
+    function promote_op{R<:Number,S,D,U}(op::Union{Base.typesof(
+        <, .<, <=, .<=, >, .>, >=, .>=, ==, .==).parameters...},
+        ::Type{R}, ::Type{Quantity{S,D,U}})
+        # figuring out numeric type can be subtle if D1 == D2 but U1 != U2.
+        # in particular, consider adding 1m + 1cm... the numtype is not Int.
+        D != Dimensions{()} && throw(DimensionError())
+        return Bool
+    end
     function promote_op{R<:Number,S,D,U}(op, ::Type{R}, ::Type{Quantity{S,D,U}})
         unittype = promote_op(op, typeof(NoUnits), U)
         numtype = if D == Dimensions{()}
@@ -61,6 +80,15 @@
         end
     end
 
+    # quantity, number
+    function promote_op{R<:Number,S,D,U}(op::Union{Base.typesof(
+        <, .<, <=, .<=, >, .>, >=, .>=, ==, .==).parameters...},
+        ::Type{Quantity{S,D,U}}, ::Type{R})
+        # figuring out numeric type can be subtle if D1 == D2 but U1 != U2.
+        # in particular, consider adding 1m + 1cm... the numtype is not Int.
+        D != Dimensions{()} && throw(DimensionError())
+        return Bool
+    end
     function promote_op{R<:Number,S,D,U}(op, x::Type{Quantity{S,D,U}}, y::Type{R})
         unittype = promote_op(op, U, typeof(NoUnits))
         numtype = if D == Dimensions{()}

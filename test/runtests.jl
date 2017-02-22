@@ -753,6 +753,19 @@ end
             @test @inferred(5m .+ [1m, 2m, 3m])      == [6m, 7m, 8m]
         end
 
+        @testset ">> Element-wise comparison" begin
+            @test @inferred([0.0m, 2.0m] .< [3.0m, 2.0μm]) == BitArray([true,false])
+            @test @inferred([0.0m, 2.0m] .> [3.0m, 2.0μm]) == BitArray([false,true])
+            @test @inferred([0.0m, 0.0μm] .<= [0.0mm, 0.0mm]) == BitArray([true, true])
+            @test @inferred([0.0m, 0.0μm] .>= [0.0mm, 0.0mm]) == BitArray([true, true])
+            @test @inferred([0.0m, 0.0μm] .== [0.0mm, 0.0mm]) == BitArray([true, true])
+
+            # Want to make sure we play nicely with StaticArrays
+            for j in (<, <=, >, >=, ==)
+                @test @inferred(Base.promote_op(j, typeof(1.0m), typeof(1.0μm))) == Bool
+            end
+        end
+
         @testset ">> isapprox on arrays" begin
             @test !isapprox([1.0m], [1.0V])
             @test isapprox([1.0μm/m], [1e-6])
