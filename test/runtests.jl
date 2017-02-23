@@ -823,7 +823,7 @@ end
 end
 
 # Test to make sure user macros are working properly
-# (and incidentally, for Compat macro hygeine in @dimension, @derived_dimension)
+# (and incidentally, for Compat macro hygiene in @dimension, @derived_dimension)
 module TUM
     using Unitful
     using Base.Test

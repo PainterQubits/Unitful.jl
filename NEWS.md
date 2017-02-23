@@ -1,5 +1,5 @@
 - v0.1.1
- - Fixed a macro hygeine issue that prevented `@dimension` and `@derived_dimension`
+ - Fixed a macro hygiene issue that prevented `@dimension` and `@derived_dimension`
    from working properly if Compat was not imported in the calling namespace.
 
 - v0.1.0
