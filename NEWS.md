@@ -1,9 +1,13 @@
+- v0.1.1
+ - Fixed a macro hygeine issue that prevented `@dimension` and `@derived_dimension`
+   from working properly if Compat was not imported in the calling namespace.
+
 - v0.1.0
  - Julia 0.6 compatibility.
  - On Julia 0.6, exponentiation by a literal is now type stable for
    common integer powers: -3, -2, -1, 0, 1, 2, 3.
  - Added missing methods for dot operators `.<` and `.<=` (Julia 0.5, fix
-   [#55](https://github.com/ajkeller34/Unitful.jl/issues/55))).
+   [#55](https://github.com/ajkeller34/Unitful.jl/issues/55)).
  - Fix [#45](https://github.com/ajkeller34/Unitful.jl/issues/45). Ranges should
    work as expected on Julia 0.6. On Julia 0.5, [Ranges.jl](https://github.com/JuliaArrays/Ranges.jl)
    is used to make ranges work as well as possible given limitations in Base.
