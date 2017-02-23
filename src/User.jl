@@ -44,7 +44,9 @@ Finally, if you define new dimensions with [`@dimension`](@ref) you will need
 to specify a preferred unit for that dimension with [`Unitful.preferunits`](@ref),
 otherwise promotion will not work with that dimension.
 
-Usage example from `src/pkgdefaults.jl`: `@dimension 𝐋 "L" Length`
+Returns the `Dimensions` object to which `symb` is bound.
+
+Usage example from `src/pkgdefaults.jl`: `@dimension 𝐋 "𝐋" Length`
 """
 macro dimension(symb, abbr, name)
     s = Symbol(symb)
@@ -53,8 +55,9 @@ macro dimension(symb, abbr, name)
     esc(quote
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
         const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
-        @compat $(name){T,U} = Unitful.Quantity{T,typeof($s),U}
-        @compat $(uname){U} = Unitful.Units{U,typeof($s)}
+        Unitful.Compat.@compat $(name){T,U} = Unitful.Quantity{T,typeof($s),U}
+        Unitful.Compat.@compat $(uname){U} = Unitful.Units{U,typeof($s)}
+        $s
     end)
 end
 
@@ -69,6 +72,8 @@ length squared. The type aliases are not exported.
 
 `dims` is a [`Unitful.Dimensions`](@ref) object.
 
+Returns `nothing`.
+
 Usage examples:
 
 - `@derived_dimension Area 𝐋^2` gives `Area` and `AreaUnit` type aliases
@@ -77,8 +82,9 @@ Usage examples:
 macro derived_dimension(name, dims)
     uname = Symbol(name,"Unit")
     esc(quote
-        @compat ($name){T,U} = Unitful.Quantity{T,typeof($dims),U}
-        @compat ($uname){U} = Unitful.Units{U,typeof($dims)}
+        Unitful.Compat.@compat ($name){T,U} = Unitful.Quantity{T,typeof($dims),U}
+        Unitful.Compat.@compat ($uname){U} = Unitful.Units{U,typeof($dims)}
+        nothing
     end)
 end
 
@@ -106,6 +112,8 @@ use case would be to define a unit system without reference to SI. However,
 there's no explicit barrier to prevent attempting conversions between SI and this
 hypothetical unit system, which could yield unexpected results.
 
+Returns the [`Unitful.Units`](@ref) object to which `symb` is bound.
+
 Usage example: `@refunit m "m" Meter 𝐋 true`
 
 This example, found in `src/pkgdefaults.jl`, generates `km`, `m`, `cm`, ...
@@ -119,6 +127,7 @@ macro refunit(symb, abbr, name, dimension, tf)
         else
             Unitful.@unit_symbols $symb $name $dimension (1.0, 1)
         end
+        $symb
     end)
 end
 
@@ -130,6 +139,8 @@ macro unit(symb,abbr,name,equals,tf)
 Define a unit. Rather than specifying a dimension like in [`@refunit`](@ref),
 `equals` should be a [`Unitful.Quantity`](@ref) equal to one of the unit being
 defined. If `tf == true`, symbols will be made for each power-of-ten prefix.
+
+Returns the [`Unitful.Units`](@ref) object to which `symb` is bound.
 
 Usage example: `@unit mi "mi" Mile (201168//125)*m false`
 
@@ -152,6 +163,7 @@ macro unit(symb,abbr,name,equals,tf)
             Unitful.@unit_symbols($(esc(symb)), $(esc(name)), d,
                 Unitful.basefactor(inex, ex, eq, t, 1))
         end
+        $(esc(symb))
     end
 end
 

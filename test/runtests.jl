@@ -822,4 +822,25 @@ end
     @test_warn "ShadowUnits" eval(:(u"m"))
 end
 
+# Test to make sure user macros are working properly
+# (and incidentally, for Compat macro hygeine in @dimension, @derived_dimension)
+module TUM
+    using Unitful
+    using Base.Test
+
+    @dimension f "f" FakeDim12345
+    @derived_dimension FakeDim212345 f^2
+    @refunit fu "fu" FakeUnit12345 f false
+    @unit fu2 "fu2" FakeUnit212345 1fu false
+end
+
+@testset "User macros" begin
+    @test typeof(TUM.f) == Unitful.Dimensions{(Unitful.Dimension{:FakeDim12345}(1//1),)}
+    @test 1(TUM.fu) == 1(TUM.fu2)
+    @test isa(1(TUM.fu), TUM.FakeDim12345)
+    @test isa(TUM.fu, TUM.FakeDim12345Unit)
+    @test isa(1(TUM.fu)^2, TUM.FakeDim212345)
+    @test isa(TUM.fu^2, TUM.FakeDim212345Unit)
+end
+
 end
