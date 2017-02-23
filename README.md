@@ -22,5 +22,5 @@ are found in Julia base.
 
 ## Documentation
 
-[Stable](http://ajkeller34.github.io/Unitful.jl) and
+[Stable](http://ajkeller34.github.io/Unitful.jl/stable) and
 [latest](https://ajkeller34.github.io/Unitful.jl/latest) versions available.
