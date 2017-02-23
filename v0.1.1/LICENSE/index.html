@@ -19,7 +19,7 @@
     
     
       
-        <title>How units are displayed - Unitful.jl</title>
+        <title>License - Unitful.jl</title>
       
     
     
@@ -81,7 +81,7 @@
             
               
             
-            How units are displayed
+            License
           
         </span>
       </div>
@@ -244,12 +244,9 @@
       
   <li class="md-nav__item">
     
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
-    
-    
-    <a href="./" title="How units are displayed" class="md-nav__link md-nav__link--active">
-      How units are displayed
-    </a>
+      <a href="../display/" title="How units are displayed" class="md-nav__link">
+        How units are displayed
+      </a>
     
   </li>
 
@@ -280,9 +277,14 @@
       
   <li class="md-nav__item">
     
-      <a href="../LICENSE/" title="License" class="md-nav__link">
-        License
-      </a>
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+    <a href="./" title="License" class="md-nav__link md-nav__link--active">
+      License
+    </a>
     
   </li>
 
@@ -301,6 +303,8 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
 </nav>
                   </div>
@@ -311,65 +315,19 @@
           <div class="md-content">
             <article class="md-content__inner md-typeset">
                
-                 <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/display.md" title="Edit this page" class="md-icon md-content__edit">edit</a>
+                 <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/LICENSE.md" title="Edit this page" class="md-icon md-content__edit">edit</a>
                
               
                 
-                  <h1>How units are displayed</h1>
-                
-                <p><a id='Unitful.abbr' href='#Unitful.abbr'>#</a>
-<strong><code>Unitful.abbr</code></strong> &mdash; <em>Function</em>.</p>
-<p><code>abbr(x)</code> provides abbreviations for units or dimensions. Since a method should always be defined for each unit and dimension type, absence of a method for a specific unit or dimension type is likely an error. Consequently, we return ❓ for generic arguments to flag unexpected behavior.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L26-L31' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.prefix' href='#Unitful.prefix'>#</a>
-<strong><code>Unitful.prefix</code></strong> &mdash; <em>Function</em>.</p>
-<pre class="codehilite"><code>prefix(x::Unit)</code></pre>
-
-
-<p>Returns a string representing the SI prefix for the power-of-ten held by this particular unit.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L34-L41' class='documenter-source'>source</a><br></p>
-<p><a id='Base.show-Tuple{IO,Unitful.Quantity}' href='#Base.show-Tuple{IO,Unitful.Quantity}'>#</a>
-<strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>show(io::IO, x::Quantity)</code></pre>
-
-
-<p>Show a unitful quantity by calling <code>show</code> on the numeric value, appending a space, and then calling <code>show</code> on a units object <code>U()</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L50-L57' class='documenter-source'>source</a><br></p>
-<p><a id='Base.show-Tuple{IO,Type{Unitful.Quantity{T,D,U}}} where U where D where T' href='#Base.show-Tuple{IO,Type{Unitful.Quantity{T,D,U}}} where U where D where T'>#</a>
-<strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>show{T,D,U}(io::IO, ::Type{Quantity{T,D,U}})</code></pre>
-
-
-<p>Show the type of a unitful quantity in a succinct way. Otherwise, array summaries are nearly unreadable.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L67-L74' class='documenter-source'>source</a><br></p>
-<p><a id='Base.show-Tuple{IO,Unitful.Unitlike}' href='#Base.show-Tuple{IO,Unitful.Unitlike}'>#</a>
-<strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>show(io::IO,x::Unitlike)</code></pre>
-
-
-<p>Call <a href="./#Unitful.showrep-Tuple{IO,Unitful.Unit}"><code>Unitful.showrep</code></a> on each object in the tuple that is the type variable of a <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> or <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L82-L89' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.showrep-Tuple{IO,Unitful.Unit}' href='#Unitful.showrep-Tuple{IO,Unitful.Unit}'>#</a>
-<strong><code>Unitful.showrep</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>showrep(io::IO, x::Unit)</code></pre>
-
-
-<p>Show the unit, prefixing with any decimal prefix and appending the exponent as formatted by <a href="./#Unitful.superscript"><code>Unitful.superscript</code></a>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L101-L108' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.showrep-Tuple{IO,Unitful.Dimension}' href='#Unitful.showrep-Tuple{IO,Unitful.Dimension}'>#</a>
-<strong><code>Unitful.showrep</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>showrep(io::IO, x::Dimension)</code></pre>
-
-
-<p>Show the dimension, appending any exponent as formatted by <a href="./#Unitful.superscript"><code>Unitful.superscript</code></a>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L116-L123' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.superscript' href='#Unitful.superscript'>#</a>
-<strong><code>Unitful.superscript</code></strong> &mdash; <em>Function</em>.</p>
-<pre class="codehilite"><code>superscript(i::Rational)</code></pre>
-
-
-<p>Prints exponents.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L129-L135' class='documenter-source'>source</a><br></p>
+                <p><a id='License-1'></a></p>
+<h1 id="license">License</h1>
+<p>The Unitful.jl package is licensed under the MIT "Expat" License:</p>
+<blockquote>
+<p>Copyright (c) 2016: Andrew Keller.</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+</blockquote>
               
             </article>
           </div>
@@ -382,7 +340,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../manipulations/" title="Manipulating units" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../trouble/" title="Troubleshooting" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -391,25 +349,11 @@
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Manipulating units
+                Troubleshooting
               </span>
             </div>
           </a>
         
-        
-          <a href="../extending/" title="Extending Unitful" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
-              <span class="md-flex__ellipsis">
-                <span class="md-footer-nav__direction">
-                  Next
-                </span>
-                Extending Unitful
-              </span>
-            </div>
-            <div class="md-flex__cell md-flex__cell--shrink">
-              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
-            </div>
-          </a>
         
       </nav>
     </div>

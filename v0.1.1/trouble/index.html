@@ -19,7 +19,7 @@
     
     
       
-        <title>How units are displayed - Unitful.jl</title>
+        <title>Troubleshooting - Unitful.jl</title>
       
     
     
@@ -81,7 +81,7 @@
             
               
             
-            How units are displayed
+            Troubleshooting
           
         </span>
       </div>
@@ -244,12 +244,9 @@
       
   <li class="md-nav__item">
     
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
-    
-    
-    <a href="./" title="How units are displayed" class="md-nav__link md-nav__link--active">
-      How units are displayed
-    </a>
+      <a href="../display/" title="How units are displayed" class="md-nav__link">
+        How units are displayed
+      </a>
     
   </li>
 
@@ -269,9 +266,78 @@
       
   <li class="md-nav__item">
     
-      <a href="../trouble/" title="Troubleshooting" class="md-nav__link">
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
         Troubleshooting
-      </a>
+      </label>
+    
+    <a href="./" title="Troubleshooting" class="md-nav__link md-nav__link--active">
+      Troubleshooting
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-do-unit-conversions-yield-rational-numbers-sometimes" title="Why do unit conversions yield rational numbers sometimes?" class="md-nav__link">
+    Why do unit conversions yield rational numbers sometimes?
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#but-i-want-a-floating-point-number" title="But I want a floating point number..." class="md-nav__link">
+    But I want a floating point number...
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exponentiation" title="Exponentiation" class="md-nav__link">
+    Exponentiation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#promotion-with-dimensionless-numbers" title="Promotion with dimensionless numbers" class="md-nav__link">
+    Promotion with dimensionless numbers
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#other-random-problems" title="Other random problems" class="md-nav__link">
+    Other random problems
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i-have-a-different-problem" title="I have a different problem" class="md-nav__link">
+    I have a different problem
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
     
   </li>
 
@@ -302,6 +368,59 @@
   
   
   
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-do-unit-conversions-yield-rational-numbers-sometimes" title="Why do unit conversions yield rational numbers sometimes?" class="md-nav__link">
+    Why do unit conversions yield rational numbers sometimes?
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#but-i-want-a-floating-point-number" title="But I want a floating point number..." class="md-nav__link">
+    But I want a floating point number...
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exponentiation" title="Exponentiation" class="md-nav__link">
+    Exponentiation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#promotion-with-dimensionless-numbers" title="Promotion with dimensionless numbers" class="md-nav__link">
+    Promotion with dimensionless numbers
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#other-random-problems" title="Other random problems" class="md-nav__link">
+    Other random problems
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i-have-a-different-problem" title="I have a different problem" class="md-nav__link">
+    I have a different problem
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -311,65 +430,51 @@
           <div class="md-content">
             <article class="md-content__inner md-typeset">
                
-                 <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/display.md" title="Edit this page" class="md-icon md-content__edit">edit</a>
+                 <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/trouble.md" title="Edit this page" class="md-icon md-content__edit">edit</a>
                
               
                 
-                  <h1>How units are displayed</h1>
+                  <h1>Troubleshooting</h1>
                 
-                <p><a id='Unitful.abbr' href='#Unitful.abbr'>#</a>
-<strong><code>Unitful.abbr</code></strong> &mdash; <em>Function</em>.</p>
-<p><code>abbr(x)</code> provides abbreviations for units or dimensions. Since a method should always be defined for each unit and dimension type, absence of a method for a specific unit or dimension type is likely an error. Consequently, we return ❓ for generic arguments to flag unexpected behavior.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L26-L31' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.prefix' href='#Unitful.prefix'>#</a>
-<strong><code>Unitful.prefix</code></strong> &mdash; <em>Function</em>.</p>
-<pre class="codehilite"><code>prefix(x::Unit)</code></pre>
+                <p><a id='Why-do-unit-conversions-yield-rational-numbers-sometimes?-1'></a></p>
+<h2 id="why-do-unit-conversions-yield-rational-numbers-sometimes">Why do unit conversions yield rational numbers sometimes?</h2>
+<p>We use rational numbers in this package to permit exact conversions between different units where possible. As an example, one inch is exactly equal to 2.54 cm. However, in Julia, the floating-point <code>2.54</code> is not equal to <code>254//100</code>. As a consequence, <code>1inch != 2.54cm</code>, because Unitful respects exact conversions. To test for equivalence, instead use <code>≈</code> (<code>\approx</code> tab-completion).</p>
+<p><a id='But-I-want-a-floating-point-number...-1'></a></p>
+<h3 id="but-i-want-a-floating-point-number">But I want a floating point number...</h3>
+<p><code>float(x)</code> is defined for <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a> types, and is forwarded to the underlying numeric type (units are not affected).</p>
+<p>We may consider adding an option in the defaults to turn on/off use of <code>Rational</code> numbers. They permit exact conversions, but they aren't preferred as a result type in much of Julia Base (consider that <code>inv(2) === 0.5</code>, not <code>1//2</code>).</p>
+<p><a id='Exponentiation-1'></a></p>
+<h2 id="exponentiation">Exponentiation</h2>
+<p>Most operations with this package should in principle suffer little performance penalty if any at run time. An exception to this is rule is exponentiation. Since units and their powers are encoded in the type signature of a <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a> object, raising a <code>Quantity</code> to some power, which is just some run-time value, necessarily results in different result types. This type instability could impact performance. Example:</p>
+<pre class="codehilite"><code class="language-jlcon">julia&gt; typeof((1.0u&quot;m&quot;)^2)
+Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}
+
+julia&gt; typeof((1.0u&quot;m&quot;)^3)
+Quantity{Float64, Dimensions:{𝐋^3}, Units:{m^3}}</code></pre>
 
 
-<p>Returns a string representing the SI prefix for the power-of-ten held by this particular unit.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L34-L41' class='documenter-source'>source</a><br></p>
-<p><a id='Base.show-Tuple{IO,Unitful.Quantity}' href='#Base.show-Tuple{IO,Unitful.Quantity}'>#</a>
-<strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>show(io::IO, x::Quantity)</code></pre>
+<p>Because the functions <code>inv</code> and <code>sqrt</code> are raising a <code>Quantity</code> to a fixed power (-1 and 1/2, respectively), we can use a generated function to ensure type stability in these cases. Also note that squaring a <code>Quantity</code> will be type-stable if done as <code>x*x</code> but not as <code>x^2</code>.</p>
+<p><a id='Promotion-with-dimensionless-numbers-1'></a></p>
+<h2 id="promotion-with-dimensionless-numbers">Promotion with dimensionless numbers</h2>
+<p>Most of the time, you are only permitted to do sensible operations in Unitful. With dimensionless numbers, some of the safe logic breaks down. Consider for instance that <code>μm/m</code> and <code>rad</code> are both dimensionless units, but kind of have nothing to do with each other. It would be a little weird to add them. Nonetheless, we permit this to happen since they have the same dimensions. Otherwise, we would have to special-case operations for two dimensionless quantities rather than dispatching on the empty dimension.</p>
+<p>The result of addition and subtraction with dimensionless but unitful numbers is always a pure number with no units. With angles, <code>1 rad</code> is essentially just <code>1</code>, giving sane behavior:</p>
+<pre class="codehilite"><code class="language-jlcon">julia&gt; π/2*u&quot;rad&quot;+90u&quot;°&quot;
+3.141592653589793</code></pre>
 
 
-<p>Show a unitful quantity by calling <code>show</code> on the numeric value, appending a space, and then calling <code>show</code> on a units object <code>U()</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L50-L57' class='documenter-source'>source</a><br></p>
-<p><a id='Base.show-Tuple{IO,Type{Unitful.Quantity{T,D,U}}} where U where D where T' href='#Base.show-Tuple{IO,Type{Unitful.Quantity{T,D,U}}} where U where D where T'>#</a>
-<strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>show{T,D,U}(io::IO, ::Type{Quantity{T,D,U}})</code></pre>
+<p><a id='Other-random-problems-1'></a></p>
+<h2 id="other-random-problems">Other random problems</h2>
+<p>If using units with some of the unsigned types... well, I'm not sure what you are doing, but you should be aware of this:</p>
+<pre class="codehilite"><code class="language-jlcon">julia&gt; using Unitful: m,cm
+
+julia&gt; uconvert(m,0x01cm)   # the user means cm, not 0x01c*m
+0x001c m</code></pre>
 
 
-<p>Show the type of a unitful quantity in a succinct way. Otherwise, array summaries are nearly unreadable.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L67-L74' class='documenter-source'>source</a><br></p>
-<p><a id='Base.show-Tuple{IO,Unitful.Unitlike}' href='#Base.show-Tuple{IO,Unitful.Unitlike}'>#</a>
-<strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>show(io::IO,x::Unitlike)</code></pre>
-
-
-<p>Call <a href="./#Unitful.showrep-Tuple{IO,Unitful.Unit}"><code>Unitful.showrep</code></a> on each object in the tuple that is the type variable of a <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> or <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L82-L89' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.showrep-Tuple{IO,Unitful.Unit}' href='#Unitful.showrep-Tuple{IO,Unitful.Unit}'>#</a>
-<strong><code>Unitful.showrep</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>showrep(io::IO, x::Unit)</code></pre>
-
-
-<p>Show the unit, prefixing with any decimal prefix and appending the exponent as formatted by <a href="./#Unitful.superscript"><code>Unitful.superscript</code></a>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L101-L108' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.showrep-Tuple{IO,Unitful.Dimension}' href='#Unitful.showrep-Tuple{IO,Unitful.Dimension}'>#</a>
-<strong><code>Unitful.showrep</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>showrep(io::IO, x::Dimension)</code></pre>
-
-
-<p>Show the dimension, appending any exponent as formatted by <a href="./#Unitful.superscript"><code>Unitful.superscript</code></a>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L116-L123' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.superscript' href='#Unitful.superscript'>#</a>
-<strong><code>Unitful.superscript</code></strong> &mdash; <em>Function</em>.</p>
-<pre class="codehilite"><code>superscript(i::Rational)</code></pre>
-
-
-<p>Prints exponents.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/a742ba2c34c48a3f7d21607ffdd02c5dc87a2932/src/Display.jl#L129-L135' class='documenter-source'>source</a><br></p>
+<p>This behavior is a consequence of <a href="https://github.com/JuliaLang/julia/issues/16356">a Julia issue</a>.</p>
+<p><a id='I-have-a-different-problem-1'></a></p>
+<h2 id="i-have-a-different-problem">I have a different problem</h2>
+<p>Please raise an issue. This package is in development and there may be bugs. Feature requests may also be considered and pull requests are welcome.</p>
               
             </article>
           </div>
@@ -382,7 +487,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../manipulations/" title="Manipulating units" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../extending/" title="Extending Unitful" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -391,19 +496,19 @@
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Manipulating units
+                Extending Unitful
               </span>
             </div>
           </a>
         
         
-          <a href="../extending/" title="Extending Unitful" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../LICENSE/" title="License" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Extending Unitful
+                License
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
