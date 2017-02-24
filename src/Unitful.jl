@@ -1037,13 +1037,17 @@ end
 ^{U,D}(x::Units{U,D}, y::Integer) = *(Units{map(a->a^y, U), ()}())
 ^{U,D}(x::Units{U,D}, y::Number) = *(Units{map(a->a^y, U), ()}())
 
-^{U,D}(x::Units{U,D}, ::Type{Val{0}}) = NoUnits
-^{U,D}(x::Units{U,D}, ::Type{Val{1}}) = x
-^{U,D}(x::Units{U,D}, ::Type{Val{2}}) = x*x
-^{U,D}(x::Units{U,D}, ::Type{Val{3}}) = x*x*x
-^{U,D}(x::Units{U,D}, ::Type{Val{-1}}) = inv(x)
-^{U,D}(x::Units{U,D}, ::Type{Val{-2}}) = inv(x*x)
-^{U,D}(x::Units{U,D}, ::Type{Val{-3}}) = inv(x*x*x)
+@static if VERSION >= v"0.6.0-dev.2834" && # PR 20530; lower x^lit as x^Val{lit}
+           VERSION < v"0.6.0"   # PR 20783; from x^Val{p} to x^Val{p}()
+    ^{U,D}(x::Units{U,D}, ::Type{Val{0}}) = NoUnits
+    ^{U,D}(x::Units{U,D}, ::Type{Val{1}}) = x
+    ^{U,D}(x::Units{U,D}, ::Type{Val{2}}) = x*x
+    ^{U,D}(x::Units{U,D}, ::Type{Val{3}}) = x*x*x
+    ^{U,D}(x::Units{U,D}, ::Type{Val{-1}}) = inv(x)
+    ^{U,D}(x::Units{U,D}, ::Type{Val{-2}}) = inv(x*x)
+    ^{U,D}(x::Units{U,D}, ::Type{Val{-3}}) = inv(x*x*x)
+else
+
 
 # All of these are needed for ambiguity resolution
 ^{T,D,U}(x::Quantity{T,D,U}, y::Integer) = Quantity((x.val)^y, U()^y)
