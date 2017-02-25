@@ -3,7 +3,9 @@
 function register(unit_module::Module)
 ```
 
-Makes the [`@u_str`](@ref) macro aware of units defined in new unit modules.
+Makes the [`@u_str`](@ref) macro aware of units defined in new unit modules. By default,
+Unitful is itself a registered module. Note that Main is not, so if you define new units
+at the REPL, you will probably want to do `Unitful.register(Main)`.
 
 Example:
 ```jl
@@ -38,11 +40,14 @@ abbreviated format using the string `abbr`.
 Type aliases are created that allow the user to dispatch on
 [`Unitful.Quantity`](@ref) and [`Unitful.Units`](@ref) objects of the newly
 defined dimension. The type alias for quantities is simply given by `name`,
-and the type alias for units is given by `name*"Unit"`, e.g. `LengthUnit`.
+and the type alias for units is given by `name*"Units"`, e.g. `LengthUnits`.
+Note that there is also `LengthFreeUnits`, for example, which is an alias for
+dispatching on `FreeUnits` with length dimensions. The aliases are not exported.
 
 Finally, if you define new dimensions with [`@dimension`](@ref) you will need
 to specify a preferred unit for that dimension with [`Unitful.preferunits`](@ref),
-otherwise promotion will not work with that dimension.
+otherwise promotion will not work with that dimension. This is done automatically
+in the [`@refunit`](@ref) macro.
 
 Returns the `Dimensions` object to which `symb` is bound.
 
@@ -51,12 +56,17 @@ Usage example from `src/pkgdefaults.jl`: `@dimension 𝐋 "𝐋" Length`
 macro dimension(symb, abbr, name)
     s = Symbol(symb)
     x = Expr(:quote, name)
-    uname = Symbol(name,"Unit")
+    uname = Symbol(name,"Units")
+    funame = Symbol(name,"FreeUnits")
     esc(quote
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
         const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
         Unitful.Compat.@compat $(name){T,U} = Unitful.Quantity{T,typeof($s),U}
-        Unitful.Compat.@compat $(uname){U} = Unitful.Units{U,typeof($s)}
+        Unitful.Compat.@compat $(uname){U} = Unitful.Union{
+            Unitful.FreeUnits{U,typeof($s)},
+            Unitful.ContextUnits{U,typeof($s)},
+            Unitful.FixedUnits{U,typeof($s)}}
+        Unitful.Compat.@compat $(funame){U} = Unitful.FreeUnits{U,typeof($s)}
         $s
     end)
 end
@@ -80,10 +90,15 @@ Usage examples:
 - `@derived_dimension Speed 𝐋/𝐓` gives `Speed` and `SpeedUnit` type aliases
 """
 macro derived_dimension(name, dims)
-    uname = Symbol(name,"Unit")
+    uname = Symbol(name,"Units")
+    funame = Symbol(name,"FreeUnits")
     esc(quote
         Unitful.Compat.@compat ($name){T,U} = Unitful.Quantity{T,typeof($dims),U}
-        Unitful.Compat.@compat ($uname){U} = Unitful.Units{U,typeof($dims)}
+        Unitful.Compat.@compat ($uname){U} = Unitful.Union{
+            Unitful.FreeUnits{U,typeof($dims)},
+            Unitful.ContextUnits{U,typeof($dims)},
+            Unitful.FixedUnits{U,typeof($dims)}}
+        Unitful.Compat.@compat ($funame){U} = Unitful.FreeUnits{U,typeof($dims)}
         nothing
     end)
 end
@@ -115,7 +130,7 @@ hypothetical unit system, which could yield unexpected results.
 Note that this macro will also choose the new unit (no power-of-ten prefix) as
 the default unit for promotion given this dimension.
 
-Returns the [`Unitful.Units`](@ref) object to which `symb` is bound.
+Returns the [`Unitful.FreeUnits`](@ref) object to which `symb` is bound.
 
 Usage example: `@refunit m "m" Meter 𝐋 true`
 
@@ -144,7 +159,7 @@ Define a unit. Rather than specifying a dimension like in [`@refunit`](@ref),
 `equals` should be a [`Unitful.Quantity`](@ref) equal to one of the unit being
 defined. If `tf == true`, symbols will be made for each power-of-ten prefix.
 
-Returns the [`Unitful.Units`](@ref) object to which `symb` is bound.
+Returns the [`Unitful.FreeUnits`](@ref) object to which `symb` is bound.
 
 Usage example: `@unit mi "mi" Mile (201168//125)*m false`
 
@@ -191,7 +206,7 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
         u = :(Unitful.Unit{$z, typeof($dimension)}($k,1//1))
         ea = esc(quote
             Unitful.basefactors[$z] = $basefactor
-            const $s = Unitful.Units{($u,),typeof(Unitful.dimension($u))}()
+            const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
         end)
         push!(expr.args, ea)
     end
@@ -201,7 +216,7 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
     u = :(Unitful.Unit{$z, typeof($dimension)}(-6,1//1))
     push!(expr.args, esc(quote
         Unitful.basefactors[$z] = $basefactor
-        const $s = Unitful.Units{($u,),typeof(Unitful.dimension($u))}()
+        const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
     end))
 
     expr
@@ -223,12 +238,9 @@ macro unit_symbols(symb,name,dimension,basefactor)
     u = :(Unitful.Unit{$z,typeof($dimension)}(0,1//1))
     esc(quote
         Unitful.basefactors[$z] = $basefactor
-        const $s = Unitful.Units{($u,),typeof(Unitful.dimension($u))}()
+        const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
     end)
 end
-
-function preferredunit end
-function preferredunits end
 
 """
 ```
@@ -251,8 +263,8 @@ function preferunits(u0::Units, u::Units...)
     units = (u0, u...)
     dims = map(dimension, units)
     if length(union(dims)) != length(dims)
-            error("preferunits received more than one unit of a given ",
-            "dimension.")
+        error("preferunits received more than one unit of a given ",
+        "dimension.")
     end
 
     for i in eachindex(units)
@@ -267,7 +279,7 @@ function preferunits(u0::Units, u::Units...)
             "For instance, it should not be used with units of dimension 𝐋^2.")
         end
         y = typeof(dim).parameters[1][1]
-        promotion[name(y)] = unit
+        promotion[name(y)] = typeof(unit).parameters[1][1]
     end
 
     nothing
@@ -275,14 +287,32 @@ end
 
 """
 ```
-upreferred(x::Number)
+upreferred(x::Dimensions)
 ```
 
-Unit-convert `x` to units which are preferred for the dimensions of `x`,
-as specified by the [`preferunits`](@ref) function. If you are using the factory
-defaults, this function will unit-convert to a product of powers of base SI units.
+Return units which are preferred for dimensions `x`. If you are using the
+factory defaults, this function will return a product of powers of base SI units
+(as [`Unitful.FreeUnits`](@ref)).
 """
-upreferred(x::Number) = uconvert(preferredunits(dimension(x)), x)
+@generated function upreferred{D}(x::Dimensions{D})
+    u = *(FreeUnits{((Unitful.promotion[name(z)]^z.power for z in D)...),()}())
+    :($u)
+end
+
+"""
+```
+upreferred(x::Number)
+upreferred(x::Quantity)
+```
+
+Unit-convert `x` to units which are preferred for the dimensions of `x`.
+If you are using the factory defaults, this function will unit-convert to a
+product of powers of base SI units. If quantity `x` has
+[`Unitful.ContextUnits`](@ref)`(y,z)`, the resulting quantity will have
+units `ContextUnits(z,z)`.
+"""
+@inline upreferred(x::Number) = x
+@compat @inline upreferred(x::Quantity) = uconvert(upreferred(unit(x)), x)
 
 """
 ```
@@ -294,17 +324,9 @@ not be equal to `x`, as specified by the [`preferunits`](@ref) function. If you
 are using the factory defaults, this function will return a product of powers of
 base SI units.
 """
-upreferred(x::Units) = preferredunits(dimension(x))
-
-"""
-```
-upreferred(x::Dimensions)
-```
-
-Return units which are preferred for dimensions `x`. If you are using the
-factory defaults, this function will return a product of powers of base SI units.
-"""
-upreferred(x::Dimensions) = preferredunits(x)
+@inline upreferred(x::FreeUnits) = upreferred(dimension(x))
+@inline upreferred{N,D,P}(::ContextUnits{N,D,P}) = ContextUnits(P(),P())
+@inline upreferred(x::FixedUnits) = x
 
 """
 ```
@@ -393,7 +415,7 @@ end
 
 replace_value(literal::Number) = literal
 
-ustrcheck(x::Unitlike) = x
+ustrcheck(x::Union{Units,Dimensions}) = x
 ustrcheck(x::Quantity) = x
 ustrcheck(x) = error("Symbol $x is not a unit, dimension, or quantity.")
 

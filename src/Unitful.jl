@@ -21,7 +21,6 @@ import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isinf, isfinite, isnan
 import Base: copysign, flipsign
 import Base: prevfloat, nextfloat, maxintfloat, rat, step #, linspace
-import Base: promote_op, promote_array_type, promote_rule, unsafe_getindex
 import Base: length, float, start, done, next, last, one, zero, colon#, range
 import Base: getindex, eltype, step, last, first, frexp
 import Base: Integer, Rational, typemin, typemax
@@ -39,13 +38,15 @@ const unitmodules = Vector{Module}()
 const basefactors = Dict{Symbol,Tuple{Float64,Rational{Int}}}()
 
 include("Types.jl")
-const promotion = Dict{Symbol,Units}()
+const promotion = Dict{Symbol,Unit}()
 
 include("User.jl")
-const NoUnits = Units{(), Dimensions{()}}()
+const NoUnits = FreeUnits{(), Dimensions{()}}()
 const NoDims = Dimensions{()}()
+@inline isunitless{N}(::Units{N}) = N == ()
 
-(y::Units)(x::Number) = uconvert(y,x)
+(y::FreeUnits)(x::Number) = uconvert(y,x)
+(y::ContextUnits)(x::Number) = uconvert(y,x)
 
 """
 ```
@@ -64,6 +65,9 @@ type DimensionError{T,S} <: Exception
 end
 Base.showerror(io::IO, e::DimensionError) =
     print(io,"DimensionError: $(e.x) and $(e.y) are not dimensionally compatible.");
+
+numtype{T}(::Quantity{T}) = T
+numtype{T,D,U}(::Type{Quantity{T,D,U}}) = T
 
 """
 ```
@@ -94,7 +98,7 @@ true
 
 """
 ```
-ustrip{T,D,U}(x::Array{Quantity{T,D,U}})
+ustrip{Q<:Quantity}(x::Array{Q})
 ```
 
 Strip units from an `Array` by reinterpreting to type `T`. The resulting
@@ -121,11 +125,11 @@ julia> a[1] = 3u"m"; b
  2
 ```
 """
-@inline ustrip{T,D,U}(x::Array{Quantity{T,D,U}}) = reinterpret(T, x)
+@inline ustrip{Q<:Quantity}(x::Array{Q}) = reinterpret(numtype(Q), x)
 
 """
 ```
-ustrip{T,D,U}(x::AbstractArray{Quantity{T,D,U}})
+ustrip{Q<:Quantity}(A::AbstractArray{Q})
 ```
 
 Strip units from an `AbstractArray` by making a new array without units using
@@ -134,7 +138,7 @@ array comprehensions.
 This function is provided primarily for compatibility purposes; you could pass
 the result to PyPlot, for example. This function may be deprecated in the future.
 """
-ustrip{T,D,U}(A::AbstractArray{Quantity{T,D,U}}) = T[ustrip(x) for x in A]
+ustrip{Q<:Quantity}(A::AbstractArray{Q}) = (numtype(Q))[ustrip(x) for x in A]
 
 """
 ```
@@ -158,7 +162,7 @@ ustrip{T<:Quantity}(A::SymTridiagonal{T}) =
 unit{T,D,U}(x::Quantity{T,D,U})
 ```
 
-Returns the units associated with a quantity, `U()`.
+Returns the units associated with a quantity.
 
 Examples:
 
@@ -167,7 +171,7 @@ julia> unit(1.0u"m") == u"m"
 true
 
 julia> typeof(u"m")
-Unitful.Units{(Unitful.Unit{:Meter,Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}(0, 1//1),),Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}
+Unitful.FreeUnits{(Unitful.Unit{:Meter,Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}(0, 1//1),),Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}
 ```
 """
 @inline unit{T,D,U}(x::Quantity{T,D,U}) = U()
@@ -177,7 +181,7 @@ Unitful.Units{(Unitful.Unit{:Meter,Unitful.Dimensions{(Unitful.Dimension{:Length
 unit{T,D,U}(x::Type{Quantity{T,D,U}})
 ```
 
-Returns the units associated with a quantity type, `U()`.
+Returns the units associated with a quantity type, `ContextUnits(U(),P())`.
 
 Examples:
 
@@ -202,9 +206,9 @@ Examples:
 
 ```jldoctest
 julia> typeof(unit(1.0))
-Unitful.Units{(),Unitful.Dimensions{()}}
+Unitful.FreeUnits{(),Unitful.Dimensions{()}}
 julia> typeof(unit(Float64))
-Unitful.Units{(),Unitful.Dimensions{()}}
+Unitful.FreeUnits{(),Unitful.Dimensions{()}}
 julia> unit(1.0) == NoUnits
 true
 ```
@@ -280,7 +284,7 @@ Unitful.Dimensions{()}
 ```
 """
 @inline dimension{T,D}(x::Quantity{T,D}) = D()
-@inline dimension{T,D,U}(::Type{Quantity{T,D,Units{U,D}}}) = D()
+@inline dimension{T,D,U}(::Type{Quantity{T,D,U}}) = D()
 
 """
 ```
@@ -304,32 +308,77 @@ dimension{T<:Units}(x::AbstractArray{T}) = map(dimension, x)
 ```
 @generated function Quantity(x::Number, y::Units)
 ```
-
 Outer constructor for `Quantity`s. This is a generated function to avoid
 determining the dimensions of a given set of units each time a new quantity is
 made.
 """
 @generated function Quantity(x::Number, y::Units)
-    if y == typeof(NoUnits)
-        :(x)
-    else
-        u = y()
-        d = dimension(u)
-        :(Quantity{typeof(x), typeof($d), typeof($u)}(x))
-    end
+    u = y()
+    d = dimension(u)
+    :(Quantity{typeof(x), typeof($d), typeof($u)}(x))
 end
+Quantity(x::Number, y::Units{()}) = x
+
+"""
+```
+function promote_unit(::Units, ::Units...)
+```
+
+Given `Units` objects as arguments, this function returns a `Units` object appropriate
+for the result of promoting quantities which have these units. This function is kind
+of like `promote_rule`, except that it doesn't take types. It also does not return a tuple,
+but rather just a [`Unitful.Units`](@ref) object (or it throws an error).
+
+Although we had used `promote_rule` for `Units` objects in prior versions of Unitful,
+this was always kind of a hack; it doesn't make sense to promote units directly for
+a variety of reasons.
+"""
+function promote_unit end
+
+# Generic methods
+@inline promote_unit(x::Units) = x
+promote_unit(x::Units, y::Units, z::Units, t::Units...) =
+    promote_unit(promote_unit(x,y), z, t...)
+
+# Use configurable fall-back mechanism for FreeUnits
+@inline promote_unit{T<:FreeUnits}(x::T, y::T) = T()
+@inline promote_unit{N1,N2,D}(x::FreeUnits{N1,D}, y::FreeUnits{N2,D}) =
+    upreferred(dimension(x))
+
+# same units, but promotion context disagrees
+@inline promote_unit{T<:ContextUnits}(x::T, y::T) = T()  #ambiguity reasons
+@inline promote_unit{N,D,P1,P2}(x::ContextUnits{N,D,P1}, y::ContextUnits{N,D,P2}) =
+    ContextUnits{N,D,promote_unit(P1(), P2())}()
+# different units, but promotion context agrees
+@inline promote_unit{N1,N2,D,P}(x::ContextUnits{N1,D,P}, y::ContextUnits{N2,D,P}) =
+    ContextUnits(P(), P())
+# different units, promotion context disagrees, fall back to FreeUnits
+@inline promote_unit{N1,N2,D}(x::ContextUnits{N1,D}, y::ContextUnits{N2,D}) =
+    promote_unit(FreeUnits(x), FreeUnits(y))
+
+# ContextUnits beat FreeUnits
+@inline promote_unit{N,D}(x::ContextUnits{N,D}, y::FreeUnits{N,D}) = x
+@inline promote_unit{N1,N2,D,P}(x::ContextUnits{N1,D,P}, y::FreeUnits{N2,D}) =
+    ContextUnits(P(), P())
+@inline promote_unit(x::FreeUnits, y::ContextUnits) = promote_unit(y,x)
+
+# FixedUnits beat everything
+@inline promote_unit{T<:FixedUnits}(x::T, y::T) = T()
+@inline promote_unit{M,N,D}(x::FixedUnits{M,D}, y::Units{N,D}) = x
+@inline promote_unit(x::Units, y::FixedUnits) = promote_unit(y,x)
+
+# Different units but same dimension are not fungible for FixedUnits
+@inline promote_unit{M,N,D}(x::FixedUnits{M,D}, y::FixedUnits{N,D}) =
+    error("automatic conversion prohibited.")
+
+# If we didn't handle it above, the dimensions mismatched.
+@inline promote_unit(x::Units, y::Units) = throw(DimensionError(x,y))
 
 @inline name{S,D}(x::Unit{S,D}) = S
 @inline name{S}(x::Dimension{S}) = S
 @inline tens(x::Unit) = x.tens
 @inline power(x::Unit) = x.power
 @inline power(x::Dimension) = x.power
-
-@generated function Unitful.preferredunits(x::Dimensions)
-    dim = x.parameters[1]
-    y = mapreduce(z->Unitful.promotion[name(z)]^z.power, *, NoUnits, dim)
-    :($y)
-end
 
 # This is type unstable but
 # a) this method is not called by the user
@@ -406,10 +455,8 @@ for op in [:+, :-]
         Quantity(($op)(x.val,y.val), U())
 
     # If not generated, there are run-time allocations
-    @eval @generated function ($op){S,T,D,SU,TU}(x::Quantity{S,D,SU},
-            y::Quantity{T,D,TU})
-        result_units = promote_type(SU,TU)()
-        :($($op)(uconvert($result_units, x), uconvert($result_units, y)))
+    @eval function ($op){S,T,D,SU,TU}(x::Quantity{S,D,SU}, y::Quantity{T,D,TU})
+        ($op)(promote(x,y)...)
     end
 
     @eval ($op)(x::Quantity, y::Quantity) = throw(DimensionError(x,y))
@@ -535,18 +582,8 @@ end
 
 @inline dimension{U,D}(u::Unit{U,D}) = D()^u.power
 
-function *{T,D,U}(x::Quantity{T,D,U}, y::Units, z::Units...)
-    result_units = *(U(),y,z...)
-    Quantity(x.val,result_units)
-end
-
-function *(x::Quantity, y::Quantity)
-    xunits = unit(x)
-    yunits = unit(y)
-    result_units = xunits*yunits
-    z = x.val*y.val
-    Quantity(z,result_units)
-end
+*(x::Quantity, y::Units, z::Units...) = Quantity(x.val, *(unit(x),y,z...))
+*(x::Quantity, y::Quantity) = Quantity(x.val*y.val, unit(x)*unit(y))
 
 # Next two lines resolves some method ambiguity:
 *{T<:Quantity}(x::Bool, y::T) =
@@ -564,7 +601,9 @@ end
         @eval ($f)(x::Number, y::Units)   = ($F)(x,y)
         @eval ($f)(x::Units, y::Number)   = ($F)(x,y)
     end
-    .\(x::Unitlike, y::Unitlike) = y./x
+    .\(x::Units, y::Units) = y./x               # NEW
+    .\(x::Dimensions, y::Dimensions) = y./x     # NEW
+
     .\(x::Number, y::Units) = y./x
     .\(x::Units, y::Number) = y./x
 
@@ -583,14 +622,14 @@ end
 for f in @static if VERSION < v"0.6.0-dev.1632"; (:.*, :*); else (:*,) end
     @eval begin
         function ($f){T}(A::Units, B::AbstractArray{T})
-            F = similar(B, promote_op($f,typeof(A),T))
+            F = similar(B, Base.promote_op($f,typeof(A),T))
             for (iF, iB) in zip(eachindex(F), eachindex(B))
                 @inbounds F[iF] = ($f)(A, B[iB])
             end
             return F
         end
         function ($f){T}(A::AbstractArray{T}, B::Units)
-            F = similar(A, promote_op($f,T,typeof(B)))
+            F = similar(A, Base.promote_op($f,T,typeof(B)))
             for (iF, iA) in zip(eachindex(F), eachindex(A))
                 @inbounds F[iF] = ($f)(A[iA], B)
             end
@@ -601,13 +640,15 @@ end
 
 # Division (units)
 
-/(x::Unitlike, y::Unitlike) = *(x,inv(y))
+/(x::Units, y::Units) = *(x,inv(y))
+/(x::Dimensions, y::Dimensions) = *(x,inv(y))
 /(x::Quantity, y::Units) = Quantity(x.val, unit(x) / y)
 /(x::Units, y::Quantity) = Quantity(1/y.val, x / unit(y))
 /(x::Number, y::Units) = Quantity(x,inv(y))
 /(x::Units, y::Number) = (1/y) * x
 
-//(x::Unitlike, y::Unitlike)  = x/y
+//(x::Units, y::Units)  = x/y
+//(x::Dimensions, y::Dimensions)  = x/y
 //(x::Quantity, y::Units) = Quantity(x.val, unit(x) / y)
 //(x::Units, y::Quantity) = Quantity(1//y.val, x / unit(y))
 //(x::Number, y::Units) = Rational(x)/y
@@ -630,14 +671,14 @@ end
 
 for f in (:div, :fld, :cld)
     @eval function ($f)(x::Quantity, y::Quantity)
-        z = uconvert(unit(y), x)
+        z = uconvert(unit(y), x)        # TODO: use promote?
         ($f)(z.val,y.val)
     end
 end
 
 for f in (:mod, :rem)
     @eval function ($f)(x::Quantity, y::Quantity)
-        z = uconvert(unit(y), x)
+        z = uconvert(unit(y), x)        # TODO: use promote?
         Quantity(($f)(z.val,y.val), unit(y))
     end
 end
@@ -662,7 +703,7 @@ end
 # performant method.
 
 for (_x,_y) in [(:fma, :_fma), (:muladd, :_muladd)]
-    @static if VERSION >= v"0.6.0-"
+    @static if VERSION >= v"0.6.0-" # work-around Julia issue 20103
         # Catch some signatures pre-promotion
         @eval @inline ($_x)(x::Number, y::Quantity, z::Quantity) = ($_y)(x,y,z)
         @eval @inline ($_x)(x::Quantity, y::Number, z::Quantity) = ($_y)(x,y,z)
@@ -684,7 +725,7 @@ for (_x,_y) in [(:fma, :_fma), (:muladd, :_muladd)]
     @eval @inline function ($_y)(x,y,z)
         dimension(x) * dimension(y) != dimension(z) && throw(DimensionError(x*y,z))
         uI = unit(x)*unit(y)
-        uF = promote_type(typeof(uI), typeof(unit(z)))()
+        uF = promote_unit(uI, unit(z))
         c = ($_x)(ustrip(x), ustrip(y), ustrip(uconvert(uI, z)))
         uconvert(uF, Quantity(c, uI))
     end
@@ -692,37 +733,6 @@ end
 
 sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
 cbrt(x::Quantity) = Quantity(cbrt(x.val), cbrt(unit(x)))
-
-# The following are generated functions to ensure type stability.
-@generated function sqrt(x::Dimensions)
-    tup = x.parameters[1]
-    tup2 = map(x->x^(1//2),tup)
-    y = *(Dimensions{tup2}())    # sort appropriately
-    :($y)
-end
-
-@generated function sqrt(x::Units)
-    tup = x.parameters[1]
-    tup2 = map(x->x^(1//2),tup)
-    y = *(Units{tup2,()}())    # sort appropriately
-    :($y)
-end
-
-# The following are generated functions to ensure type stability.
-@generated function cbrt(x::Dimensions)
-    tup = x.parameters[1]
-    tup2 = map(x->x^(1//3),tup)
-    y = *(Dimensions{tup2}())    # sort appropriately
-    :($y)
-end
-
-@generated function cbrt(x::Units)
-    tup = x.parameters[1]
-    tup2 = map(x->x^(1//3),tup)
-    y = *(Units{tup2,()}())    # sort appropriately
-    :($y)
-end
-
 
 for _y in (:sin, :cos, :tan, :cot, :sec, :csc, :cis)
     @eval ($_y)(x::DimensionlessQuantity) = ($_y)(uconvert(NoUnits, x))
@@ -734,12 +744,17 @@ atan2{T,D1,U1,D2,U2}(y::Quantity{T,D1,U1}, x::Quantity{T,D2,U2}) =
     throw(DimensionError(x,y))
 
 for (f, F) in [(:min, :<), (:max, :>)]
-    @eval @generated function ($f)(x::Quantity, y::Quantity)
+    @eval @generated function ($f)(x::Quantity, y::Quantity)    #TODO
         xdim = x.parameters[2]()
         ydim = y.parameters[2]()
         if xdim != ydim
             return :(throw(DimensionError(x,y)))
         end
+
+        isa(x.parameters[3](), FixedUnits) &&
+            isa(y.parameters[3](), FixedUnits) &&
+            x.parameters[3] !== y.parameters[3] &&
+            error("automatic conversion prohibited.")
 
         xunits = x.parameters[3].parameters[1]
         yunits = y.parameters[3].parameters[1]
@@ -766,7 +781,7 @@ end
     @vectorize_2arg Quantity min
 end
 
-abs(x::Quantity) = Quantity(abs(x.val),  unit(x))
+abs(x::Quantity) = Quantity(abs(x.val), unit(x))
 abs2(x::Quantity) = Quantity(abs2(x.val), unit(x)*unit(x))
 
 trunc(x::Quantity) = Quantity(trunc(x.val), unit(x))
@@ -804,9 +819,9 @@ end
 
 isapprox{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) =
     isapprox(x.val, y.val; atol=uconvert(unit(y), atol).val, kwargs...)
-isapprox(x::Quantity, y::Quantity; kwargs...) = isapprox(uconvert(unit(y), x).val, y.val; kwargs...)
+isapprox(x::Quantity, y::Quantity; kwargs...) = isapprox(promote(x,y); kwargs...)
 isapprox(x::Quantity, y::Number; kwargs...) = isapprox(uconvert(NoUnits, x), y; kwargs...)
-isapprox(x::Number, y::Quantity; kwargs...) = isapprox(y,x; kwargs...)
+isapprox(x::Number, y::Quantity; kwargs...) = isapprox(y, x; kwargs...)
 
 function isapprox{T1,D,U1,T2,U2}(x::AbstractArray{Quantity{T1,D,U1}},
         y::AbstractArray{Quantity{T2,D,U2}}; rtol::Real=Base.rtoldefault(T1,T2),
@@ -893,15 +908,12 @@ Returns the sign bit of the underlying numeric value of `x`.
 """
 signbit(x::Quantity) = signbit(x.val)
 
-prevfloat{T<:AbstractFloat,D,U}(x::Quantity{T,D,U}) =
-    Quantity(prevfloat(x.val), unit(x))
-nextfloat{T<:AbstractFloat,D,U}(x::Quantity{T,D,U}) =
-    Quantity(nextfloat(x.val), unit(x))
+prevfloat{T<:AbstractFloat}(x::Quantity{T}) = Quantity(prevfloat(x.val), unit(x))
+nextfloat{T<:AbstractFloat}(x::Quantity{T}) = Quantity(nextfloat(x.val), unit(x))
 
-function frexp{T<:AbstractFloat,D,U}(x::Quantity{T,D,U})
+function frexp{T<:AbstractFloat}(x::Quantity{T})
     a,b = frexp(x.val)
-    a *= unit(x)
-    a,b
+    a*unit(x), b
 end
 
 """
@@ -962,32 +974,7 @@ offsettemp(::Unit) = 0
 
 @inline dimtype{U,D}(u::Unit{U,D}) = D
 
-"""
-```
-*(a0::Units, a::Units...)
-```
-
-Given however many units, multiply them together.
-
-Collect [`Unitful.Unit`](@ref) objects from the type parameter of the
-[`Unitful.Units`](@ref) objects. For identical units including SI prefixes
-(i.e. cm ≠ m), collect powers and sort uniquely by the name of the `Unit`.
-The unique sorting permits easy unit comparisons.
-
-Examples:
-
-```jldoctest
-julia> u"kg*m/s^2"
-kg m s^-2
-
-julia> u"m/s*kg/s"
-kg m s^-2
-
-julia> typeof(u"m/s*kg/s") == typeof(u"kg*m/s^2")
-true
-```
-"""
-@generated function *(a0::Units, a::Units...)
+@generated function *(a0::FreeUnits, a::FreeUnits...)
 
     # Sort the units uniquely. This is a generated function so that we
     # don't have to figure out the units each time.
@@ -1036,8 +1023,45 @@ true
 
     d = (c...)
     f = typeof(mapreduce(dimension, *, NoDims, c))
-    :(Units{$d,$f}())
+    :(FreeUnits{$d,$f}())
 end
+*(a0::ContextUnits, a::ContextUnits...) =
+    ContextUnits(*(FreeUnits(a0), FreeUnits.(a)...),
+                    *(FreeUnits(upreferred(a0)), FreeUnits.((upreferred).(a))...))
+FreeOrContextUnits = Union{FreeUnits, ContextUnits}
+*(a0::FreeOrContextUnits, a::FreeOrContextUnits...) =
+    *(ContextUnits(a0), ContextUnits.(a)...)
+*(a0::FixedUnits, a::FixedUnits...) =
+    FixedUnits(*(FreeUnits(a0), FreeUnits.(a)...))
+
+"""
+```
+*(a0::Units, a::Units...)
+```
+
+Given however many units, multiply them together. This is actually handled by
+a few different methods, since we have `FreeUnits`, `ContextUnits`, and `FixedUnits`.
+
+Collect [`Unitful.Unit`](@ref) objects from the type parameter of the
+[`Unitful.Units`](@ref) objects. For identical units including SI prefixes
+(i.e. cm ≠ m), collect powers and sort uniquely by the name of the `Unit`.
+The unique sorting permits easy unit comparisons.
+
+Examples:
+
+```jldoctest
+julia> u"kg*m/s^2"
+kg m s^-2
+
+julia> u"m/s*kg/s"
+kg m s^-2
+
+julia> typeof(u"m/s*kg/s") == typeof(u"kg*m/s^2")
+true
+```
+"""
+*(a0::Units, a::Units...) = FixedUnits(*(FreeUnits(a0), FreeUnits.(a)...))
+# Logic above is that if we're not using FreeOrContextUnits, at least one is FixedUnits.
 
 # Both methods needed for ambiguity resolution
 ^{U,D}(x::Unit{U,D}, y::Integer) = Unit{U,D}(tens(x), power(x)*y)
@@ -1046,48 +1070,82 @@ end
 # A word of caution:
 # Exponentiation is not type-stable for `Units` objects.
 # Dimensions get reconstructed anyway so we pass () for the D type parameter...
-^{U,D}(x::Units{U,D}, y::Integer) = *(Units{map(a->a^y, U), ()}())
-^{U,D}(x::Units{U,D}, y::Number) = *(Units{map(a->a^y, U), ()}())
+^{N}(x::FreeUnits{N}, y::Integer) = *(FreeUnits{map(a->a^y, N), ()}())
+^{N}(x::FreeUnits{N}, y::Number) = *(FreeUnits{map(a->a^y, N), ()}())
 
+^{N,D,P}(x::ContextUnits{N,D,P}, y::Integer) =
+    *(ContextUnits{map(a->a^y, N), (), typeof(P()^y)}())
+^{N,D,P}(x::ContextUnits{N,D,P}, y::Number) =
+    *(ContextUnits{map(a->a^y, N), (), typeof(P()^y)}())
+
+^{N}(x::FixedUnits{N}, y::Integer) = *(FixedUnits{map(a->a^y, N), ()}())
+^{N}(x::FixedUnits{N}, y::Number) = *(FixedUnits{map(a->a^y, N), ()}())
 
 @static if VERSION >= v"0.6.0-pre.alpha.108"
-    @generated function Base.literal_pow{U,p}(::typeof(^), x::Units{U}, ::Type{Val{p}})
-        y = *(Units{map(a->a^p, U), ()}())
+    @generated function Base.literal_pow{N,p}(::typeof(^), x::FreeUnits{N}, ::Type{Val{p}})
+        y = *(FreeUnits{map(a->a^p, N), ()}())
         :($y)
     end
-    Base.literal_pow{T,D,U,v}(::typeof(^), x::Quantity{T,D,U}, ::Type{Val{v}}) =
+    @generated function Base.literal_pow{N,D,P,p}(::typeof(^), x::ContextUnits{N,D,P}, ::Type{Val{p}})
+        y = *(ContextUnits{map(a->a^p, N), (), typeof(P()^p)}())
+        :($y)
+    end
+    @generated function Base.literal_pow{N,p}(::typeof(^), x::FixedUnits{N}, ::Type{Val{p}})
+        y = *(FixedUnits{map(a->a^p, N), ()}())
+        :($y)
+    end
+    Base.literal_pow{v}(::typeof(^), x::Quantity, ::Type{Val{v}}) =
         Quantity(Base.literal_pow(^, x.val, Val{v}),
-                 Base.literal_pow(^, U(), Val{v}))
+                 Base.literal_pow(^, unit(x), Val{v}))
 elseif VERSION >= v"0.6.0-dev.2834"
-    @generated function ^{U,p}(x::Units{U}, ::Type{Val{p}})
-        y = *(Units{map(a->a^p, U), ()}())
+    @generated function ^{N,p}(x::FreeUnits{N}, ::Type{Val{p}})
+        y = *(FreeUnits{map(a->a^p, N), ()}())
         :($y)
     end
-    ^{T,D,U,v}(x::Quantity{T,D,U}, ::Type{Val{v}}) = Quantity((x.val)^Val{v}, U()^Val{v})
+    @generated function ^{N,D,P,p}(x::ContextUnits{N,D,P}, ::Type{Val{p}})
+        y = *(ContextUnits{map(a->a^p, N), (), typeof(P()^p)}())
+        :($y)
+    end
+    @generated function ^{N,p}(x::FixedUnits{N}, ::Type{Val{p}})
+        y = *(FixedUnits{map(a->a^p, N), ()}())
+        :($y)
+    end
+    ^{v}(x::Quantity, ::Type{Val{v}}) = Quantity((x.val)^Val{v}, unit(x)^Val{v})
 end
 # All of these are needed for ambiguity resolution
-^{T,D,U}(x::Quantity{T,D,U}, y::Integer) = Quantity((x.val)^y, U()^y)
-^{T,D,U}(x::Quantity{T,D,U}, y::Rational) = Quantity((x.val)^y, U()^y)
-^{T,D,U}(x::Quantity{T,D,U}, y::Real) = Quantity((x.val)^y, U()^y)
+^(x::Quantity, y::Integer) = Quantity((x.val)^y, unit(x)^y)
+^(x::Quantity, y::Rational) = Quantity((x.val)^y, unit(x)^y)
+^(x::Quantity, y::Real) = Quantity((x.val)^y, unit(x)^y)
 
 # Since exponentiation is not type stable, we define a special `inv` method to
 # enable fast division. For julia 0.6.0-dev.1711, the appropriate methods for ^
 # and * need to be defined before this one!
+for (fun,pow) in ((:inv, -1//1), (:sqrt, 1//2), (:cbrt, 1//3))
+    # The following are generated functions to ensure type stability.
+    @eval @generated function ($fun)(x::Dimensions)
+        dimtuple = map(x->x^($pow), x.parameters[1])
+        y = *(Dimensions{dimtuple}())    # sort appropriately
+        :($y)
+    end
 
-@generated function inv(x::Dimensions)
-    tup = x.parameters[1]
-    length(tup) == 0 && return :(x)
-    y = *(Dimensions{map(x->x^-1,tup)}())
-    :($y)
-end
+    @eval @generated function ($fun)(x::FreeUnits)
+        unittuple = map(x->x^($pow), x.parameters[1])
+        y = *(FreeUnits{unittuple,()}())    # sort appropriately
+        :($y)
+    end
 
-@generated function inv(x::Units)
-    tup = x.parameters[1]
-    length(tup) == 0 && return :(x)
-    tup2 = map(x->x^-1,tup)
-    D = typeof(mapreduce(dimension, *, NoDims, tup2))
-    y = *(Units{tup2, D}())
-    :($y)
+    @eval @generated function ($fun)(x::ContextUnits)
+        unittuple = map(x->x^($pow), x.parameters[1])
+        promounit = ($fun)(x.parameters[3]())
+        y = *(ContextUnits{unittuple,(),typeof(promounit)}())   # sort appropriately
+        :($y)
+    end
+
+    @eval @generated function ($fun)(x::FixedUnits)
+        unittuple = map(x->x^($pow), x.parameters[1])
+        y = *(FixedUnits{unittuple,()}())   # sort appropriately
+        :($y)
+    end
 end
 
 include("Display.jl")
@@ -1099,6 +1157,7 @@ else
     include("fastmath_v05.jl")
 end
 include("pkgdefaults.jl")
+include("temperature.jl")
 
 function __init__()
     # @u_str should be aware of units defined in module Unitful

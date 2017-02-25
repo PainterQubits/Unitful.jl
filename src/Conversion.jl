@@ -81,37 +81,6 @@ Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.0
     :($y)
 end
 
-TempDim = Dimensions{(Dimension{:Temperature}(1),)}
-"""
-```
-uconvert{T,D,U}(a::Units, x::Quantity{T,TempDim,Units{U,TempDim}})
-```
-
-In this method, we are special-casing temperature conversion to respect scale
-offsets, if they do not appear in combination with other dimensions.
-We abbreviate `TempDim = Dimensions{(Dimension{:Temperature}(1),)}` for clarity.
-"""
-@generated function uconvert{T,U}(a::Units,
-        x::Quantity{T,TempDim,Units{U,TempDim}})
-    if a == typeof(unit(x))
-        :(Quantity(x.val, a))
-    else
-        xunits = x.parameters[3]
-        aData = a()
-        xData = xunits()
-        conv = convfact(aData, xData)
-
-        xtup = xunits.parameters[1]
-        atup = a.parameters[1]
-        t0 = offsettemp(xtup[1])
-        t1 = offsettemp(atup[1])
-        quote
-            v = ((x.val + $t0) * $conv) - $t1
-            Quantity(v, a)
-        end
-    end
-end
-
 """
 ```
 convfact{S}(s::Units{S}, t::Units{S})

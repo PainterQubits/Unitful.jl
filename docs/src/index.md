@@ -24,7 +24,7 @@ that are found in Julia base.
     define new units in your `.juliarc.jl` file or in a new module. See
     [Defining new units](@ref) and [Extending Unitful](@ref) for details.
     Additionally, to specify custom rules for promotion, see
-    [Promotion mechanisms](@ref).
+    [Basic promotion mechanisms](@ref) and [Advanced promotion mechanisms](@ref).
 
 ## Quick start
 

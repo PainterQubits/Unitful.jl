@@ -1,31 +1,31 @@
 @static if VERSION < v"0.6.0-"
     # ------ promote_op with dimensions and units ------
 
-    for op in (.+, .-, +, -)
-        @eval function promote_op{S<:Units,T<:Units}(
-            ::typeof($op), ::Type{S}, ::Type{T})
-            if dimension(S())==dimension(T())
-                promote_type(S,T)
-            else
-                throw(DimensionError(S(),T()))
-            end
-        end
-    end
-
-    for op in (.<, .<=, <, <=)
-        @eval function promote_op{S<:Units,T<:Units}(
-            ::typeof($op), ::Type{S}, ::Type{T})
-            if dimension(S())==dimension(T())
-                promote_type(S,T)
-            else
-                throw(DimensionError(S(),T()))
-            end
-        end
-    end
-
-    function promote_op{S<:Unitlike,T<:Unitlike}(op, ::Type{S}, ::Type{T})
-        typeof(op(S(), T()))
-    end
+    # for op in (.+, .-, +, -)
+    #     @eval function Base.promote_op{S<:Units,T<:Units}(
+    #         ::typeof($op), ::Type{S}, ::Type{T})
+    #         if dimension(S())==dimension(T())
+    #             promote_type(S,T)
+    #         else
+    #             throw(DimensionError(S(),T()))
+    #         end
+    #     end
+    # end
+    #
+    # for op in (.<, .<=, <, <=)
+    #     @eval function Base.promote_op{S<:Units,T<:Units}(
+    #         ::typeof($op), ::Type{S}, ::Type{T})
+    #         if dimension(S())==dimension(T())
+    #             promote_type(S,T)
+    #         else
+    #             throw(DimensionError(S(),T()))
+    #         end
+    #     end
+    # end
+    #
+    # function Base.promote_op{S<:Unitlike,T<:Unitlike}(op, ::Type{S}, ::Type{T})
+    #     typeof(op(S(), T()))
+    # end
 
     # ------ promote_op with quantities ------
 
@@ -107,7 +107,7 @@
     # ------ promote_op with units ------
 
     # units, quantity
-    function promote_op{R<:Units,S,D,U}(op, ::Type{Quantity{S,D,U}}, ::Type{R})
+    function Base.promote_op{R<:Units,S,D,U}(op, ::Type{Quantity{S,D,U}}, ::Type{R})
         numtype = S
         unittype = typeof(op(U(), R()))
         if unittype == typeof(NoUnits)
@@ -117,7 +117,7 @@
             Quantity{numtype, dimtype, unittype}
         end
     end
-    function promote_op{R<:Units,S,D,U}(op, x::Type{R}, y::Type{Quantity{S,D,U}})
+    function Base.promote_op{R<:Units,S,D,U}(op, x::Type{R}, y::Type{Quantity{S,D,U}})
         numtype = S
         unittype = typeof(op(R(), U()))
         if unittype == typeof(NoUnits)
@@ -129,7 +129,7 @@
     end
 
     # units, number
-    function promote_op{R<:Number,S<:Units}(op, ::Type{R}, ::Type{S})
+    function Base.promote_op{R<:Number,S<:Units}(op, ::Type{R}, ::Type{S})
         unittype = typeof(op(NoUnits, S()))
         if unittype == typeof(NoUnits)
             R
@@ -138,7 +138,7 @@
             Quantity{R, dimtype, unittype}
         end
     end
-    function promote_op{R<:Number,S<:Units}(op, ::Type{S}, ::Type{R})
+    function Base.promote_op{R<:Number,S<:Units}(op, ::Type{S}, ::Type{R})
         unittype = typeof(op(S(), NoUnits))
         if unittype == typeof(NoUnits)
             R
@@ -152,38 +152,46 @@ end
 # ------ promote_rule ------
 
 # quantity, quantity (different dims)
-promote_rule{S1,S2,D1,D2,U1,U2}(::Type{Quantity{S1,D1,U1}},
-    ::Type{Quantity{S2,D2,U2}}) = Quantity{promote_type(S1,S2)} # was Number
+Base.promote_rule{S1,D1,U1,S2,D2,U2}(::Type{Quantity{S1,D1,U1}}, ::Type{Quantity{S2,D2,U2}}) =
+    Quantity{promote_type(S1,S2)}
 
-# quantity, quantity (same dims)
-function promote_rule{S1,S2,D,U1,U2}(::Type{Quantity{S1,D,U1}},
+# quantity, quantity (same dims, different units)
+function Base.promote_rule{S1,S2,D,U1,U2}(::Type{Quantity{S1,D,U1}},
     ::Type{Quantity{S2,D,U2}})
 
-    numtype = promote_type(S1,S2,typeof(convfact(U1(),U2())))
-    if promote_type(U1,U2) != typeof(NoUnits)
-        Quantity{numtype, D, promote_type(U1,U2)}
+    p = promote_unit(U1(), U2())
+    numtype = promote_type(S1,S2,
+        typeof(convfact(p,U1())), typeof(convfact(p,U2())))
+    if !isunitless(p)
+        if U1 <: ContextUnits && U2 <: ContextUnits
+            if upreferred(U1()) === upreferred(U2())
+                return Quantity{numtype,D,typeof(ContextUnits(p,p))}
+            else
+                return Quantity{numtype,D,typeof(p)}
+            end
+        elseif U1 <: ContextUnits || U2 <: ContextUnits
+            return Quantity{numtype,D,typeof(ContextUnits(p,p))}
+        else
+            return Quantity{numtype,D,typeof(p)}
+        end
     else
-        numtype
+        return numtype
     end
 end
 
-# quantity, quantity (same dims, same units)
-promote_rule{S1,S2,D,U}(::Type{Quantity{S1,D,U}}, ::Type{Quantity{S2,D,U}}) =
-    Quantity{promote_type(S1,S2),D,U}
-
 # number, quantity
-function promote_rule{S,T<:Number,D,U}(::Type{Quantity{S,D,U}}, ::Type{T})
+function Base.promote_rule{S,T<:Number,D,U}(::Type{Quantity{S,D,U}}, ::Type{T})
     if D == Dimensions{()}
-        promote_type(S,T,typeof(convfact(U(),NoUnits)))
+        promote_type(S,T,typeof(convfact(NoUnits,U())))
     else
         Quantity{promote_type(S,T)}
     end
 end
 
-promote_rule{S,T<:Number}(::Type{Quantity{S}}, ::Type{T}) = Quantity{promote_type(S,T)}
+Base.promote_rule{S,T<:Number}(::Type{Quantity{S}}, ::Type{T}) = Quantity{promote_type(S,T)}
 
 # With only one of these, you can get a segmentation fault because you
 # fall back to the number, quantity promote_rule above and there is an infinite
 # recursion.
-promote_rule{T,S,D,U}(::Type{Quantity{T}}, ::Type{Quantity{S,D,U}}) = Quantity{promote_type(T,S)}
-promote_rule{T,S,D,U}(::Type{Quantity{S,D,U}}, ::Type{Quantity{T}}) = Quantity{promote_type(T,S)}
+Base.promote_rule{T,S,D,U}(::Type{Quantity{T}}, ::Type{Quantity{S,D,U}}) = Quantity{promote_type(T,S)}
+Base.promote_rule{T,S,D,U}(::Type{Quantity{S,D,U}}, ::Type{Quantity{T}}) = Quantity{promote_type(T,S)}

@@ -86,7 +86,7 @@ Unitful.offsettemp(::Unitful.Unit{:Celsius}) = 27315//100
 # Area
 # The hectare is used more frequently than any other power-of-ten of an are.
 @unit a      "a"        Are         100m^2                  false
-const ha = Unitful.Units{(Unitful.Unit{:Are, Unitful.Dimensions{
+const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, Unitful.Dimensions{
     (Unitful.Dimension{:Length}(2//1),)}}(2,1//1),), typeof(𝐋^2)}()
 
 # Volume
@@ -188,16 +188,7 @@ end
 
 #########
 
-# Finish up with promotion defaults (these can be overridden)
 preferunits(kg) # others done in @refunit
-
-function Base.promote_rule{S<:Units,T<:Units}(::Type{S}, ::Type{T})
-    dS = dimension(S())
-    dT = dimension(T())
-    dS != dT && error("Dimensions are unequal in call to `promote_rule`.")
-    typeof(upreferred(dS))
-end
-
 
 """
 ```
@@ -225,16 +216,17 @@ consider invoking this function in your `.juliarc.jl` file which is loaded when
 you open Julia. This function is not exported.
 """
 function promote_to_derived()
-    Base.promote_rule{S<:EnergyUnit, T<:EnergyUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.J)
-    Base.promote_rule{S<:ForceUnit, T<:ForceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.N)
-    Base.promote_rule{S<:PowerUnit, T<:PowerUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.W)
-    Base.promote_rule{S<:PressureUnit, T<:PressureUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Pa)
-    Base.promote_rule{S<:ChargeUnit, T<:ChargeUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.C)
-    Base.promote_rule{S<:VoltageUnit, T<:VoltageUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.V)
-    Base.promote_rule{S<:ResistanceUnit, T<:ResistanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Ω)
-    Base.promote_rule{S<:CapacitanceUnit, T<:CapacitanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.F)
-    Base.promote_rule{S<:InductanceUnit, T<:InductanceUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.H)
-    Base.promote_rule{S<:MagneticFluxUnit, T<:MagneticFluxUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.Wb)
-    Base.promote_rule{S<:BFieldUnit, T<:BFieldUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.T)
-    Base.promote_rule{S<:ActionUnit, T<:ActionUnit}(::Type{S}, ::Type{T}) = typeof(Unitful.J * Unitful.s)
+    Unitful.promote_unit{S<:EnergyFreeUnits, T<:EnergyFreeUnits}(::S, ::T) = Unitful.J
+    Unitful.promote_unit{S<:ForceFreeUnits, T<:ForceFreeUnits}(::S, ::T) = Unitful.N
+    Unitful.promote_unit{S<:PowerFreeUnits, T<:PowerFreeUnits}(::S, ::T) = Unitful.W
+    Unitful.promote_unit{S<:PressureFreeUnits, T<:PressureFreeUnits}(::S, ::T) = Unitful.Pa
+    Unitful.promote_unit{S<:ChargeFreeUnits, T<:ChargeFreeUnits}(::S, ::T) = Unitful.C
+    Unitful.promote_unit{S<:VoltageFreeUnits, T<:VoltageFreeUnits}(::S, ::T) = Unitful.V
+    Unitful.promote_unit{S<:ResistanceFreeUnits, T<:ResistanceFreeUnits}(::S, ::T) = Unitful.Ω
+    Unitful.promote_unit{S<:CapacitanceFreeUnits, T<:CapacitanceFreeUnits}(::S, ::T) = Unitful.F
+    Unitful.promote_unit{S<:InductanceFreeUnits, T<:InductanceFreeUnits}(::S, ::T) = Unitful.H
+    Unitful.promote_unit{S<:MagneticFluxFreeUnits, T<:MagneticFluxFreeUnits}(::S, ::T) = Unitful.Wb
+    Unitful.promote_unit{S<:BFieldFreeUnits, T<:BFieldFreeUnits}(::S, ::T) = Unitful.T
+    Unitful.promote_unit{S<:ActionFreeUnits, T<:ActionFreeUnits}(::S, ::T) = Unitful.J * Unitful.s
+    nothing
 end

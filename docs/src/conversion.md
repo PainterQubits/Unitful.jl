@@ -71,14 +71,15 @@ julia> uconvert(u"K", 21.0u"°C")
 294.15 K
 ```
 
-## Promotion mechanisms
+## Basic promotion mechanisms
 
-We decide the result units for addition and subtraction operations based
-on looking at the types only. We can't take runtime values into account
-without compromising runtime performance. If two quantities with the same units
-are added or subtracted, then the result units will be the same. If two quantities
-with differing units (but same dimension) are added or subtracted, then
-the result units will be specified by promotion.
+We decide the result units for addition and subtraction operations based on looking at the
+types only. We can't take runtime values into account without compromising runtime
+performance.
+
+If two quantities with the same units are added or subtracted, then the result units
+will be the same. If two quantities with differing units (but same dimension) are added
+or subtracted, then the result units will be specified by promotion.
 
 ### Promotion rules for specific dimensions
 
@@ -86,18 +87,18 @@ You can specify the result units for promoting quantities of a specific dimensio
 once at the start of a Julia session, specifically *before* `upreferred` *has been
 called or quantities have been promoted*. For example, you can specify that when promoting
 two quantities with different energy units, the resulting quantities
-should be in `g*cm^2/s^2`. This is accomplished by defining a `Base.promote_rule`
+should be in `g*cm^2/s^2`. This is accomplished by defining a `Unitful.promote_unit` method
 for the units themselves. Here's an example.
 
 ```jldoctest
 julia> using Unitful
 
-julia> Base.promote_rule{S<:Unitful.EnergyUnit, T<:Unitful.EnergyUnit}(::Type{S}, ::Type{T}) = typeof(u"g*cm^2/s^2")
+julia> Unitful.promote_unit{S<:Unitful.EnergyUnits, T<:Unitful.EnergyUnits}(::S, ::T) = u"g*cm^2/s^2"
 
 julia> promote(2.0u"J", 1.0u"kg*m^2/s^2")
 (2.0e7 g cm^2 s^-2, 1.0e7 g cm^2 s^-2)
 
-julia> Base.promote_rule{S<:Unitful.EnergyUnit, T<:Unitful.EnergyUnit}(::Type{S}, ::Type{T}) = typeof(u"J")
+julia> Unitful.promote_unit{S<:Unitful.EnergyUnits, T<:Unitful.EnergyUnits}(::S, ::T) = u"J"
 
 julia> promote(2.0u"J", 1.0u"kg*m^2/s^2")
 (2.0e7 g cm^2 s^-2, 1.0e7 g cm^2 s^-2)
@@ -114,8 +115,7 @@ the calls to the [`@dimension`](@ref) macro define `Unitful.LengthUnit`,
 
 Existing users of Unitful may want to call [`Unitful.promote_to_derived`](@ref)
 after Unitful loads to give similar behavior to Unitful 0.0.4 and below. It is
-not called by default because otherwise users who want different behavior would
-have to suffer through method redefinition warnings every time.
+not called by default.
 
 ```@docs
 Unitful.promote_to_derived
@@ -182,6 +182,129 @@ julia> f([1.0u"m", 2.0u"cm"])
 
 julia> f([1.0u"g", 2.0u"cm"])
 ERROR: MethodError: no method matching f(::Array{Unitful.Quantity{Float64,D,U} where U where D,1})
+```
+
+## Advanced promotion mechanisms
+
+There are some new types as of Unitful.jl v0.2.0 that enable some fairly sophisticated
+promotion logic. Three concrete subtypes of [`Unitful.Units{N,D}`](@ref) are defined:
+[`Unitful.FreeUnits{N,D}`](@ref), [`Unitful.ContextUnits{N,D,P}`](@ref), and
+[`Unitful.FixedUnits{N,D}`](@ref).
+
+Units defined in the Unitful.jl package itself are all `Unitful.FreeUnits{N,D}` objects.
+The "free" in `FreeUnits` indicates that the object carries no information on its own about
+how it should respond during promotion. Other code in Unitful dictates that by default,
+quantities should promote to SI units. `FreeUnits` use the promotion mechanisms described
+in the above section, [Basic promotion mechanisms](@ref). They used to be called `Units`
+in prior versions of Unitful.
+
+### ContextUnits
+
+Sometimes, a package may want to default to a particular behavior for promotion, in the
+presence of other packages that may require differing default behaviors. An example would be
+a CAD package for nanoscale device design: it makes more sense to promote to nanometers or
+microns than to meters. For this purpose we define `Unitful.ContextUnits{N,D,P}`. The `P` in
+this type signature should be some type `Unitful.FreeUnits{M,D}` (the dimensions must be the
+same). We refer to this as the "context." `ContextUnits` may be easily instantiated by e.g.
+`ContextUnits(nm, μm)` for a `nm` unit that will promote to `μm`. Here's an example:
+
+```jldoctest
+julia> μm = Unitful.ContextUnits(u"μm", u"μm")
+μm
+
+julia> nm = Unitful.ContextUnits(u"nm", u"μm")
+nm
+
+julia> 1.0μm + 1.0nm
+1.001 μm
+```
+
+If the context does not agree, then we fall back to `FreeUnits`:
+
+```jldoctest
+julia> μm = Unitful.ContextUnits(u"μm", u"μm")
+μm
+
+julia> nm = Unitful.ContextUnits(u"nm", u"cm")
+nm
+
+julia> 1.0μm + 1.0nm
+1.001e-6 m
+```
+
+Multiplying a `ContextUnits` by a `FreeUnits` yields a
+`ContextUnits` object, with the preferred units for the additional dimensions being
+determined by calling [`upreferred`](@ref) on the `FreeUnits` object:
+
+```jldoctest
+julia> mm = Unitful.ContextUnits(u"mm", u"μm")
+mm
+
+julia> isa(u"g", Unitful.FreeUnits)
+true
+
+julia> upreferred(u"g")
+kg
+
+julia> mm*u"g"
+g mm
+
+julia> isa(mm*u"g", Unitful.ContextUnits)
+true
+
+julia> upreferred(mm*u"g")
+kg μm
+```
+
+### FixedUnits
+
+Sometimes, there may be times where it is required to disable automatic conversion between
+quantities with different units. For this purpose there are `Unitful.FixedUnits{N,D}`.
+Trying to add or compare two quantities with `FixedUnits` will throw an error, provided the
+units are not the same. Note that you can still add/compare a quantity with `FixedUnits` to
+a quantity with another kind of units; in that case, the result units (if applicable) are
+determined by the `FixedUnits`, overriding the preferred units from `ContextUnits` or
+`FreeUnits`. Multiplying `FixedUnits` with any other kind of units returns `FixedUnits`:
+
+```jldoctest
+julia> mm_fix = Unitful.FixedUnits(u"mm")
+mm
+
+julia> cm_fix = Unitful.FixedUnits(u"cm")
+cm
+
+julia> 1mm_fix+2mm_fix
+3 mm
+
+julia> 1mm_fix+2u"cm"  # u"cm" is a FreeUnits object.
+21//1 mm
+
+julia> 1mm_fix+2*Unitful.ContextUnits(u"cm", u"cm")
+21//1 mm
+
+julia> isa(mm_fix*u"cm", Unitful.FixedUnits)
+true
+
+julia> 1mm_fix+2cm_fix
+ERROR: automatic conversion prohibited.
+[...]
+
+julia> 1mm_fix == 1mm_fix
+true
+
+julia> 1mm_fix == 0.1u"cm"
+true
+
+julia> 1mm_fix == 0.1cm_fix
+ERROR: automatic conversion prohibited.
+[...]
+```
+
+Much of this functionality is enabled by `promote_unit` definitions. These are not
+readily extensible by the user at this point.
+
+```@docs
+    Unitful.promote_unit
 ```
 
 ## Unit cancellation

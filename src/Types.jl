@@ -44,23 +44,67 @@ end
 abstract type Unitlike end
 ```
 
-Abstract type facilitating some code reuse between [`Unitful.Units`](@ref) and
-[`Unitful.Dimensions`](@ref) objects.
+Represents units or dimensions. Dimensions are unit-like in the sense that they are
+not numbers but you can multiply or divide them and exponentiate by rationals.
 """
-@compat abstract type Unitlike end
+abstract type Unitlike end
 
 """
 ```
-immutable Units{N,D} <: Unitlike
+abstract type Units{N,D} <: Unitlike end
+```
+
+Abstract supertype of all units objects, which can differ in their implementation details.
+"""
+@compat abstract type Units{N,D} <: Unitlike end
+
+"""
+```
+immutable FreeUnits{N,D} <: Units{N,D}
+```
+
+Instances of this object represent units, possibly combinations thereof. These behave like
+units have behaved in previous versions of Unitful, and provide a basic level of
+functionality that should be acceptable to most users. See
+[Basic promotion mechanisms](@ref) in the docs for details.
+
+Example: the unit `m` is actually a singleton of type
+`Unitful.FreeUnits{(Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1,1.0,1//1),),typeof(𝐋)`.
+After dividing by `s`, a singleton of type
+`Unitful.FreeUnits{(Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1,1.0,1//1),
+Unitful.Unit{:Second,typeof(𝐓)}(0,-1//1,1.0,1//1)),typeof(𝐋/𝐓)}` is returned.
+"""
+immutable FreeUnits{N,D} <: Units{N,D} end
+FreeUnits{N,D}(::Units{N,D}) = FreeUnits{N,D}()
+
+"""
+```
+immutable ContextUnits{N,D,P} <: Units{N,D}
 ```
 
 Instances of this object represent units, possibly combinations thereof.
-Example: the unit `m` is actually a singleton of type
-`Unitful.Units{(Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1,1.0,1//1),),typeof(𝐋)`.
-After dividing by `s`, a singleton of type
-`Unitful.Units{(Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1,1.0,1//1),Unitful.Unit{:Second,typeof(𝐓)}(0,-1//1,1.0,1//1)),typeof(𝐋/𝐓)}` is returned.
+It is in most respects like `FreeUnits{N,D}`, except that the type parameter `P` is
+again a `FreeUnits{M,D}` type that specifies a preferred unit for promotion.
+See [Advanced promotion mechanisms](@ref) in the docs for details.
 """
-immutable Units{N,D} <: Unitlike end
+immutable ContextUnits{N,D,P} <: Units{N,D} end
+function ContextUnits{N,D}(x::Units{N,D}, y::Units)
+    D() !== dimension(y) && throw(DimensionError(x,y))
+    ContextUnits{N,D,typeof(FreeUnits(y))}()
+end
+ContextUnits{N,D}(u::Units{N,D}) = ContextUnits{N,D,typeof(FreeUnits(upreferred(u)))}()
+
+"""
+```
+immutable FixedUnits{N,D} <: Units{N,D} end
+```
+
+Instances of this object represent units, possibly combinations thereof.
+These are primarily intended for use when you would like to disable automatic unit
+conversions. See [Advanced promotion mechanisms](@ref) in the docs for details.
+"""
+immutable FixedUnits{N,D} <: Units{N,D} end
+FixedUnits{N,D}(::Units{N,D}) = FixedUnits{N,D}()
 
 """
 ```
@@ -103,12 +147,13 @@ The type parameter `T` represents the numeric backing type. The type parameters
 `D <: ` [`Unitful.Dimensions`](@ref) and `U <: ` [`Unitful.Units`](@ref).
 Of course, the dimensions follow from the units, but the type parameters are
 kept separate to permit convenient dispatch on dimensions.
+
 """
 Quantity
 
 """
 ```
-DimensionlessQuantity{T,U} = Quantity{T, Dimensions{()},U}
+DimensionlessQuantity{T,U} = Quantity{T, Dimensions{()}, U}
 ```
 
 Useful for dispatching on [`Unitful.Quantity`](@ref) types that may have units

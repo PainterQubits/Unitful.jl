@@ -57,7 +57,7 @@ space, and then calling `show` on a units object `U()`.
 """
 function show(io::IO, x::Quantity)
     show(io,x.val)
-    if unit(x) != NoUnits
+    if !isunitless(unit(x))
         print(io," ")
         show(io, unit(x))
     end
@@ -81,13 +81,13 @@ end
 
 """
 ```
-show(io::IO,x::Unitlike)
+show(io::IO, x::Unitlike)
 ```
 
 Call [`Unitful.showrep`](@ref) on each object in the tuple that is the type
 variable of a [`Unitful.Units`](@ref) or [`Unitful.Dimensions`](@ref) object.
 """
-function show(io::IO,x::Unitlike)
+function show(io::IO, x::Unitlike)
     first = ""
     tup = typeof(x).parameters[1]
     map(tup) do y

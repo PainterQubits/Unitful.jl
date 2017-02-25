@@ -63,7 +63,7 @@ Variables:
 Body:
   begin
       $(Expr(:inbounds, false))
-      # meta: location /Users/ajkeller/.julia/v0.6/Unitful/src/Unitful.jl literal_pow 1058
+      # meta: location /Users/ajkeller/.julia/v0.6/Unitful/src/Unitful.jl literal_pow 1080
       SSAValue(0) = (Core.getfield)(x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, :val)::Float64
       # meta: pop location
       $(Expr(:inbounds, :pop))
