@@ -512,15 +512,10 @@ end
 # Exponentiation is not type-stable for `Dimensions` objects in many cases
 ^{T}(x::Dimensions{T}, y::Integer) = *(Dimensions{map(a->a^y, T)}())
 ^{T}(x::Dimensions{T}, y::Number) = *(Dimensions{map(a->a^y, T)}())
-
-^{T}(x::Dimensions{T}, ::Type{Val{0}}) = NoDims
-^{T}(x::Dimensions{T}, ::Type{Val{1}}) = x
-^{T}(x::Dimensions{T}, ::Type{Val{2}}) = x*x
-^{T}(x::Dimensions{T}, ::Type{Val{3}}) = x*x*x
-^{T}(x::Dimensions{T}, ::Type{Val{-1}}) = inv(x)
-^{T}(x::Dimensions{T}, ::Type{Val{-2}}) = inv(x*x)
-^{T}(x::Dimensions{T}, ::Type{Val{-3}}) = inv(x*x*x)
-
+@generated function ^{T,p}(x::Dimensions{T}, ::Type{Val{p}})
+    z = *(Dimensions{map(a->a^p, T)}())
+    :($z)
+end
 
 @inline dimension{U,D}(u::Unit{U,D}) = D()^u.power
 
@@ -1037,22 +1032,16 @@ end
 ^{U,D}(x::Units{U,D}, y::Integer) = *(Units{map(a->a^y, U), ()}())
 ^{U,D}(x::Units{U,D}, y::Number) = *(Units{map(a->a^y, U), ()}())
 
-@static if VERSION >= v"0.6.0-dev.2834" && # PR 20530; lower x^lit as x^Val{lit}
-           VERSION < v"0.6.0"   # PR 20783; from x^Val{p} to x^Val{p}()
-    ^{U,D}(x::Units{U,D}, ::Type{Val{0}}) = NoUnits
-    ^{U,D}(x::Units{U,D}, ::Type{Val{1}}) = x
-    ^{U,D}(x::Units{U,D}, ::Type{Val{2}}) = x*x
-    ^{U,D}(x::Units{U,D}, ::Type{Val{3}}) = x*x*x
-    ^{U,D}(x::Units{U,D}, ::Type{Val{-1}}) = inv(x)
-    ^{U,D}(x::Units{U,D}, ::Type{Val{-2}}) = inv(x*x)
-    ^{U,D}(x::Units{U,D}, ::Type{Val{-3}}) = inv(x*x*x)
-else
-
+@generated function ^{U,D,p}(x::Units{U,D}, ::Type{Val{p}})
+    y = *(Units{map(a->a^p, U), ()}())
+    :($y)
+end
 
 # All of these are needed for ambiguity resolution
 ^{T,D,U}(x::Quantity{T,D,U}, y::Integer) = Quantity((x.val)^y, U()^y)
 ^{T,D,U}(x::Quantity{T,D,U}, y::Rational) = Quantity((x.val)^y, U()^y)
 ^{T,D,U}(x::Quantity{T,D,U}, y::Real) = Quantity((x.val)^y, U()^y)
+^{T,D,U,v}(x::Quantity{T,D,U}, ::Type{Val{v}}) = Quantity((x.val)^Val{v}, U()^Val{v})
 
 # Since exponentiation is not type stable, we define a special `inv` method to
 # enable fast division. For julia 0.6.0-dev.1711, the appropriate methods for ^

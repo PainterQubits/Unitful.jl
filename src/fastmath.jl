@@ -1,6 +1,5 @@
 import Base.FastMath
 import Core.Intrinsics:
-    powi_llvm,
     sqrt_llvm_fast,
     neg_float_fast,
     add_float_fast,

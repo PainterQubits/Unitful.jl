@@ -316,42 +316,26 @@ end
         @test (8m)^(1//3) == 2*m^(1//3)
         @test @inferred(cis(90°)) ≈ im
 
-        # Test inferrability of small integer literal powers
-        _pow_m1(x) = x^-1
-        _pow_m2(x) = x^-2
+        # Test inferrability of integer literal powers
         _pow_m3(x) = x^-3
         _pow_0(x) = x^0
-        _pow_1(x) = x^1
-        _pow_2(x) = x^2
         _pow_3(x) = x^3
-        _pow_4(x) = x^4
+        _pow_2_3(x) = x^(2//3)
 
-        @test @inferred(_pow_m1(m)) == m^-1
-        @test @inferred(_pow_m2(m)) == m^-2
         @test @inferred(_pow_m3(m)) == m^-3
         @test @inferred(_pow_0(m)) == NoUnits
-        @test @inferred(_pow_1(m)) == m
-        @test @inferred(_pow_2(m)) == m^2
         @test @inferred(_pow_3(m)) == m^3
-        @test_throws ErrorException @inferred(_pow_4(m))
+        @test_throws ErrorException @inferred(_pow_2_3(m))
 
-        @test @inferred(_pow_m1(𝐋)) == 𝐋^-1
-        @test @inferred(_pow_m2(𝐋)) == 𝐋^-2
         @test @inferred(_pow_m3(𝐋)) == 𝐋^-3
         @test @inferred(_pow_0(𝐋)) == NoDims
-        @test @inferred(_pow_1(𝐋)) == 𝐋
-        @test @inferred(_pow_2(𝐋)) == 𝐋^2
         @test @inferred(_pow_3(𝐋)) == 𝐋^3
-        @test_throws ErrorException @inferred(_pow_4(𝐋))
+        @test_throws ErrorException @inferred(_pow_2_3(𝐋))
 
-        @test @inferred(_pow_m1(1.0m)) == 1.0m^-1
-        @test @inferred(_pow_m2(1.0m)) == 1.0m^-2
         @test @inferred(_pow_m3(1.0m)) == 1.0m^-3
         @test @inferred(_pow_0(1.0m)) == 1.0
-        @test @inferred(_pow_1(1.0m)) == 1.0m
-        @test @inferred(_pow_2(1.0m)) == 1.0m^2
         @test @inferred(_pow_3(1.0m)) == 1.0m^3
-        @test_throws ErrorException @inferred(_pow_4(1.0m))
+        @test_throws ErrorException @inferred(_pow_2_3(1.0m))
     end
 
     @testset "> Trigonometry" begin

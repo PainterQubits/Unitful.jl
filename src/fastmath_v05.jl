@@ -1,5 +1,5 @@
 import Base.FastMath
-import Core.Intrinsics: box, unbox, powi_llvm, sqrt_llvm_fast
+import Core.Intrinsics: box, unbox, sqrt_llvm_fast
 import Base.FastMath: @fastmath,
     FloatTypes,
     ComplexTypes,
