@@ -322,20 +322,35 @@ end
         _pow_3(x) = x^3
         _pow_2_3(x) = x^(2//3)
 
-        @test @inferred(_pow_m3(m)) == m^-3
-        @test @inferred(_pow_0(m)) == NoUnits
-        @test @inferred(_pow_3(m)) == m^3
         @test_throws ErrorException @inferred(_pow_2_3(m))
-
-        @test @inferred(_pow_m3(𝐋)) == 𝐋^-3
-        @test @inferred(_pow_0(𝐋)) == NoDims
-        @test @inferred(_pow_3(𝐋)) == 𝐋^3
         @test_throws ErrorException @inferred(_pow_2_3(𝐋))
-
-        @test @inferred(_pow_m3(1.0m)) == 1.0m^-3
-        @test @inferred(_pow_0(1.0m)) == 1.0
-        @test @inferred(_pow_3(1.0m)) == 1.0m^3
         @test_throws ErrorException @inferred(_pow_2_3(1.0m))
+
+        @static if VERSION >= v"0.6.0-dev.2834"
+            @test @inferred(_pow_m3(m)) == m^-3
+            @test @inferred(_pow_0(m)) == NoUnits
+            @test @inferred(_pow_3(m)) == m^3
+
+            @test @inferred(_pow_m3(𝐋)) == 𝐋^-3
+            @test @inferred(_pow_0(𝐋)) == NoDims
+            @test @inferred(_pow_3(𝐋)) == 𝐋^3
+
+            @test @inferred(_pow_m3(1.0m)) == 1.0m^-3
+            @test @inferred(_pow_0(1.0m)) == 1.0
+            @test @inferred(_pow_3(1.0m)) == 1.0m^3
+        else
+            @test _pow_m3(m) == m^-3
+            @test _pow_0(m) == NoUnits
+            @test _pow_3(m) == m^3
+
+            @test _pow_m3(𝐋) == 𝐋^-3
+            @test _pow_0(𝐋) == NoDims
+            @test _pow_3(𝐋) == 𝐋^3
+
+            @test _pow_m3(1.0m) == 1.0m^-3
+            @test _pow_0(1.0m) == 1.0
+            @test _pow_3(1.0m) == 1.0m^3
+        end
     end
 
     @testset "> Trigonometry" begin
