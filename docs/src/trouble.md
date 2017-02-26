@@ -28,20 +28,54 @@ penalty if any at run time. An exception to this is rule is exponentiation.
 Since units and their powers are encoded in the type signature of a
 [`Unitful.Quantity`](@ref) object, raising a `Quantity` to some power, which is
 just some run-time value, necessarily results in different result types.
-This type instability could impact performance. Example:
+This type instability could impact performance:
 
 ```jldoctest
-julia> typeof((1.0u"m")^2)
-Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}
+julia> square(x) = (p = 2; x^p)
+square (generic function with 1 method)
 
-julia> typeof((1.0u"m")^3)
-Quantity{Float64, Dimensions:{𝐋^3}, Units:{m^3}}
+julia> @code_warntype square(1.0u"m")
+Variables:
+  #self#::#square
+  x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}
+  p::Int64
+
+Body:
+  begin
+      p::Int64 = 2
+      return $(Expr(:invoke, MethodInstance for ^(::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, ::Int64), :(^), :(x), :(p)))
+  end::Any
+```
+
+In Julia 0.6, constant literal integers are lowered specially for exponentiation.
+(See Julia PR [#20530](https://github.com/JuliaLang/julia/pull/20530) for details.)
+In this case, type stability can be maintained:
+
+
+```jldoctest
+julia> square(x) = x^2
+square (generic function with 1 method)
+
+julia> @code_warntype square(1.0u"m")
+Variables:
+  #self#::#square
+  x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}
+
+Body:
+  begin
+      $(Expr(:inbounds, false))
+      # meta: location /Users/ajkeller/.julia/v0.6/Unitful/src/Unitful.jl ^ 1044
+      SSAValue(0) = (Core.getfield)(x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, :val)::Float64
+      # meta: pop location
+      $(Expr(:inbounds, :pop))
+      return $(Expr(:new, :($(QuoteNode(Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}))), :((Base.mul_float)(SSAValue(0), SSAValue(0))::Float64)))
+  end::Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}
 ```
 
 Because the functions `inv` and `sqrt` are raising a `Quantity` to a fixed
 power (-1 and 1/2, respectively), we can use a generated function to ensure
-type stability in these cases. Also note that squaring a `Quantity` will be
-type-stable if done as `x*x` but not as `x^2`.
+type stability in these cases. Also note that squaring a `Quantity` can be
+type-stable in either Julia 0.5 or 0.6 if done as `x*x`.
 
 ## Promotion with dimensionless numbers
 

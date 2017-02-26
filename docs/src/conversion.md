@@ -90,12 +90,12 @@ julia> using Unitful
 julia> Base.promote_rule{S<:Unitful.EnergyUnit, T<:Unitful.EnergyUnit}(::Type{S}, ::Type{T}) = typeof(u"g*cm^2/s^2")
 
 julia> promote(2.0u"J", 1.0u"kg*m^2/s^2")
-(2.0e7 g cm^2 s^-2,1.0e7 g cm^2 s^-2)
+(2.0e7 g cm^2 s^-2, 1.0e7 g cm^2 s^-2)
 
 julia> Base.promote_rule{S<:Unitful.EnergyUnit, T<:Unitful.EnergyUnit}(::Type{S}, ::Type{T}) = typeof(u"J")
 
 julia> promote(2.0u"J", 1.0u"kg*m^2/s^2")
-(2.0e7 g cm^2 s^-2,1.0e7 g cm^2 s^-2)
+(2.0e7 g cm^2 s^-2, 1.0e7 g cm^2 s^-2)
 ```
 
 Notice how the first definition of `Base.promote_rule` had a permanent effect.
@@ -128,7 +128,7 @@ a quantity of dimension `𝐌*𝐋^2/(𝐓^2*𝚯)` would be converted to `kg*m^
 
 ```jldoctest
 julia> promote(1.0u"J/K", 1.0u"g*cm^2/s^2/K")
-(1.0 kg K^-1 m^2 s^-2,1.0e-7 kg K^-1 m^2 s^-2)
+(1.0 kg K^-1 m^2 s^-2, 1.0e-7 kg K^-1 m^2 s^-2)
 ```
 
 You can however override this behavior by calling [`Unitful.preferunits`](@ref)
@@ -156,7 +156,7 @@ julia> [1.0u"m", 2.0u"cm"]
  0.02 m
 
 julia> [1.0u"m", 2.0]
-2-element Array{Unitful.Quantity{Float64,D,U},1}:
+2-element Array{Unitful.Quantity{Float64,D,U} where U where D,1}:
  1.0 m
    2.0
 ```
@@ -176,7 +176,7 @@ julia> f([1.0u"m", 2.0u"cm"])
 1.02 m
 
 julia> f([1.0u"g", 2.0u"cm"])
-ERROR: MethodError: no method matching f(::Array{Unitful.Quantity{Float64,D,U},1})
+ERROR: MethodError: no method matching f(::Array{Unitful.Quantity{Float64,D,U} where U where D,1})
 ```
 
 ## Unit cancellation
