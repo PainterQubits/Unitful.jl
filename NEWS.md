@@ -1,3 +1,6 @@
+- v0.1.2
+ - On Julia 0.6, exponentiation by a literal is now type stable for integers.
+
 - v0.1.1
  - Fixed a macro hygiene issue that prevented `@dimension` and `@derived_dimension`
    from working properly if Compat was not imported in the calling namespace.
