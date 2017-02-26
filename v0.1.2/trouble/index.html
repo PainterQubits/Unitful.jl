@@ -462,15 +462,44 @@
 <p>We may consider adding an option in the defaults to turn on/off use of <code>Rational</code> numbers. They permit exact conversions, but they aren't preferred as a result type in much of Julia Base (consider that <code>inv(2) === 0.5</code>, not <code>1//2</code>).</p>
 <p><a id='Exponentiation-1'></a></p>
 <h2 id="exponentiation">Exponentiation</h2>
-<p>Most operations with this package should in principle suffer little performance penalty if any at run time. An exception to this is rule is exponentiation. Since units and their powers are encoded in the type signature of a <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a> object, raising a <code>Quantity</code> to some power, which is just some run-time value, necessarily results in different result types. This type instability could impact performance. Example:</p>
-<pre class="codehilite"><code class="language-jlcon">julia&gt; typeof((1.0u&quot;m&quot;)^2)
-Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}
+<p>Most operations with this package should in principle suffer little performance penalty if any at run time. An exception to this is rule is exponentiation. Since units and their powers are encoded in the type signature of a <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a> object, raising a <code>Quantity</code> to some power, which is just some run-time value, necessarily results in different result types. This type instability could impact performance:</p>
+<pre class="codehilite"><code class="language-jlcon">julia&gt; square(x) = (p = 2; x^p)
+square (generic function with 1 method)
 
-julia&gt; typeof((1.0u&quot;m&quot;)^3)
-Quantity{Float64, Dimensions:{𝐋^3}, Units:{m^3}}</code></pre>
+julia&gt; @code_warntype square(1.0u&quot;m&quot;)
+Variables:
+  #self#::#square
+  x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}
+  p::Int64
+
+Body:
+  begin
+      p::Int64 = 2
+      return $(Expr(:invoke, MethodInstance for ^(::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, ::Int64), :(^), :(x), :(p)))
+  end::Any</code></pre>
 
 
-<p>Because the functions <code>inv</code> and <code>sqrt</code> are raising a <code>Quantity</code> to a fixed power (-1 and 1/2, respectively), we can use a generated function to ensure type stability in these cases. Also note that squaring a <code>Quantity</code> will be type-stable if done as <code>x*x</code> but not as <code>x^2</code>.</p>
+<p>In Julia 0.6, constant literal integers are lowered specially for exponentiation. (See Julia PR <a href="https://github.com/JuliaLang/julia/pull/20530">#20530</a> for details.) In this case, type stability can be maintained:</p>
+<pre class="codehilite"><code class="language-jlcon">julia&gt; square(x) = x^2
+square (generic function with 1 method)
+
+julia&gt; @code_warntype square(1.0u&quot;m&quot;)
+Variables:
+  #self#::#square
+  x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}
+
+Body:
+  begin
+      $(Expr(:inbounds, false))
+      # meta: location /Users/ajkeller/.julia/v0.6/Unitful/src/Unitful.jl ^ 1044
+      SSAValue(0) = (Core.getfield)(x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, :val)::Float64
+      # meta: pop location
+      $(Expr(:inbounds, :pop))
+      return $(Expr(:new, :($(QuoteNode(Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}))), :((Base.mul_float)(SSAValue(0), SSAValue(0))::Float64)))
+  end::Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}</code></pre>
+
+
+<p>Because the functions <code>inv</code> and <code>sqrt</code> are raising a <code>Quantity</code> to a fixed power (-1 and 1/2, respectively), we can use a generated function to ensure type stability in these cases. Also note that squaring a <code>Quantity</code> can be type-stable in either Julia 0.5 or 0.6 if done as <code>x*x</code>.</p>
 <p><a id='Promotion-with-dimensionless-numbers-1'></a></p>
 <h2 id="promotion-with-dimensionless-numbers">Promotion with dimensionless numbers</h2>
 <p>Most of the time, you are only permitted to do sensible operations in Unitful. With dimensionless numbers, some of the safe logic breaks down. Consider for instance that <code>μm/m</code> and <code>rad</code> are both dimensionless units, but kind of have nothing to do with each other. It would be a little weird to add them. Nonetheless, we permit this to happen since they have the same dimensions. Otherwise, we would have to special-case operations for two dimensionless quantities rather than dispatching on the empty dimension.</p>
