@@ -394,6 +394,11 @@ end
         @test frexp(1.5m) == (0.75m, 1.0)
         @test unit(nextfloat(0.0m)) == m
         @test unit(prevfloat(0.0m)) == m
+
+        @test isapprox(1.0u"m", 1.1u"m"; atol=0.2u"m")
+        @test !isapprox(1.0u"m", 1.1u"m"; atol=0.05u"m")
+        @test isapprox(1.0u"m", 1.1u"m"; rtol=0.2)
+        @test !isapprox(1.0u"m", 1.1u"m"; rtol=0.05)
     end
 
     @testset "> fastmath" begin
