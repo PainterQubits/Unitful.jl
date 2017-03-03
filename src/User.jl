@@ -112,6 +112,9 @@ use case would be to define a unit system without reference to SI. However,
 there's no explicit barrier to prevent attempting conversions between SI and this
 hypothetical unit system, which could yield unexpected results.
 
+Note that this macro will also choose the new unit (no power-of-ten prefix) as
+the default unit for promotion given this dimension.
+
 Returns the [`Unitful.Units`](@ref) object to which `symb` is bound.
 
 Usage example: `@refunit m "m" Meter 𝐋 true`
@@ -127,6 +130,7 @@ macro refunit(symb, abbr, name, dimension, tf)
         else
             Unitful.@unit_symbols $symb $name $dimension (1.0, 1)
         end
+        Unitful.preferunits($symb)
         $symb
     end)
 end

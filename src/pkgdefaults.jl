@@ -189,7 +189,7 @@ end
 #########
 
 # Finish up with promotion defaults (these can be overridden)
-preferunits(m,s,A,K,cd,kg,mol)
+preferunits(kg) # others done in @refunit
 
 function Base.promote_rule{S<:Units,T<:Units}(::Type{S}, ::Type{T})
     dS = dimension(S())

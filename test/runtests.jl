@@ -5,7 +5,7 @@ using Base.Test
 
 import Unitful: DimensionError
 
-import Unitful: m, ac, g, A, kg, cm, inch, mi, ft, °Ra, °F, °C, μm,
+import Unitful: m, ac, g, kg, A, kg, cm, inch, mi, ft, °Ra, °F, °C, μm,
     s, A, K, N, mol, cd, rad, V, cm, hr, mm, km, minute, °, J
 
 import Unitful: 𝐋, 𝐓, 𝐍
@@ -202,6 +202,8 @@ end
         @test 3*(m*m) != 3mm
         @test 1m != 1                         # w/ units distinct from w/o units
         @test 1 != 1m
+        @test 1g == 0.001kg                   # Issue 56
+        @test 0.001kg == 1g                   # Issue 56
         @test min(1hr, 1s) == 1s              # take scale of units into account
         @test max(1ft, 1m) == 1m
         @test max(10J, 1kg*m^2/s^2) === 10J

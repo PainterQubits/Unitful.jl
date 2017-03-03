@@ -819,7 +819,7 @@ isapprox{S<:Quantity,N<:Number}(y::AbstractArray{N}, x::AbstractArray{S};
 =={S,T,D,U}(x::Quantity{S,D,U}, y::Quantity{T,D,U}) = (x.val == y.val)
 function ==(x::Quantity, y::Quantity)
     dimension(x) != dimension(y) && return false
-    uconvert(unit(y), x).val == y.val
+    ==(promote(x,y)...)
 end
 
 function ==(x::Quantity, y::Number)
