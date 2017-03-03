@@ -786,10 +786,11 @@ isless(x::Number, y::Quantity) = _isless(promote(x,y)...)
     .<=(x::Number, y::Quantity) = x <= y
 end
 
-isapprox{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = isapprox(x.val, y.val)
-isapprox(x::Quantity, y::Quantity) = isapprox(uconvert(unit(y), x).val, y.val)
-isapprox(x::Quantity, y::Number) = isapprox(uconvert(NoUnits, x), y)
-isapprox(x::Number, y::Quantity) = isapprox(y,x)
+isapprox{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) =
+    isapprox(x.val, y.val; atol=atol.val, kwargs...)
+isapprox(x::Quantity, y::Quantity; kwargs...) = isapprox(uconvert(unit(y), x).val, y.val; kwargs...)
+isapprox(x::Quantity, y::Number; kwargs...) = isapprox(uconvert(NoUnits, x), y; kwargs...)
+isapprox(x::Number, y::Quantity; kwargs...) = isapprox(y,x; kwargs...)
 
 function isapprox{T1,D,U1,T2,U2}(x::AbstractArray{Quantity{T1,D,U1}},
         y::AbstractArray{Quantity{T2,D,U2}}; rtol::Real=Base.rtoldefault(T1,T2),
