@@ -397,6 +397,8 @@ end
 
         @test isapprox(1.0u"m", 1.1u"m"; atol=0.2u"m")
         @test !isapprox(1.0u"m", 1.1u"m"; atol=0.05u"m")
+        @test isapprox(1.0u"m", 1.1u"m"; atol=200u"mm")
+        @test !isapprox(1.0u"m", 1.1u"m"; atol=50u"mm")
         @test isapprox(1.0u"m", 1.1u"m"; rtol=0.2)
         @test !isapprox(1.0u"m", 1.1u"m"; rtol=0.05)
     end

@@ -787,7 +787,7 @@ isless(x::Number, y::Quantity) = _isless(promote(x,y)...)
 end
 
 isapprox{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) =
-    isapprox(x.val, y.val; atol=atol.val, kwargs...)
+    isapprox(x.val, y.val; atol=uconvert(unit(y), atol).val, kwargs...)
 isapprox(x::Quantity, y::Quantity; kwargs...) = isapprox(uconvert(unit(y), x).val, y.val; kwargs...)
 isapprox(x::Quantity, y::Number; kwargs...) = isapprox(uconvert(NoUnits, x), y; kwargs...)
 isapprox(x::Number, y::Quantity; kwargs...) = isapprox(y,x; kwargs...)
