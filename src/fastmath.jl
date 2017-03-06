@@ -21,7 +21,7 @@ import Base.FastMath: @fastmath,
     div_fast,
     rem_fast,
     cmp_fast,
-    mod_fast,
+    # mod_fast,
     eq_fast,
     ne_fast,
     lt_fast,
@@ -68,10 +68,10 @@ mul_fast{T<:FloatTypes}(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}, t::Quant
 @fastmath begin
     cmp_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
         ifelse(x==y, 0, ifelse(x<y, -1, +1))
-    function mod_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U})
-        r = rem(x,y)
-        @compat ifelse(xor((r > zero(Quantity{T,D,U})), (y > zero(Quantity{T,D,U}))), r+y, r)
-    end
+    # function mod_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U})
+    #     r = rem(x,y)
+    #     @compat ifelse(xor((r > zero(Quantity{T,D,U})), (y > zero(Quantity{T,D,U}))), r+y, r)
+    # end
 end
 
 eq_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =

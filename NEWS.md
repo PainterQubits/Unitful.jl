@@ -3,7 +3,8 @@
  - Using `@refunit` will implicitly specify the ref. unit as the default for promotion.
    This will not change behavior for most people; it just ensures promotion won't
    fail for quantities with user-defined dimensions.
- 
+ - Remove `mod_fast` in anticipation of Julia PR [#20859](https://github.com/JuliaLang/julia/pull/20859).
+
 - v0.1.2
  - On Julia 0.6, exponentiation by a literal is now type stable for integers.
 
