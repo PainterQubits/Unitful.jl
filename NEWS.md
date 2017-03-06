@@ -4,7 +4,8 @@
    This will not change behavior for most people; it just ensures promotion won't
    fail for quantities with user-defined dimensions.
  - Remove `mod_fast` in anticipation of Julia PR [#20859](https://github.com/JuliaLang/julia/pull/20859).
-
+ - Allow tolerance args for `isapprox` [#57](https://github.com/ajkeller34/Unitful.jl/pull/57)
+ 
 - v0.1.2
  - On Julia 0.6, exponentiation by a literal is now type stable for integers.
 
