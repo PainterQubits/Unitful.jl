@@ -1,3 +1,6 @@
+- v0.1.4
+ - Critical bug fix owing to `mod_fast` changes.
+ 
 - v0.1.3
  - Fix symmetry of `==` [#56](https://github.com/ajkeller34/Unitful.jl/issues/56).
  - Using `@refunit` will implicitly specify the ref. unit as the default for promotion.
