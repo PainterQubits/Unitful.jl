@@ -151,7 +151,7 @@ le_fast{T<:FloatTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) =
     ne_fast{T<:ComplexTypes,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = !(x==y)
 end
 
-for op in (:+, :-, :*, :/, :(==), :!=, :<, :<=, :cmp, :mod, :rem)
+for op in (:+, :-, :*, :/, :(==), :!=, :<, :<=, :cmp, :rem)
     op_fast = fast_op[op]
     @eval begin
         # Fallback method for Quantitys after promotion.
