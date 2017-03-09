@@ -66,6 +66,11 @@ respects scale offsets. For instance, converting 0°C to °F returns the expecte
 result, 32°F. If instead temperature appears in combination with other units,
 scale offsets don't make sense and we consider temperature *intervals*.
 
+```jldoctest
+julia> uconvert(u"K", 21.0u"°C")
+294.15 K
+```
+
 ## Promotion mechanisms
 
 We decide the result units for addition and subtraction operations based
