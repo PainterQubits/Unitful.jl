@@ -512,9 +512,16 @@ end
 # Exponentiation is not type-stable for `Dimensions` objects in many cases
 ^{T}(x::Dimensions{T}, y::Integer) = *(Dimensions{map(a->a^y, T)}())
 ^{T}(x::Dimensions{T}, y::Number) = *(Dimensions{map(a->a^y, T)}())
-@generated function ^{T,p}(x::Dimensions{T}, ::Type{Val{p}})
-    z = *(Dimensions{map(a->a^p, T)}())
-    :($z)
+@static if VERSION >= v"0.6.0-pre.alpha.108"
+    @generated function Base.literal_pow{T,p}(::typeof(^), x::Dimensions{T}, ::Type{Val{p}})
+        z = *(Dimensions{map(a->a^p, T)}())
+        :($z)
+    end
+elseif VERSION >= v"0.6.0-dev.2834"
+    @generated function ^{T,p}(x::Dimensions{T}, ::Type{Val{p}})
+        z = *(Dimensions{map(a->a^p, T)}())
+        :($z)
+    end
 end
 
 @inline dimension{U,D}(u::Unit{U,D}) = D()^u.power
@@ -1033,16 +1040,26 @@ end
 ^{U,D}(x::Units{U,D}, y::Integer) = *(Units{map(a->a^y, U), ()}())
 ^{U,D}(x::Units{U,D}, y::Number) = *(Units{map(a->a^y, U), ()}())
 
-@generated function ^{U,D,p}(x::Units{U,D}, ::Type{Val{p}})
-    y = *(Units{map(a->a^p, U), ()}())
-    :($y)
-end
 
+@static if VERSION >= v"0.6.0-pre.alpha.108"
+    @generated function Base.literal_pow{U,p}(::typeof(^), x::Units{U}, ::Type{Val{p}})
+        y = *(Units{map(a->a^p, U), ()}())
+        :($y)
+    end
+    Base.literal_pow{T,D,U,v}(::typeof(^), x::Quantity{T,D,U}, ::Type{Val{v}}) =
+        Quantity(Base.literal_pow(^, x.val, Val{v}),
+                 Base.literal_pow(^, U(), Val{v}))
+elseif VERSION >= v"0.6.0-dev.2834"
+    @generated function ^{U,p}(x::Units{U}, ::Type{Val{p}})
+        y = *(Units{map(a->a^p, U), ()}())
+        :($y)
+    end
+    ^{T,D,U,v}(x::Quantity{T,D,U}, ::Type{Val{v}}) = Quantity((x.val)^Val{v}, U()^Val{v})
+end
 # All of these are needed for ambiguity resolution
 ^{T,D,U}(x::Quantity{T,D,U}, y::Integer) = Quantity((x.val)^y, U()^y)
 ^{T,D,U}(x::Quantity{T,D,U}, y::Rational) = Quantity((x.val)^y, U()^y)
 ^{T,D,U}(x::Quantity{T,D,U}, y::Real) = Quantity((x.val)^y, U()^y)
-^{T,D,U,v}(x::Quantity{T,D,U}, ::Type{Val{v}}) = Quantity((x.val)^Val{v}, U()^Val{v})
 
 # Since exponentiation is not type stable, we define a special `inv` method to
 # enable fast division. For julia 0.6.0-dev.1711, the appropriate methods for ^
