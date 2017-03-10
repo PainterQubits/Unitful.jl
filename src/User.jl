@@ -373,6 +373,7 @@ end
 
 dottify(s, t, u...) = dottify(Expr(:(.), s, QuoteNode(t)), u...)
 dottify(s) = s
+dottify() = Main        # needed because fullname(Main) == (). TODO: How to test?
 
 function replace_value(sym::Symbol)
     where = [isdefined(unitmodules[i], sym) for i in eachindex(unitmodules)]
