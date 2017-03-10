@@ -1,6 +1,10 @@
+- v0.1.5
+ - Patch for Julia PR [#20889](https://github.com/JuliaLang/julia/pull/20889), which changes
+   how lowering is done for exponentiation of integer literals.
+
 - v0.1.4
  - Critical bug fix owing to `mod_fast` changes.
- 
+
 - v0.1.3
  - Fix symmetry of `==` [#56](https://github.com/ajkeller34/Unitful.jl/issues/56).
  - Using `@refunit` will implicitly specify the ref. unit as the default for promotion.
@@ -8,7 +12,7 @@
    fail for quantities with user-defined dimensions.
  - Remove `mod_fast` in anticipation of Julia PR [#20859](https://github.com/JuliaLang/julia/pull/20859).
  - Allow tolerance args for `isapprox` [#57](https://github.com/ajkeller34/Unitful.jl/pull/57)
- 
+
 - v0.1.2
  - On Julia 0.6, exponentiation by a literal is now type stable for integers.
 
