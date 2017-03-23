@@ -15,7 +15,7 @@
       
         <link rel="shortcut icon" href="../assets/images/favicon.png">
       
-      <meta name="generator" content="mkdocs-0.16.1, mkdocs-material-1.2.0">
+      <meta name="generator" content="mkdocs-0.16.2, mkdocs-material-1.4.1">
     
     
       
@@ -26,9 +26,9 @@
       <script src="../assets/javascripts/modernizr-56ade86843.js"></script>
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/application-e17eeafcbc.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application-76741b64bc.css">
       
-        <link rel="stylesheet" href="../assets/stylesheets/application-892b79c5c5.palette.css">
+        <link rel="stylesheet" href="../assets/stylesheets/application-66fa0d9bba.palette.css">
       
     
     
@@ -64,7 +64,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
     <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
     
-      <header class="md-header">
+      <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
@@ -99,7 +99,12 @@
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="result"></div>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
       </div>
     </div>
   </div>
@@ -259,6 +264,8 @@
   
 </li>
       
+      
+      
     </ul>
   
 </nav>
@@ -372,6 +379,8 @@
   
 </li>
       
+      
+      
     </ul>
   
 </nav>
@@ -382,10 +391,10 @@
           
           <div class="md-content">
             <article class="md-content__inner md-typeset">
-               
-                 <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/newunits.md" title="Edit this page" class="md-icon md-content__edit">edit</a>
-               
               
+                
+                  <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/newunits.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                
                 
                 <p><a id='Defining-new-units-1'></a></p>
 <h1 id="defining-new-units">Defining new units</h1>
@@ -405,7 +414,7 @@
 <p>Finally, if you define new dimensions with <a href="./#Unitful.@dimension"><code>@dimension</code></a> you will need to specify a preferred unit for that dimension with <a href="../conversion/#Unitful.preferunits"><code>Unitful.preferunits</code></a>, otherwise promotion will not work with that dimension.</p>
 <p>Returns the <code>Dimensions</code> object to which <code>symb</code> is bound.</p>
 <p>Usage example from <code>src/pkgdefaults.jl</code>: <code>@dimension 𝐋 "𝐋" Length</code></p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/5f5a6eb729f6df795714b254deab43c4a8d09038/src/User.jl#L23-L50' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1c4923f5e4a74a22577bca0494e2630b00674d46/src/User.jl#L23-L50' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.@derived_dimension' href='#Unitful.@derived_dimension'>#</a>
 <strong><code>Unitful.@derived_dimension</code></strong> &mdash; <em>Macro</em>.</p>
 <pre class="codehilite"><code>macro derived_dimension(name, dims)</code></pre>
@@ -419,7 +428,7 @@
 <li><code>@derived_dimension Area 𝐋^2</code> gives <code>Area</code> and <code>AreaUnit</code> type aliases</li>
 <li><code>@derived_dimension Speed 𝐋/𝐓</code> gives <code>Speed</code> and <code>SpeedUnit</code> type aliases</li>
 </ul>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/5f5a6eb729f6df795714b254deab43c4a8d09038/src/User.jl#L64-L81' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1c4923f5e4a74a22577bca0494e2630b00674d46/src/User.jl#L64-L81' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.@refunit' href='#Unitful.@refunit'>#</a>
 <strong><code>Unitful.@refunit</code></strong> &mdash; <em>Macro</em>.</p>
 <pre class="codehilite"><code>macro refunit(symb, name, abbr, dimension, tf)</code></pre>
@@ -432,7 +441,7 @@
 <p>Returns the <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> object to which <code>symb</code> is bound.</p>
 <p>Usage example: <code>@refunit m "m" Meter 𝐋 true</code></p>
 <p>This example, found in <code>src/pkgdefaults.jl</code>, generates <code>km</code>, <code>m</code>, <code>cm</code>, ...</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/5f5a6eb729f6df795714b254deab43c4a8d09038/src/User.jl#L92-L123' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1c4923f5e4a74a22577bca0494e2630b00674d46/src/User.jl#L92-L123' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.@unit' href='#Unitful.@unit'>#</a>
 <strong><code>Unitful.@unit</code></strong> &mdash; <em>Macro</em>.</p>
 <pre class="codehilite"><code>macro unit(symb,abbr,name,equals,tf)</code></pre>
@@ -442,14 +451,14 @@
 <p>Returns the <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> object to which <code>symb</code> is bound.</p>
 <p>Usage example: <code>@unit mi "mi" Mile (201168//125)*m false</code></p>
 <p>This example will <em>not</em> generate <code>kmi</code> (kilomiles).</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/5f5a6eb729f6df795714b254deab43c4a8d09038/src/User.jl#L138-L152' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1c4923f5e4a74a22577bca0494e2630b00674d46/src/User.jl#L138-L152' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.offsettemp' href='#Unitful.offsettemp'>#</a>
 <strong><code>Unitful.offsettemp</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>offsettemp(::Unit)</code></pre>
 
 
 <p>For temperature units, this function is used to set the scale offset.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/5f5a6eb729f6df795714b254deab43c4a8d09038/src/Unitful.jl#L945-L951' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1c4923f5e4a74a22577bca0494e2630b00674d46/src/Unitful.jl#L945-L951' class='documenter-source'>source</a><br></p>
 <p><a id='Internals-1'></a></p>
 <h2 id="internals">Internals</h2>
 <p><a id='Unitful.@prefixed_unit_symbols' href='#Unitful.@prefixed_unit_symbols'>#</a>
@@ -459,7 +468,7 @@
 
 <p>Not called directly by the user. Given a unit symbol and a unit's name, will define units for each possible SI power-of-ten prefix on that unit.</p>
 <p>Example: <code>@prefixed_unit_symbols m Meter 𝐋 (1.0,1)</code> results in nm, cm, m, km, ... all getting defined in the calling namespace.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/5f5a6eb729f6df795714b254deab43c4a8d09038/src/User.jl#L174-L184' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1c4923f5e4a74a22577bca0494e2630b00674d46/src/User.jl#L174-L184' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.@unit_symbols' href='#Unitful.@unit_symbols'>#</a>
 <strong><code>Unitful.@unit_symbols</code></strong> &mdash; <em>Macro</em>.</p>
 <pre class="codehilite"><code>macro unit_symbols(symb,name)</code></pre>
@@ -467,15 +476,20 @@
 
 <p>Not called directly by the user. Given a unit symbol and a unit's name, will define units without SI power-of-ten prefixes.</p>
 <p>Example: <code>@unit_symbols ft Foot 𝐋</code> results in <code>ft</code> getting defined but not <code>kft</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/5f5a6eb729f6df795714b254deab43c4a8d09038/src/User.jl#L210-L219' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1c4923f5e4a74a22577bca0494e2630b00674d46/src/User.jl#L210-L219' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.basefactor' href='#Unitful.basefactor'>#</a>
 <strong><code>Unitful.basefactor</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>basefactor(x::Unit)</code></pre>
 
 
 <p>Specifies conversion factors to reference units. It returns a tuple. The first value is any irrational part of the conversion, and the second value is a rational component. This segregation permits exact conversions within unit systems that have no rational conversion to the reference units.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/5f5a6eb729f6df795714b254deab43c4a8d09038/src/User.jl#L399-L409' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/1c4923f5e4a74a22577bca0494e2630b00674d46/src/User.jl#L400-L410' class='documenter-source'>source</a><br></p>
+                
+                  
+                
               
+              
+                
               
             </article>
           </div>
@@ -539,7 +553,7 @@
       
     </div>
     
-      <script src="../assets/javascripts/application-30ac6a1727.js"></script>
+      <script src="../assets/javascripts/application-3964c0cb56.js"></script>
       <script>app.initialize({url:{base:".."}})</script>
       
         <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
