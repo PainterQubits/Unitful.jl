@@ -1,11 +1,10 @@
 - v0.1.5
   - Patch for Julia PR [#20889](https://github.com/JuliaLang/julia/pull/20889), which changes
    how lowering is done for exponentiation of integer literals.
-  - Bug fix to enable registering Main as a module for `u_str`.
-
+  - Bug fix to enable registering Main as a module for `u_str` (fixes 
+    [#61](https://github.com/ajkeller34/Unitful.jl/issues/61)).
 - v0.1.4
   - Critical bug fix owing to `mod_fast` changes.
-
 - v0.1.3
   - Fix symmetry of `==` [#56](https://github.com/ajkeller34/Unitful.jl/issues/56).
   - Using `@refunit` will implicitly specify the ref. unit as the default for promotion.
@@ -13,14 +12,11 @@
     fail for quantities with user-defined dimensions.
   - Remove `mod_fast` in anticipation of Julia PR [#20859](https://github.com/JuliaLang/julia/pull/20859).
   - Allow tolerance args for `isapprox` [#57](https://github.com/ajkeller34/Unitful.jl/pull/57)
-
 - v0.1.2
   - On Julia 0.6, exponentiation by a literal is now type stable for integers.
-
 - v0.1.1
   - Fixed a macro hygiene issue that prevented `@dimension` and `@derived_dimension`
    from working properly if Compat was not imported in the calling namespace.
-
 - v0.1.0
   - Julia 0.6 compatibility.
   - On Julia 0.6, exponentiation by a literal is now type stable for
@@ -47,7 +43,6 @@
   - Added `istriu`, `istril` for `AbstractMatrix{T<:Quantity}`.
   - The `Unitful.SIUnits` module has been renamed to `Unitful.DefaultSymbols`.
   - Add `lb`, `oz`, `dr`, `gr` to Unitful (international Avoirdupois mass units).
-
 - v0.0.4
   - Be aware, breaking changes to `deps/Defaults.jl` caused by some of the following!
   - Fix [#40](https://github.com/ajkeller34/Unitful.jl/issues/40).
@@ -77,7 +72,6 @@
     (some logic moved out of defaults).
   - Moved definition of `sin`, `cos`, `tan`, `sec`, `csc`, `cot` out of
     `deps/build.jl` and into `src/Unitful.jl`.
-
 - v0.0.3
   - Bug fix: `uconvert(°C, 0x01°C)` no longer disturbs the numeric type
   - Allow μ-prefixed units to be typed with option-m on a Mac, in addition to
@@ -96,22 +90,12 @@
     also be true if you mixed unitless and unitful numbers during promotion, but
     that is not yet the case. See [#24](https://github.com/ajkeller34/Unitful.jl/issues/24)
     for motivation.
-
-
 - v0.0.2
   - Bug fixes (`[1.0m, 2.0m] ./ 3` would throw a `Unitful.DimensionError()`).
     Promotion still isn't perfect, but it is hard for me to see what `@inferred`
     errors are real until https://github.com/JuliaLang/julia/issues/18465 is resolved.
- 
-  - Made units callable for unit conversion:
-    ```
-    u"cm"(1u"m") == 100u"cm"//1
-```
+  - Made units callable for unit conversion: `u"cm"(1u"m") == 100u"cm"//1`.
     Note that `Units` objects have no fields, so this is totally unambiguous.
     Moreover, we have convenient syntax for unit conversion by function chaining:
-    ```
-    1u"m" |> u"cm" == 100u"cm"//1
-```
-    Note that `uconvert` will remain supported.
-
+    `1u"m" |> u"cm" == 100u"cm"//1`. Note that `uconvert` will remain supported.
 - v0.0.1 - Initial release
