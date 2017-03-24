@@ -15,7 +15,7 @@
       
         <link rel="shortcut icon" href="../assets/images/favicon.png">
       
-      <meta name="generator" content="mkdocs-0.16.1, mkdocs-material-1.2.0">
+      <meta name="generator" content="mkdocs-0.16.2, mkdocs-material-1.4.1">
     
     
       
@@ -26,9 +26,9 @@
       <script src="../assets/javascripts/modernizr-56ade86843.js"></script>
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/application-e17eeafcbc.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application-76741b64bc.css">
       
-        <link rel="stylesheet" href="../assets/stylesheets/application-892b79c5c5.palette.css">
+        <link rel="stylesheet" href="../assets/stylesheets/application-66fa0d9bba.palette.css">
       
     
     
@@ -64,7 +64,7 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
     <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
     
-      <header class="md-header">
+      <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
@@ -99,7 +99,12 @@
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="result"></div>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
       </div>
     </div>
   </div>
@@ -236,8 +241,6 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
-      
-    
     
       <label class="md-nav__link md-nav__link--active" for="toc">
         Conversion / promotion
@@ -322,6 +325,8 @@
   </a>
   
 </li>
+      
+      
       
     </ul>
   
@@ -476,6 +481,8 @@
   
 </li>
       
+      
+      
     </ul>
   
 </nav>
@@ -486,10 +493,10 @@
           
           <div class="md-content">
             <article class="md-content__inner md-typeset">
-               
-                 <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/conversion.md" title="Edit this page" class="md-icon md-content__edit">edit</a>
-               
               
+                
+                  <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/conversion.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                
                 
                   <h1>Conversion / promotion</h1>
                 
@@ -510,12 +517,12 @@ julia&gt; uconvert(u&quot;J&quot;,1.0u&quot;N*m&quot;)
 1.0 J</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/86f193c0432898a5d6295678118d86cb568871ac/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/845a05785e893cee3866ebe6638247665bd4f432/src/Conversion.jl#L1-L19' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>uconvert{T,D,U}(a::Units, x::Quantity{T,TempDim,Units{U,TempDim}})</code></pre>
 
 
 <p>In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions. We abbreviate <code>TempDim = Dimensions{(Dimension{:Temperature}(1),)}</code> for clarity.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/86f193c0432898a5d6295678118d86cb568871ac/src/Conversion.jl#L85-L93' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/845a05785e893cee3866ebe6638247665bd4f432/src/Conversion.jl#L85-L93' class='documenter-source'>source</a><br></p>
 <p>Since objects are callable, we can also make <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> callable with a <code>Number</code> as an argument, for a unit conversion shorthand:</p>
 <pre class="codehilite"><code class="language-jlcon">julia&gt; u&quot;cm&quot;(1u&quot;m&quot;)
 100//1 cm</code></pre>
@@ -534,7 +541,7 @@ julia&gt; uconvert(u&quot;J&quot;,1.0u&quot;N*m&quot;)
 1.0e-6
 
 julia&gt; uconvert(Unitful.NoUnits, 1.0u&quot;m&quot;)
-ERROR: Unitful.DimensionError()</code></pre>
+ERROR: DimensionError:  and m are not dimensionally compatible.</code></pre>
 
 
 <p>You can also directly convert to a subtype of <code>Real</code> or <code>Complex</code>:</p>
@@ -545,6 +552,10 @@ ERROR: Unitful.DimensionError()</code></pre>
 <p><a id='Temperature-conversion-1'></a></p>
 <h3 id="temperature-conversion">Temperature conversion</h3>
 <p>If the dimension of a <code>Quantity</code> is purely temperature, then conversion respects scale offsets. For instance, converting 0°C to °F returns the expected result, 32°F. If instead temperature appears in combination with other units, scale offsets don't make sense and we consider temperature <em>intervals</em>.</p>
+<pre class="codehilite"><code class="language-jlcon">julia&gt; uconvert(u&quot;K&quot;, 21.0u&quot;°C&quot;)
+294.15 K</code></pre>
+
+
 <p><a id='Promotion-mechanisms-1'></a></p>
 <h2 id="promotion-mechanisms">Promotion mechanisms</h2>
 <p>We decide the result units for addition and subtraction operations based on looking at the types only. We can't take runtime values into account without compromising runtime performance. If two quantities with the same units are added or subtracted, then the result units will be the same. If two quantities with differing units (but same dimension) are added or subtracted, then the result units will be specified by promotion.</p>
@@ -588,7 +599,7 @@ julia&gt; promote(2.0u&quot;J&quot;, 1.0u&quot;kg*m^2/s^2&quot;)
 <li><code>J*s</code> (joule-second) for action</li>
 </ul>
 <p>If you want this as default behavior (it was for versions of Unitful prior to 0.1.0), consider invoking this function in your <code>.juliarc.jl</code> file which is loaded when you open Julia. This function is not exported.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/86f193c0432898a5d6295678118d86cb568871ac/src/pkgdefaults.jl#L202-L226' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/845a05785e893cee3866ebe6638247665bd4f432/src/pkgdefaults.jl#L202-L226' class='documenter-source'>source</a><br></p>
 <p><a id='Fallback-promotion-rules-1'></a></p>
 <h3 id="fallback-promotion-rules">Fallback promotion rules</h3>
 <p>The <a href="./#Unitful.preferunits"><code>Unitful.preferunits</code></a> function is used to designate fallback preferred units for each pure dimension for promotion. Such a fallback is required because you need some generic logic to take over when manipulating quantities with arbitrary dimensions.</p>
@@ -606,7 +617,7 @@ julia&gt; promote(2.0u&quot;J&quot;, 1.0u&quot;kg*m^2/s^2&quot;)
 <p>This function specifies the default fallback units for promotion. Units provided to this function must have a pure dimension of power 1, like 𝐋 or 𝐓 but not 𝐋/𝐓 or 𝐋^2. The function will complain if this is not the case. Additionally, the function will complain if you provide two units with the same dimension, as a courtesy to the user.</p>
 <p>Once <a href="../manipulations/#Unitful.upreferred"><code>Unitful.upreferred</code></a> has been called or quantities have been promoted, this function will appear to have no effect.</p>
 <p>Usage example: <code>preferunits(u"m,s,A,K,cd,kg,mol"...)</code></p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/86f193c0432898a5d6295678118d86cb568871ac/src/User.jl#L233-L248' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/845a05785e893cee3866ebe6638247665bd4f432/src/User.jl#L233-L248' class='documenter-source'>source</a><br></p>
 <p><a id='Array-promotion-1'></a></p>
 <h3 id="array-promotion">Array promotion</h3>
 <p>Arrays are typed with as much specificity as possible upon creation. consider the following three cases:</p>
@@ -640,7 +651,12 @@ ERROR: MethodError: no method matching f(::Array{Unitful.Quantity{Float64,D,U} w
 <p><a id='Unit-cancellation-1'></a></p>
 <h2 id="unit-cancellation">Unit cancellation</h2>
 <p>For multiplication and division, note that powers-of-ten prefixes are significant in unit cancellation. For instance, <code>mV/V</code> is not simplified, although <code>V/V</code> is. Also, <code>N*m/J</code> is not simplified: there is currently no logic to decide whether or not units on a dimensionless quantity seem "intentional" or not.</p>
+                
+                  
+                
               
+              
+                
               
             </article>
           </div>
@@ -704,7 +720,7 @@ ERROR: MethodError: no method matching f(::Array{Unitful.Quantity{Float64,D,U} w
       
     </div>
     
-      <script src="../assets/javascripts/application-30ac6a1727.js"></script>
+      <script src="../assets/javascripts/application-3964c0cb56.js"></script>
       <script>app.initialize({url:{base:".."}})</script>
       
         <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
