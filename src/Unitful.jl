@@ -49,12 +49,18 @@ const NoDims = Dimensions{()}()
 
 """
 ```
-type DimensionError <: Exception end
+type DimensionError{T,S} <: Exception
+  x::T
+  y::S
+end
 ```
-
-Thrown when dimensions don't match in an operation that demands they do.
+Thrown when dimensions don't match in an operation that demands they do. Display `x` and `y` in error message.
 """
-type DimensionError <: Exception end
+type DimensionError{T,S} <: Exception
+  x::T
+  y::S
+end
+Base.showerror(io::IO, e::DimensionError) = print(io,"DimensionError: $(e.x) and $(e.y) are not dimensionally compatible.");
 
 """
 ```
@@ -403,19 +409,19 @@ for op in [:+, :-]
         :($($op)(uconvert($result_units, x), uconvert($result_units, y)))
     end
 
-    @eval ($op)(::Quantity, ::Quantity) = throw(DimensionError())
+    @eval ($op)(x::Quantity, y::Quantity) = throw(DimensionError(x,y))
     @eval function ($op)(x::Quantity, y::Number)
         if isa(x, DimensionlessQuantity)
             ($op)(promote(x,y)...)
         else
-            throw(DimensionError())
+            throw(DimensionError(x,y))
         end
     end
     @eval function ($op)(x::Number, y::Quantity)
         if isa(y, DimensionlessQuantity)
             ($op)(promote(x,y)...)
         else
-            throw(DimensionError())
+            throw(DimensionError(x,y))
         end
     end
 
@@ -673,7 +679,7 @@ for (_x,_y) in [(:fma, :_fma), (:muladd, :_muladd)]
     # It seems like most of this is optimized out by the compiler, including the
     # apparent runtime check of dimensions, which does not appear in @code_llvm.
     @eval @inline function ($_y)(x,y,z)
-        dimension(x) * dimension(y) != dimension(z) && throw(DimensionError())
+        dimension(x) * dimension(y) != dimension(z) && throw(DimensionError(x*y,z))
         uI = unit(x)*unit(y)
         uF = promote_type(typeof(uI), typeof(unit(z)))()
         c = ($_x)(ustrip(x), ustrip(y), ustrip(uconvert(uI, z)))
@@ -722,14 +728,14 @@ end
 atan2(y::Quantity, x::Quantity) = atan2(promote(y,x)...)
 atan2{T,D,U}(y::Quantity{T,D,U}, x::Quantity{T,D,U}) = atan2(y.val,x.val)
 atan2{T,D1,U1,D2,U2}(y::Quantity{T,D1,U1}, x::Quantity{T,D2,U2}) =
-    throw(DimensionError())
+    throw(DimensionError(x,y))
 
 for (f, F) in [(:min, :<), (:max, :>)]
     @eval @generated function ($f)(x::Quantity, y::Quantity)
         xdim = x.parameters[2]()
         ydim = y.parameters[2]()
         if xdim != ydim
-            return :(throw(DimensionError()))
+            return :(throw(DimensionError(x,y)))
         end
 
         xunits = x.parameters[3].parameters[1]
@@ -768,7 +774,7 @@ flipsign(x::Quantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
 
 @inline isless{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = _isless(x,y)
 @inline _isless{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = isless(x.val, y.val)
-@inline _isless{T,D1,D2,U1,U2}(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) = throw(DimensionError())
+@inline _isless{T,D1,D2,U1,U2}(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) = throw(DimensionError(x,y))
 @inline _isless(x,y) = isless(x,y)
 
 isless(x::Quantity, y::Quantity) = _isless(promote(x,y)...)
@@ -777,7 +783,7 @@ isless(x::Number, y::Quantity) = _isless(promote(x,y)...)
 
 @inline <{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = _lt(x,y)
 @inline _lt{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = <(x.val,y.val)
-@inline _lt{T,D1,D2,U1,U2}(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) = throw(DimensionError())
+@inline _lt{T,D1,D2,U1,U2}(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) = throw(DimensionError(x,y))
 @inline _lt(x,y) = <(x,y)
 
 <(x::Quantity, y::Quantity) = _lt(promote(x,y)...)
