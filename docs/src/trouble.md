@@ -42,8 +42,7 @@ Variables:
 
 Body:
   begin
-      p::Int64 = 2
-      return $(Expr(:invoke, MethodInstance for ^(::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, ::Int64), :(^), :(x), :(p)))
+      return $(Expr(:invoke, MethodInstance for ^(::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, ::Int64), :(^), :(x), 2))
   end::Any
 ```
 
@@ -64,11 +63,11 @@ Variables:
 Body:
   begin
       $(Expr(:inbounds, false))
-      # meta: location /Users/ajkeller/.julia/v0.6/Unitful/src/Unitful.jl ^ 1044
+      # meta: location /Users/ajkeller/.julia/v0.6/Unitful/src/Unitful.jl literal_pow 1058
       SSAValue(0) = (Core.getfield)(x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, :val)::Float64
       # meta: pop location
       $(Expr(:inbounds, :pop))
-      return $(Expr(:new, :($(QuoteNode(Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}))), :((Base.mul_float)(SSAValue(0), SSAValue(0))::Float64)))
+      return $(Expr(:new, Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}, :((Base.mul_float)(SSAValue(0), SSAValue(0))::Float64)))
   end::Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}
 ```
 

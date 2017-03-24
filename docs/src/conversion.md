@@ -49,7 +49,7 @@ julia> uconvert(Unitful.NoUnits, 1.0u"μm/m")
 1.0e-6
 
 julia> uconvert(Unitful.NoUnits, 1.0u"m")
-ERROR: Unitful.DimensionError()
+ERROR: DimensionError:  and m are not dimensionally compatible.
 ```
 
 You can also directly convert to a subtype of `Real` or `Complex`:

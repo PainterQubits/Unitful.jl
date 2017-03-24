@@ -82,7 +82,7 @@ explicitly forbid any attempt to convert to SI units.
 One can achieve this by defining new dimensions with the [`@dimension`](@ref) or
 [`@derived_dimension`](@ref) macros. The trick is to define dimensions that display
 suggestively like physical dimensions, like 𝐋*, 𝐓* etc., but are distinct as far
-as Julia's type system is concerned. Then, you can use [`@ref_unit`](@ref) to
+as Julia's type system is concerned. Then, you can use [`@refunit`](@ref) to
 base units for these new dimensions without reference to SI. The result will be
 that attempted conversion between the hypothetical unit system and SI will fail
 with a `DimensionError`, so be sure you provide some hints in how your

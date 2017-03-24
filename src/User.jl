@@ -331,7 +331,7 @@ julia> 1.0u"N*m"
 1.0 m N
 
 julia> u"m,kg,s"
-(m,kg,s)
+(m, kg, s)
 
 julia> typeof(1.0u"m/s")
 Quantity{Float64, Dimensions:{𝐋 𝐓^-1}, Units:{m s^-1}}
