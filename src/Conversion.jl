@@ -47,7 +47,7 @@ Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.0
     # Check if conversion is possible in principle
     sdim = dimension(s())
     tdim = dimension(t())
-    sdim != tdim && throw(DimensionError(s,t))
+    sdim != tdim && throw(DimensionError(s(),t()))
 
     # first convert to base SI units.
     # fact1 is what would need to be multiplied to get to base SI units

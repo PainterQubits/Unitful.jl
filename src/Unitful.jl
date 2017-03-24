@@ -54,13 +54,16 @@ type DimensionError{T,S} <: Exception
   y::S
 end
 ```
-Thrown when dimensions don't match in an operation that demands they do. Display `x` and `y` in error message.
+
+Thrown when dimensions don't match in an operation that demands they do.
+Display `x` and `y` in error message.
 """
 type DimensionError{T,S} <: Exception
-  x::T
-  y::S
+    x::T
+    y::S
 end
-Base.showerror(io::IO, e::DimensionError) = print(io,"DimensionError: $(e.x) and $(e.y) are not dimensionally compatible.");
+Base.showerror(io::IO, e::DimensionError) =
+    print(io,"DimensionError: $(e.x) and $(e.y) are not dimensionally compatible.");
 
 """
 ```

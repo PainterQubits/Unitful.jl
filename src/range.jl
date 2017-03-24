@@ -10,18 +10,18 @@
     linspace(Float64, ustrip(start), ustrip(stop), len, 1)*unit(T)
 
 function _linspace{T}(start::Quantity{T}, stop::Quantity{T}, len::Integer)
-    dimension(start) != dimension(stop) && throw(DimensionError())
+    dimension(start) != dimension(stop) && throw(DimensionError(start, stop))
     linspace(start, stop, len)
 end
 
 @compat function colon(start::Quantity{<:Real}, step, stop::Quantity{<:Real})
-    dimension(start) != dimension(stop) && throw(DimensionError())
+    dimension(start) != dimension(stop) && throw(DimensionError(start, stop))
     T = promote_type(typeof(start),typeof(stop))
     return colon(convert(T,start), step, convert(T,stop))
 end
 
 function colon(start::A, step::B, stop::A) where A<:Quantity{<:Real} where B<:Quantity{<:Real}
-    dimension(start) != dimension(step) && throw(DimensionError())
+    dimension(start) != dimension(step) && throw(DimensionError(start, step))
     colon(promote(start, step, stop)...)
 end
 
