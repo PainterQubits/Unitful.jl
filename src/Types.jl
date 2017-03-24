@@ -47,7 +47,7 @@ abstract type Unitlike end
 Represents units or dimensions. Dimensions are unit-like in the sense that they are
 not numbers but you can multiply or divide them and exponentiate by rationals.
 """
-abstract type Unitlike end
+@compat abstract type Unitlike end
 
 """
 ```
