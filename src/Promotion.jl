@@ -7,7 +7,7 @@
             if dimension(S())==dimension(T())
                 promote_type(S,T)
             else
-                throw(DimensionError())
+                throw(DimensionError(S(),T()))
             end
         end
     end
@@ -18,7 +18,7 @@
             if dimension(S())==dimension(T())
                 promote_type(S,T)
             else
-                throw(DimensionError())
+                throw(DimensionError(S(),T()))
             end
         end
     end
@@ -35,7 +35,7 @@
         ::Type{Quantity{T1,D1,U1}}, ::Type{Quantity{T2,D2,U2}})
         # figuring out numeric type can be subtle if D1 == D2 but U1 != U2.
         # in particular, consider adding 1m + 1cm... the numtype is not Int.
-        D1 != D2 && throw(DimensionError())
+        D1 != D2 && throw(DimensionError(U1(),U2()))
         return Bool
     end
     function promote_op{T1,D1,U1,T2,D2,U2}(op, x::Type{Quantity{T1,D1,U1}},
@@ -62,7 +62,7 @@
         ::Type{R}, ::Type{Quantity{S,D,U}})
         # figuring out numeric type can be subtle if D1 == D2 but U1 != U2.
         # in particular, consider adding 1m + 1cm... the numtype is not Int.
-        D != Dimensions{()} && throw(DimensionError())
+        D != Dimensions{()} && throw(DimensionError(NoDims,U()))
         return Bool
     end
     function promote_op{R<:Number,S,D,U}(op, ::Type{R}, ::Type{Quantity{S,D,U}})
@@ -86,7 +86,7 @@
         ::Type{Quantity{S,D,U}}, ::Type{R})
         # figuring out numeric type can be subtle if D1 == D2 but U1 != U2.
         # in particular, consider adding 1m + 1cm... the numtype is not Int.
-        D != Dimensions{()} && throw(DimensionError())
+        D != Dimensions{()} && throw(DimensionError(NoDims,U()))
         return Bool
     end
     function promote_op{R<:Number,S,D,U}(op, x::Type{Quantity{S,D,U}}, y::Type{R})

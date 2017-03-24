@@ -29,7 +29,7 @@ function uconvert(a::Units, x::Number)
     if dimension(a) == NoDims
         Quantity(x * convfact(a, NoUnits), a)
     else
-        throw(DimensionError())
+        throw(DimensionError(a,x))
     end
 end
 
@@ -47,7 +47,7 @@ Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.0
     # Check if conversion is possible in principle
     sdim = dimension(s())
     tdim = dimension(t())
-    sdim != tdim && throw(DimensionError())
+    sdim != tdim && throw(DimensionError(s(),t()))
 
     # first convert to base SI units.
     # fact1 is what would need to be multiplied to get to base SI units
@@ -133,7 +133,7 @@ function convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Number)
     if dimension(x) == D()
         Quantity(T(uconvert(U(),x).val), U())
     else
-        throw(DimensionError())
+        throw(DimensionError(U(),x))
     end
 end
 
@@ -179,7 +179,7 @@ function convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Quantity)
     if dimension(x) == NoDims
         Quantity(T(x.val), U())
     else
-        throw(DimensionError())
+        throw(DimensionError(NoDims,x))
     end
 end
 

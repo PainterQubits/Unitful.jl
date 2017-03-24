@@ -1,6 +1,7 @@
 - v0.1.5
   - Patch for Julia PR [#20889](https://github.com/JuliaLang/julia/pull/20889), which changes how lowering is done for exponentiation of integer literals.
   - Bug fix to enable registering Main as a module for `u_str` (fixes [#61](https://github.com/ajkeller34/Unitful.jl/issues/61)).
+  - Implement readable message for `DimensionError` [#62](https://github.com/ajkeller34/Unitful.jl/pull/62).
 - v0.1.4
   - Critical bug fix owing to `mod_fast` changes.
 - v0.1.3
