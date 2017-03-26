@@ -54,8 +54,8 @@ unit conversion happens automatically.
 You can make new units using the [`@unit`](@ref) macro on the fly:
 
 ```jldoctest
-julia> @unit c "c" SpeedOfLight 299792458u"m/s" false
-c
+julia> @unit yd5 "yd5" FiveYards 5u"yd" false
+yd5
 ```
 
 ## Arrays
@@ -71,10 +71,7 @@ in toy calculations for
 where some conventions yield matrices with mixed dimensions:
 
 ```
-julia> @unit c "c" SpeedOfLight 299792458u"m/s" false
-c
-
-julia> Diagonal([-1.0c^2, 1.0, 1.0, 1.0])
+julia> Diagonal([-1.0u"c^2", 1.0, 1.0, 1.0])
 4×4 Diagonal{Unitful.Quantity{Float64,D,U}}:
  -1.0 c^2   ⋅    ⋅    ⋅
        ⋅   1.0   ⋅    ⋅

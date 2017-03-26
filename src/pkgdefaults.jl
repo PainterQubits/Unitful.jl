@@ -107,9 +107,9 @@ const q = 1.6021766208e-19*C        # CODATA 2014; `e` means 2.718...
 @unit atm    "atm"      Atmosphere  101325Pa                false
 @unit Torr   "Torr"     Torr        101325Pa//760           true
 
-# Constants (2014 CODATA values)    (uncertainties in final digits)
-const c0 = 299_792_458*m/s          # exact
-const c  = c0
+# Constants (2014 CODATA values)        (uncertainties in final digits)
+const c0 = 299_792_458*m/s              # exact
+@unit c      "c"        SpeedOfLight 1c0                    false
 const μ0 = 4π*(1//10)^7*H/m         # exact (but gets promoted to Float64...)
 const µ0 = μ0                       # magnetic constant
 const ɛ0 = 1/(μ0*c^2)               # exact, electric constant

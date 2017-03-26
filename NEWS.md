@@ -1,14 +1,17 @@
 - v0.2.0
- - `Units{N,D}` is now an abstract type. Different concrete types for units give different
+  - `Units{N,D}` is now an abstract type. Different concrete types for units give different
    behavior under conversion and promotion. The currently implemented concrete types are:
   - `FreeUnits{N,D}`: these give the typical behavior from prior versions of Unitful.
     Units defined in Unitful.jl and reachable by the `u_str` macro are all `FreeUnits`.
   - `ContextUnits{N,D,P}`, where P is some type `FreeUnits{M,D}`: these enable
     context-specific promotion rules, e.g. if units are defined in different packages.
   - `FixedUnits{N,D}`: these inhibit automatic conversion of quantities with different units.
- - `LengthUnit`, `EnergyUnit`, etc. are renamed to `LengthUnits`, `EnergyUnits`, etc. for
-   consistency (they are related more to `Units` objects than `Unit` objects).
-
+  - `LengthUnit`, `EnergyUnit`, etc. are renamed to `LengthUnits`, `EnergyUnits`, etc. for
+    consistency (they are related more to `Units` objects than `Unit` objects). You can
+    still use the old names for now, but please switch over to using `...Units` instead
+    of `...Unit` in this release as the old names will be removed in a future release.
+  - `c` is now a unit, to permit converting mass into `MeV/c^2`, for example. `c0` is
+    still a quantity equal to the speed of light in vacuum, in units of `m/s`.
 - v0.1.5
   - Patch for Julia PR [#20889](https://github.com/JuliaLang/julia/pull/20889), which changes how lowering is done for exponentiation of integer literals.
   - Bug fix to enable registering Main as a module for `u_str` (fixes [#61](https://github.com/ajkeller34/Unitful.jl/issues/61)).
