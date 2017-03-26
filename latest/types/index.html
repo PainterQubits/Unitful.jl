@@ -243,16 +243,29 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#api" title="API" class="md-nav__link">
+    API
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#quantities" title="Quantities" class="md-nav__link">
     Quantities
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#units-and-dimensions" title="Units and dimensions" class="md-nav__link">
     Units and dimensions
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -375,16 +388,29 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#api" title="API" class="md-nav__link">
+    API
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#quantities" title="Quantities" class="md-nav__link">
     Quantities
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#units-and-dimensions" title="Units and dimensions" class="md-nav__link">
     Units and dimensions
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -410,11 +436,13 @@
                 <p><a id='Overview-1'></a></p>
 <h2 id="overview">Overview</h2>
 <p>We define a <a href="./#Unitful.Unit"><code>Unitful.Unit{U,D}</code></a> type to represent a unit (<code>U</code> is a symbol, like <code>:Meter</code>, and <code>D</code> keeps track of dimensional information). Fields of a <code>Unit</code> object keep track of a rational exponents and a power-of-ten prefix. We don't allow arbitrary floating point exponents of units because they probably aren't very useful. The prefixes on units (e.g. <code>nm</code> or <code>km</code>) may help to avoid overflow issues and general ugliness.</p>
-<p>We define the immutable singleton <a href="./#Unitful.Units"><code>Unitful.Units{N,D}</code></a>, where <code>N</code> is always a tuple of <code>Unit</code> objects, and <code>D</code> is some type, like <code>typeof(Unitful.𝐋)</code>, where <code>𝐋</code> is the object representing the length dimension. Usually, the user interacts only with <code>Units</code> objects, not <code>Unit</code> objects.</p>
-<p>We define a function <a href="../manipulations/#Unitful.dimension-Tuple{Number}"><code>dimension</code></a> that turns, for example, <code>acre^2</code> into <code>𝐋^4</code>. We can add quantities with the same dimension, regardless of specific units. Note that dimensions cannot be determined by powers of the units: <code>ft^2</code> is an area, but so is <code>ac^1</code> (an acre).</p>
-<p>We define physical quantity types as <a href="./#Unitful.Quantity"><code>Quantity{T&lt;:Number, D, U}</code></a>, where <code>D &lt;: Dimensions</code> and <code>U &lt;: Units</code>. By putting units in the type signature of a quantity, staged functions can be used to offload as much of the unit computation to compile-time as is possible. By also having the dimensions explicitly in the type signature, dispatch can be done on dimensions: <code>isa(1m, Length) == true</code>. This works because <code>Length</code> is a type alias for some subset of <a href="./#Unitful.Quantity"><code>Unitful.Quantity</code></a> subtypes.</p>
+<p>Usually, the user interacts only with <code>Units</code> objects, not <code>Unit</code> objects. This is because generically, more than one unit is needed to describe a quantity. An abstract type <a href="./#Unitful.Units"><code>Unitful.Units{N,D}</code></a> is defined, where <code>N</code> is always a tuple of <code>Unit</code> objects, and <code>D</code> is some type, like <code>typeof(Unitful.𝐋)</code>, where <code>𝐋</code> is the object representing the length dimension (see <a href="./#Unitful.Dimensions"><code>Unitful.Dimensions{N}</code></a>).</p>
+<p>Subtypes of <code>Unitful.Units{N,D}</code> are used to implement different behaviors for how to promote dimensioned quantities. The concrete subtypes have no fields and are therefore immutable singletons. Currently implemented subtypes of <code>Unitful.Units{N,D}</code> include <a href="./#Unitful.FreeUnits"><code>Unitful.FreeUnits{N,D}</code></a>, <a href="./#Unitful.ContextUnits"><code>Unitful.ContextUnits{N,D,P}</code></a>, and <a href="./#Unitful.FixedUnits"><code>Unitful.FixedUnits{N,D}</code></a>. Units defined in the Unitful.jl package itself are all <code>Unitful.FreeUnits{N,D}</code> objects.</p>
+<p>Finally, we define physical quantity types as <a href="./#Unitful.Quantity"><code>Quantity{T&lt;:Number, D, U}</code></a>, where <code>D &lt;: Dimensions</code> and <code>U &lt;: Units</code>. By putting units in the type signature of a quantity, staged functions can be used to offload as much of the unit computation to compile-time as is possible. By also having the dimensions explicitly in the type signature, dispatch can be done on dimensions: <code>isa(1m, Length) == true</code>. This works because <code>Length</code> is a type alias for some subset of <code>Unitful.Quantity</code> subtypes.</p>
+<p><a id='API-1'></a></p>
+<h2 id="api">API</h2>
 <p><a id='Quantities-1'></a></p>
-<h2 id="quantities">Quantities</h2>
+<h3 id="quantities">Quantities</h3>
 <p><a id='Unitful.Quantity' href='#Unitful.Quantity'>#</a>
 <strong><code>Unitful.Quantity</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code>immutable Quantity{T,D,U} &lt;: Number</code></pre>
@@ -422,10 +450,10 @@
 
 <p>A quantity, which has dimensions and units specified in the type signature. The dimensions and units are allowed to be the empty set, in which case a dimensionless, unitless number results.</p>
 <p>The type parameter <code>T</code> represents the numeric backing type. The type parameters <code>D &lt;:</code> <a href="./#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> and <code>U &lt;:</code> <a href="./#Unitful.Units"><code>Unitful.Units</code></a>. Of course, the dimensions follow from the units, but the type parameters are kept separate to permit convenient dispatch on dimensions.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c98bd8d2f66a3047a6014634f87eb146f0ab638b/src/Types.jl#L93-L106' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Types.jl#L137-L151' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.DimensionlessQuantity' href='#Unitful.DimensionlessQuantity'>#</a>
 <strong><code>Unitful.DimensionlessQuantity</code></strong> &mdash; <em>Type</em>.</p>
-<pre class="codehilite"><code>DimensionlessQuantity{T,U} = Quantity{T, Dimensions{()},U}</code></pre>
+<pre class="codehilite"><code>DimensionlessQuantity{T,U} = Quantity{T, Dimensions{()}, U}</code></pre>
 
 
 <p>Useful for dispatching on <a href="./#Unitful.Quantity"><code>Unitful.Quantity</code></a> types that may have units but no dimensions. (Units with differing power-of-ten prefixes are not canceled out.)</p>
@@ -434,30 +462,52 @@
 true</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c98bd8d2f66a3047a6014634f87eb146f0ab638b/src/Types.jl#L109-L123' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Types.jl#L154-L168' class='documenter-source'>source</a><br></p>
 <p><a id='Units-and-dimensions-1'></a></p>
-<h2 id="units-and-dimensions">Units and dimensions</h2>
+<h3 id="units-and-dimensions">Units and dimensions</h3>
 <p><a id='Unitful.Unitlike' href='#Unitful.Unitlike'>#</a>
 <strong><code>Unitful.Unitlike</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code>abstract type Unitlike end</code></pre>
 
 
-<p>Abstract type facilitating some code reuse between <a href="./#Unitful.Units"><code>Unitful.Units</code></a> and <a href="./#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> objects.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c98bd8d2f66a3047a6014634f87eb146f0ab638b/src/Types.jl#L42-L49' class='documenter-source'>source</a><br></p>
+<p>Represents units or dimensions. Dimensions are unit-like in the sense that they are not numbers but you can multiply or divide them and exponentiate by rationals.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Types.jl#L42-L49' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.Units' href='#Unitful.Units'>#</a>
 <strong><code>Unitful.Units</code></strong> &mdash; <em>Type</em>.</p>
-<pre class="codehilite"><code>immutable Units{N,D} &lt;: Unitlike</code></pre>
+<pre class="codehilite"><code>abstract type Units{N,D} &lt;: Unitlike end</code></pre>
 
 
-<p>Instances of this object represent units, possibly combinations thereof. Example: the unit <code>m</code> is actually a singleton of type <code>Unitful.Units{(Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1,1.0,1//1),),typeof(𝐋)</code>. After dividing by <code>s</code>, a singleton of type <code>Unitful.Units{(Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1,1.0,1//1),Unitful.Unit{:Second,typeof(𝐓)}(0,-1//1,1.0,1//1)),typeof(𝐋/𝐓)}</code> is returned.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c98bd8d2f66a3047a6014634f87eb146f0ab638b/src/Types.jl#L52-L62' class='documenter-source'>source</a><br></p>
+<p>Abstract supertype of all units objects, which can differ in their implementation details.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Types.jl#L52-L58' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.FreeUnits' href='#Unitful.FreeUnits'>#</a>
+<strong><code>Unitful.FreeUnits</code></strong> &mdash; <em>Type</em>.</p>
+<pre class="codehilite"><code>immutable FreeUnits{N,D} &lt;: Units{N,D}</code></pre>
+
+
+<p>Instances of this object represent units, possibly combinations thereof. These behave like units have behaved in previous versions of Unitful, and provide a basic level of functionality that should be acceptable to most users. See <a href="../conversion/#Basic-promotion-mechanisms-1">Basic promotion mechanisms</a> in the docs for details.</p>
+<p>Example: the unit <code>m</code> is actually a singleton of type <code>Unitful.FreeUnits{(Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1,1.0,1//1),),typeof(𝐋)</code>. After dividing by <code>s</code>, a singleton of type <code>Unitful.FreeUnits{(Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1,1.0,1//1), Unitful.Unit{:Second,typeof(𝐓)}(0,-1//1,1.0,1//1)),typeof(𝐋/𝐓)}</code> is returned.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Types.jl#L61-L76' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.ContextUnits' href='#Unitful.ContextUnits'>#</a>
+<strong><code>Unitful.ContextUnits</code></strong> &mdash; <em>Type</em>.</p>
+<pre class="codehilite"><code>immutable ContextUnits{N,D,P} &lt;: Units{N,D}</code></pre>
+
+
+<p>Instances of this object represent units, possibly combinations thereof. It is in most respects like <code>FreeUnits{N,D}</code>, except that the type parameter <code>P</code> is again a <code>FreeUnits{M,D}</code> type that specifies a preferred unit for promotion. See <a href="../conversion/#Advanced-promotion-mechanisms-1">Advanced promotion mechanisms</a> in the docs for details.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Types.jl#L80-L89' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.FixedUnits' href='#Unitful.FixedUnits'>#</a>
+<strong><code>Unitful.FixedUnits</code></strong> &mdash; <em>Type</em>.</p>
+<pre class="codehilite"><code>immutable FixedUnits{N,D} &lt;: Units{N,D} end</code></pre>
+
+
+<p>Instances of this object represent units, possibly combinations thereof. These are primarily intended for use when you would like to disable automatic unit conversions. See <a href="../conversion/#Advanced-promotion-mechanisms-1">Advanced promotion mechanisms</a> in the docs for details.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Types.jl#L97-L105' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.Dimensions' href='#Unitful.Dimensions'>#</a>
 <strong><code>Unitful.Dimensions</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code>immutable Dimensions{N} &lt;: Unitlike</code></pre>
 
 
 <p>Instances of this object represent dimensions, possibly combinations thereof.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c98bd8d2f66a3047a6014634f87eb146f0ab638b/src/Types.jl#L65-L71' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Types.jl#L109-L115' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.Unit' href='#Unitful.Unit'>#</a>
 <strong><code>Unitful.Unit</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code>immutable Unit{U,D}
@@ -468,7 +518,7 @@ end</code></pre>
 
 <p>Description of a physical unit, including powers-of-ten prefixes and powers of the unit. The name of the unit is encoded in the type parameter <code>U</code> as a symbol, e.g. <code>:Meter</code>, <code>:Second</code>, <code>:Gram</code>, etc. The type parameter <code>D</code> contains dimension information, for instance <code>Unit{:Meter, typeof(𝐋)}</code> or <code>Unit{:Liter, typeof(𝐋^3)}</code>. Note that the dimension information refers to the unit, not powers of the unit.</p>
 <p><code>Unit{U,D}</code> objects are almost never explicitly manipulated by the user. They are collected in a tuple, which is used for the type parameter <code>N</code> of a <a href="./#Unitful.Units"><code>Units{N,D}</code></a> object.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c98bd8d2f66a3047a6014634f87eb146f0ab638b/src/Types.jl#L19-L36' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Types.jl#L19-L36' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.Dimension' href='#Unitful.Dimension'>#</a>
 <strong><code>Unitful.Dimension</code></strong> &mdash; <em>Type</em>.</p>
 <pre class="codehilite"><code>immutable Dimension{D}
@@ -478,7 +528,7 @@ end</code></pre>
 
 <p>Description of a dimension. The name of the dimension <code>D</code> is a symbol, e.g. <code>:Length</code>, <code>:Time</code>, <code>:Mass</code>, etc.</p>
 <p><code>Dimension{D}</code> objects are collected in a tuple, which is used for the type parameter <code>N</code> of a <a href="./#Unitful.Dimensions"><code>Dimensions{N}</code></a> object.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/c98bd8d2f66a3047a6014634f87eb146f0ab638b/src/Types.jl#L2-L14' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Types.jl#L2-L14' class='documenter-source'>source</a><br></p>
                 
                   
                 

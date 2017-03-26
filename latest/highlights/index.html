@@ -498,17 +498,14 @@ end</code></pre>
 <p><a id='Making-new-units-and-dimensions-1'></a></p>
 <h2 id="making-new-units-and-dimensions">Making new units and dimensions</h2>
 <p>You can make new units using the <a href="../newunits/#Unitful.@unit"><code>@unit</code></a> macro on the fly:</p>
-<pre class="codehilite"><code class="language-jlcon">julia&gt; @unit c &quot;c&quot; SpeedOfLight 299792458u&quot;m/s&quot; false
-c</code></pre>
+<pre class="codehilite"><code class="language-jlcon">julia&gt; @unit yd5 &quot;yd5&quot; FiveYards 5u&quot;yd&quot; false
+yd5</code></pre>
 
 
 <p><a id='Arrays-1'></a></p>
 <h2 id="arrays">Arrays</h2>
 <p>Promotion is used to create arrays of a concrete type where possible, such that arrays of unitful quantities are stored efficiently in memory. However, if necessary, arrays can hold quantities with different dimensions, even mixed with unitless numbers. Doing so will suffer a performance penalty compared with the fast performance attainable with an array of concrete type (e.g. as resulting from <code>[1.0u"m", 2.0u"cm", 3.0u"km"]</code>). However, it could be useful in toy calculations for <a href="https://en.wikipedia.org/wiki/Metric_tensor_(general_relativity)">general relativity</a> where some conventions yield matrices with mixed dimensions:</p>
-<pre class="codehilite"><code>julia&gt; @unit c &quot;c&quot; SpeedOfLight 299792458u&quot;m/s&quot; false
-c
-
-julia&gt; Diagonal([-1.0c^2, 1.0, 1.0, 1.0])
+<pre class="codehilite"><code>julia&gt; Diagonal([-1.0u&quot;c^2&quot;, 1.0, 1.0, 1.0])
 4×4 Diagonal{Unitful.Quantity{Float64,D,U}}:
  -1.0 c^2   ⋅    ⋅    ⋅
        ⋅   1.0   ⋅    ⋅
