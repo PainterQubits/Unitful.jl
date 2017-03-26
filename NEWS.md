@@ -1,11 +1,11 @@
 - v0.2.0
   - `Units{N,D}` is now an abstract type. Different concrete types for units give different
    behavior under conversion and promotion. The currently implemented concrete types are:
-  - `FreeUnits{N,D}`: these give the typical behavior from prior versions of Unitful.
-    Units defined in Unitful.jl and reachable by the `u_str` macro are all `FreeUnits`.
-  - `ContextUnits{N,D,P}`, where P is some type `FreeUnits{M,D}`: these enable
-    context-specific promotion rules, e.g. if units are defined in different packages.
-  - `FixedUnits{N,D}`: these inhibit automatic conversion of quantities with different units.
+    - `FreeUnits{N,D}`: these give the typical behavior from prior versions of Unitful.
+      Units defined in Unitful.jl and reachable by the `u_str` macro are all `FreeUnits`.
+    - `ContextUnits{N,D,P}`, where P is some type `FreeUnits{M,D}`: these enable
+      context-specific promotion rules, e.g. if units are defined in different packages.
+    - `FixedUnits{N,D}`: these inhibit automatic conversion of quantities with different units.
   - `LengthUnit`, `EnergyUnit`, etc. are renamed to `LengthUnits`, `EnergyUnits`, etc. for
     consistency (they are related more to `Units` objects than `Unit` objects). You can
     still use the old names for now, but please switch over to using `...Units` instead
