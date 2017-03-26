@@ -57,16 +57,15 @@ macro dimension(symb, abbr, name)
     s = Symbol(symb)
     x = Expr(:quote, name)
     uname = Symbol(name,"Units")
+    uname_old = Symbol(name,"Unit")
     funame = Symbol(name,"FreeUnits")
     esc(quote
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
         const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
-        Unitful.Compat.@compat $(name){T,U} = Unitful.Quantity{T,typeof($s),U}
-        Unitful.Compat.@compat $(uname){U} = Unitful.Union{
-            Unitful.FreeUnits{U,typeof($s)},
-            Unitful.ContextUnits{U,typeof($s)},
-            Unitful.FixedUnits{U,typeof($s)}}
-        Unitful.Compat.@compat $(funame){U} = Unitful.FreeUnits{U,typeof($s)}
+        Unitful.Compat.@compat ($name){T,U} = Unitful.Quantity{T,typeof($s),U}
+        Unitful.Compat.@compat ($uname){U} = Unitful.Units{U,typeof($s)}
+        Unitful.Compat.@compat ($uname_old){U} = Unitful.Units{U,typeof($s)}
+        Unitful.Compat.@compat ($funame){U} = Unitful.FreeUnits{U,typeof($s)}
         $s
     end)
 end
@@ -91,13 +90,12 @@ Usage examples:
 """
 macro derived_dimension(name, dims)
     uname = Symbol(name,"Units")
+    uname_old = Symbol(name,"Unit")
     funame = Symbol(name,"FreeUnits")
     esc(quote
         Unitful.Compat.@compat ($name){T,U} = Unitful.Quantity{T,typeof($dims),U}
-        Unitful.Compat.@compat ($uname){U} = Unitful.Union{
-            Unitful.FreeUnits{U,typeof($dims)},
-            Unitful.ContextUnits{U,typeof($dims)},
-            Unitful.FixedUnits{U,typeof($dims)}}
+        Unitful.Compat.@compat ($uname){U} = Unitful.Units{U,typeof($dims)}
+        Unitful.Compat.@compat ($uname_old){U} = Unitful.Units{U,typeof($dims)}
         Unitful.Compat.@compat ($funame){U} = Unitful.FreeUnits{U,typeof($dims)}
         nothing
     end)

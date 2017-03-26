@@ -336,43 +336,47 @@ a variety of reasons.
 function promote_unit end
 
 # Generic methods
-@inline promote_unit(x::Units) = x
+@inline promote_unit(x) = _promote_unit(x)
+@inline _promote_unit(x::Units) = x
+
+@inline promote_unit(x,y) = _promote_unit(x,y)
+
 promote_unit(x::Units, y::Units, z::Units, t::Units...) =
-    promote_unit(promote_unit(x,y), z, t...)
+    promote_unit(_promote_unit(x,y), z, t...)
 
 # Use configurable fall-back mechanism for FreeUnits
-@inline promote_unit{T<:FreeUnits}(x::T, y::T) = T()
-@inline promote_unit{N1,N2,D}(x::FreeUnits{N1,D}, y::FreeUnits{N2,D}) =
+@inline _promote_unit{T<:FreeUnits}(x::T, y::T) = T()
+@inline _promote_unit{N1,N2,D}(x::FreeUnits{N1,D}, y::FreeUnits{N2,D}) =
     upreferred(dimension(x))
 
 # same units, but promotion context disagrees
-@inline promote_unit{T<:ContextUnits}(x::T, y::T) = T()  #ambiguity reasons
-@inline promote_unit{N,D,P1,P2}(x::ContextUnits{N,D,P1}, y::ContextUnits{N,D,P2}) =
+@inline _promote_unit{T<:ContextUnits}(x::T, y::T) = T()  #ambiguity reasons
+@inline _promote_unit{N,D,P1,P2}(x::ContextUnits{N,D,P1}, y::ContextUnits{N,D,P2}) =
     ContextUnits{N,D,promote_unit(P1(), P2())}()
 # different units, but promotion context agrees
-@inline promote_unit{N1,N2,D,P}(x::ContextUnits{N1,D,P}, y::ContextUnits{N2,D,P}) =
+@inline _promote_unit{N1,N2,D,P}(x::ContextUnits{N1,D,P}, y::ContextUnits{N2,D,P}) =
     ContextUnits(P(), P())
 # different units, promotion context disagrees, fall back to FreeUnits
-@inline promote_unit{N1,N2,D}(x::ContextUnits{N1,D}, y::ContextUnits{N2,D}) =
+@inline _promote_unit{N1,N2,D}(x::ContextUnits{N1,D}, y::ContextUnits{N2,D}) =
     promote_unit(FreeUnits(x), FreeUnits(y))
 
 # ContextUnits beat FreeUnits
-@inline promote_unit{N,D}(x::ContextUnits{N,D}, y::FreeUnits{N,D}) = x
-@inline promote_unit{N1,N2,D,P}(x::ContextUnits{N1,D,P}, y::FreeUnits{N2,D}) =
+@inline _promote_unit{N,D}(x::ContextUnits{N,D}, y::FreeUnits{N,D}) = x
+@inline _promote_unit{N1,N2,D,P}(x::ContextUnits{N1,D,P}, y::FreeUnits{N2,D}) =
     ContextUnits(P(), P())
-@inline promote_unit(x::FreeUnits, y::ContextUnits) = promote_unit(y,x)
+@inline _promote_unit(x::FreeUnits, y::ContextUnits) = promote_unit(y,x)
 
 # FixedUnits beat everything
-@inline promote_unit{T<:FixedUnits}(x::T, y::T) = T()
-@inline promote_unit{M,N,D}(x::FixedUnits{M,D}, y::Units{N,D}) = x
-@inline promote_unit(x::Units, y::FixedUnits) = promote_unit(y,x)
+@inline _promote_unit{T<:FixedUnits}(x::T, y::T) = T()
+@inline _promote_unit{M,N,D}(x::FixedUnits{M,D}, y::Units{N,D}) = x
+@inline _promote_unit(x::Units, y::FixedUnits) = promote_unit(y,x)
 
 # Different units but same dimension are not fungible for FixedUnits
-@inline promote_unit{M,N,D}(x::FixedUnits{M,D}, y::FixedUnits{N,D}) =
+@inline _promote_unit{M,N,D}(x::FixedUnits{M,D}, y::FixedUnits{N,D}) =
     error("automatic conversion prohibited.")
 
 # If we didn't handle it above, the dimensions mismatched.
-@inline promote_unit(x::Units, y::Units) = throw(DimensionError(x,y))
+@inline _promote_unit(x::Units, y::Units) = throw(DimensionError(x,y))
 
 @inline name{S,D}(x::Unit{S,D}) = S
 @inline name{S}(x::Dimension{S}) = S

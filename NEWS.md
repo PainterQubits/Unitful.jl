@@ -13,9 +13,12 @@
   - `c` is now a unit, to permit converting mass into `MeV/c^2`, for example. `c0` is
     still a quantity equal to the speed of light in vacuum, in units of `m/s`.
 - v0.1.5
-  - Patch for Julia PR [#20889](https://github.com/JuliaLang/julia/pull/20889), which changes how lowering is done for exponentiation of integer literals.
-  - Bug fix to enable registering Main as a module for `u_str` (fixes [#61](https://github.com/ajkeller34/Unitful.jl/issues/61)).
-  - Implement readable message for `DimensionError` [#62](https://github.com/ajkeller34/Unitful.jl/pull/62).
+  - Patch for Julia PR [#20889](https://github.com/JuliaLang/julia/pull/20889), which
+    changes how lowering is done for exponentiation of integer literals.
+  - Bug fix to enable registering Main as a module for `u_str` (fixes
+    [#61](https://github.com/ajkeller34/Unitful.jl/issues/61)).
+  - Implement readable message for `DimensionError`
+    [#62](https://github.com/ajkeller34/Unitful.jl/pull/62).
 - v0.1.4
   - Critical bug fix owing to `mod_fast` changes.
 - v0.1.3
