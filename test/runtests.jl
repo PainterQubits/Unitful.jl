@@ -250,7 +250,10 @@ end
         @test @inferred(promote(1g, 1.0kg)) === (0.001kg, 1.0kg)
         @test @inferred(promote(1.0m, 1kg)) === (1.0m, 1.0kg)
         @test @inferred(promote(1kg, 1.0m)) === (1.0kg, 1.0m)
-        @test_broken @inferred(promote(1.0m, 1)) === (1.0m, 1.0)               # issue 52
+        @static if VERSION >= v"0.6.0-dev+0"
+            # broken on 0.5 too but i want the other tests to run and it exits early on 0.5
+            @test_broken @inferred(promote(1.0m, 1)) === (1.0m, 1.0)         # issue 52
+        end
 
         # prefer no units for dimensionless numbers
         @test @inferred(promote(1.0mm/m, 1.0km/m)) === (0.001,1000.0)
