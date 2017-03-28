@@ -14,7 +14,8 @@ end
 import Base: ==, <, <=, +, -, *, /, //, ^
 import Base: show, convert
 import Base: abs, abs2, float, fma, muladd, inv, sqrt, cbrt
-import Base: min, max, floor, ceil, log, log10, real, imag, conj
+import Base: min, max, floor, ceil, real, imag, conj
+import Base: exp, exp10, exp2, expm1, log, log10, log1p, log2
 import Base: sin, cos, tan, cot, sec, csc, atan2, cis, vecnorm
 
 import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
@@ -884,8 +885,9 @@ isnan(x::Quantity) = isnan(x.val)
 
 unsigned(x::Quantity) = Quantity(unsigned(x.val), unit(x))
 
-log(x::DimensionlessQuantity) = log(uconvert(NoUnits, x))
-log10(x::DimensionlessQuantity) = log10(uconvert(NoUnits, x))
+for f in (:exp, :exp10, :exp2, :expm1, :log, :log10, :log1p, :log2)
+    @eval ($f)(x::DimensionlessQuantity) = ($f)(uconvert(NoUnits, x))
+end
 
 real(x::Quantity) = Quantity(real(x.val), unit(x))
 imag(x::Quantity) = Quantity(imag(x.val), unit(x))

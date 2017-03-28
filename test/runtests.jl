@@ -509,6 +509,11 @@ end
         @test @inferred(cot(45°)) == 1
         @test @inferred(atan2(m*sqrt(3),1m)) ≈ 60°
     end
+    @testset "> Exponentials and logarithms" begin
+        for f in (exp, exp10, exp2, expm1, log, log10, log1p, log2)
+            @test f(1.0 * u"m/dm") ≈ f(10)
+        end
+    end
     @testset "> Matrix inversion" begin
         @test inv([1 1; -1 1]u"nm") ≈ [0.5 -0.5; 0.5 0.5]u"nm^-1"
     end
