@@ -448,7 +448,7 @@ julia&gt; u&quot;ħ&quot;
 1.0545718001391127e-34 J s</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/User.jl#L329-L362' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/User.jl#L329-L362' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.register' href='#Unitful.register'>#</a>
 <strong><code>Unitful.register</code></strong> &mdash; <em>Function</em>.</p>
 <pre class="codehilite"><code>function register(unit_module::Module)</code></pre>
@@ -467,7 +467,7 @@ end
 end #module</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/User.jl#L1-L22' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/User.jl#L1-L22' class='documenter-source'>source</a><br></p>
 <p><a id='Dimension-and-unit-inspection-1'></a></p>
 <h2 id="dimension-and-unit-inspection">Dimension and unit inspection</h2>
 <p>We define a function <a href="./#Unitful.dimension-Tuple{Number}"><code>dimension</code></a> that turns, for example, <code>acre^2</code> or <code>1*acre^2</code> into <code>𝐋^4</code>. We can usually add quantities with the same dimension, regardless of specific units (<code>FixedUnits</code> cannot be automatically converted, however). Note that dimensions cannot be determined by powers of the units: <code>ft^2</code> is an area, but so is <code>ac^1</code> (an acre).</p>
@@ -486,7 +486,7 @@ julia&gt; typeof(u&quot;m&quot;)
 Unitful.FreeUnits{(Unitful.Unit{:Meter,Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}(0, 1//1),),Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Unitful.jl#L160-L176' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/Unitful.jl#L161-L177' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>unit{T,D,U}(x::Type{Quantity{T,D,U}})</code></pre>
 
 
@@ -496,7 +496,7 @@ Unitful.FreeUnits{(Unitful.Unit{:Meter,Unitful.Dimensions{(Unitful.Dimension{:Le
 true</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Unitful.jl#L179-L192' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/Unitful.jl#L180-L193' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>unit(x::Number)</code></pre>
 
 
@@ -510,7 +510,7 @@ julia&gt; unit(1.0) == NoUnits
 true</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Unitful.jl#L196-L215' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/Unitful.jl#L197-L216' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Tuple{Number}' href='#Unitful.dimension-Tuple{Number}'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
 <pre class="codehilite"><code>dimension(x::Number)
@@ -527,8 +527,8 @@ julia&gt; dimension(1.0) == NoDims
 true</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Unitful.jl#L219-L239' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.dimension-Tuple{Unitful.Units{U,D}} where D where U' href='#Unitful.dimension-Tuple{Unitful.Units{U,D}} where D where U'>#</a>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/Unitful.jl#L220-L240' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.dimension-Union{Tuple{D}, Tuple{Unitful.Units{U,D}}, Tuple{U}} where D where U' href='#Unitful.dimension-Union{Tuple{D}, Tuple{Unitful.Units{U,D}}, Tuple{U}} where D where U'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
 <pre class="codehilite"><code>dimension{U,D}(u::Units{U,D})</code></pre>
 
@@ -545,9 +545,7 @@ julia&gt; typeof(dimension(u&quot;m/km&quot;))
 Unitful.Dimensions{()}</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Unitful.jl#L243-L264' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.dimension-Tuple{Unitful.Quantity{T,D,U}} where U where D where T' href='#Unitful.dimension-Tuple{Unitful.Quantity{T,D,U}} where U where D where T'>#</a>
-<strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/Unitful.jl#L244-L265' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>dimension{T,D}(x::Quantity{T,D})</code></pre>
 
 
@@ -560,14 +558,45 @@ julia&gt; typeof(dimension(1.0u&quot;m/μm&quot;))
 Unitful.Dimensions{()}</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Unitful.jl#L267-L285' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.dimension-Tuple{AbstractArray{T,N} where N} where T<:Unitful.Units' href='#Unitful.dimension-Tuple{AbstractArray{T,N} where N} where T<:Unitful.Units'>#</a>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/Unitful.jl#L268-L286' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.dimension-Union{Tuple{D}, Tuple{T}, Tuple{Unitful.Quantity{T,D,U}}, Tuple{U}} where U where D where T' href='#Unitful.dimension-Union{Tuple{D}, Tuple{T}, Tuple{Unitful.Quantity{T,D,U}}, Tuple{U}} where U where D where T'>#</a>
+<strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
+<pre class="codehilite"><code>dimension{U,D}(u::Units{U,D})</code></pre>
+
+
+<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object corresponding to the dimensions of the units, <code>D()</code>. For a dimensionless combination of units, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
+<p>Examples:</p>
+<pre class="codehilite"><code class="language-jlcon">julia&gt; dimension(u&quot;m&quot;)
+𝐋
+
+julia&gt; typeof(dimension(u&quot;m&quot;))
+Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}
+
+julia&gt; typeof(dimension(u&quot;m/km&quot;))
+Unitful.Dimensions{()}</code></pre>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/Unitful.jl#L244-L265' class='documenter-source'>source</a><br></p>
+<pre class="codehilite"><code>dimension{T,D}(x::Quantity{T,D})</code></pre>
+
+
+<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object <code>D()</code> corresponding to the dimensions of quantity <code>x</code>. For a dimensionless <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a>, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
+<p>Examples:</p>
+<pre class="codehilite"><code class="language-jlcon">julia&gt; dimension(1.0u&quot;m&quot;)
+𝐋
+
+julia&gt; typeof(dimension(1.0u&quot;m/μm&quot;))
+Unitful.Dimensions{()}</code></pre>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/Unitful.jl#L268-L286' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.dimension-Union{Tuple{AbstractArray{T,N} where N}, Tuple{T}} where T<:Unitful.Units' href='#Unitful.dimension-Union{Tuple{AbstractArray{T,N} where N}, Tuple{T}} where T<:Unitful.Units'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
 <pre class="codehilite"><code>dimension{T&lt;:Units}(x::AbstractArray{T})</code></pre>
 
 
 <p>Just calls <code>map(dimension, x)</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Unitful.jl#L298-L304' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/Unitful.jl#L299-L305' class='documenter-source'>source</a><br></p>
 <p><a id='Unit-stripping-1'></a></p>
 <h2 id="unit-stripping">Unit stripping</h2>
 <p><a id='Unitful.ustrip' href='#Unitful.ustrip'>#</a>
@@ -585,7 +614,7 @@ julia&gt; uconvert(NoUnits, 2u&quot;μm/m&quot;) == 2//1000000
 true</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Unitful.jl#L72-L96' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/Unitful.jl#L73-L97' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>ustrip{Q&lt;:Quantity}(x::Array{Q})</code></pre>
 
 
@@ -607,18 +636,18 @@ julia&gt; a[1] = 3u&quot;m&quot;; b
  2</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Unitful.jl#L99-L127' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/Unitful.jl#L100-L128' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>ustrip{Q&lt;:Quantity}(A::AbstractArray{Q})</code></pre>
 
 
 <p>Strip units from an <code>AbstractArray</code> by making a new array without units using array comprehensions.</p>
 <p>This function is provided primarily for compatibility purposes; you could pass the result to PyPlot, for example. This function may be deprecated in the future.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Unitful.jl#L130-L140' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/Unitful.jl#L131-L141' class='documenter-source'>source</a><br></p>
 <pre class="codehilite"><code>ustrip{T&lt;:Number}(x::AbstractArray{T})</code></pre>
 
 
 <p>Fall-back that returns <code>x</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Unitful.jl#L143-L149' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/Unitful.jl#L144-L150' class='documenter-source'>source</a><br></p>
 <p><a id='Unit-multiplication-1'></a></p>
 <h2 id="unit-multiplication">Unit multiplication</h2>
 <p><a id='Base.:*-Tuple{Unitful.Units,Vararg{Unitful.Units,N} where N}' href='#Base.:*-Tuple{Unitful.Units,Vararg{Unitful.Units,N} where N}'>#</a>
@@ -639,7 +668,7 @@ julia&gt; typeof(u&quot;m/s*kg/s&quot;) == typeof(u&quot;kg*m/s^2&quot;)
 true</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Unitful.jl#L1041-L1066' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/Unitful.jl#L1043-L1068' class='documenter-source'>source</a><br></p>
 <p><a id='Base.:*-Tuple{Unitful.Dimensions,Vararg{Unitful.Dimensions,N} where N}' href='#Base.:*-Tuple{Unitful.Dimensions,Vararg{Unitful.Dimensions,N} where N}'>#</a>
 <strong><code>Base.:*</code></strong> &mdash; <em>Method</em>.</p>
 <pre class="codehilite"><code>*(a0::Dimensions, a::Dimensions...)</code></pre>
@@ -658,7 +687,7 @@ julia&gt; typeof(u&quot;𝐋*𝐌/𝐓^2&quot;) == typeof(u&quot;𝐌*𝐋/𝐓^
 true</code></pre>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/630e45c528acd4a4c08407b3b6066f87c02fa70b/src/Unitful.jl#L504-L527' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/94006ddc004ee6c1187028d6a2a743306668fb96/src/Unitful.jl#L505-L528' class='documenter-source'>source</a><br></p>
                 
                   
                 
