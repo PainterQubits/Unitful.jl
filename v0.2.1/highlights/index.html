@@ -19,7 +19,7 @@
     
     
       
-        <title>How units are displayed - Unitful.jl</title>
+        <title>Highlighted features - Unitful.jl</title>
       
     
     
@@ -82,7 +82,7 @@
             
               
             
-            How units are displayed
+            Highlighted features
           
         </span>
       </div>
@@ -199,11 +199,84 @@
       
       
 
+  
 
-  <li class="md-nav__item">
-    <a href="../highlights/" title="Highlighted features" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Highlighted features
+      </label>
+    
+    <a href="./" title="Highlighted features" class="md-nav__link md-nav__link--active">
       Highlighted features
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#dispatch-on-dimensions" title="Dispatch on dimensions" class="md-nav__link">
+    Dispatch on dimensions
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dimensions-in-a-type-definition" title="Dimensions in a type definition" class="md-nav__link">
+    Dimensions in a type definition
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#making-new-units-and-dimensions" title="Making new units and dimensions" class="md-nav__link">
+    Making new units and dimensions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arrays" title="Arrays" class="md-nav__link">
+    Arrays
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#units-with-rational-exponents" title="Units with rational exponents" class="md-nav__link">
+    Units with rational exponents
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exact-conversions-respected" title="Exact conversions respected" class="md-nav__link">
+    Exact conversions respected
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
     
@@ -259,18 +332,11 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
-    
-    
-    <a href="./" title="How units are displayed" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../display/" title="How units are displayed" class="md-nav__link">
       How units are displayed
     </a>
-    
   </li>
 
     
@@ -325,6 +391,61 @@
   
   
   
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#dispatch-on-dimensions" title="Dispatch on dimensions" class="md-nav__link">
+    Dispatch on dimensions
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dimensions-in-a-type-definition" title="Dimensions in a type definition" class="md-nav__link">
+    Dimensions in a type definition
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#making-new-units-and-dimensions" title="Making new units and dimensions" class="md-nav__link">
+    Making new units and dimensions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arrays" title="Arrays" class="md-nav__link">
+    Arrays
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#units-with-rational-exponents" title="Units with rational exponents" class="md-nav__link">
+    Units with rational exponents
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exact-conversions-respected" title="Exact conversions respected" class="md-nav__link">
+    Exact conversions respected
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -335,64 +456,73 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/display.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/highlights.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>How units are displayed</h1>
+                  <h1>Highlighted features</h1>
                 
-                <p><a id='Unitful.abbr' href='#Unitful.abbr'>#</a>
-<strong><code>Unitful.abbr</code></strong> &mdash; <em>Function</em>.</p>
-<p><code>abbr(x)</code> provides abbreviations for units or dimensions. Since a method should always be defined for each unit and dimension type, absence of a method for a specific unit or dimension type is likely an error. Consequently, we return ❓ for generic arguments to flag unexpected behavior.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L26-L31' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.prefix' href='#Unitful.prefix'>#</a>
-<strong><code>Unitful.prefix</code></strong> &mdash; <em>Function</em>.</p>
-<pre class="codehilite"><code>prefix(x::Unit)</code></pre>
+                <p><a id='Dispatch-on-dimensions-1'></a></p>
+<h2 id="dispatch-on-dimensions">Dispatch on dimensions</h2>
+<p>Consider the following toy example, converting from voltage or power ratios to decibels:</p>
+<pre class="codehilite"><code class="language-jlcon">julia&gt; dB(num::Unitful.Voltage, den::Unitful.Voltage) = 20*log10(num/den)
+ dB (generic function with 1 method)
+
+julia&gt; dB(num::Unitful.Power, den::Unitful.Power) = 10*log10(num/den)
+ dB (generic function with 2 methods)
+
+julia&gt; dB(1u&quot;mV&quot;, 1u&quot;V&quot;)
+-60.0
+
+julia&gt; dB(1u&quot;mW&quot;, 1u&quot;W&quot;)
+-30.0</code></pre>
 
 
-<p>Returns a string representing the SI prefix for the power-of-ten held by this particular unit.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L34-L41' class='documenter-source'>source</a><br></p>
-<p><a id='Base.show-Tuple{IO,Unitful.Quantity}' href='#Base.show-Tuple{IO,Unitful.Quantity}'>#</a>
-<strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>show(io::IO, x::Quantity)</code></pre>
+<p>We don't currently implement dB as a unit because the log scale would require special treatment, but it is under consideration.</p>
+<p><a id='Dimensions-in-a-type-definition-1'></a></p>
+<h3 id="dimensions-in-a-type-definition">Dimensions in a type definition</h3>
+<p>It may be tempting to specify the dimensions of a quantity in a type definition, e.g.</p>
+<pre class="codehilite"><code>type Person
+    height::Unitful.Length
+    mass::Unitful.Mass
+end</code></pre>
 
 
-<p>Show a unitful quantity by calling <code>show</code> on the numeric value, appending a space, and then calling <code>show</code> on a units object <code>U()</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L50-L57' class='documenter-source'>source</a><br></p>
-<p><a id='Base.show-Union{Tuple{D}, Tuple{IO,Type{Unitful.Quantity{T,D,U}}}, Tuple{T}, Tuple{U}} where U where D where T' href='#Base.show-Union{Tuple{D}, Tuple{IO,Type{Unitful.Quantity{T,D,U}}}, Tuple{T}, Tuple{U}} where U where D where T'>#</a>
-<strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>show{T,D,U}(io::IO, ::Type{Quantity{T,D,U}})</code></pre>
+<p>However, these are abstract types. If performance is important, it may be better just to pick a concrete <code>Quantity</code> type:</p>
+<pre class="codehilite"><code>type Person
+    height::typeof(1.0u&quot;m&quot;)
+    mass::typeof(1.0u&quot;kg&quot;)
+end</code></pre>
 
 
-<p>Show the type of a unitful quantity in a succinct way. Otherwise, array summaries are nearly unreadable.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L67-L74' class='documenter-source'>source</a><br></p>
-<p><a id='Base.show-Tuple{IO,Unitful.Unitlike}' href='#Base.show-Tuple{IO,Unitful.Unitlike}'>#</a>
-<strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>show(io::IO, x::Unitlike)</code></pre>
+<p>You can still create a <code>Person</code> as <code>Person(5u"ft"+10u"inch", 75u"kg")</code>; the unit conversion happens automatically.</p>
+<p><a id='Making-new-units-and-dimensions-1'></a></p>
+<h2 id="making-new-units-and-dimensions">Making new units and dimensions</h2>
+<p>You can make new units using the <a href="../newunits/#Unitful.@unit"><code>@unit</code></a> macro on the fly:</p>
+<pre class="codehilite"><code class="language-jlcon">julia&gt; @unit yd5 &quot;yd5&quot; FiveYards 5u&quot;yd&quot; false
+yd5</code></pre>
 
 
-<p>Call <a href="./#Unitful.showrep-Tuple{IO,Unitful.Unit}"><code>Unitful.showrep</code></a> on each object in the tuple that is the type variable of a <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> or <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L82-L89' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.showrep-Tuple{IO,Unitful.Unit}' href='#Unitful.showrep-Tuple{IO,Unitful.Unit}'>#</a>
-<strong><code>Unitful.showrep</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>showrep(io::IO, x::Unit)</code></pre>
+<p><a id='Arrays-1'></a></p>
+<h2 id="arrays">Arrays</h2>
+<p>Promotion is used to create arrays of a concrete type where possible, such that arrays of unitful quantities are stored efficiently in memory. However, if necessary, arrays can hold quantities with different dimensions, even mixed with unitless numbers. Doing so will suffer a performance penalty compared with the fast performance attainable with an array of concrete type (e.g. as resulting from <code>[1.0u"m", 2.0u"cm", 3.0u"km"]</code>). However, it could be useful in toy calculations for <a href="https://en.wikipedia.org/wiki/Metric_tensor_(general_relativity)">general relativity</a> where some conventions yield matrices with mixed dimensions:</p>
+<pre class="codehilite"><code>julia&gt; Diagonal([-1.0u&quot;c^2&quot;, 1.0, 1.0, 1.0])
+4×4 Diagonal{Unitful.Quantity{Float64,D,U}}:
+ -1.0 c^2   ⋅    ⋅    ⋅
+       ⋅   1.0   ⋅    ⋅
+       ⋅    ⋅   1.0   ⋅
+       ⋅    ⋅    ⋅   1.0</code></pre>
 
 
-<p>Show the unit, prefixing with any decimal prefix and appending the exponent as formatted by <a href="./#Unitful.superscript"><code>Unitful.superscript</code></a>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L101-L108' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.showrep-Tuple{IO,Unitful.Dimension}' href='#Unitful.showrep-Tuple{IO,Unitful.Dimension}'>#</a>
-<strong><code>Unitful.showrep</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>showrep(io::IO, x::Dimension)</code></pre>
+<p><a id='Units-with-rational-exponents-1'></a></p>
+<h2 id="units-with-rational-exponents">Units with rational exponents</h2>
+<pre class="codehilite"><code class="language-jlcon">julia&gt; 1.0u&quot;V/sqrt(Hz)&quot;
+1.0 Hz^-1/2 V</code></pre>
 
 
-<p>Show the dimension, appending any exponent as formatted by <a href="./#Unitful.superscript"><code>Unitful.superscript</code></a>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L116-L123' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.superscript' href='#Unitful.superscript'>#</a>
-<strong><code>Unitful.superscript</code></strong> &mdash; <em>Function</em>.</p>
-<pre class="codehilite"><code>superscript(i::Rational)</code></pre>
-
-
-<p>Prints exponents.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L129-L135' class='documenter-source'>source</a><br></p>
+<p><a id='Exact-conversions-respected-1'></a></p>
+<h2 id="exact-conversions-respected">Exact conversions respected</h2>
+<pre class="codehilite"><code class="language-jlcon">julia&gt; uconvert(u&quot;ft&quot;,1u&quot;inch&quot;)
+1//12 ft</code></pre>
                 
                   
                 
@@ -411,7 +541,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../manipulations/" title="Manipulating units" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href=".." title="Home" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -420,19 +550,19 @@
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Manipulating units
+                Home
               </span>
             </div>
           </a>
         
         
-          <a href="../extending/" title="Extending Unitful" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../types/" title="Types" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Extending Unitful
+                Types
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">

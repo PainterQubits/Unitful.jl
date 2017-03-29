@@ -19,7 +19,7 @@
     
     
       
-        <title>How units are displayed - Unitful.jl</title>
+        <title>Extending Unitful - Unitful.jl</title>
       
     
     
@@ -82,7 +82,7 @@
             
               
             
-            How units are displayed
+            Extending Unitful
           
         </span>
       </div>
@@ -259,18 +259,11 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
-    
-    
-    <a href="./" title="How units are displayed" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../display/" title="How units are displayed" class="md-nav__link">
       How units are displayed
     </a>
-    
   </li>
 
     
@@ -278,11 +271,81 @@
       
       
 
+  
 
-  <li class="md-nav__item">
-    <a href="../extending/" title="Extending Unitful" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Extending Unitful
+      </label>
+    
+    <a href="./" title="Extending Unitful" class="md-nav__link md-nav__link--active">
       Extending Unitful
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#making-your-own-units-package" title="Making your own units package" class="md-nav__link">
+    Making your own units package
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#some-limitations" title="Some limitations" class="md-nav__link">
+    Some limitations
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#precompilation" title="Precompilation" class="md-nav__link">
+    Precompilation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-uniqueness" title="Type uniqueness" class="md-nav__link">
+    Type uniqueness
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#archaic-or-fictitious-unit-systems" title="Archaic or fictitious unit systems" class="md-nav__link">
+    Archaic or fictitious unit systems
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
     
@@ -324,6 +387,56 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#making-your-own-units-package" title="Making your own units package" class="md-nav__link">
+    Making your own units package
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#some-limitations" title="Some limitations" class="md-nav__link">
+    Some limitations
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#precompilation" title="Precompilation" class="md-nav__link">
+    Precompilation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-uniqueness" title="Type uniqueness" class="md-nav__link">
+    Type uniqueness
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#archaic-or-fictitious-unit-systems" title="Archaic or fictitious unit systems" class="md-nav__link">
+    Archaic or fictitious unit systems
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
   
 </nav>
                   </div>
@@ -335,64 +448,39 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/display.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/extending.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>How units are displayed</h1>
-                
-                <p><a id='Unitful.abbr' href='#Unitful.abbr'>#</a>
-<strong><code>Unitful.abbr</code></strong> &mdash; <em>Function</em>.</p>
-<p><code>abbr(x)</code> provides abbreviations for units or dimensions. Since a method should always be defined for each unit and dimension type, absence of a method for a specific unit or dimension type is likely an error. Consequently, we return ❓ for generic arguments to flag unexpected behavior.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L26-L31' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.prefix' href='#Unitful.prefix'>#</a>
-<strong><code>Unitful.prefix</code></strong> &mdash; <em>Function</em>.</p>
-<pre class="codehilite"><code>prefix(x::Unit)</code></pre>
+                <p><a id='Extending-Unitful-1'></a></p>
+<h1 id="extending-unitful">Extending Unitful</h1>
+<p><a id='Making-your-own-units-package-1'></a></p>
+<h2 id="making-your-own-units-package">Making your own units package</h2>
+<p>New units or dimensions can be defined from the Julia REPL or from within other packages. To avoid duplication of code and effort, it is advised to put new unit definitions into a Julia package that is then published for others to use. For an example of how to do this, examine the code in <a href="https://github.com/ajkeller34/UnitfulUS.jl"><code>UnitfulUS.jl</code></a>, which defines U.S. customary units. It's actually very easy! Just make sure you read all of the cautionary notes on this page. If you make a units package for Unitful, please submit a pull request so that I can provide a link from Unitful's README!</p>
+<p><a id='Some-limitations-1'></a></p>
+<h2 id="some-limitations">Some limitations</h2>
+<p><a id='Precompilation-1'></a></p>
+<h3 id="precompilation">Precompilation</h3>
+<p>When creating new units in a precompiled package that need to persist into run-time (usually true), it is important that the following or something very similar make it into your code:</p>
+<pre class="codehilite"><code class="language-jl">const localunits = Unitful.basefactors
+const localpromotion = Unitful.promotion # only if you've used @dimension
+function __init__()
+    merge!(Unitful.basefactors, localunits)
+    merge!(Unitful.promotion, localpromotion) # only if you've used @dimension
+end</code></pre>
 
 
-<p>Returns a string representing the SI prefix for the power-of-ten held by this particular unit.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L34-L41' class='documenter-source'>source</a><br></p>
-<p><a id='Base.show-Tuple{IO,Unitful.Quantity}' href='#Base.show-Tuple{IO,Unitful.Quantity}'>#</a>
-<strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>show(io::IO, x::Quantity)</code></pre>
-
-
-<p>Show a unitful quantity by calling <code>show</code> on the numeric value, appending a space, and then calling <code>show</code> on a units object <code>U()</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L50-L57' class='documenter-source'>source</a><br></p>
-<p><a id='Base.show-Union{Tuple{D}, Tuple{IO,Type{Unitful.Quantity{T,D,U}}}, Tuple{T}, Tuple{U}} where U where D where T' href='#Base.show-Union{Tuple{D}, Tuple{IO,Type{Unitful.Quantity{T,D,U}}}, Tuple{T}, Tuple{U}} where U where D where T'>#</a>
-<strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>show{T,D,U}(io::IO, ::Type{Quantity{T,D,U}})</code></pre>
-
-
-<p>Show the type of a unitful quantity in a succinct way. Otherwise, array summaries are nearly unreadable.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L67-L74' class='documenter-source'>source</a><br></p>
-<p><a id='Base.show-Tuple{IO,Unitful.Unitlike}' href='#Base.show-Tuple{IO,Unitful.Unitlike}'>#</a>
-<strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>show(io::IO, x::Unitlike)</code></pre>
-
-
-<p>Call <a href="./#Unitful.showrep-Tuple{IO,Unitful.Unit}"><code>Unitful.showrep</code></a> on each object in the tuple that is the type variable of a <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> or <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L82-L89' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.showrep-Tuple{IO,Unitful.Unit}' href='#Unitful.showrep-Tuple{IO,Unitful.Unit}'>#</a>
-<strong><code>Unitful.showrep</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>showrep(io::IO, x::Unit)</code></pre>
-
-
-<p>Show the unit, prefixing with any decimal prefix and appending the exponent as formatted by <a href="./#Unitful.superscript"><code>Unitful.superscript</code></a>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L101-L108' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.showrep-Tuple{IO,Unitful.Dimension}' href='#Unitful.showrep-Tuple{IO,Unitful.Dimension}'>#</a>
-<strong><code>Unitful.showrep</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>showrep(io::IO, x::Dimension)</code></pre>
-
-
-<p>Show the dimension, appending any exponent as formatted by <a href="./#Unitful.superscript"><code>Unitful.superscript</code></a>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L116-L123' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.superscript' href='#Unitful.superscript'>#</a>
-<strong><code>Unitful.superscript</code></strong> &mdash; <em>Function</em>.</p>
-<pre class="codehilite"><code>superscript(i::Rational)</code></pre>
-
-
-<p>Prints exponents.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Display.jl#L129-L135' class='documenter-source'>source</a><br></p>
+<p>The definition of <code>localunits</code> (<code>localpromotion</code>) must happen <em>after all new units (dimensions) have been defined</em>.</p>
+<p>The problem is that the <a href="../newunits/#Unitful.@unit"><code>@unit</code></a> macro needs to add some information to a dictionary defined in Unitful, regardless of where the macro is executed (the use of this dictionary does not lead to run-time penalties, if you were wondering). However, because Unitful is precompiled, changes made to it from another module at compile-time will not persist.</p>
+<p>The <code>const localunits = Unitful.basefactors</code> line makes a copy of the compile-time-modified dictionary, which can be precompiled into the module where this code appears, and then the dictionary is merged into Unitful's dictionary at runtime.</p>
+<p>If you'd like, you can also consider adding a call to <a href="../manipulations/#Unitful.register"><code>Unitful.register</code></a> in your <code>__init__</code> function, which will make your units accessible using Unitful's <a href="../manipulations/#Unitful.@u_str"><code>@u_str</code></a> macro. Your unit symbols should ideally be distinctive to avoid colliding with symbols defined in other packages or in Unitful. If there is a collision, the <a href="../manipulations/#Unitful.@u_str"><code>@u_str</code></a> macro will still work, but it will use the unit found in whichever package was registered most recently, and it will omit a warning every time.</p>
+<p><a id='Type-uniqueness-1'></a></p>
+<h3 id="type-uniqueness">Type uniqueness</h3>
+<p>Currently, when the <a href="../newunits/#Unitful.@dimension"><code>@dimension</code></a>, <a href="../newunits/#Unitful.@derived_dimension"><code>@derived_dimension</code></a>, <a href="../newunits/#Unitful.@refunit"><code>@refunit</code></a>, or <a href="../newunits/#Unitful.@unit"><code>@unit</code></a> macros are used, some unique symbols must be provided which are used to differentiate types in dispatch. These are typically the names of dimensions or units (e.g. <code>Length</code>, <code>Meter</code>, etc.) One problem that could occur is that if multiple units or dimensions are defined with the same name, then they will be indistinguishable in dispatch and errors will result.</p>
+<p>I don't expect a flood of units packages to come out, so probably the likelihood of name collision is pretty small. When defining units yourself, do take care to use unique symbols, perhaps with the aid of <code>Base.gensym()</code> if creating units at runtime. When making packages, look and see what symbols are used by existing units packages to avoid trouble.</p>
+<p><a id='Archaic-or-fictitious-unit-systems-1'></a></p>
+<h2 id="archaic-or-fictitious-unit-systems">Archaic or fictitious unit systems</h2>
+<p>In the rare event that you want to define physical units which are not convertible to SI units, you need to do a bit of extra work. To be clear, such a conversion should always exist, in principle. One can imagine, however, archaic or fictitious unit systems for which a precise conversion to SI units is unknown. For example, a <a href="https://en.wikipedia.org/wiki/Cullishigay">cullishigay</a> is one-third of a mudi, but only <em>approximately</em> 1.25 imperial bushels. There may be cases where you don't even have an approximate conversion to imperial bushels. At such a time, you may feel uncomfortable specifying the "base unit" of this hypothetical unit system in terms of an SI quantity, and may want to explicitly forbid any attempt to convert to SI units.</p>
+<p>One can achieve this by defining new dimensions with the <a href="../newunits/#Unitful.@dimension"><code>@dimension</code></a> or <a href="../newunits/#Unitful.@derived_dimension"><code>@derived_dimension</code></a> macros. The trick is to define dimensions that display suggestively like physical dimensions, like 𝐋<em>, 𝐓</em> etc., but are distinct as far as Julia's type system is concerned. Then, you can use <a href="../newunits/#Unitful.@refunit"><code>@refunit</code></a> to base units for these new dimensions without reference to SI. The result will be that attempted conversion between the hypothetical unit system and SI will fail with a <code>DimensionError</code>, so be sure you provide some hints in how your new dimensions are displayed to avoid confusing users. It would be confusing to throw a <code>DimensionError</code> when attempting to convert between lengths which are incompatible in the sense of the previous paragraph, when both lengths display their dimension as 𝐋.</p>
                 
                   
                 
@@ -411,7 +499,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../manipulations/" title="Manipulating units" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../display/" title="How units are displayed" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -420,19 +508,19 @@
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Manipulating units
+                How units are displayed
               </span>
             </div>
           </a>
         
         
-          <a href="../extending/" title="Extending Unitful" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../trouble/" title="Troubleshooting" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Extending Unitful
+                Troubleshooting
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
