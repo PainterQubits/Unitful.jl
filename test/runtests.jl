@@ -540,6 +540,11 @@ end
         @test !isapprox(1.0u"m", 1.1u"m"; atol=50u"mm")
         @test isapprox(1.0u"m", 1.1u"m"; rtol=0.2)
         @test !isapprox(1.0u"m", 1.1u"m"; rtol=0.05)
+
+        # Test promotion behavior
+        @test !isapprox(1.0u"m", 1.0u"s")
+        @test isapprox(1.0u"m", 1000.0u"mm")
+        @test_throws ErrorException isapprox(1.0*FixedUnits(u"m"), 1000.0*FixedUnits(u"mm"))
     end
 end
 
