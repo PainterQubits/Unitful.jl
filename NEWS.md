@@ -1,5 +1,5 @@
 - v0.2.1
-  - Fixed `isapprox` bug.
+  - Fixed `isapprox` bug [#74](https://github.com/ajkeller34/Unitful.jl/pull/74).
   - Added `DimensionlessQuantity` methods for `exp`, `exp10`, `exp2`, `expm1`, `log1p`,
     `log2` [#71](https://github.com/ajkeller34/Unitful.jl/pull/71).
 - v0.2.0
