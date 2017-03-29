@@ -1,3 +1,7 @@
+- v0.2.1
+  - Fixed `isapprox` bug.
+  - Added `DimensionlessQuantity` methods for `exp`, `exp10`, `exp2`, `expm1`, `log1p`,
+    `log2` [#71](https://github.com/ajkeller34/Unitful.jl/pull/71).
 - v0.2.0
   - `Units{N,D}` is now an abstract type. Different concrete types for units give different
    behavior under conversion and promotion. The currently implemented concrete types are:
@@ -11,7 +15,7 @@
     still use the old names for now, but please switch over to using `...Units` instead
     of `...Unit` in this release as the old names will be removed in a future release.
   - `c` is now a unit, to permit converting mass into `MeV/c^2`, for example. `c0` is
-    still a quantity equal to the speed of light in vacuum, in units of `m/s` 
+    still a quantity equal to the speed of light in vacuum, in units of `m/s`
     [#67](https://github.com/ajkeller34/Unitful.jl/issues/67).
 - v0.1.5
   - Patch for Julia PR [#20889](https://github.com/JuliaLang/julia/pull/20889), which

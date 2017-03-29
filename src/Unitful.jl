@@ -824,7 +824,10 @@ end
 
 isapprox{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) =
     isapprox(x.val, y.val; atol=uconvert(unit(y), atol).val, kwargs...)
-isapprox(x::Quantity, y::Quantity; kwargs...) = isapprox(promote(x,y); kwargs...)
+function isapprox(x::Quantity, y::Quantity; kwargs...)
+    dimension(x) != dimension(y) && return false
+    return isapprox(promote(x,y)...; kwargs...)
+end
 isapprox(x::Quantity, y::Number; kwargs...) = isapprox(uconvert(NoUnits, x), y; kwargs...)
 isapprox(x::Number, y::Quantity; kwargs...) = isapprox(y, x; kwargs...)
 
