@@ -116,6 +116,7 @@ const ɛ0 = 1/(μ0*c^2)               # exact, electric constant
 const ϵ0 = ɛ0
 const Z0 = μ0*c                     # exact, impedance of free space
 const G  = 6.674_08e-11*m^3/kg/s^2  # (31) gravitational constant
+const gn = 9.80665*m/s^2            # exact, standard acceleration of gravity
 const h  = 6.626_070_040e-34*J*s    # (81) Planck constant
 const ħ  = h/2π                     # hbar
 const Φ0 = h/(2q)                   # Superconducting magnetic flux quantum
@@ -128,6 +129,10 @@ const Na = 6.022_140_857e23/mol     # (74) Avogadro constant
 const R  = 8.314_459_8*J/(mol*K)    # (48) molar gass constant
 const k  = 1.380_648_52e-23*(J/K)   # (79) Boltzmann constant
 const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
+
+# Acceleration
+@unit ge     "ge"       EarthGravity gn                     false
+
 
 #########
 # Shared Imperial / US customary units
@@ -152,6 +157,9 @@ Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
 @unit oz        "oz"       Ounce        lb//16                  false
 @unit dr        "dr"       Dram         oz//16                  false
 @unit gr        "gr"       Grain        (32//875)*dr            false
+
+# Force
+@unit lbf       "lbf"      PoundsForce  1lb*ge                  false
 
 #########
 
