@@ -267,6 +267,8 @@ end
         μm2mm = ContextUnits(μm,mm)
         @test @inferred(promote(1.0nm2μm, 1.0m)) === (0.001μm2μm, 1e6μm2μm)
         @test @inferred(promote(1.0m, 1.0μm2μm)) === (1e6μm2μm, 1.0μm2μm)
+        @test ===(upreferred.(unit.(promote(1.0nm2μm, 2nm2μm)))[1], ContextUnits(μm,μm))
+        @test ===(upreferred.(unit.(promote(1.0nm2μm, 2nm2μm)))[2], ContextUnits(μm,μm))
 
         # Context agreement
         @test @inferred(promote(1.0nm2μm, 1.0μm2μm)) ===

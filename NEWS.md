@@ -1,3 +1,6 @@
+- v0.2.2
+  - Fixed a bug in promotion involving `ContextUnits` where the promotion context might
+    not be properly retained.
 - v0.2.1
   - Fixed `isapprox` bug [#74](https://github.com/ajkeller34/Unitful.jl/pull/74).
   - Added `DimensionlessQuantity` methods for `exp`, `exp10`, `exp2`, `expm1`, `log1p`,
