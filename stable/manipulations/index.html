@@ -15,7 +15,7 @@
       
         <link rel="shortcut icon" href="../assets/images/favicon.png">
       
-      <meta name="generator" content="mkdocs-0.16.2, mkdocs-material-1.5.0">
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.5.2">
     
     
       
@@ -26,7 +26,7 @@
       <script src="../assets/javascripts/modernizr-56ade86843.js"></script>
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/application-d848f886dc.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application-e71521a2a2.css">
       
         <link rel="stylesheet" href="../assets/stylesheets/application-66fa0d9bba.palette.css">
       
@@ -425,269 +425,300 @@
 <h2 id="unitful-string-macro">Unitful string macro</h2>
 <p><a id='Unitful.@u_str' href='#Unitful.@u_str'>#</a>
 <strong><code>Unitful.@u_str</code></strong> &mdash; <em>Macro</em>.</p>
-<pre class="codehilite"><code>macro u_str(unit)</code></pre>
+<div class="codehilite"><pre><span></span>macro u_str(unit)
+</pre></div>
 
 
 <p>String macro to easily recall units, dimensions, or quantities defined in unit modules that have been registered with <a href="./#Unitful.register"><code>Unitful.register</code></a>.</p>
 <p>If the same symbol is used for a <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> object defined in different modules, then the symbol found in the most recently registered module will be used.</p>
 <p>Note that what goes inside must be parsable as a valid Julia expression. In other words, u"N m" will fail if you intended to write u"N*m".</p>
 <p>Examples:</p>
-<pre class="codehilite"><code class="language-jlcon">julia&gt; 1.0u&quot;m/s&quot;
-1.0 m s^-1
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="mf">1.0</span><span class="n">u</span><span class="s">&quot;m/s&quot;</span>
+<span class="go">1.0 m s^-1</span>
 
-julia&gt; 1.0u&quot;N*m&quot;
-1.0 m N
+<span class="gp">julia&gt;</span> <span class="mf">1.0</span><span class="n">u</span><span class="s">&quot;N*m&quot;</span>
+<span class="go">1.0 m N</span>
 
-julia&gt; u&quot;m,kg,s&quot;
-(m, kg, s)
+<span class="gp">julia&gt;</span> <span class="n">u</span><span class="s">&quot;m,kg,s&quot;</span>
+<span class="go">(m, kg, s)</span>
 
-julia&gt; typeof(1.0u&quot;m/s&quot;)
-Quantity{Float64, Dimensions:{𝐋 𝐓^-1}, Units:{m s^-1}}
+<span class="gp">julia&gt;</span> <span class="n">typeof</span><span class="p">(</span><span class="mf">1.0</span><span class="n">u</span><span class="s">&quot;m/s&quot;</span><span class="p">)</span>
+<span class="go">Quantity{Float64, Dimensions:{𝐋 𝐓^-1}, Units:{m s^-1}}</span>
 
-julia&gt; u&quot;ħ&quot;
-1.0545718001391127e-34 J s</code></pre>
+<span class="gp">julia&gt;</span> <span class="n">u</span><span class="s">&quot;ħ&quot;</span>
+<span class="go">1.0545718001391127e-34 J s</span>
+</pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/User.jl#L329-L362' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/User.jl#L329-L362' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.register' href='#Unitful.register'>#</a>
 <strong><code>Unitful.register</code></strong> &mdash; <em>Function</em>.</p>
-<pre class="codehilite"><code>function register(unit_module::Module)</code></pre>
+<div class="codehilite"><pre><span></span><span class="kd">function</span> <span class="nx">register</span><span class="p">(</span><span class="nx">unit_module</span><span class="o">::</span><span class="nx">Module</span><span class="p">)</span>
+</pre></div>
 
 
 <p>Makes the <a href="./#Unitful.@u_str"><code>@u_str</code></a> macro aware of units defined in new unit modules. By default, Unitful is itself a registered module. Note that Main is not, so if you define new units at the REPL, you will probably want to do <code>Unitful.register(Main)</code>.</p>
 <p>Example:</p>
-<pre class="codehilite"><code class="language-jl"># somewhere in a custom units package...
-module MyUnitsPackage
-using Unitful
+<div class="codehilite"><pre><span></span><span class="c"># somewhere in a custom units package...</span>
+<span class="k">module</span> <span class="n">MyUnitsPackage</span>
+<span class="k">using</span> <span class="n">Unitful</span>
 
-function __init__()
-    ...
-    Unitful.register(MyUnitsPackage)
-end
-end #module</code></pre>
+<span class="k">function</span> <span class="n">__init__</span><span class="p">()</span>
+    <span class="o">...</span>
+    <span class="n">Unitful</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">MyUnitsPackage</span><span class="p">)</span>
+<span class="k">end</span>
+<span class="k">end</span> <span class="c">#module</span>
+</pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/User.jl#L1-L22' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/User.jl#L1-L22' class='documenter-source'>source</a><br></p>
 <p><a id='Dimension-and-unit-inspection-1'></a></p>
 <h2 id="dimension-and-unit-inspection">Dimension and unit inspection</h2>
 <p>We define a function <a href="./#Unitful.dimension-Tuple{Number}"><code>dimension</code></a> that turns, for example, <code>acre^2</code> or <code>1*acre^2</code> into <code>𝐋^4</code>. We can usually add quantities with the same dimension, regardless of specific units (<code>FixedUnits</code> cannot be automatically converted, however). Note that dimensions cannot be determined by powers of the units: <code>ft^2</code> is an area, but so is <code>ac^1</code> (an acre).</p>
 <p>There is also a function <a href="./#Unitful.unit"><code>unit</code></a> that turns, for example, <code>1*acre^2</code> into <code>acre^2</code>. You can then query whether the units are <code>FreeUnits</code>, <code>FixedUnits</code>, etc.</p>
 <p><a id='Unitful.unit' href='#Unitful.unit'>#</a>
 <strong><code>Unitful.unit</code></strong> &mdash; <em>Function</em>.</p>
-<pre class="codehilite"><code>unit{T,D,U}(x::Quantity{T,D,U})</code></pre>
+<div class="codehilite"><pre><span></span>unit{T,D,U}(x::Quantity{T,D,U})
+</pre></div>
 
 
 <p>Returns the units associated with a quantity.</p>
 <p>Examples:</p>
-<pre class="codehilite"><code class="language-jlcon">julia&gt; unit(1.0u&quot;m&quot;) == u&quot;m&quot;
-true
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">unit</span><span class="p">(</span><span class="mf">1.0</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">u</span><span class="s">&quot;m&quot;</span>
+<span class="go">true</span>
 
-julia&gt; typeof(u&quot;m&quot;)
-Unitful.FreeUnits{(Unitful.Unit{:Meter,Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}(0, 1//1),),Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}</code></pre>
+<span class="gp">julia&gt;</span> <span class="n">typeof</span><span class="p">(</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">)</span>
+<span class="go">Unitful.FreeUnits{(Unitful.Unit{:Meter,Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}(0, 1//1),),Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}</span>
+</pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Unitful.jl#L161-L177' class='documenter-source'>source</a><br></p>
-<pre class="codehilite"><code>unit{T,D,U}(x::Type{Quantity{T,D,U}})</code></pre>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/Unitful.jl#L161-L177' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>unit{T,D,U}(x::Type{Quantity{T,D,U}})
+</pre></div>
 
 
 <p>Returns the units associated with a quantity type, <code>ContextUnits(U(),P())</code>.</p>
 <p>Examples:</p>
-<pre class="codehilite"><code class="language-jlcon">julia&gt; unit(typeof(1.0u&quot;m&quot;)) == u&quot;m&quot;
-true</code></pre>
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">unit</span><span class="p">(</span><span class="n">typeof</span><span class="p">(</span><span class="mf">1.0</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">))</span> <span class="o">==</span> <span class="n">u</span><span class="s">&quot;m&quot;</span>
+<span class="go">true</span>
+</pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Unitful.jl#L180-L193' class='documenter-source'>source</a><br></p>
-<pre class="codehilite"><code>unit(x::Number)</code></pre>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/Unitful.jl#L180-L193' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>unit(x::Number)
+</pre></div>
 
 
 <p>Returns a <code>Unitful.Units{(), Dimensions{()}}</code> object to indicate that ordinary numbers have no units. This is a singleton, which we export as <code>NoUnits</code>. The unit is displayed as an empty string.</p>
 <p>Examples:</p>
-<pre class="codehilite"><code class="language-jlcon">julia&gt; typeof(unit(1.0))
-Unitful.FreeUnits{(),Unitful.Dimensions{()}}
-julia&gt; typeof(unit(Float64))
-Unitful.FreeUnits{(),Unitful.Dimensions{()}}
-julia&gt; unit(1.0) == NoUnits
-true</code></pre>
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">typeof</span><span class="p">(</span><span class="n">unit</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
+<span class="go">Unitful.FreeUnits{(),Unitful.Dimensions{()}}</span>
+<span class="gp">julia&gt;</span> <span class="n">typeof</span><span class="p">(</span><span class="n">unit</span><span class="p">(</span><span class="kt">Float64</span><span class="p">))</span>
+<span class="go">Unitful.FreeUnits{(),Unitful.Dimensions{()}}</span>
+<span class="gp">julia&gt;</span> <span class="n">unit</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">==</span> <span class="n">NoUnits</span>
+<span class="go">true</span>
+</pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Unitful.jl#L197-L216' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/Unitful.jl#L197-L216' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Tuple{Number}' href='#Unitful.dimension-Tuple{Number}'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>dimension(x::Number)
-dimension{T&lt;:Number}(x::Type{T})</code></pre>
+<div class="codehilite"><pre><span></span>dimension(x::Number)
+dimension{T&lt;:Number}(x::Type{T})
+</pre></div>
 
 
 <p>Returns a <code>Unitful.Dimensions{()}</code> object to indicate that ordinary numbers are dimensionless. This is a singleton, which we export as <code>NoDims</code>. The dimension is displayed as an empty string.</p>
 <p>Examples:</p>
-<pre class="codehilite"><code class="language-jlcon">julia&gt; typeof(dimension(1.0))
-Unitful.Dimensions{()}
-julia&gt; typeof(dimension(Float64))
-Unitful.Dimensions{()}
-julia&gt; dimension(1.0) == NoDims
-true</code></pre>
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">typeof</span><span class="p">(</span><span class="n">dimension</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
+<span class="go">Unitful.Dimensions{()}</span>
+<span class="gp">julia&gt;</span> <span class="n">typeof</span><span class="p">(</span><span class="n">dimension</span><span class="p">(</span><span class="kt">Float64</span><span class="p">))</span>
+<span class="go">Unitful.Dimensions{()}</span>
+<span class="gp">julia&gt;</span> <span class="n">dimension</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">==</span> <span class="n">NoDims</span>
+<span class="go">true</span>
+</pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Unitful.jl#L220-L240' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/Unitful.jl#L220-L240' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Union{Tuple{D}, Tuple{Unitful.Units{U,D}}, Tuple{U}} where D where U' href='#Unitful.dimension-Union{Tuple{D}, Tuple{Unitful.Units{U,D}}, Tuple{U}} where D where U'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>dimension{U,D}(u::Units{U,D})</code></pre>
+<div class="codehilite"><pre><span></span>dimension{U,D}(u::Units{U,D})
+</pre></div>
 
 
 <p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object corresponding to the dimensions of the units, <code>D()</code>. For a dimensionless combination of units, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
 <p>Examples:</p>
-<pre class="codehilite"><code class="language-jlcon">julia&gt; dimension(u&quot;m&quot;)
-𝐋
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">dimension</span><span class="p">(</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">)</span>
+<span class="go">𝐋</span>
 
-julia&gt; typeof(dimension(u&quot;m&quot;))
-Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}
+<span class="gp">julia&gt;</span> <span class="n">typeof</span><span class="p">(</span><span class="n">dimension</span><span class="p">(</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">))</span>
+<span class="go">Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}</span>
 
-julia&gt; typeof(dimension(u&quot;m/km&quot;))
-Unitful.Dimensions{()}</code></pre>
+<span class="gp">julia&gt;</span> <span class="n">typeof</span><span class="p">(</span><span class="n">dimension</span><span class="p">(</span><span class="n">u</span><span class="s">&quot;m/km&quot;</span><span class="p">))</span>
+<span class="go">Unitful.Dimensions{()}</span>
+</pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Unitful.jl#L244-L265' class='documenter-source'>source</a><br></p>
-<pre class="codehilite"><code>dimension{T,D}(x::Quantity{T,D})</code></pre>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/Unitful.jl#L244-L265' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>dimension{T,D}(x::Quantity{T,D})
+</pre></div>
 
 
 <p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object <code>D()</code> corresponding to the dimensions of quantity <code>x</code>. For a dimensionless <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a>, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
 <p>Examples:</p>
-<pre class="codehilite"><code class="language-jlcon">julia&gt; dimension(1.0u&quot;m&quot;)
-𝐋
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">dimension</span><span class="p">(</span><span class="mf">1.0</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">)</span>
+<span class="go">𝐋</span>
 
-julia&gt; typeof(dimension(1.0u&quot;m/μm&quot;))
-Unitful.Dimensions{()}</code></pre>
+<span class="gp">julia&gt;</span> <span class="n">typeof</span><span class="p">(</span><span class="n">dimension</span><span class="p">(</span><span class="mf">1.0</span><span class="n">u</span><span class="s">&quot;m/μm&quot;</span><span class="p">))</span>
+<span class="go">Unitful.Dimensions{()}</span>
+</pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Unitful.jl#L268-L286' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/Unitful.jl#L268-L286' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Union{Tuple{D}, Tuple{T}, Tuple{Unitful.Quantity{T,D,U}}, Tuple{U}} where U where D where T' href='#Unitful.dimension-Union{Tuple{D}, Tuple{T}, Tuple{Unitful.Quantity{T,D,U}}, Tuple{U}} where U where D where T'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>dimension{U,D}(u::Units{U,D})</code></pre>
+<div class="codehilite"><pre><span></span>dimension{U,D}(u::Units{U,D})
+</pre></div>
 
 
 <p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object corresponding to the dimensions of the units, <code>D()</code>. For a dimensionless combination of units, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
 <p>Examples:</p>
-<pre class="codehilite"><code class="language-jlcon">julia&gt; dimension(u&quot;m&quot;)
-𝐋
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">dimension</span><span class="p">(</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">)</span>
+<span class="go">𝐋</span>
 
-julia&gt; typeof(dimension(u&quot;m&quot;))
-Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}
+<span class="gp">julia&gt;</span> <span class="n">typeof</span><span class="p">(</span><span class="n">dimension</span><span class="p">(</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">))</span>
+<span class="go">Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}</span>
 
-julia&gt; typeof(dimension(u&quot;m/km&quot;))
-Unitful.Dimensions{()}</code></pre>
+<span class="gp">julia&gt;</span> <span class="n">typeof</span><span class="p">(</span><span class="n">dimension</span><span class="p">(</span><span class="n">u</span><span class="s">&quot;m/km&quot;</span><span class="p">))</span>
+<span class="go">Unitful.Dimensions{()}</span>
+</pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Unitful.jl#L244-L265' class='documenter-source'>source</a><br></p>
-<pre class="codehilite"><code>dimension{T,D}(x::Quantity{T,D})</code></pre>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/Unitful.jl#L244-L265' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>dimension{T,D}(x::Quantity{T,D})
+</pre></div>
 
 
 <p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object <code>D()</code> corresponding to the dimensions of quantity <code>x</code>. For a dimensionless <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a>, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
 <p>Examples:</p>
-<pre class="codehilite"><code class="language-jlcon">julia&gt; dimension(1.0u&quot;m&quot;)
-𝐋
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">dimension</span><span class="p">(</span><span class="mf">1.0</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">)</span>
+<span class="go">𝐋</span>
 
-julia&gt; typeof(dimension(1.0u&quot;m/μm&quot;))
-Unitful.Dimensions{()}</code></pre>
+<span class="gp">julia&gt;</span> <span class="n">typeof</span><span class="p">(</span><span class="n">dimension</span><span class="p">(</span><span class="mf">1.0</span><span class="n">u</span><span class="s">&quot;m/μm&quot;</span><span class="p">))</span>
+<span class="go">Unitful.Dimensions{()}</span>
+</pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Unitful.jl#L268-L286' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/Unitful.jl#L268-L286' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Union{Tuple{AbstractArray{T,N} where N}, Tuple{T}} where T<:Unitful.Units' href='#Unitful.dimension-Union{Tuple{AbstractArray{T,N} where N}, Tuple{T}} where T<:Unitful.Units'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>dimension{T&lt;:Units}(x::AbstractArray{T})</code></pre>
+<div class="codehilite"><pre><span></span>dimension{T&lt;:Units}(x::AbstractArray{T})
+</pre></div>
 
 
 <p>Just calls <code>map(dimension, x)</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Unitful.jl#L299-L305' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/Unitful.jl#L299-L305' class='documenter-source'>source</a><br></p>
 <p><a id='Unit-stripping-1'></a></p>
 <h2 id="unit-stripping">Unit stripping</h2>
 <p><a id='Unitful.ustrip' href='#Unitful.ustrip'>#</a>
 <strong><code>Unitful.ustrip</code></strong> &mdash; <em>Function</em>.</p>
-<pre class="codehilite"><code>ustrip(x::Number)</code></pre>
+<div class="codehilite"><pre><span></span>ustrip(x::Number)
+</pre></div>
 
 
 <p>Returns the number out in front of any units. This may be different from the value in the case of dimensionless quantities. See <a href="../conversion/#Unitful.uconvert"><code>uconvert</code></a> and the example below. Because the units are removed, information may be lost and this should be used with some care.</p>
 <p>This function is just calling <code>x/unit(x)</code>, which is as fast as directly accessing the <code>val</code> field of <code>x::Quantity</code>, but also works for any other kind of number.</p>
 <p>This function is mainly intended for compatibility with packages that don't know how to handle quantities. This function may be deprecated in the future.</p>
-<pre class="codehilite"><code class="language-jlcon">julia&gt; ustrip(2u&quot;μm/m&quot;) == 2
-true
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">ustrip</span><span class="p">(</span><span class="mi">2</span><span class="n">u</span><span class="s">&quot;μm/m&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+<span class="go">true</span>
 
-julia&gt; uconvert(NoUnits, 2u&quot;μm/m&quot;) == 2//1000000
-true</code></pre>
+<span class="gp">julia&gt;</span> <span class="n">uconvert</span><span class="p">(</span><span class="n">NoUnits</span><span class="p">,</span> <span class="mi">2</span><span class="n">u</span><span class="s">&quot;μm/m&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="o">//</span><span class="mi">1000000</span>
+<span class="go">true</span>
+</pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Unitful.jl#L73-L97' class='documenter-source'>source</a><br></p>
-<pre class="codehilite"><code>ustrip{Q&lt;:Quantity}(x::Array{Q})</code></pre>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/Unitful.jl#L73-L97' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>ustrip{Q&lt;:Quantity}(x::Array{Q})
+</pre></div>
 
 
 <p>Strip units from an <code>Array</code> by reinterpreting to type <code>T</code>. The resulting <code>Array</code> is a "unit free view" into array <code>x</code>. Because the units are removed, information may be lost and this should be used with some care.</p>
 <p>This function is provided primarily for compatibility purposes; you could pass the result to PyPlot, for example. This function may be deprecated in the future.</p>
-<pre class="codehilite"><code class="language-jlcon">julia&gt; a = [1u&quot;m&quot;, 2u&quot;m&quot;]
-2-element Array{Quantity{Int64, Dimensions:{𝐋}, Units:{m}},1}:
- 1 m
- 2 m
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">]</span>
+<span class="go">2-element Array{Quantity{Int64, Dimensions:{𝐋}, Units:{m}},1}:</span>
+<span class="go"> 1 m</span>
+<span class="go"> 2 m</span>
 
-julia&gt; b = ustrip(a)
-2-element Array{Int64,1}:
- 1
- 2
+<span class="gp">julia&gt;</span> <span class="n">b</span> <span class="o">=</span> <span class="n">ustrip</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">2-element Array{Int64,1}:</span>
+<span class="go"> 1</span>
+<span class="go"> 2</span>
 
-julia&gt; a[1] = 3u&quot;m&quot;; b
-2-element Array{Int64,1}:
- 3
- 2</code></pre>
+<span class="gp">julia&gt;</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">;</span> <span class="n">b</span>
+<span class="go">2-element Array{Int64,1}:</span>
+<span class="go"> 3</span>
+<span class="go"> 2</span>
+</pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Unitful.jl#L100-L128' class='documenter-source'>source</a><br></p>
-<pre class="codehilite"><code>ustrip{Q&lt;:Quantity}(A::AbstractArray{Q})</code></pre>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/Unitful.jl#L100-L128' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>ustrip{Q&lt;:Quantity}(A::AbstractArray{Q})
+</pre></div>
 
 
 <p>Strip units from an <code>AbstractArray</code> by making a new array without units using array comprehensions.</p>
 <p>This function is provided primarily for compatibility purposes; you could pass the result to PyPlot, for example. This function may be deprecated in the future.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Unitful.jl#L131-L141' class='documenter-source'>source</a><br></p>
-<pre class="codehilite"><code>ustrip{T&lt;:Number}(x::AbstractArray{T})</code></pre>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/Unitful.jl#L131-L141' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>ustrip{T&lt;:Number}(x::AbstractArray{T})
+</pre></div>
 
 
 <p>Fall-back that returns <code>x</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Unitful.jl#L144-L150' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/Unitful.jl#L144-L150' class='documenter-source'>source</a><br></p>
 <p><a id='Unit-multiplication-1'></a></p>
 <h2 id="unit-multiplication">Unit multiplication</h2>
 <p><a id='Base.:*-Tuple{Unitful.Units,Vararg{Unitful.Units,N} where N}' href='#Base.:*-Tuple{Unitful.Units,Vararg{Unitful.Units,N} where N}'>#</a>
 <strong><code>Base.:*</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>*(a0::Units, a::Units...)</code></pre>
+<div class="codehilite"><pre><span></span>*(a0::Units, a::Units...)
+</pre></div>
 
 
 <p>Given however many units, multiply them together. This is actually handled by a few different methods, since we have <code>FreeUnits</code>, <code>ContextUnits</code>, and <code>FixedUnits</code>.</p>
 <p>Collect <a href="../types/#Unitful.Unit"><code>Unitful.Unit</code></a> objects from the type parameter of the <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> objects. For identical units including SI prefixes (i.e. cm ≠ m), collect powers and sort uniquely by the name of the <code>Unit</code>. The unique sorting permits easy unit comparisons.</p>
 <p>Examples:</p>
-<pre class="codehilite"><code class="language-jlcon">julia&gt; u&quot;kg*m/s^2&quot;
-kg m s^-2
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">u</span><span class="s">&quot;kg*m/s^2&quot;</span>
+<span class="go">kg m s^-2</span>
 
-julia&gt; u&quot;m/s*kg/s&quot;
-kg m s^-2
+<span class="gp">julia&gt;</span> <span class="n">u</span><span class="s">&quot;m/s*kg/s&quot;</span>
+<span class="go">kg m s^-2</span>
 
-julia&gt; typeof(u&quot;m/s*kg/s&quot;) == typeof(u&quot;kg*m/s^2&quot;)
-true</code></pre>
+<span class="gp">julia&gt;</span> <span class="n">typeof</span><span class="p">(</span><span class="n">u</span><span class="s">&quot;m/s*kg/s&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">typeof</span><span class="p">(</span><span class="n">u</span><span class="s">&quot;kg*m/s^2&quot;</span><span class="p">)</span>
+<span class="go">true</span>
+</pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Unitful.jl#L1046-L1071' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/Unitful.jl#L1046-L1071' class='documenter-source'>source</a><br></p>
 <p><a id='Base.:*-Tuple{Unitful.Dimensions,Vararg{Unitful.Dimensions,N} where N}' href='#Base.:*-Tuple{Unitful.Dimensions,Vararg{Unitful.Dimensions,N} where N}'>#</a>
 <strong><code>Base.:*</code></strong> &mdash; <em>Method</em>.</p>
-<pre class="codehilite"><code>*(a0::Dimensions, a::Dimensions...)</code></pre>
+<div class="codehilite"><pre><span></span>*(a0::Dimensions, a::Dimensions...)
+</pre></div>
 
 
 <p>Given however many dimensions, multiply them together.</p>
 <p>Collect <a href="../types/#Unitful.Dimension"><code>Unitful.Dimension</code></a> objects from the type parameter of the <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> objects. For identical dimensions, collect powers and sort uniquely by the name of the <code>Dimension</code>.</p>
 <p>Examples:</p>
-<pre class="codehilite"><code class="language-jlcon">julia&gt; u&quot;𝐌*𝐋/𝐓^2&quot;
-𝐋 𝐌 𝐓^-2
+<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">u</span><span class="s">&quot;𝐌*𝐋/𝐓^2&quot;</span>
+<span class="go">𝐋 𝐌 𝐓^-2</span>
 
-julia&gt; u&quot;𝐋*𝐌/𝐓^2&quot;
-𝐋 𝐌 𝐓^-2
+<span class="gp">julia&gt;</span> <span class="n">u</span><span class="s">&quot;𝐋*𝐌/𝐓^2&quot;</span>
+<span class="go">𝐋 𝐌 𝐓^-2</span>
 
-julia&gt; typeof(u&quot;𝐋*𝐌/𝐓^2&quot;) == typeof(u&quot;𝐌*𝐋/𝐓^2&quot;)
-true</code></pre>
+<span class="gp">julia&gt;</span> <span class="n">typeof</span><span class="p">(</span><span class="n">u</span><span class="s">&quot;𝐋*𝐌/𝐓^2&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">typeof</span><span class="p">(</span><span class="n">u</span><span class="s">&quot;𝐌*𝐋/𝐓^2&quot;</span><span class="p">)</span>
+<span class="go">true</span>
+</pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/264bfae39d42247458a78da888a0139a5765ef87/src/Unitful.jl#L505-L528' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/00fe4995b54b63a7d5b5e0ec7cb83b041156250c/src/Unitful.jl#L505-L528' class='documenter-source'>source</a><br></p>
                 
                   
                 

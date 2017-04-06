@@ -15,7 +15,7 @@
       
         <link rel="shortcut icon" href="../assets/images/favicon.png">
       
-      <meta name="generator" content="mkdocs-0.16.2, mkdocs-material-1.5.0">
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.5.2">
     
     
       
@@ -26,7 +26,7 @@
       <script src="../assets/javascripts/modernizr-56ade86843.js"></script>
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/application-d848f886dc.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application-e71521a2a2.css">
       
         <link rel="stylesheet" href="../assets/stylesheets/application-66fa0d9bba.palette.css">
       
@@ -461,12 +461,13 @@
 <p><a id='Precompilation-1'></a></p>
 <h3 id="precompilation">Precompilation</h3>
 <p>When creating new units in a precompiled package that need to persist into run-time (usually true), it is important that the following or something very similar make it into your code:</p>
-<pre class="codehilite"><code class="language-jl">const localunits = Unitful.basefactors
-const localpromotion = Unitful.promotion # only if you've used @dimension
-function __init__()
-    merge!(Unitful.basefactors, localunits)
-    merge!(Unitful.promotion, localpromotion) # only if you've used @dimension
-end</code></pre>
+<div class="codehilite"><pre><span></span><span class="kd">const</span> <span class="n">localunits</span> <span class="o">=</span> <span class="n">Unitful</span><span class="o">.</span><span class="n">basefactors</span>
+<span class="kd">const</span> <span class="n">localpromotion</span> <span class="o">=</span> <span class="n">Unitful</span><span class="o">.</span><span class="n">promotion</span> <span class="c"># only if you&#39;ve used @dimension</span>
+<span class="k">function</span> <span class="n">__init__</span><span class="p">()</span>
+    <span class="n">merge!</span><span class="p">(</span><span class="n">Unitful</span><span class="o">.</span><span class="n">basefactors</span><span class="p">,</span> <span class="n">localunits</span><span class="p">)</span>
+    <span class="n">merge!</span><span class="p">(</span><span class="n">Unitful</span><span class="o">.</span><span class="n">promotion</span><span class="p">,</span> <span class="n">localpromotion</span><span class="p">)</span> <span class="c"># only if you&#39;ve used @dimension</span>
+<span class="k">end</span>
+</pre></div>
 
 
 <p>The definition of <code>localunits</code> (<code>localpromotion</code>) must happen <em>after all new units (dimensions) have been defined</em>.</p>
