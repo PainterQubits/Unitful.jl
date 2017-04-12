@@ -136,3 +136,10 @@ Prints exponents.
 function superscript(i::Rational)
     i.den == 1 ? "^"*string(i.num) : "^"*replace(string(i),"//","/")
 end
+
+# ---------------------------------------------------
+
+try
+    @eval import RecipesBase
+    @eval RecipesBase.@recipe f{Q<:Quantity}(::Type{Q}, q::Q) = (vi -> vi.val, vi -> string(vi * unit(Q)))
+end
