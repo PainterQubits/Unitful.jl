@@ -1110,6 +1110,7 @@ end
     expected = BigInt(Unitful.basefactor(Unitful.c)[2])^2 *
                BigInt(Unitful.basefactor(unit(Unitful.μ0))[2])
     @test Unitful.basefactor(unit(Unitful.μ0 * 1Unitful.c^2))[2] == expected
+    @test typeof(Unitful.basefactor(unit(Unitful.μ0 * 1Unitful.c^2))[2]) == Int128
     @test_approx_eq_eps upreferred(1u"ϵ0") 8.854187817e-12u"F*m^-1" 1e-20u"F*m^-1"
 end
 

@@ -466,12 +466,21 @@ function try_convert{T <: Integer}(::Type{T}, a::Rational)
         try_convert(Rational{T}, a)
     end
 end
+""" Converts to the first preferred type """
+function try_convert(T0::Type, T1::Type, T2::Type, a::Union{Integer, Rational})
+    r0 = try_convert(T0, a)
+    (typeof(r0) == T0 || typeof(r0) == Rational{T0}) && return r0
+    r1 = try_convert(T1, a)
+    (typeof(r1) == T1 || typeof(r0) == Rational{T1}) && return r1
+    try_convert(T2, a)
+end
 
 function basefactor{U}(x::Units{U})
     fact1 = map(basefactor, U)
     inex1 = mapreduce(x->getfield(x,1), *, 1.0, fact1)
-    ex1   = mapreduce(x->getfield(x,2), *, Int128(1)//1, fact1)
-    inex1, try_convert(length(fact1) > 0 ? typeof(fact1[1][2]): Int64, ex1)
+    ex1   = mapreduce(x->getfield(x,2), *, BigInt(1)//1, fact1)
+    T = length(fact1) > 0 ? typeof(fact1[1][2]): Int64
+    inex1, try_convert((T <: Rational ? T.parameters[1]: T), Int64, Int128, ex1)
 end
 
 # Addition / subtraction
