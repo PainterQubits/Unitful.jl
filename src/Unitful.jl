@@ -447,11 +447,31 @@ end
 
 @inline basefactor{U}(x::Unit{U}) = basefactor(basefactors[U]..., 1, 0, power(x))
 
+""" Only converts to given type if exact conversion is possible """
+try_convert(T::Type, a::Integer) = typemax(T) >= a >= typemin(T) ? convert(T, a): a
+try_convert{T <: Integer}(::Type{T}, a::T) = a
+try_convert{T <: Integer}(::Type{Rational{T}}, a::Rational{T}) = a
+try_convert{T <: Integer}(::Type{Rational{T}}, a::Integer) = Rational(try_convert(T, a))
+function try_convert{T <: Integer}(::Type{Rational{T}}, a::Rational)
+    cond = begin
+        typemax(T) >= max(@compat(numerator(a)), @compat(denominator(a))) &&
+        typemin(T) <= min(@compat(numerator(a)), @compat(denominator(a)))
+    end
+    cond ? convert(Rational{T}, a): a
+end
+function try_convert{T <: Integer}(::Type{T}, a::Rational)
+    if @compat(denominator(a)) == 1
+        try_convert(T, @compat(numerator(a)))
+    else
+        try_convert(Rational{T}, a)
+    end
+end
+
 function basefactor{U}(x::Units{U})
     fact1 = map(basefactor, U)
     inex1 = mapreduce(x->getfield(x,1), *, 1.0, fact1)
-    ex1   = mapreduce(x->getfield(x,2), *, 1, fact1)
-    inex1, ex1
+    ex1   = mapreduce(x->getfield(x,2), *, Int128(1)//1, fact1)
+    inex1, try_convert(length(fact1) > 0 ? typeof(fact1[1][2]): Int64, ex1)
 end
 
 # Addition / subtraction

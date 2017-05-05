@@ -1080,4 +1080,37 @@ end
     @test isa(TUM.fu^2, TUM.FakeDim212345Units)
 end
 
+@testset "Trial conversions" begin
+    a = Int16(1)
+    @test Unitful.try_convert(Int16, a) === a
+    @testset "From $T to Int16" for T in [Int8, Int64, Int128, Rational{Int64}]
+        @test typeof(Unitful.try_convert(Int16, T(2))) == Int16
+        @test Unitful.try_convert(Int16, T(2)) == 2
+    end
+
+    @testset "From typemax($T) to Int16, if possible" for T in [Int8, Int64, Int128]
+        expected = typemax(T) >= typemax(Int16) ? typemax(T): Int16(typemax(T))
+        @test typeof(Unitful.try_convert(Int16, typemax(T))) == typeof(expected)
+        @test Unitful.try_convert(Int16, typemax(T)) == expected
+    end
+
+    a = Rational{Int16}(1)
+    @test Unitful.try_convert(Int16, a) !== a
+    @testset "From $T and Rational{$T} to Rational{Int16}" for T in [Int8, Int64, Int128]
+        input = Rational{T}(1, 2)
+        @test typeof(Unitful.try_convert(Rational{Int16}, input)) == Rational{Int16}
+        @test Unitful.try_convert(Rational{Int16}, input) == 1//2
+
+        @test typeof(Unitful.try_convert(Rational{Int16}, T(2))) == Rational{Int16}
+        @test Unitful.try_convert(Rational{Int16}, T(2)) == 2//1
+    end
+end
+
+@testset "Overflow when computing basefactor" begin
+    expected = BigInt(Unitful.basefactor(Unitful.c)[2])^2 *
+               BigInt(Unitful.basefactor(unit(Unitful.μ0))[2])
+    @test Unitful.basefactor(unit(Unitful.μ0 * 1Unitful.c^2))[2] == expected
+    @test_approx_eq_eps upreferred(1u"ϵ0") 8.854187817e-12u"F*m^-1" 1e-20u"F*m^-1"
+end
+
 end
