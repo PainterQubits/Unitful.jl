@@ -789,9 +789,6 @@ end
 abs(x::Quantity) = Quantity(abs(x.val), unit(x))
 abs2(x::Quantity) = Quantity(abs2(x.val), unit(x)*unit(x))
 
-trunc(x::Quantity) = Quantity(trunc(x.val), unit(x))
-round(x::Quantity) = Quantity(round(x.val), unit(x))
-
 copysign(x::Quantity, y::Number) = Quantity(copysign(x.val,y/unit(y)), unit(x))
 flipsign(x::Quantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
 
@@ -872,15 +869,19 @@ end
 ==(x::Number, y::Quantity) = ==(y,x)
 <=(x::Quantity, y::Quantity) = <(x,y) || x==y
 
-for f in (:zero, :floor, :ceil)
-    @eval ($f)(x::Quantity) = Quantity(($f)(x.val), unit(x))
+for f in (:floor, :ceil, :trunc, :round, :isinteger)
+    @eval ($f)(x::Quantity) = error("$($f) can only be well-defined for dimensionless ",
+        "numbers. For dimensionful numbers, different input units yield physically ",
+        "different results.")
+    @eval ($f)(x::DimensionlessQuantity) = ($f)(uconvert(NoUnits, x))
 end
+
+zero(x::Quantity) = Quantity(zero(x.val), unit(x))
 zero{T,D,U}(x::Type{Quantity{T,D,U}}) = zero(T)*U()
 
 one(x::Quantity) = one(x.val)
 one{T,D,U}(x::Type{Quantity{T,D,U}}) = one(T)
 
-isinteger(x::Quantity) = isinteger(x.val)
 isreal(x::Quantity) = isreal(x.val)
 isfinite(x::Quantity) = isfinite(x.val)
 isinf(x::Quantity) = isinf(x.val)

@@ -520,8 +520,9 @@ end
         @test inv([1 1; -1 1]u"nm") ≈ [0.5 -0.5; 0.5 0.5]u"nm^-1"
     end
     @testset "> Is functions" begin
-        @test isinteger(1.0m)
-        @test !isinteger(1.4m)
+        @test_throws ErrorException isinteger(1.0m)
+        @test isinteger(1.4m/mm)
+        @test !isinteger(1.4mm/m)
         @test isfinite(1.0m)
         @test !isfinite(Inf*m)
         @test isnan(NaN*m)
@@ -771,14 +772,14 @@ end
 end
 
 @testset "Rounding" begin
-    @test @inferred(trunc(3.7m)) == 3.0m
-    @test trunc(-3.7m) == -3.0m
-    @test @inferred(floor(3.7m)) == 3.0m
-    @test floor(-3.7m) == -4.0m
-    @test @inferred(ceil(3.7m)) == 4.0m
-    @test ceil(-3.7m) == -3.0m
-    @test @inferred(round(3.7m)) == 4.0m
-    @test round(-3.7m) == -4.0m
+    @test_throws ErrorException floor(3.7m)
+    @test_throws ErrorException ceil(3.7m)
+    @test_throws ErrorException trunc(3.7m)
+    @test_throws ErrorException round(3.7m)
+    @test floor(1.0314m/mm) === 1031.0
+    @test ceil(1.0314m/mm) === 1032.0
+    @test trunc(-1.0314m/mm) === -1031.0
+    @test round(1.0314m/mm) === 1031.0
 end
 
 @testset "Sgn, abs, &c." begin
@@ -949,13 +950,8 @@ end
             @test typeof(5m .* [1m, 2m, 3m])           == Array{typeof(1u"m^2"),1}
             @test @inferred(eye(2)*V)                  == [1.0V 0.0V; 0.0V 1.0V]
             @test @inferred(V*eye(2))                  == [1.0V 0.0V; 0.0V 1.0V]
-            @static if VERSION >= v"0.6.0-dev.1632" # Make dot ops fusing, PR 17623
-                @test_broken @inferred(eye(2).*V)      == [1.0V 0.0V; 0.0V 1.0V]
-                @test_broken @inferred(V.*eye(2))      == [1.0V 0.0V; 0.0V 1.0V]
-            else
-                @test @inferred(eye(2).*V)             == [1.0V 0.0V; 0.0V 1.0V]
-                @test @inferred(V.*eye(2))             == [1.0V 0.0V; 0.0V 1.0V]
-            end
+            @test @inferred(eye(2).*V)                 == [1.0V 0.0V; 0.0V 1.0V]
+            @test @inferred(V.*eye(2))                 == [1.0V 0.0V; 0.0V 1.0V]
             @test @inferred([1V 2V; 0V 3V].*2)         == [2V 4V; 0V 6V]
             @test @inferred([1V, 2V] .* [true, false]) == [1V, 0V]
             @test @inferred([1.0m, 2.0m] ./ 3)         == [1m/3, 2m/3]

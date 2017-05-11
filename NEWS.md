@@ -1,3 +1,14 @@
+- v0.2.3
+  - Dimensionful quantities are no longer accepted for `floor`, `ceil`, `trunc`, `round`,
+    `isinteger`. The choice of units can yield physically different results.
+    The functions are defined for dimensionless quantities, and return unitless numbers.
+    Closes [#78](https://github.com/ajkeller34/Unitful.jl/issues/78).
+  - Added `gn`, a constant quantity for the gravitational acceleration on earth
+    [#75](https://github.com/ajkeller34/Unitful.jl/pull/75).
+  - Added `ge`, the gravitational acceleration on earth as a unit
+    [#75](https://github.com/ajkeller34/Unitful.jl/pull/75).
+  - Added `lbf`, pounds-force unit
+    [#75](https://github.com/ajkeller34/Unitful.jl/pull/75).
 - v0.2.2
   - Fixed a bug in promotion involving `ContextUnits` where the promotion context might
     not be properly retained.
