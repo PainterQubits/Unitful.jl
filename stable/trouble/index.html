@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html class="no-js">
+<html lang="en" class="no-js">
   <head>
     
       <meta charset="utf-8">
@@ -15,7 +15,7 @@
       
         <link rel="shortcut icon" href="../assets/images/favicon.png">
       
-      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.5.2">
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.6.1">
     
     
       
@@ -26,9 +26,9 @@
       <script src="../assets/javascripts/modernizr-56ade86843.js"></script>
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/application-e71521a2a2.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application-4d0d3f2fbf.css">
       
-        <link rel="stylesheet" href="../assets/stylesheets/application-66fa0d9bba.palette.css">
+        <link rel="stylesheet" href="../assets/stylesheets/application-f78e5cb881.palette.css">
       
     
     
@@ -91,7 +91,7 @@
           <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
           
 <div class="md-search" data-md-component="search">
-  <div class="md-search__overlay"></div>
+  <label class="md-search__overlay" for="search"></label>
   <div class="md-search__inner">
     <form class="md-search__form" name="search">
       <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
@@ -471,40 +471,40 @@
 <p><a id='Exponentiation-1'></a></p>
 <h2 id="exponentiation">Exponentiation</h2>
 <p>Most operations with this package should in principle suffer little performance penalty if any at run time. An exception to this is rule is exponentiation. Since units and their powers are encoded in the type signature of a <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a> object, raising a <code>Quantity</code> to some power, which is just some run-time value, necessarily results in different result types. This type instability could impact performance:</p>
-<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">x</span><span class="o">^</span><span class="n">p</span><span class="p">)</span>
-<span class="go">square (generic function with 1 method)</span>
+<div class="codehilite"><pre><span></span>julia&gt; square(x) = (p = 2; x^p)
+square (generic function with 1 method)
 
-<span class="gp">julia&gt;</span> <span class="nd">@code_warntype</span> <span class="n">square</span><span class="p">(</span><span class="mf">1.0</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">)</span>
-<span class="go">Variables:</span>
-<span class="go">  #self#::#square</span>
-<span class="go">  x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}</span>
-<span class="go">  p::Int64</span>
+julia&gt; @code_warntype square(1.0u&quot;m&quot;)
+Variables:
+  #self#::#square
+  x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}
+  p::Int64
 
-<span class="go">Body:</span>
-<span class="go">  begin</span>
-<span class="go">      return $(Expr(:invoke, MethodInstance for ^(::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, ::Int64), :(^), :(x), 2))</span>
-<span class="go">  end::Any</span>
+Body:
+  begin
+      return $(Expr(:invoke, MethodInstance for ^(::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, ::Int64), :(^), :(x), 2))
+  end::Any
 </pre></div>
 
 
 <p>In Julia 0.6, constant literal integers are lowered specially for exponentiation. (See Julia PR <a href="https://github.com/JuliaLang/julia/pull/20530">#20530</a> for details.) In this case, type stability can be maintained:</p>
-<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="n">square</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">=</span> <span class="n">x</span><span class="o">^</span><span class="mi">2</span>
-<span class="go">square (generic function with 1 method)</span>
+<div class="codehilite"><pre><span></span>julia&gt; square(x) = x^2
+square (generic function with 1 method)
 
-<span class="gp">julia&gt;</span> <span class="nd">@code_warntype</span> <span class="n">square</span><span class="p">(</span><span class="mf">1.0</span><span class="n">u</span><span class="s">&quot;m&quot;</span><span class="p">)</span>
-<span class="go">Variables:</span>
-<span class="go">  #self#::#square</span>
-<span class="go">  x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}</span>
+julia&gt; @code_warntype square(1.0u&quot;m&quot;)
+Variables:
+  #self#::#square
+  x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}
 
-<span class="go">Body:</span>
-<span class="go">  begin</span>
-<span class="go">      $(Expr(:inbounds, false))</span>
-<span class="go">      # meta: location /Users/ajkeller/.julia/v0.6/Unitful/src/Unitful.jl literal_pow 1080</span>
-<span class="go">      SSAValue(0) = (Core.getfield)(x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, :val)::Float64</span>
-<span class="go">      # meta: pop location</span>
-<span class="go">      $(Expr(:inbounds, :pop))</span>
-<span class="go">      return $(Expr(:new, Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}, :((Base.mul_float)(SSAValue(0), SSAValue(0))::Float64)))</span>
-<span class="go">  end::Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}</span>
+Body:
+  begin
+      $(Expr(:inbounds, false))
+      # meta: location /Users/ajkeller/.julia/v0.6/Unitful/src/Unitful.jl literal_pow 1080
+      SSAValue(0) = (Core.getfield)(x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, :val)::Float64
+      # meta: pop location
+      $(Expr(:inbounds, :pop))
+      return $(Expr(:new, Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}, :((Base.mul_float)(SSAValue(0), SSAValue(0))::Float64)))
+  end::Quantity{Float64, Dimensions:{𝐋^2}, Units:{m^2}}
 </pre></div>
 
 
@@ -513,18 +513,18 @@
 <h2 id="promotion-with-dimensionless-numbers">Promotion with dimensionless numbers</h2>
 <p>Most of the time, you are only permitted to do sensible operations in Unitful. With dimensionless numbers, some of the safe logic breaks down. Consider for instance that <code>μm/m</code> and <code>rad</code> are both dimensionless units, but kind of have nothing to do with each other. It would be a little weird to add them. Nonetheless, we permit this to happen since they have the same dimensions. Otherwise, we would have to special-case operations for two dimensionless quantities rather than dispatching on the empty dimension.</p>
 <p>The result of addition and subtraction with dimensionless but unitful numbers is always a pure number with no units. With angles, <code>1 rad</code> is essentially just <code>1</code>, giving sane behavior:</p>
-<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="nb">π</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="s">&quot;rad&quot;</span><span class="o">+</span><span class="mi">90</span><span class="n">u</span><span class="s">&quot;°&quot;</span>
-<span class="go">3.141592653589793</span>
+<div class="codehilite"><pre><span></span>julia&gt; π/2*u&quot;rad&quot;+90u&quot;°&quot;
+3.141592653589793
 </pre></div>
 
 
 <p><a id='Other-random-problems-1'></a></p>
 <h2 id="other-random-problems">Other random problems</h2>
 <p>If using units with some of the unsigned types... well, I'm not sure what you are doing, but you should be aware of this:</p>
-<div class="codehilite"><pre><span></span><span class="gp">julia&gt;</span> <span class="k">using</span> <span class="n">Unitful</span><span class="o">:</span> <span class="n">m</span><span class="p">,</span><span class="n">cm</span>
+<div class="codehilite"><pre><span></span>julia&gt; using Unitful: m,cm
 
-<span class="gp">julia&gt;</span> <span class="n">uconvert</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="mh">0x01c</span><span class="n">m</span><span class="p">)</span>   <span class="c"># the user means cm, not 0x01c*m</span>
-<span class="go">0x001c m</span>
+julia&gt; uconvert(m,0x01cm)   # the user means cm, not 0x01c*m
+0x001c m
 </pre></div>
 
 
@@ -601,7 +601,7 @@
       
     </div>
     
-      <script src="../assets/javascripts/application-c6f9af8d0c.js"></script>
+      <script src="../assets/javascripts/application-6b599127bc.js"></script>
       <script>app.initialize({url:{base:".."}})</script>
       
         <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
