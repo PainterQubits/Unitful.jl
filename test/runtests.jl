@@ -950,8 +950,13 @@ end
             @test typeof(5m .* [1m, 2m, 3m])           == Array{typeof(1u"m^2"),1}
             @test @inferred(eye(2)*V)                  == [1.0V 0.0V; 0.0V 1.0V]
             @test @inferred(V*eye(2))                  == [1.0V 0.0V; 0.0V 1.0V]
-            @test @inferred(eye(2).*V)                 == [1.0V 0.0V; 0.0V 1.0V]
-            @test @inferred(V.*eye(2))                 == [1.0V 0.0V; 0.0V 1.0V]
+            @static if v"0.6.0-dev.1632" <= VERSION < v"0.6.0-pre.beta.85"
+                @test_broken @inferred(eye(2).*V)      == [1.0V 0.0V; 0.0V 1.0V]
+                @test_broken @inferred(V.*eye(2))      == [1.0V 0.0V; 0.0V 1.0V]
+            else
+                @test @inferred(eye(2).*V)             == [1.0V 0.0V; 0.0V 1.0V]
+                @test @inferred(V.*eye(2))             == [1.0V 0.0V; 0.0V 1.0V]
+            end
             @test @inferred([1V 2V; 0V 3V].*2)         == [2V 4V; 0V 6V]
             @test @inferred([1V, 2V] .* [true, false]) == [1V, 0V]
             @test @inferred([1.0m, 2.0m] ./ 3)         == [1m/3, 2m/3]
