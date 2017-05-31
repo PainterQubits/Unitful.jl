@@ -892,6 +892,10 @@ end
             @test @inferred((1:5)*mm) === 1mm:1mm:5mm
             @test @inferred((1:2:5)*mm) === 1mm:2mm:5mm
             @test @inferred((1.0:2.0:5.01)*mm) === 1.0mm:2.0mm:5.0mm
+            r = @inferred(range(0.1, 0.1, 3) * 1.0s)
+            if VERSION >= v"0.6.0-pre"
+                @test r[3] === 0.3s
+            end
         end
     end
     @testset "> Arrays" begin

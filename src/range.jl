@@ -44,6 +44,7 @@ _colon{T}(::Any, ::Any, start::T, step, stop::T) =
 
 # Opt into TwicePrecision functionality
 *(x::Base.TwicePrecision, y::Units) = Base.TwicePrecision(x.hi*y, x.lo*y)
+*(x::Base.TwicePrecision, y::Quantity) = (x * ustrip(y)) * unit(y)
 function colon(start::T, step::T, stop::T) where (T<:Quantity{S}
     where S<:Union{Float16,Float32,Float64})
     # This will always return a StepRangeLen
