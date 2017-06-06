@@ -44,7 +44,8 @@ const promotion = Dict{Symbol,Unit}()
 include("User.jl")
 const NoUnits = FreeUnits{(), Dimensions{()}}()
 const NoDims = Dimensions{()}()
-@inline isunitless{N}(::Units{N}) = N == ()
+isunitless(::Units) = false
+isunitless(::Units{()}) = true
 
 (y::FreeUnits)(x::Number) = uconvert(y,x)
 (y::ContextUnits)(x::Number) = uconvert(y,x)
