@@ -161,7 +161,7 @@ function Base.promote_rule{S1,S2,D,U1,U2}(::Type{Quantity{S1,D,U1}},
 
     p = promote_unit(U1(), U2())
     numtype = promote_type(S1,S2,
-        typeof(convfact(p,U1())), typeof(convfact(p,U2())))
+        promote_type(typeof(convfact(p,U1())), typeof(convfact(p,U2()))))
     if !isunitless(p)
         if U1 <: ContextUnits && U2 <: ContextUnits
             up1 = upreferred(U1())
