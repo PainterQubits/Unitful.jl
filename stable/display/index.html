@@ -15,7 +15,7 @@
       
         <link rel="shortcut icon" href="../assets/images/favicon.png">
       
-      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.6.1">
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.7.1">
     
     
       
@@ -23,12 +23,12 @@
       
     
     
-      <script src="../assets/javascripts/modernizr-56ade86843.js"></script>
+      <script src="../assets/javascripts/modernizr-1df76c4e58.js"></script>
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/application-4d0d3f2fbf.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application-f98ca285f9.css">
       
-        <link rel="stylesheet" href="../assets/stylesheets/application-f78e5cb881.palette.css">
+        <link rel="stylesheet" href="../assets/stylesheets/application-8817cfa535.palette.css">
       
     
     
@@ -100,7 +100,7 @@
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="result">
+        <div class="md-search-result" data-md-component="result" data-md-lang-search="">
           <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
             Type to start searching
           </div>
@@ -343,7 +343,7 @@
                 <p><a id='Unitful.abbr' href='#Unitful.abbr'>#</a>
 <strong><code>Unitful.abbr</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>abbr(x)</code> provides abbreviations for units or dimensions. Since a method should always be defined for each unit and dimension type, absence of a method for a specific unit or dimension type is likely an error. Consequently, we return ❓ for generic arguments to flag unexpected behavior.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3ff0f54dd4137ca444a42fa553446470187993f3/src/Display.jl#L26-L31' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/ef27338a18c6b394344eecf9b3172f34d9fa1ec8/src/Display.jl#L26-L31' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.prefix' href='#Unitful.prefix'>#</a>
 <strong><code>Unitful.prefix</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>prefix(x::Unit)
@@ -351,7 +351,7 @@
 
 
 <p>Returns a string representing the SI prefix for the power-of-ten held by this particular unit.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3ff0f54dd4137ca444a42fa553446470187993f3/src/Display.jl#L34-L41' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/ef27338a18c6b394344eecf9b3172f34d9fa1ec8/src/Display.jl#L34-L41' class='documenter-source'>source</a><br></p>
 <p><a id='Base.show-Tuple{IO,Unitful.Quantity}' href='#Base.show-Tuple{IO,Unitful.Quantity}'>#</a>
 <strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>show(io::IO, x::Quantity)
@@ -359,7 +359,7 @@
 
 
 <p>Show a unitful quantity by calling <code>show</code> on the numeric value, appending a space, and then calling <code>show</code> on a units object <code>U()</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3ff0f54dd4137ca444a42fa553446470187993f3/src/Display.jl#L50-L57' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/ef27338a18c6b394344eecf9b3172f34d9fa1ec8/src/Display.jl#L50-L57' class='documenter-source'>source</a><br></p>
 <p><a id='Base.show-Union{Tuple{D}, Tuple{IO,Type{Unitful.Quantity{T,D,U}}}, Tuple{T}, Tuple{U}} where U where D where T' href='#Base.show-Union{Tuple{D}, Tuple{IO,Type{Unitful.Quantity{T,D,U}}}, Tuple{T}, Tuple{U}} where U where D where T'>#</a>
 <strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>show{T,D,U}(io::IO, ::Type{Quantity{T,D,U}})
@@ -367,7 +367,7 @@
 
 
 <p>Show the type of a unitful quantity in a succinct way. Otherwise, array summaries are nearly unreadable.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3ff0f54dd4137ca444a42fa553446470187993f3/src/Display.jl#L67-L74' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/ef27338a18c6b394344eecf9b3172f34d9fa1ec8/src/Display.jl#L67-L74' class='documenter-source'>source</a><br></p>
 <p><a id='Base.show-Tuple{IO,Unitful.Unitlike}' href='#Base.show-Tuple{IO,Unitful.Unitlike}'>#</a>
 <strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>show(io::IO, x::Unitlike)
@@ -375,7 +375,7 @@
 
 
 <p>Call <a href="./#Unitful.showrep-Tuple{IO,Unitful.Unit}"><code>Unitful.showrep</code></a> on each object in the tuple that is the type variable of a <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> or <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3ff0f54dd4137ca444a42fa553446470187993f3/src/Display.jl#L82-L89' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/ef27338a18c6b394344eecf9b3172f34d9fa1ec8/src/Display.jl#L82-L89' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.showrep-Tuple{IO,Unitful.Unit}' href='#Unitful.showrep-Tuple{IO,Unitful.Unit}'>#</a>
 <strong><code>Unitful.showrep</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>showrep(io::IO, x::Unit)
@@ -383,7 +383,7 @@
 
 
 <p>Show the unit, prefixing with any decimal prefix and appending the exponent as formatted by <a href="./#Unitful.superscript"><code>Unitful.superscript</code></a>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3ff0f54dd4137ca444a42fa553446470187993f3/src/Display.jl#L101-L108' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/ef27338a18c6b394344eecf9b3172f34d9fa1ec8/src/Display.jl#L101-L108' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.showrep-Tuple{IO,Unitful.Dimension}' href='#Unitful.showrep-Tuple{IO,Unitful.Dimension}'>#</a>
 <strong><code>Unitful.showrep</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>showrep(io::IO, x::Dimension)
@@ -391,7 +391,7 @@
 
 
 <p>Show the dimension, appending any exponent as formatted by <a href="./#Unitful.superscript"><code>Unitful.superscript</code></a>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3ff0f54dd4137ca444a42fa553446470187993f3/src/Display.jl#L116-L123' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/ef27338a18c6b394344eecf9b3172f34d9fa1ec8/src/Display.jl#L116-L123' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.superscript' href='#Unitful.superscript'>#</a>
 <strong><code>Unitful.superscript</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>superscript(i::Rational)
@@ -399,7 +399,7 @@
 
 
 <p>Prints exponents.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/3ff0f54dd4137ca444a42fa553446470187993f3/src/Display.jl#L129-L135' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/ef27338a18c6b394344eecf9b3172f34d9fa1ec8/src/Display.jl#L129-L135' class='documenter-source'>source</a><br></p>
                 
                   
                 
@@ -469,7 +469,9 @@
       
     </div>
     
-      <script src="../assets/javascripts/application-6b599127bc.js"></script>
+      <script src="../assets/javascripts/application-e3caa82af6.js"></script>
+      
+      
       <script>app.initialize({url:{base:".."}})</script>
       
         <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
