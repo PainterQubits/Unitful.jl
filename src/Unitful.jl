@@ -870,11 +870,16 @@ end
 ==(x::Number, y::Quantity) = ==(y,x)
 <=(x::Quantity, y::Quantity) = <(x,y) || x==y
 
-for f in (:floor, :ceil, :trunc, :round, :isinteger)
-    @eval ($f)(x::Quantity) = error("$($f) can only be well-defined for dimensionless ",
+_dimerr(f) = error("$f can only be well-defined for dimensionless ",
         "numbers. For dimensionful numbers, different input units yield physically ",
         "different results.")
+isinteger(x::Quantity) = _dimerr(isinteger)
+isinteger(x::DimensionlessQuantity) = isinteger(uconvert(NoUnits, x))
+for f in (:floor, :ceil, :trunc, :round)
+    @eval ($f)(x::Quantity) = _dimerr($f)
     @eval ($f)(x::DimensionlessQuantity) = ($f)(uconvert(NoUnits, x))
+    @eval ($f){T<:Integer}(::Type{T}, x::Quantity) = _dimerr($f)
+    @eval ($f){T<:Integer}(::Type{T}, x::DimensionlessQuantity) = ($f)(T, uconvert(NoUnits, x))
 end
 
 zero(x::Quantity) = Quantity(zero(x.val), unit(x))

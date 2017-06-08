@@ -776,10 +776,26 @@ end
     @test_throws ErrorException ceil(3.7m)
     @test_throws ErrorException trunc(3.7m)
     @test_throws ErrorException round(3.7m)
+    @test_throws ErrorException floor(Integer, 3.7m)
+    @test_throws ErrorException ceil(Integer, 3.7m)
+    @test_throws ErrorException trunc(Integer, 3.7m)
+    @test_throws ErrorException round(Integer, 3.7m)
+    @test_throws ErrorException floor(Int, 3.7m)
+    @test_throws ErrorException ceil(Int, 3.7m)
+    @test_throws ErrorException trunc(Int, 3.7m)
+    @test_throws ErrorException round(Int, 3.7m)
     @test floor(1.0314m/mm) === 1031.0
     @test ceil(1.0314m/mm) === 1032.0
     @test trunc(-1.0314m/mm) === -1031.0
     @test round(1.0314m/mm) === 1031.0
+    @test floor(Integer, 1.0314m/mm) === Integer(1031.0)
+    @test ceil(Integer, 1.0314m/mm) === Integer(1032.0)
+    @test trunc(Integer, -1.0314m/mm) === Integer(-1031.0)
+    @test round(Integer, 1.0314m/mm) === Integer(1031.0)
+    @test floor(Int16, 1.0314m/mm) === Int16(1031.0)
+    @test ceil(Int16, 1.0314m/mm) === Int16(1032.0)
+    @test trunc(Int16, -1.0314m/mm) === Int16(-1031.0)
+    @test round(Int16, 1.0314m/mm) === Int16(1031.0)
 end
 
 @testset "Sgn, abs, &c." begin
