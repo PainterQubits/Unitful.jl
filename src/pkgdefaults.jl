@@ -112,8 +112,8 @@ const c0 = 299_792_458*m/s              # exact
 @unit c      "c"        SpeedOfLight 1c0                    false
 const μ0 = 4π*(1//10)^7*H/m         # exact (but gets promoted to Float64...)
 const µ0 = μ0                       # magnetic constant
-const ɛ0 = 1/(μ0*c^2)               # exact, electric constant
-const ϵ0 = ɛ0
+const ɛ0 = 1/(μ0*c^2)               # exact, electric constant; changes here may affect
+const ϵ0 = ɛ0                           # test of issue 79.
 const Z0 = μ0*c                     # exact, impedance of free space
 const G  = 6.674_08e-11*m^3/kg/s^2  # (31) gravitational constant
 const gn = 9.80665*m/s^2            # exact, standard acceleration of gravity

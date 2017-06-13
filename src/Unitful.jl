@@ -409,27 +409,27 @@ function basefactor(inex, ex, eq, tens, p)
         p = Integer(p)
     end
 
-    eqisexact = false
-    ex2 = (10.0^tens * float(ex))^p
-    eq2 = float(eq)^p
+    eq_is_exact = false
+    output_ex_float = (10.0^tens * float(ex))^p
+    eq_raised = float(eq)^p
     if isa(eq, Integer) || isa(eq, Rational)
-        ex2 *= eq2
-        eqisexact = true
+        output_ex_float *= eq_raised
+        eq_is_exact = true
     end
 
-    can_exact = (ex2 < typemax(Int))
-    can_exact &= (1/ex2 < typemax(Int))
+    can_exact = (output_ex_float < typemax(Int))
+    can_exact &= (1/output_ex_float < typemax(Int))
     can_exact &= isinteger(p)
 
-    can_exact2 = (eq2 < typemax(Int))
-    can_exact2 &= (1/eq2 < typemax(Int))
+    can_exact2 = (eq_raised < typemax(Int))
+    can_exact2 &= (1/eq_raised < typemax(Int))
     can_exact2 &= isinteger(p)
 
     if can_exact
-        if eqisexact
+        if eq_is_exact
             # If we got here then p is an integer.
-            # Note that sometimes x^1 can cause an overflow error if
-            # x is large because of how power_by_squaring is implemented
+            # Note that sometimes x^1 can cause an overflow error if x is large because
+            # of how power_by_squaring is implemented for Rationals, so we use dpow.
             x = dpow(eq*ex*(10//1)^tens, p)
             return (inex^p, isinteger(x) ? Int(x) : x)
         else
@@ -437,7 +437,7 @@ function basefactor(inex, ex, eq, tens, p)
             return ((inex*eq)^p, isinteger(x) ? Int(x) : x)
         end
     else
-        if eqisexact && can_exact2
+        if eq_is_exact && can_exact2
             x = dpow(eq,p)
             return ((inex * ex * 10.0^tens)^p, isinteger(x) ? Int(x) : x)
         else
@@ -451,8 +451,14 @@ end
 function basefactor{U}(x::Units{U})
     fact1 = map(basefactor, U)
     inex1 = mapreduce(x->getfield(x,1), *, 1.0, fact1)
-    ex1   = mapreduce(x->getfield(x,2), *, 1, fact1)
-    inex1, ex1
+    float_ex1 = mapreduce(x->float(getfield(x,2)), *, 1, fact1)
+    can_exact = (float_ex1 < typemax(Int))
+    can_exact &= (1/float_ex1 < typemax(Int))
+    if can_exact
+        inex1, mapreduce(x->getfield(x,2), *, 1, fact1)
+    else
+        inex1*float_ex1, 1
+    end
 end
 
 # Addition / subtraction
