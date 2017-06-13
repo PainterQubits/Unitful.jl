@@ -1,3 +1,11 @@
+- v0.2.5
+  - Fix and close [#79](https://github.com/ajkeller34/Unitful.jl/issues/79).
+  - Add support for `round(T, ::DimensionlessQuantity)` where `T <: Integer`
+    (also `floor`, `ceil`, `trunc`) [#90](https://github.com/ajkeller34/Unitful.jl/pull/90).
+- v0.2.4
+  - Bug fix: avoid four-argument `promote_type`
+  - Bug fix: define method for `*(::Base.TwicePrecision, ::Quantity)`
+  - Bug fix: definition of Bohr magneton had `e` instead of `q`
 - v0.2.3
   - Dimensionful quantities are no longer accepted for `floor`, `ceil`, `trunc`, `round`,
     `isinteger`. The choice of units can yield physically different results.
