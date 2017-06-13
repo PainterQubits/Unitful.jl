@@ -89,8 +89,7 @@ variable of a [`Unitful.Units`](@ref) or [`Unitful.Dimensions`](@ref) object.
 """
 function show(io::IO, x::Unitlike)
     first = ""
-    tup = typeof(x).parameters[1]
-    map(tup) do y
+    foreach(typeof(x).parameters[1]) do y
         print(io,first)
         showrep(io,y)
         first = " "
