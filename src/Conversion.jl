@@ -122,7 +122,7 @@ function convert{T}(::Type{Quantity{T}}, x::Number)
     Quantity{T,typeof(NoDims),typeof(NoUnits)}(x)
 end
 function convert{T}(::Type{Quantity{T}}, x::Quantity)
-    Quantity(T(ustrip(x)), unit(x))
+    Quantity{T,typeof(dimension(x)),typeof(unit(x))}(T(ustrip(x)))
 end
 
 """

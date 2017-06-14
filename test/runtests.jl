@@ -291,6 +291,12 @@ end
         @test typeof([1.0m,1kg]) == Array{Quantity{Float64},1}
         @test typeof([1.0m/s 1; 1 0]) == Array{Quantity{Float64},2}
     end
+    @testset "> Issue 52" begin
+        x,y = 10m, 1
+        px,py = promote(x,y)
+        ppx,ppy = promote(px,py)
+        @test typeof(py) == typeof(ppy)
+    end
 end
 
 @testset "Unit string macro" begin
