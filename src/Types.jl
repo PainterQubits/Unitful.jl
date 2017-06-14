@@ -1,11 +1,7 @@
-
 """
-```
-immutable Dimension{D}
-    power::Rational{Int}
-end
-```
-
+    immutable Dimension{D}
+        power::Rational{Int}
+    end
 Description of a dimension. The name of the dimension `D` is a symbol, e.g.
 `:Length`, `:Time`, `:Mass`, etc.
 
@@ -17,13 +13,10 @@ immutable Dimension{D}
 end
 
 """
-```
-immutable Unit{U,D}
-    tens::Int
-    power::Rational{Int}
-end
-```
-
+    immutable Unit{U,D}
+        tens::Int
+        power::Rational{Int}
+    end
 Description of a physical unit, including powers-of-ten prefixes and powers of
 the unit. The name of the unit is encoded in the type parameter `U` as a symbol,
 e.g. `:Meter`, `:Second`, `:Gram`, etc. The type parameter `D` contains dimension
@@ -40,29 +33,20 @@ immutable Unit{U,D}
 end
 
 """
-```
-abstract type Unitlike end
-```
-
+    abstract type Unitlike end
 Represents units or dimensions. Dimensions are unit-like in the sense that they are
 not numbers but you can multiply or divide them and exponentiate by rationals.
 """
 @compat abstract type Unitlike end
 
 """
-```
-abstract type Units{N,D} <: Unitlike end
-```
-
+    abstract type Units{N,D} <: Unitlike end
 Abstract supertype of all units objects, which can differ in their implementation details.
 """
 @compat abstract type Units{N,D} <: Unitlike end
 
 """
-```
-immutable FreeUnits{N,D} <: Units{N,D}
-```
-
+    immutable FreeUnits{N,D} <: Units{N,D}
 Instances of this object represent units, possibly combinations thereof. These behave like
 units have behaved in previous versions of Unitful, and provide a basic level of
 functionality that should be acceptable to most users. See
@@ -78,10 +62,7 @@ immutable FreeUnits{N,D} <: Units{N,D} end
 FreeUnits{N,D}(::Units{N,D}) = FreeUnits{N,D}()
 
 """
-```
-immutable ContextUnits{N,D,P} <: Units{N,D}
-```
-
+    immutable ContextUnits{N,D,P} <: Units{N,D}
 Instances of this object represent units, possibly combinations thereof.
 It is in most respects like `FreeUnits{N,D}`, except that the type parameter `P` is
 again a `FreeUnits{M,D}` type that specifies a preferred unit for promotion.
@@ -95,10 +76,7 @@ end
 ContextUnits{N,D}(u::Units{N,D}) = ContextUnits{N,D,typeof(FreeUnits(upreferred(u)))}()
 
 """
-```
-immutable FixedUnits{N,D} <: Units{N,D} end
-```
-
+    immutable FixedUnits{N,D} <: Units{N,D} end
 Instances of this object represent units, possibly combinations thereof.
 These are primarily intended for use when you would like to disable automatic unit
 conversions. See [Advanced promotion mechanisms](@ref) in the docs for details.
@@ -107,10 +85,7 @@ immutable FixedUnits{N,D} <: Units{N,D} end
 FixedUnits{N,D}(::Units{N,D}) = FixedUnits{N,D}()
 
 """
-```
-immutable Dimensions{N} <: Unitlike
-```
-
+    immutable Dimensions{N} <: Unitlike
 Instances of this object represent dimensions, possibly combinations thereof.
 """
 immutable Dimensions{N} <: Unitlike end
@@ -135,10 +110,7 @@ else
 end
 
 """
-```
-immutable Quantity{T,D,U} <: Number
-```
-
+    immutable Quantity{T,D,U} <: Number
 A quantity, which has dimensions and units specified in the type signature.
 The dimensions and units are allowed to be the empty set, in which case a
 dimensionless, unitless number results.
@@ -152,10 +124,7 @@ kept separate to permit convenient dispatch on dimensions.
 Quantity
 
 """
-```
-DimensionlessQuantity{T,U} = Quantity{T, Dimensions{()}, U}
-```
-
+    DimensionlessQuantity{T,U} = Quantity{T, Dimensions{()}, U}
 Useful for dispatching on [`Unitful.Quantity`](@ref) types that may have units
 but no dimensions. (Units with differing power-of-ten prefixes are not canceled
 out.)

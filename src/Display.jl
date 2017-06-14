@@ -32,10 +32,7 @@ for generic arguments to flag unexpected behavior.
 abbr(x) = "❓"     # Indicate missing abbreviations
 
 """
-```
-prefix(x::Unit)
-```
-
+    prefix(x::Unit)
 Returns a string representing the SI prefix for the power-of-ten held by
 this particular unit.
 """
@@ -48,10 +45,7 @@ function prefix(x::Unit)
 end
 
 """
-```
-show(io::IO, x::Quantity)
-```
-
+    show(io::IO, x::Quantity)
 Show a unitful quantity by calling `show` on the numeric value, appending a
 space, and then calling `show` on a units object `U()`.
 """
@@ -65,10 +59,7 @@ function show(io::IO, x::Quantity)
 end
 
 """
-```
-show{T,D,U}(io::IO, ::Type{Quantity{T,D,U}})
-```
-
+    show{T,D,U}(io::IO, ::Type{Quantity{T,D,U}})
 Show the type of a unitful quantity in a succinct way. Otherwise,
 array summaries are nearly unreadable.
 """
@@ -80,10 +71,7 @@ function show{T,D,U}(io::IO, ::Type{Quantity{T,D,U}})
 end
 
 """
-```
-show(io::IO, x::Unitlike)
-```
-
+    show(io::IO, x::Unitlike)
 Call [`Unitful.showrep`](@ref) on each object in the tuple that is the type
 variable of a [`Unitful.Units`](@ref) or [`Unitful.Dimensions`](@ref) object.
 """
@@ -98,10 +86,7 @@ function show(io::IO, x::Unitlike)
 end
 
 """
-```
-showrep(io::IO, x::Unit)
-```
-
+    showrep(io::IO, x::Unit)
 Show the unit, prefixing with any decimal prefix and appending the exponent as
 formatted by [`Unitful.superscript`](@ref).
 """
@@ -113,10 +98,7 @@ function showrep(io::IO, x::Unit)
 end
 
 """
-```
-showrep(io::IO, x::Dimension)
-```
-
+    showrep(io::IO, x::Dimension)
 Show the dimension, appending any exponent as formatted by
 [`Unitful.superscript`](@ref).
 """
@@ -126,10 +108,7 @@ function showrep(io::IO, x::Dimension)
 end
 
 """
-```
-superscript(i::Rational)
-```
-
+    superscript(i::Rational)
 Prints exponents.
 """
 function superscript(i::Rational)

@@ -1,8 +1,5 @@
 """
-```
-uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
-```
-
+    uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
 Convert a [`Unitful.Quantity`](@ref) to different units. The conversion will
 fail if the target units `a` have a different dimension than the dimension of
 the quantity `x`. You can use this method to switch between equivalent
@@ -34,10 +31,7 @@ function uconvert(a::Units, x::Number)
 end
 
 """
-```
-convfact(s::Units, t::Units)
-```
-
+    convfact(s::Units, t::Units)
 Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.01`.
 """
 @generated function convfact(s::Units, t::Units)
@@ -82,19 +76,13 @@ Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.0
 end
 
 """
-```
-convfact{S}(s::Units{S}, t::Units{S})
-```
-
+    convfact{S}(s::Units{S}, t::Units{S})
 Returns 1. (Avoids effort when unnecessary.)
 """
 convfact{S}(s::Units{S}, t::Units{S}) = 1
 
 """
-```
-convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Number)
-```
-
+    convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Number)
 Direct type conversion using `convert` is permissible provided conversion
 is between two quantities of the same dimension.
 """
@@ -107,10 +95,7 @@ function convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Number)
 end
 
 """
-```
-convert{T}(::Type{Quantity{T}}, x::Number)
-```
-
+    convert{T}(::Type{Quantity{T}}, x::Number)
 Convert the numeric backing type of `x` to `T`. If `x <: Real`, for example,
 this method yields the same result as `convert(T, x)`. If `x <: Quantity{S,D,U}`,
 this method returns a `Quantity{T,D,U}` object.
@@ -126,20 +111,14 @@ function convert{T}(::Type{Quantity{T}}, x::Quantity)
 end
 
 """
-```
-convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Number)
-```
-
+    convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Number)
 Convert `x` to a [`Unitful.DimensionlessQuantity`](@ref) type.
 """
 convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Number) =
     uconvert(U(), convert(T,x))
 
 """
-```
-convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Quantity)
-```
-
+    convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Quantity)
 Convert `x` to a [`Unitful.DimensionlessQuantity`](@ref) type.
 If `x` is already dimensionless, this is a no-op; if it is not, an
 `ErrorException` is thrown.

@@ -1,8 +1,5 @@
 """
-```
-function register(unit_module::Module)
-```
-
+    register(unit_module::Module)
 Makes the [`@u_str`](@ref) macro aware of units defined in new unit modules. By default,
 Unitful is itself a registered module. Note that Main is not, so if you define new units
 at the REPL, you will probably want to do `Unitful.register(Main)`.
@@ -23,10 +20,7 @@ end #module
 register(unit_module::Module) = push!(Unitful.unitmodules, unit_module)
 
 """
-```
-macro dimension(symb, abbr, name)
-```
-
+    @dimension(symb, abbr, name)
 Creates new dimensions. `name` will be used like an identifier in the type
 parameter for a [`Unitful.Dimension`](@ref) object. `symb` will be a symbol
 defined in the namespace from which this macro is called that is bound to a
@@ -71,10 +65,7 @@ macro dimension(symb, abbr, name)
 end
 
 """
-```
-macro derived_dimension(name, dims)
-```
-
+    @derived_dimension(name, dims)
 Creates type aliases to allow dispatch on [`Unitful.Quantity`](@ref) and
 [`Unitful.Units`](@ref) objects of a derived dimension, like area, which is just
 length squared. The type aliases are not exported.
@@ -103,10 +94,7 @@ end
 
 
 """
-```
-macro refunit(symb, name, abbr, dimension, tf)
-```
-
+    @refunit(symb, name, abbr, dimension, tf)
 Define a reference unit, typically SI. Rather than define
 conversion factors between each and every unit of a given dimension, conversion
 factors are given between each unit and a reference unit, defined by this macro.
@@ -149,10 +137,7 @@ macro refunit(symb, abbr, name, dimension, tf)
 end
 
 """
-```
-macro unit(symb,abbr,name,equals,tf)
-```
-
+    @unit(symb,abbr,name,equals,tf)
 Define a unit. Rather than specifying a dimension like in [`@refunit`](@ref),
 `equals` should be a [`Unitful.Quantity`](@ref) equal to one of the unit being
 defined. If `tf == true`, symbols will be made for each power-of-ten prefix.
@@ -185,10 +170,7 @@ macro unit(symb,abbr,name,equals,tf)
 end
 
 """
-```
-macro prefixed_unit_symbols(symb,name,dimension,basefactor)
-```
-
+    @prefixed_unit_symbols(symb,name,dimension,basefactor)
 Not called directly by the user. Given a unit symbol and a unit's name,
 will define units for each possible SI power-of-ten prefix on that unit.
 
@@ -221,10 +203,7 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
 end
 
 """
-```
-macro unit_symbols(symb,name)
-```
-
+    @unit_symbols(symb,name)
 Not called directly by the user. Given a unit symbol and a unit's name,
 will define units without SI power-of-ten prefixes.
 
@@ -241,10 +220,7 @@ macro unit_symbols(symb,name,dimension,basefactor)
 end
 
 """
-```
-function preferunits(u0::Units, u::Units...)
-```
-
+    preferunits(u0::Units, u::Units...)
 This function specifies the default fallback units for promotion.
 Units provided to this function must have a pure dimension of power 1, like 𝐋 or 𝐓
 but not 𝐋/𝐓 or 𝐋^2. The function will complain if this is not the case. Additionally,
@@ -284,10 +260,7 @@ function preferunits(u0::Units, u::Units...)
 end
 
 """
-```
-upreferred(x::Dimensions)
-```
-
+    upreferred(x::Dimensions)
 Return units which are preferred for dimensions `x`. If you are using the
 factory defaults, this function will return a product of powers of base SI units
 (as [`Unitful.FreeUnits`](@ref)).
@@ -298,11 +271,8 @@ factory defaults, this function will return a product of powers of base SI units
 end
 
 """
-```
-upreferred(x::Number)
-upreferred(x::Quantity)
-```
-
+    upreferred(x::Number)
+    upreferred(x::Quantity)
 Unit-convert `x` to units which are preferred for the dimensions of `x`.
 If you are using the factory defaults, this function will unit-convert to a
 product of powers of base SI units. If quantity `x` has
@@ -313,10 +283,7 @@ units `ContextUnits(z,z)`.
 @compat @inline upreferred(x::Quantity) = uconvert(upreferred(unit(x)), x)
 
 """
-```
-upreferred(x::Units)
-```
-
+    upreferred(x::Units)
 Return units which are preferred for the dimensions of `x`, which may or may
 not be equal to `x`, as specified by the [`preferunits`](@ref) function. If you
 are using the factory defaults, this function will return a product of powers of
@@ -327,10 +294,7 @@ base SI units.
 @inline upreferred(x::FixedUnits) = x
 
 """
-```
-macro u_str(unit)
-```
-
+    @u_str(unit)
 String macro to easily recall units, dimensions, or quantities defined in
 unit modules that have been registered with [`Unitful.register`](@ref).
 
@@ -418,10 +382,7 @@ ustrcheck(x::Quantity) = x
 ustrcheck(x) = error("Symbol $x is not a unit, dimension, or quantity.")
 
 """
-```
-basefactor(x::Unit)
-```
-
+    basefactor(x::Unit)
 Specifies conversion factors to reference units.
 It returns a tuple. The first value is any irrational part of the conversion,
 and the second value is a rational component. This segregation permits exact
@@ -431,10 +392,7 @@ reference units.
 function basefactor end
 
 """
-```
-dimension(x::Unit)
-```
-
+    dimension(x::Unit)
 Returns a [`Unitful.Dimensions`](@ref) object describing the given unit `x`.
 """
 function dimension end

@@ -51,13 +51,10 @@ isunitless(::Units{()}) = true
 (y::ContextUnits)(x::Number) = uconvert(y,x)
 
 """
-```
-type DimensionError{T,S} <: Exception
-  x::T
-  y::S
-end
-```
-
+    type DimensionError{T,S} <: Exception
+      x::T
+      y::S
+    end
 Thrown when dimensions don't match in an operation that demands they do.
 Display `x` and `y` in error message.
 """
@@ -72,10 +69,7 @@ numtype{T}(::Quantity{T}) = T
 numtype{T,D,U}(::Type{Quantity{T,D,U}}) = T
 
 """
-```
-ustrip(x::Number)
-```
-
+    ustrip(x::Number)
 Returns the number out in front of any units. This may be different from the value
 in the case of dimensionless quantities. See [`uconvert`](@ref) and the example
 below. Because the units are removed, information may be lost and this should
@@ -99,10 +93,7 @@ true
 @inline ustrip(x::Number) = x/unit(x)
 
 """
-```
-ustrip{Q<:Quantity}(x::Array{Q})
-```
-
+    ustrip{Q<:Quantity}(x::Array{Q})
 Strip units from an `Array` by reinterpreting to type `T`. The resulting
 `Array` is a "unit free view" into array `x`. Because the units are
 removed, information may be lost and this should be used with some care.
@@ -130,10 +121,7 @@ julia> a[1] = 3u"m"; b
 @inline ustrip{Q<:Quantity}(x::Array{Q}) = reinterpret(numtype(Q), x)
 
 """
-```
-ustrip{Q<:Quantity}(A::AbstractArray{Q})
-```
-
+    ustrip{Q<:Quantity}(A::AbstractArray{Q})
 Strip units from an `AbstractArray` by making a new array without units using
 array comprehensions.
 
@@ -143,10 +131,7 @@ the result to PyPlot, for example. This function may be deprecated in the future
 ustrip{Q<:Quantity}(A::AbstractArray{Q}) = (numtype(Q))[ustrip(x) for x in A]
 
 """
-```
-ustrip{T<:Number}(x::AbstractArray{T})
-```
-
+    ustrip{T<:Number}(x::AbstractArray{T})
 Fall-back that returns `x`.
 """
 @inline ustrip{T<:Number}(A::AbstractArray{T}) = A
@@ -160,10 +145,7 @@ ustrip{T<:Quantity}(A::SymTridiagonal{T}) =
     SymTridiagonal(ustrip(A.dv), ustrip(A.ev))
 
 """
-```
-unit{T,D,U}(x::Quantity{T,D,U})
-```
-
+    unit{T,D,U}(x::Quantity{T,D,U})
 Returns the units associated with a quantity.
 
 Examples:
@@ -179,10 +161,7 @@ Unitful.FreeUnits{(Unitful.Unit{:Meter,Unitful.Dimensions{(Unitful.Dimension{:Le
 @inline unit{T,D,U}(x::Quantity{T,D,U}) = U()
 
 """
-```
-unit{T,D,U}(x::Type{Quantity{T,D,U}})
-```
-
+    unit{T,D,U}(x::Type{Quantity{T,D,U}})
 Returns the units associated with a quantity type, `ContextUnits(U(),P())`.
 
 Examples:
@@ -196,10 +175,7 @@ true
 
 
 """
-```
-unit(x::Number)
-```
-
+    unit(x::Number)
 Returns a `Unitful.Units{(), Dimensions{()}}` object to indicate that ordinary
 numbers have no units. This is a singleton, which we export as `NoUnits`.
 The unit is displayed as an empty string.
@@ -219,11 +195,8 @@ true
 @inline unit{T<:Number}(x::Type{T}) = NoUnits
 
 """
-```
-dimension(x::Number)
-dimension{T<:Number}(x::Type{T})
-```
-
+    dimension(x::Number)
+    dimension{T<:Number}(x::Type{T})
 Returns a `Unitful.Dimensions{()}` object to indicate that ordinary
 numbers are dimensionless. This is a singleton, which we export as `NoDims`.
 The dimension is displayed as an empty string.
@@ -243,10 +216,7 @@ true
 @inline dimension{T<:Number}(x::Type{T}) = NoDims
 
 """
-```
-dimension{U,D}(u::Units{U,D})
-```
-
+    dimension{U,D}(u::Units{U,D})
 Returns a [`Unitful.Dimensions`](@ref) object corresponding to the dimensions
 of the units, `D()`. For a dimensionless combination of units, a
 `Unitful.Dimensions{()}` object is returned.
@@ -267,10 +237,7 @@ Unitful.Dimensions{()}
 @inline dimension{U,D}(u::Units{U,D}) = D()
 
 """
-```
-dimension{T,D}(x::Quantity{T,D})
-```
-
+    dimension{T,D}(x::Quantity{T,D})
 Returns a [`Unitful.Dimensions`](@ref) object `D()` corresponding to the
 dimensions of quantity `x`. For a dimensionless [`Unitful.Quantity`](@ref), a
 `Unitful.Dimensions{()}` object is returned.
@@ -289,27 +256,19 @@ Unitful.Dimensions{()}
 @inline dimension{T,D,U}(::Type{Quantity{T,D,U}}) = D()
 
 """
-```
-dimension{T<:Number}(x::AbstractArray{T})
-```
-
+    dimension{T<:Number}(x::AbstractArray{T})
 Just calls `map(dimension, x)`.
 """
 dimension{T<:Number}(x::AbstractArray{T}) = map(dimension, x)
 
 """
-```
-dimension{T<:Units}(x::AbstractArray{T})
-```
-
+    dimension{T<:Units}(x::AbstractArray{T})
 Just calls `map(dimension, x)`.
 """
 dimension{T<:Units}(x::AbstractArray{T}) = map(dimension, x)
 
 """
-```
-@generated function Quantity(x::Number, y::Units)
-```
+    Quantity(x::Number, y::Units)
 Outer constructor for `Quantity`s. This is a generated function to avoid
 determining the dimensions of a given set of units each time a new quantity is
 made.
@@ -322,10 +281,7 @@ end
 Quantity(x::Number, y::Units{()}) = x
 
 """
-```
-function promote_unit(::Units, ::Units...)
-```
-
+    promote_unit(::Units, ::Units...)
 Given `Units` objects as arguments, this function returns a `Units` object appropriate
 for the result of promoting quantities which have these units. This function is kind
 of like `promote_rule`, except that it doesn't take types. It also does not return a tuple,
@@ -913,19 +869,13 @@ conj(x::Quantity) = Quantity(conj(x.val), unit(x))
     p == 0 ? (x==zero(x) ? typeof(abs(x))(0) : typeof(abs(x))(1)) : abs(x)
 
 """
-```
-sign(x::Quantity)
-```
-
+    sign(x::Quantity)
 Returns the sign of `x`.
 """
 sign(x::Quantity) = sign(x.val)
 
 """
-```
-signbit(x::Quantity)
-```
-
+    signbit(x::Quantity)
 Returns the sign bit of the underlying numeric value of `x`.
 """
 signbit(x::Quantity) = signbit(x.val)
@@ -939,30 +889,21 @@ function frexp{T<:AbstractFloat}(x::Quantity{T})
 end
 
 """
-```
-float(x::Quantity)
-```
-
+    float(x::Quantity)
 Convert the numeric backing type of `x` to a floating-point representation.
 Returns a `Quantity` with the same units.
 """
 float(x::Quantity) = Quantity(float(x.val), unit(x))
 
 """
-```
-Integer(x::Quantity)
-```
-
+    Integer(x::Quantity)
 Convert the numeric backing type of `x` to an integer representation.
 Returns a `Quantity` with the same units.
 """
 Integer(x::Quantity) = Quantity(Integer(x.val), unit(x))
 
 """
-```
-Rational(x::Quantity)
-```
-
+    Rational(x::Quantity)
 Convert the numeric backing type of `x` to a rational number representation.
 Returns a `Quantity` with the same units.
 """
@@ -986,10 +927,7 @@ typemax{T,D,U}(::Type{Quantity{T,D,U}}) = typemax(T)*U()
 typemax{T}(x::Quantity{T}) = typemax(T)*unit(x)
 
 """
-```
-offsettemp(::Unit)
-```
-
+    offsettemp(::Unit)
 For temperature units, this function is used to set the scale offset.
 """
 offsettemp(::Unit) = 0

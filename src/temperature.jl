@@ -1,8 +1,5 @@
 """
-```
-uconvert{T,D,U}(a::Units, x::Quantity{T,typeof(𝚯),<:TemperatureUnits})
-```
-
+    uconvert{T,D,U}(a::Units, x::Quantity{T,typeof(𝚯),<:TemperatureUnits})
 In this method, we are special-casing temperature conversion to respect scale
 offsets, if they do not appear in combination with other dimensions.
 """

@@ -199,10 +199,7 @@ end
 preferunits(kg) # others done in @refunit
 
 """
-```
-Unitful.promote_to_derived()
-```
-
+    Unitful.promote_to_derived()
 Defines promotion rules to use derived SI units in promotion for common dimensions
 of quantities:
 
