@@ -782,6 +782,7 @@ isless(x::Number, y::Quantity) = _isless(promote(x,y)...)
     .<=(x::Number, y::Quantity) = x <= y
 end
 
+Base.rtoldefault{T,D,U}(::Type{Quantity{T,D,U}}) = Base.rtoldefault(T)
 isapprox{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) =
     isapprox(x.val, y.val; atol=uconvert(unit(y), atol).val, kwargs...)
 function isapprox(x::Quantity, y::Quantity; kwargs...)

@@ -1,3 +1,7 @@
+- v0.2.6
+  - Fix and close [#52](https://github.com/ajkeller34/Unitful.jl/issues/52).
+  - Implement `Base.rtoldefault` for Quantity types
+    (needed for AxisArrays [#52](https://github.com/JuliaArrays/AxisArrays.jl/pull/52)).
 - v0.2.5
   - Fix and close [#79](https://github.com/ajkeller34/Unitful.jl/issues/79).
   - Add support for `round(T, ::DimensionlessQuantity)` where `T <: Integer`

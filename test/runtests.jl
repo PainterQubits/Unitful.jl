@@ -365,7 +365,7 @@ end
 end
 
 @testset "Mathematics" begin
-    @testset "> Ordered comparisons" begin
+    @testset "> Comparisons" begin
         # make sure we are just picking one of the arguments, without surprising conversions
         # happening to the units...
         @test min(1FreeUnits(hr), 1FreeUnits(s)) === 1FreeUnits(s)
@@ -403,6 +403,8 @@ end
         @test_throws DimensionError 1m < 1
         @test_throws DimensionError 1 < 1m
         @test_throws DimensionError 1mm/m < 1m
+        @test Base.rtoldefault(typeof(1.0u"m")) === Base.rtoldefault(typeof(1.0))
+        @test Base.rtoldefault(typeof(1u"m")) === Base.rtoldefault(Int)
     end
     @testset "> Addition and subtraction" begin
         @test @inferred(+(1A)) == 1A                    # Unary addition
