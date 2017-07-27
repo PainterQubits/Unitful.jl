@@ -23,6 +23,7 @@ mathematical operations and collections that are found in Julia base.
 - [UnitfulUS.jl](https://github.com/ajkeller34/UnitfulUS.jl): Adds U.S. customary units. Serves as an example for how to implement a units 
   package.
 - [UnitfulIntegration.jl](https://github.com/ajkeller34/UnitfulIntegration.jl): Enables use of Unitful quantities with [QuadGK.jl](https://github.com/JuliaMath/QuadGK.jl). PRs for other integration packages are welcome.
+- [UnitfulAngles.jl](https://github.com/yakir12/UnitfulAngles.jl): Introduces many more angular units, includes additional trigonometric functionalities, and clock-angle conversion.
 
 ## Related packages
 
