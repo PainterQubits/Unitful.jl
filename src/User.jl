@@ -265,7 +265,7 @@ Return units which are preferred for dimensions `x`. If you are using the
 factory defaults, this function will return a product of powers of base SI units
 (as [`Unitful.FreeUnits`](@ref)).
 """
-@generated function upreferred{D}(x::Dimensions{D})
+@generated function upreferred(x::Dimensions{D}) where {D}
     u = *(FreeUnits{((Unitful.promotion[name(z)]^z.power for z in D)...),()}())
     :($u)
 end
@@ -290,7 +290,7 @@ are using the factory defaults, this function will return a product of powers of
 base SI units.
 """
 @inline upreferred(x::FreeUnits) = upreferred(dimension(x))
-@inline upreferred{N,D,P}(::ContextUnits{N,D,P}) = ContextUnits(P(),P())
+@inline upreferred(::ContextUnits{N,D,P}) where {N,D,P} = ContextUnits(P(),P())
 @inline upreferred(x::FixedUnits) = x
 
 """
