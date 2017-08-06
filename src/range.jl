@@ -9,7 +9,7 @@ Base.linspace(start::Quantity{<:Real}, stop::Quantity{<:Real}, len::Integer) =
 (Base.linspace(start::T, stop::T, len::Integer) where (T<:Quantity{<:Integer})) =
     linspace(Float64, ustrip(start), ustrip(stop), len, 1)*unit(T)
 
-function _linspace{T}(start::Quantity{T}, stop::Quantity{T}, len::Integer)
+function _linspace(start::Quantity{T}, stop::Quantity{T}, len::Integer) where {T}
     dimension(start) != dimension(stop) && throw(DimensionError(start, stop))
     linspace(start, stop, len)
 end
@@ -36,10 +36,10 @@ import Base: TypeOrder, TypeArithmetic, HasOrder,
 
 (colon(start::T, step::T, stop::T) where T <: Quantity{<:Real}) =
     _colon(TypeOrder(T), TypeArithmetic(T), start, step, stop)
-_colon{T}(::HasOrder, ::Any, start::T, step, stop::T) = StepRange(start, step, stop)
-_colon{T}(::HasOrder, ::ArithmeticRounds, start::T, step, stop::T) =
+_colon(::HasOrder, ::Any, start::T, step, stop::T) where {T} = StepRange(start, step, stop)
+_colon(::HasOrder, ::ArithmeticRounds, start::T, step, stop::T) where {T} =
     StepRangeLen(start, step, floor(Int, (stop-start)/step)+1)
-_colon{T}(::Any, ::Any, start::T, step, stop::T) =
+_colon(::Any, ::Any, start::T, step, stop::T) where {T} =
     StepRangeLen(start, step, floor(Int, (stop-start)/step)+1)
 
 # Opt into TwicePrecision functionality
