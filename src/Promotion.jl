@@ -1,10 +1,11 @@
 # quantity, quantity (different dims)
-Base.promote_rule{S1,D1,U1,S2,D2,U2}(::Type{Quantity{S1,D1,U1}}, ::Type{Quantity{S2,D2,U2}}) =
+Base.promote_rule(::Type{Quantity{S1,D1,U1}},
+        ::Type{Quantity{S2,D2,U2}}) where {S1,D1,U1,S2,D2,U2} =
     Quantity{promote_type(S1,S2)}
 
 # quantity, quantity (same dims, different units)
-function Base.promote_rule{S1,S2,D,U1,U2}(::Type{Quantity{S1,D,U1}},
-    ::Type{Quantity{S2,D,U2}})
+function Base.promote_rule(::Type{Quantity{S1,D,U1}},
+    ::Type{Quantity{S2,D,U2}}) where {S1,S2,D,U1,U2}
 
     p = promote_unit(U1(), U2())
     numtype = promote_type(S1,S2,
@@ -28,7 +29,7 @@ function Base.promote_rule{S1,S2,D,U1,U2}(::Type{Quantity{S1,D,U1}},
 end
 
 # number, quantity
-function Base.promote_rule{S,T<:Number,D,U}(::Type{Quantity{S,D,U}}, ::Type{T})
+function Base.promote_rule(::Type{Quantity{S,D,U}}, ::Type{T}) where {S,T <: Number,D,U}
     if D == Dimensions{()}
         promote_type(S,T,typeof(convfact(NoUnits,U())))
     else
@@ -36,12 +37,13 @@ function Base.promote_rule{S,T<:Number,D,U}(::Type{Quantity{S,D,U}}, ::Type{T})
     end
 end
 
-Base.promote_rule{S,T<:Number}(::Type{Quantity{S}}, ::Type{T}) = Quantity{promote_type(S,T)}
+Base.promote_rule(::Type{Quantity{S}}, ::Type{T}) where {S,T <: Number} =
+    Quantity{promote_type(S,T)}
 
 # With only one of these, you can get a segmentation fault because you # fall back to the
 # number, quantity promote_rule above and there is an infinite recursion.
-Base.promote_rule{T,S,D,U}(::Type{Quantity{T}}, ::Type{Quantity{S,D,U}}) =
+Base.promote_rule(::Type{Quantity{T}}, ::Type{Quantity{S,D,U}}) where {T,S,D,U} =
     Quantity{promote_type(T,S)}
 
-Base.promote_rule{T,S,D,U}(::Type{Quantity{S,D,U}}, ::Type{Quantity{T}}) =
+Base.promote_rule(::Type{Quantity{S,D,U}}, ::Type{Quantity{T}}) where {T,S,D,U} =
     Quantity{promote_type(T,S)}
