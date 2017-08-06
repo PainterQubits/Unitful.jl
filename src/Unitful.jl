@@ -1,16 +1,6 @@
 __precompile__(true)
 module Unitful
 
-using Compat
-
-@static if VERSION < v"0.6.0-dev.2390"
-    using Ranges
-end
-
-@static if VERSION < v"0.6.0-dev.1632" # Julia PR #17623
-    import Base: .+, .-, .*, ./, .\, .<, .<=
-end
-
 import Base: ==, <, <=, +, -, *, /, //, ^
 import Base: show, convert
 import Base: abs, abs2, float, fma, muladd, inv, sqrt, cbrt
@@ -51,14 +41,14 @@ isunitless(::Units{()}) = true
 (y::ContextUnits)(x::Number) = uconvert(y,x)
 
 """
-    type DimensionError{T,S} <: Exception
+    mutable struct DimensionError{T,S} <: Exception
       x::T
       y::S
     end
 Thrown when dimensions don't match in an operation that demands they do.
 Display `x` and `y` in error message.
 """
-type DimensionError{T,S} <: Exception
+mutable struct DimensionError{T,S} <: Exception
     x::T
     y::S
 end
@@ -536,16 +526,9 @@ end
 # Exponentiation is not type-stable for `Dimensions` objects in many cases
 ^{T}(x::Dimensions{T}, y::Integer) = *(Dimensions{map(a->a^y, T)}())
 ^{T}(x::Dimensions{T}, y::Number) = *(Dimensions{map(a->a^y, T)}())
-@static if VERSION >= v"0.6.0-pre.alpha.108"
-    @generated function Base.literal_pow{T,p}(::typeof(^), x::Dimensions{T}, ::Type{Val{p}})
-        z = *(Dimensions{map(a->a^p, T)}())
-        :($z)
-    end
-elseif VERSION >= v"0.6.0-dev.2834"
-    @generated function ^{T,p}(x::Dimensions{T}, ::Type{Val{p}})
-        z = *(Dimensions{map(a->a^p, T)}())
-        :($z)
-    end
+@generated function Base.literal_pow{T,p}(::typeof(^), x::Dimensions{T}, ::Type{Val{p}})
+    z = *(Dimensions{map(a->a^p, T)}())
+    :($z)
 end
 
 @inline dimension{U,D}(u::Unit{U,D}) = D()^u.power
@@ -561,33 +544,8 @@ end
 *(y::Number, x::Quantity) = *(x,y)
 *(x::Quantity, y::Number) = Quantity(x.val*y, unit(x))
 
-# See operators.jl
-# Element-wise operations with units
-@static if VERSION < v"0.6.0-dev.1632"  # Julia PR #17623
-    for (f,F) in [(:./, :/), (:.*, :*), (:.+, :+), (:.-, :-)]
-        @eval ($f)(x::Units, y::Units) = ($F)(x,y)
-        @eval ($f)(x::Number, y::Units)   = ($F)(x,y)
-        @eval ($f)(x::Units, y::Number)   = ($F)(x,y)
-    end
-    .\(x::Units, y::Units) = y./x               # NEW
-    .\(x::Dimensions, y::Dimensions) = y./x     # NEW
-
-    .\(x::Number, y::Units) = y./x
-    .\(x::Units, y::Number) = y./x
-
-    # See arraymath.jl
-    ./(x::Units, Y::AbstractArray) =
-        reshape([ x ./ y for y in Y ], size(Y))
-    ./(X::AbstractArray, y::Units) =
-        reshape([ x ./ y for x in X ], size(X))
-    .\(x::Units, Y::AbstractArray) =
-        reshape([ x .\ y for y in Y ], size(Y))
-    .\(X::AbstractArray, y::Units) =
-        reshape([ x .\ y for x in X ], size(X))
-end
-
 # looked in arraymath.jl for similar code
-for f in @static if VERSION < v"0.6.0-dev.1632"; (:.*, :*); else (:*,) end
+for f in (:*,)
     @eval begin
         function ($f){T}(A::Units, B::AbstractArray{T})
             F = similar(B, Base.promote_op($f,typeof(A),T))
@@ -744,11 +702,6 @@ for (f, F) in [(:min, :<), (:max, :>)]
     end
 end
 
-@static if VERSION < v"0.6.0-dev.477"
-    @vectorize_2arg Quantity max
-    @vectorize_2arg Quantity min
-end
-
 abs(x::Quantity) = Quantity(abs(x.val), unit(x))
 abs2(x::Quantity) = Quantity(abs2(x.val), unit(x)*unit(x))
 
@@ -772,15 +725,6 @@ isless(x::Number, y::Quantity) = _isless(promote(x,y)...)
 <(x::Quantity, y::Quantity) = _lt(promote(x,y)...)
 <(x::Quantity, y::Number) = _lt(promote(x,y)...)
 <(x::Number, y::Quantity) = _lt(promote(x,y)...)
-
-@static if VERSION < v"0.6.0-dev.1632" # Julia PR #17623
-    .<(x::Quantity, y::Quantity) = x < y
-    .<(x::Quantity, y::Number) = x < y
-    .<(x::Number, y::Quantity) = x < y
-    .<=(x::Quantity, y::Quantity) = x <= y
-    .<=(x::Quantity, y::Number) = x <= y
-    .<=(x::Number, y::Quantity) = x <= y
-end
 
 Base.rtoldefault{T,D,U}(::Type{Quantity{T,D,U}}) = Base.rtoldefault(T)
 isapprox{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) =
@@ -914,12 +858,7 @@ Rational(x::Quantity) = Quantity(Rational(x.val), unit(x))
 *(r::Range, y::Units) = range(first(r)*y, step(r)*y, length(r))
 *(r::Range, y::Units, z::Units...) = *(x, *(y,z...))
 
-# break out into separate files so julia 0.5 doesn't see 0.6 syntax
-@static if VERSION < v"0.6.0-dev.2390"
-    include("range_v05.jl")
-else
-    include("range.jl")
-end
+include("range.jl")
 
 typemin{T,D,U}(::Type{Quantity{T,D,U}}) = typemin(T)*U()
 typemin{T}(x::Quantity{T}) = typemin(T)*unit(x)
@@ -1042,37 +981,22 @@ true
 ^{N}(x::FixedUnits{N}, y::Integer) = *(FixedUnits{map(a->a^y, N), ()}())
 ^{N}(x::FixedUnits{N}, y::Number) = *(FixedUnits{map(a->a^y, N), ()}())
 
-@static if VERSION >= v"0.6.0-pre.alpha.108"
-    @generated function Base.literal_pow{N,p}(::typeof(^), x::FreeUnits{N}, ::Type{Val{p}})
-        y = *(FreeUnits{map(a->a^p, N), ()}())
-        :($y)
-    end
-    @generated function Base.literal_pow{N,D,P,p}(::typeof(^), x::ContextUnits{N,D,P}, ::Type{Val{p}})
-        y = *(ContextUnits{map(a->a^p, N), (), typeof(P()^p)}())
-        :($y)
-    end
-    @generated function Base.literal_pow{N,p}(::typeof(^), x::FixedUnits{N}, ::Type{Val{p}})
-        y = *(FixedUnits{map(a->a^p, N), ()}())
-        :($y)
-    end
-    Base.literal_pow{v}(::typeof(^), x::Quantity, ::Type{Val{v}}) =
-        Quantity(Base.literal_pow(^, x.val, Val{v}),
-                 Base.literal_pow(^, unit(x), Val{v}))
-elseif VERSION >= v"0.6.0-dev.2834"
-    @generated function ^{N,p}(x::FreeUnits{N}, ::Type{Val{p}})
-        y = *(FreeUnits{map(a->a^p, N), ()}())
-        :($y)
-    end
-    @generated function ^{N,D,P,p}(x::ContextUnits{N,D,P}, ::Type{Val{p}})
-        y = *(ContextUnits{map(a->a^p, N), (), typeof(P()^p)}())
-        :($y)
-    end
-    @generated function ^{N,p}(x::FixedUnits{N}, ::Type{Val{p}})
-        y = *(FixedUnits{map(a->a^p, N), ()}())
-        :($y)
-    end
-    ^{v}(x::Quantity, ::Type{Val{v}}) = Quantity((x.val)^Val{v}, unit(x)^Val{v})
+@generated function Base.literal_pow{N,p}(::typeof(^), x::FreeUnits{N}, ::Type{Val{p}})
+    y = *(FreeUnits{map(a->a^p, N), ()}())
+    :($y)
 end
+@generated function Base.literal_pow{N,D,P,p}(::typeof(^), x::ContextUnits{N,D,P}, ::Type{Val{p}})
+    y = *(ContextUnits{map(a->a^p, N), (), typeof(P()^p)}())
+    :($y)
+end
+@generated function Base.literal_pow{N,p}(::typeof(^), x::FixedUnits{N}, ::Type{Val{p}})
+    y = *(FixedUnits{map(a->a^p, N), ()}())
+    :($y)
+end
+Base.literal_pow{v}(::typeof(^), x::Quantity, ::Type{Val{v}}) =
+    Quantity(Base.literal_pow(^, x.val, Val{v}),
+             Base.literal_pow(^, unit(x), Val{v}))
+
 # All of these are needed for ambiguity resolution
 ^(x::Quantity, y::Integer) = Quantity((x.val)^y, unit(x)^y)
 ^(x::Quantity, y::Rational) = Quantity((x.val)^y, unit(x)^y)
@@ -1112,11 +1036,7 @@ end
 include("Display.jl")
 include("Promotion.jl")
 include("Conversion.jl")
-@static if VERSION >= v"0.6.0-dev.2218" # Julia PR 18754
-    include("fastmath.jl")
-else
-    include("fastmath_v05.jl")
-end
+include("fastmath.jl")
 include("pkgdefaults.jl")
 include("temperature.jl")
 

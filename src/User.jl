@@ -56,10 +56,10 @@ macro dimension(symb, abbr, name)
     esc(quote
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
         const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
-        Unitful.Compat.@compat ($name){T,U} = Unitful.Quantity{T,typeof($s),U}
-        Unitful.Compat.@compat ($uname){U} = Unitful.Units{U,typeof($s)}
-        Unitful.Compat.@compat ($uname_old){U} = Unitful.Units{U,typeof($s)}
-        Unitful.Compat.@compat ($funame){U} = Unitful.FreeUnits{U,typeof($s)}
+        const ($name){T,U} = Unitful.Quantity{T,typeof($s),U}
+        const ($uname){U} = Unitful.Units{U,typeof($s)}
+        const ($uname_old){U} = Unitful.Units{U,typeof($s)}
+        const ($funame){U} = Unitful.FreeUnits{U,typeof($s)}
         $s
     end)
 end
@@ -84,10 +84,10 @@ macro derived_dimension(name, dims)
     uname_old = Symbol(name,"Unit")
     funame = Symbol(name,"FreeUnits")
     esc(quote
-        Unitful.Compat.@compat ($name){T,U} = Unitful.Quantity{T,typeof($dims),U}
-        Unitful.Compat.@compat ($uname){U} = Unitful.Units{U,typeof($dims)}
-        Unitful.Compat.@compat ($uname_old){U} = Unitful.Units{U,typeof($dims)}
-        Unitful.Compat.@compat ($funame){U} = Unitful.FreeUnits{U,typeof($dims)}
+        const ($name){T,U} = Unitful.Quantity{T,typeof($dims),U}
+        const ($uname){U} = Unitful.Units{U,typeof($dims)}
+        const ($uname_old){U} = Unitful.Units{U,typeof($dims)}
+        const ($funame){U} = Unitful.FreeUnits{U,typeof($dims)}
         nothing
     end)
 end
@@ -280,7 +280,7 @@ product of powers of base SI units. If quantity `x` has
 units `ContextUnits(z,z)`.
 """
 @inline upreferred(x::Number) = x
-@compat @inline upreferred(x::Quantity) = uconvert(upreferred(unit(x)), x)
+@inline upreferred(x::Quantity) = uconvert(upreferred(unit(x)), x)
 
 """
     upreferred(x::Units)

@@ -1,8 +1,8 @@
-@compat Base.linspace(start::Quantity{<:Real}, stop, len::Integer) =
+Base.linspace(start::Quantity{<:Real}, stop, len::Integer) =
     _linspace(promote(start, stop)..., len)
-@compat Base.linspace(start, stop::Quantity{<:Real}, len::Integer) =
+Base.linspace(start, stop::Quantity{<:Real}, len::Integer) =
     _linspace(promote(start, stop)..., len)
-@compat Base.linspace(start::Quantity{<:Real}, stop::Quantity{<:Real}, len::Integer) =
+Base.linspace(start::Quantity{<:Real}, stop::Quantity{<:Real}, len::Integer) =
     _linspace(promote(start, stop)..., len)
 (Base.linspace(start::T, stop::T, len::Integer) where (T<:Quantity{<:Real})) =
     LinSpace{T}(start, stop, len)
@@ -14,7 +14,7 @@ function _linspace{T}(start::Quantity{T}, stop::Quantity{T}, len::Integer)
     linspace(start, stop, len)
 end
 
-@compat function colon(start::Quantity{<:Real}, step, stop::Quantity{<:Real})
+function colon(start::Quantity{<:Real}, step, stop::Quantity{<:Real})
     dimension(start) != dimension(stop) && throw(DimensionError(start, stop))
     T = promote_type(typeof(start),typeof(stop))
     return colon(convert(T,start), step, convert(T,stop))
@@ -28,13 +28,13 @@ end
 # Traits for quantities using triangular dispatch
 import Base: TypeOrder, TypeArithmetic, HasOrder,
     ArithmeticRounds, ArithmeticOverflows
-@compat (::Type{TypeOrder})(::Type{<:Quantity{<:Real}}) = HasOrder()
-@compat (::Type{TypeArithmetic})(::Type{<:Quantity{<:AbstractFloat}}) =
+(::Type{TypeOrder})(::Type{<:Quantity{<:Real}}) = HasOrder()
+(::Type{TypeArithmetic})(::Type{<:Quantity{<:AbstractFloat}}) =
     ArithmeticRounds()
-@compat (::Type{TypeArithmetic})(::Type{<:Quantity{<:Integer}}) =
+(::Type{TypeArithmetic})(::Type{<:Quantity{<:Integer}}) =
     ArithmeticOverflows()
 
-@compat (colon(start::T, step::T, stop::T) where T <: Quantity{<:Real}) =
+(colon(start::T, step::T, stop::T) where T <: Quantity{<:Real}) =
     _colon(TypeOrder(T), TypeArithmetic(T), start, step, stop)
 _colon{T}(::HasOrder, ::Any, start::T, step, stop::T) = StepRange(start, step, stop)
 _colon{T}(::HasOrder, ::ArithmeticRounds, start::T, step, stop::T) =
