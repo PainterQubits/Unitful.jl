@@ -28,10 +28,10 @@ export NoUnits, NoDims
 const unitmodules = Vector{Module}()
 const basefactors = Dict{Symbol,Tuple{Float64,Rational{Int}}}()
 
-include("Types.jl")
+include("types.jl")
 const promotion = Dict{Symbol,Unit}()
 
-include("User.jl")
+include("user.jl")
 const NoUnits = FreeUnits{(), Dimensions{()}}()
 const NoDims = Dimensions{()}()
 isunitless(::Units) = false
@@ -1033,9 +1033,9 @@ for (fun,pow) in ((:inv, -1//1), (:sqrt, 1//2), (:cbrt, 1//3))
     end
 end
 
-include("Display.jl")
-include("Promotion.jl")
-include("Conversion.jl")
+include("display.jl")
+include("promotion.jl")
+include("conversion.jl")
 include("fastmath.jl")
 include("pkgdefaults.jl")
 include("temperature.jl")
