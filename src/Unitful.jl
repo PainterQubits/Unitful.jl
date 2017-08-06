@@ -55,8 +55,8 @@ end
 Base.showerror(io::IO, e::DimensionError) =
     print(io,"DimensionError: $(e.x) and $(e.y) are not dimensionally compatible.");
 
-numtype{T}(::Quantity{T}) = T
-numtype{T,D,U}(::Type{Quantity{T,D,U}}) = T
+numtype(::Quantity{T}) where {T} = T
+numtype(::Type{Quantity{T,D,U}}) where {T,D,U} = T
 
 """
     ustrip(x::Number)
@@ -108,7 +108,7 @@ julia> a[1] = 3u"m"; b
  2
 ```
 """
-@inline ustrip{Q<:Quantity}(x::Array{Q}) = reinterpret(numtype(Q), x)
+@inline ustrip(x::Array{Q}) where {Q <: Quantity} = reinterpret(numtype(Q), x)
 
 """
     ustrip{Q<:Quantity}(A::AbstractArray{Q})
@@ -118,20 +118,20 @@ array comprehensions.
 This function is provided primarily for compatibility purposes; you could pass
 the result to PyPlot, for example. This function may be deprecated in the future.
 """
-ustrip{Q<:Quantity}(A::AbstractArray{Q}) = (numtype(Q))[ustrip(x) for x in A]
+ustrip(A::AbstractArray{Q}) where {Q <: Quantity} = (numtype(Q))[ustrip(x) for x in A]
 
 """
     ustrip{T<:Number}(x::AbstractArray{T})
 Fall-back that returns `x`.
 """
-@inline ustrip{T<:Number}(A::AbstractArray{T}) = A
+@inline ustrip(A::AbstractArray{T}) where {T <: Number} = A
 
-ustrip{T<:Quantity}(A::Diagonal{T}) = Diagonal(ustrip(A.diag))
-ustrip{T<:Quantity}(A::Bidiagonal{T}) =
+ustrip(A::Diagonal{T}) where {T <: Quantity} = Diagonal(ustrip(A.diag))
+ustrip(A::Bidiagonal{T}) where {T <: Quantity} =
     Bidiagonal(ustrip(A.dv), ustrip(A.ev), A.isupper)
-ustrip{T<:Quantity}(A::Tridiagonal{T}) =
+ustrip(A::Tridiagonal{T}) where {T <: Quantity} =
     Tridiagonal(ustrip(A.dl), ustrip(A.d), ustrip(A.du))
-ustrip{T<:Quantity}(A::SymTridiagonal{T}) =
+ustrip(A::SymTridiagonal{T}) where {T <: Quantity} =
     SymTridiagonal(ustrip(A.dv), ustrip(A.ev))
 
 """
@@ -148,7 +148,7 @@ julia> typeof(u"m")
 Unitful.FreeUnits{(Unitful.Unit{:Meter,Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}(0, 1//1),),Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}
 ```
 """
-@inline unit{T,D,U}(x::Quantity{T,D,U}) = U()
+@inline unit(x::Quantity{T,D,U}) where {T,D,U} = U()
 
 """
     unit{T,D,U}(x::Type{Quantity{T,D,U}})
@@ -161,7 +161,7 @@ julia> unit(typeof(1.0u"m")) == u"m"
 true
 ```
 """
-@inline unit{T,D,U}(::Type{Quantity{T,D,U}}) = U()
+@inline unit(::Type{Quantity{T,D,U}}) where {T,D,U} = U()
 
 
 """
@@ -182,7 +182,7 @@ true
 ```
 """
 @inline unit(x::Number) = NoUnits
-@inline unit{T<:Number}(x::Type{T}) = NoUnits
+@inline unit(x::Type{T}) where {T <: Number} = NoUnits
 
 """
     dimension(x::Number)
@@ -203,7 +203,7 @@ true
 ```
 """
 @inline dimension(x::Number) = NoDims
-@inline dimension{T<:Number}(x::Type{T}) = NoDims
+@inline dimension(x::Type{T}) where {T <: Number} = NoDims
 
 """
     dimension{U,D}(u::Units{U,D})
@@ -224,7 +224,7 @@ julia> typeof(dimension(u"m/km"))
 Unitful.Dimensions{()}
 ```
 """
-@inline dimension{U,D}(u::Units{U,D}) = D()
+@inline dimension(u::Units{U,D}) where {U,D} = D()
 
 """
     dimension{T,D}(x::Quantity{T,D})
@@ -242,20 +242,20 @@ julia> typeof(dimension(1.0u"m/μm"))
 Unitful.Dimensions{()}
 ```
 """
-@inline dimension{T,D}(x::Quantity{T,D}) = D()
-@inline dimension{T,D,U}(::Type{Quantity{T,D,U}}) = D()
+@inline dimension(x::Quantity{T,D}) where {T,D} = D()
+@inline dimension(::Type{Quantity{T,D,U}}) where {T,D,U} = D()
 
 """
     dimension{T<:Number}(x::AbstractArray{T})
 Just calls `map(dimension, x)`.
 """
-dimension{T<:Number}(x::AbstractArray{T}) = map(dimension, x)
+dimension(x::AbstractArray{T}) where {T <: Number} = map(dimension, x)
 
 """
     dimension{T<:Units}(x::AbstractArray{T})
 Just calls `map(dimension, x)`.
 """
-dimension{T<:Units}(x::AbstractArray{T}) = map(dimension, x)
+dimension(x::AbstractArray{T}) where {T <: Units} = map(dimension, x)
 
 """
     Quantity(x::Number, y::Units)
@@ -293,41 +293,41 @@ promote_unit(x::Units, y::Units, z::Units, t::Units...) =
     promote_unit(_promote_unit(x,y), z, t...)
 
 # Use configurable fall-back mechanism for FreeUnits
-@inline _promote_unit{T<:FreeUnits}(x::T, y::T) = T()
-@inline _promote_unit{N1,N2,D}(x::FreeUnits{N1,D}, y::FreeUnits{N2,D}) =
+@inline _promote_unit(x::T, y::T) where {T <: FreeUnits} = T()
+@inline _promote_unit(x::FreeUnits{N1,D}, y::FreeUnits{N2,D}) where {N1,N2,D} =
     upreferred(dimension(x))
 
 # same units, but promotion context disagrees
-@inline _promote_unit{T<:ContextUnits}(x::T, y::T) = T()  #ambiguity reasons
-@inline _promote_unit{N,D,P1,P2}(x::ContextUnits{N,D,P1}, y::ContextUnits{N,D,P2}) =
+@inline _promote_unit(x::T, y::T) where {T <: ContextUnits} = T()  #ambiguity reasons
+@inline _promote_unit(x::ContextUnits{N,D,P1}, y::ContextUnits{N,D,P2}) where {N,D,P1,P2} =
     ContextUnits{N,D,promote_unit(P1(), P2())}()
 # different units, but promotion context agrees
-@inline _promote_unit{N1,N2,D,P}(x::ContextUnits{N1,D,P}, y::ContextUnits{N2,D,P}) =
+@inline _promote_unit(x::ContextUnits{N1,D,P}, y::ContextUnits{N2,D,P}) where {N1,N2,D,P} =
     ContextUnits(P(), P())
 # different units, promotion context disagrees, fall back to FreeUnits
-@inline _promote_unit{N1,N2,D}(x::ContextUnits{N1,D}, y::ContextUnits{N2,D}) =
+@inline _promote_unit(x::ContextUnits{N1,D}, y::ContextUnits{N2,D}) where {N1,N2,D} =
     promote_unit(FreeUnits(x), FreeUnits(y))
 
 # ContextUnits beat FreeUnits
-@inline _promote_unit{N,D}(x::ContextUnits{N,D}, y::FreeUnits{N,D}) = x
-@inline _promote_unit{N1,N2,D,P}(x::ContextUnits{N1,D,P}, y::FreeUnits{N2,D}) =
+@inline _promote_unit(x::ContextUnits{N,D}, y::FreeUnits{N,D}) where {N,D} = x
+@inline _promote_unit(x::ContextUnits{N1,D,P}, y::FreeUnits{N2,D}) where {N1,N2,D,P} =
     ContextUnits(P(), P())
 @inline _promote_unit(x::FreeUnits, y::ContextUnits) = promote_unit(y,x)
 
 # FixedUnits beat everything
-@inline _promote_unit{T<:FixedUnits}(x::T, y::T) = T()
-@inline _promote_unit{M,N,D}(x::FixedUnits{M,D}, y::Units{N,D}) = x
+@inline _promote_unit(x::T, y::T) where {T <: FixedUnits} = T()
+@inline _promote_unit(x::FixedUnits{M,D}, y::Units{N,D}) where {M,N,D} = x
 @inline _promote_unit(x::Units, y::FixedUnits) = promote_unit(y,x)
 
 # Different units but same dimension are not fungible for FixedUnits
-@inline _promote_unit{M,N,D}(x::FixedUnits{M,D}, y::FixedUnits{N,D}) =
+@inline _promote_unit(x::FixedUnits{M,D}, y::FixedUnits{N,D}) where {M,N,D} =
     error("automatic conversion prohibited.")
 
 # If we didn't handle it above, the dimensions mismatched.
 @inline _promote_unit(x::Units, y::Units) = throw(DimensionError(x,y))
 
-@inline name{S,D}(x::Unit{S,D}) = S
-@inline name{S}(x::Dimension{S}) = S
+@inline name(x::Unit{S,D}) where {S,D} = S
+@inline name(x::Dimension{S}) where {S} = S
 @inline tens(x::Unit) = x.tens
 @inline power(x::Unit) = x.power
 @inline power(x::Dimension) = x.power
@@ -392,9 +392,9 @@ function basefactor(inex, ex, eq, tens, p)
     end
 end
 
-@inline basefactor{U}(x::Unit{U}) = basefactor(basefactors[U]..., 1, 0, power(x))
+@inline basefactor(x::Unit{U}) where {U} = basefactor(basefactors[U]..., 1, 0, power(x))
 
-function basefactor{U}(x::Units{U})
+function basefactor(x::Units{U}) where {U}
     fact1 = map(basefactor, U)
     inex1 = mapreduce(x->getfield(x,1), *, 1.0, fact1)
     float_ex1 = mapreduce(x->float(getfield(x,2)), *, 1, fact1)
@@ -409,11 +409,11 @@ end
 
 # Addition / subtraction
 for op in [:+, :-]
-    @eval ($op){S,T,D,U}(x::Quantity{S,D,U}, y::Quantity{T,D,U}) =
+    @eval ($op)(x::Quantity{S,D,U}, y::Quantity{T,D,U}) where {S,T,D,U} =
         Quantity(($op)(x.val,y.val), U())
 
     # If not generated, there are run-time allocations
-    @eval function ($op){S,T,D,SU,TU}(x::Quantity{S,D,SU}, y::Quantity{T,D,TU})
+    @eval function ($op)(x::Quantity{S,D,SU}, y::Quantity{T,D,TU}) where {S,T,D,SU,TU}
         ($op)(promote(x,y)...)
     end
 
@@ -519,25 +519,25 @@ true
 end
 
 # Both methods needed for ambiguity resolution
-^{T}(x::Dimension{T}, y::Integer) = Dimension{T}(power(x)*y)
-^{T}(x::Dimension{T}, y::Number) = Dimension{T}(power(x)*y)
+^(x::Dimension{T}, y::Integer) where {T} = Dimension{T}(power(x)*y)
+^(x::Dimension{T}, y::Number) where {T} = Dimension{T}(power(x)*y)
 
 # A word of caution:
 # Exponentiation is not type-stable for `Dimensions` objects in many cases
-^{T}(x::Dimensions{T}, y::Integer) = *(Dimensions{map(a->a^y, T)}())
-^{T}(x::Dimensions{T}, y::Number) = *(Dimensions{map(a->a^y, T)}())
-@generated function Base.literal_pow{T,p}(::typeof(^), x::Dimensions{T}, ::Type{Val{p}})
+^(x::Dimensions{T}, y::Integer) where {T} = *(Dimensions{map(a->a^y, T)}())
+^(x::Dimensions{T}, y::Number) where {T} = *(Dimensions{map(a->a^y, T)}())
+@generated function Base.literal_pow(::typeof(^), x::Dimensions{T}, ::Type{Val{p}}) where {T,p}
     z = *(Dimensions{map(a->a^p, T)}())
     :($z)
 end
 
-@inline dimension{U,D}(u::Unit{U,D}) = D()^u.power
+@inline dimension(u::Unit{U,D}) where {U,D} = D()^u.power
 
 *(x::Quantity, y::Units, z::Units...) = Quantity(x.val, *(unit(x),y,z...))
 *(x::Quantity, y::Quantity) = Quantity(x.val*y.val, unit(x)*unit(y))
 
 # Next two lines resolves some method ambiguity:
-*{T<:Quantity}(x::Bool, y::T) =
+*(x::Bool, y::T) where {T <: Quantity} =
     ifelse(x, y, ifelse(signbit(y), -zero(y), zero(y)))
 *(x::Quantity, y::Bool) = Quantity(x.val*y, unit(x))
 
@@ -547,14 +547,14 @@ end
 # looked in arraymath.jl for similar code
 for f in (:*,)
     @eval begin
-        function ($f){T}(A::Units, B::AbstractArray{T})
+        function ($f)(A::Units, B::AbstractArray{T}) where {T}
             F = similar(B, Base.promote_op($f,typeof(A),T))
             for (iF, iB) in zip(eachindex(F), eachindex(B))
                 @inbounds F[iF] = ($f)(A, B[iB])
             end
             return F
         end
-        function ($f){T}(A::AbstractArray{T}, B::Units)
+        function ($f)(A::AbstractArray{T}, B::Units) where {T}
             F = similar(A, Base.promote_op($f,T,typeof(B)))
             for (iF, iA) in zip(eachindex(F), eachindex(A))
                 @inbounds F[iF] = ($f)(A[iA], B)
@@ -610,14 +610,14 @@ for f in (:mod, :rem)
 end
 
 # Needed until LU factorization is made to work with unitful numbers
-function inv{T<:Quantity}(x::StridedMatrix{T})
+function inv(x::StridedMatrix{T}) where {T <: Quantity}
     m = inv(ustrip(x))
     iq = eltype(m)
     reinterpret(Quantity{iq, typeof(inv(dimension(T))), typeof(inv(unit(T)))}, m)
 end
 
 for x in (:istriu, :istril)
-    @eval ($x){T<:Quantity}(A::AbstractMatrix{T}) = ($x)(ustrip(A))
+    @eval ($x)(A::AbstractMatrix{T}) where {T <: Quantity} = ($x)(ustrip(A))
 end
 
 # Other mathematical functions
@@ -635,15 +635,15 @@ for (_x,_y) in [(:fma, :_fma), (:muladd, :_muladd)]
         @eval @inline ($_x)(x::Quantity, y::Number, z::Quantity) = ($_y)(x,y,z)
 
         # Post-promotion
-        @eval @inline ($_x){T<:Number}(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}) = ($_y)(x,y,z)
+        @eval @inline ($_x)(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}) where {T <: Number} = ($_y)(x,y,z)
     else
-        @eval @inline ($_x){T<:Number}(x::Quantity{T}, y::T, z::T) = ($_y)(x,y,z)
-        @eval @inline ($_x){T<:Number}(x::T, y::Quantity{T}, z::T) = ($_y)(x,y,z)
-        @eval @inline ($_x){T<:Number}(x::T, y::T, z::Quantity{T}) = ($_y)(x,y,z)
-        @eval @inline ($_x){T<:Number}(x::Quantity{T}, y::Quantity{T}, z::T) = ($_y)(x,y,z)
-        @eval @inline ($_x){T<:Number}(x::T, y::Quantity{T}, z::Quantity{T}) = ($_y)(x,y,z)
-        @eval @inline ($_x){T<:Number}(x::Quantity{T}, y::T, z::Quantity{T}) = ($_y)(x,y,z)
-        @eval @inline ($_x){T<:Number}(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}) = ($_y)(x,y,z)
+        @eval @inline ($_x)(x::Quantity{T}, y::T, z::T) where {T <: Number} = ($_y)(x,y,z)
+        @eval @inline ($_x)(x::T, y::Quantity{T}, z::T) where {T <: Number} = ($_y)(x,y,z)
+        @eval @inline ($_x)(x::T, y::T, z::Quantity{T}) where {T <: Number} = ($_y)(x,y,z)
+        @eval @inline ($_x)(x::Quantity{T}, y::Quantity{T}, z::T) where {T <: Number} = ($_y)(x,y,z)
+        @eval @inline ($_x)(x::T, y::Quantity{T}, z::Quantity{T}) where {T <: Number} = ($_y)(x,y,z)
+        @eval @inline ($_x)(x::Quantity{T}, y::T, z::Quantity{T}) where {T <: Number} = ($_y)(x,y,z)
+        @eval @inline ($_x)(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}) where {T <: Number} = ($_y)(x,y,z)
     end
 
     # It seems like most of this is optimized out by the compiler, including the
@@ -665,8 +665,8 @@ for _y in (:sin, :cos, :tan, :cot, :sec, :csc, :cis)
 end
 
 atan2(y::Quantity, x::Quantity) = atan2(promote(y,x)...)
-atan2{T,D,U}(y::Quantity{T,D,U}, x::Quantity{T,D,U}) = atan2(y.val,x.val)
-atan2{T,D1,U1,D2,U2}(y::Quantity{T,D1,U1}, x::Quantity{T,D2,U2}) =
+atan2(y::Quantity{T,D,U}, x::Quantity{T,D,U}) where {T,D,U} = atan2(y.val,x.val)
+atan2(y::Quantity{T,D1,U1}, x::Quantity{T,D2,U2}) where {T,D1,U1,D2,U2} =
     throw(DimensionError(x,y))
 
 for (f, F) in [(:min, :<), (:max, :>)]
@@ -708,26 +708,26 @@ abs2(x::Quantity) = Quantity(abs2(x.val), unit(x)*unit(x))
 copysign(x::Quantity, y::Number) = Quantity(copysign(x.val,y/unit(y)), unit(x))
 flipsign(x::Quantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
 
-@inline isless{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = _isless(x,y)
-@inline _isless{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = isless(x.val, y.val)
-@inline _isless{T,D1,D2,U1,U2}(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) = throw(DimensionError(x,y))
+@inline isless(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} = _isless(x,y)
+@inline _isless(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} = isless(x.val, y.val)
+@inline _isless(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) where {T,D1,D2,U1,U2} = throw(DimensionError(x,y))
 @inline _isless(x,y) = isless(x,y)
 
 isless(x::Quantity, y::Quantity) = _isless(promote(x,y)...)
 isless(x::Quantity, y::Number) = _isless(promote(x,y)...)
 isless(x::Number, y::Quantity) = _isless(promote(x,y)...)
 
-@inline <{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = _lt(x,y)
-@inline _lt{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}) = <(x.val,y.val)
-@inline _lt{T,D1,D2,U1,U2}(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) = throw(DimensionError(x,y))
+@inline <(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} = _lt(x,y)
+@inline _lt(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} = <(x.val,y.val)
+@inline _lt(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) where {T,D1,D2,U1,U2} = throw(DimensionError(x,y))
 @inline _lt(x,y) = <(x,y)
 
 <(x::Quantity, y::Quantity) = _lt(promote(x,y)...)
 <(x::Quantity, y::Number) = _lt(promote(x,y)...)
 <(x::Number, y::Quantity) = _lt(promote(x,y)...)
 
-Base.rtoldefault{T,D,U}(::Type{Quantity{T,D,U}}) = Base.rtoldefault(T)
-isapprox{T,D,U}(x::Quantity{T,D,U}, y::Quantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) =
+Base.rtoldefault(::Type{Quantity{T,D,U}}) where {T,D,U} = Base.rtoldefault(T)
+isapprox(x::Quantity{T,D,U}, y::Quantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) where {T,D,U} =
     isapprox(x.val, y.val; atol=uconvert(unit(y), atol).val, kwargs...)
 function isapprox(x::Quantity, y::Quantity; kwargs...)
     dimension(x) != dimension(y) && return false
@@ -736,9 +736,9 @@ end
 isapprox(x::Quantity, y::Number; kwargs...) = isapprox(uconvert(NoUnits, x), y; kwargs...)
 isapprox(x::Number, y::Quantity; kwargs...) = isapprox(y, x; kwargs...)
 
-function isapprox{T1,D,U1,T2,U2}(x::AbstractArray{Quantity{T1,D,U1}},
+function isapprox(x::AbstractArray{Quantity{T1,D,U1}},
         y::AbstractArray{Quantity{T2,D,U2}}; rtol::Real=Base.rtoldefault(T1,T2),
-        atol=zero(Quantity{T1,D,U1}), norm::Function=vecnorm)
+        atol=zero(Quantity{T1,D,U1}), norm::Function=vecnorm) where {T1,D,U1,T2,U2}
 
     d = norm(x - y)
     if isfinite(d)
@@ -748,20 +748,20 @@ function isapprox{T1,D,U1,T2,U2}(x::AbstractArray{Quantity{T1,D,U1}},
         return all(ab -> isapprox(ab[1], ab[2]; rtol=rtol, atol=atol), zip(x, y))
     end
 end
-isapprox{S<:Quantity,T<:Quantity}(x::AbstractArray{S}, y::AbstractArray{T};
-    kwargs...) = false
-function isapprox{S<:Quantity,N<:Number}(x::AbstractArray{S}, y::AbstractArray{N};
-    kwargs...)
+isapprox(x::AbstractArray{S}, y::AbstractArray{T};
+    kwargs...) where {S <: Quantity,T <: Quantity} = false
+function isapprox(x::AbstractArray{S}, y::AbstractArray{N};
+    kwargs...) where {S <: Quantity,N <: Number}
     if dimension(N) == dimension(S)
         isapprox(map(x->uconvert(NoUnits,x),x),y; kwargs...)
     else
         false
     end
 end
-isapprox{S<:Quantity,N<:Number}(y::AbstractArray{N}, x::AbstractArray{S};
-    kwargs...) = isapprox(x,y; kwargs...)
+isapprox(y::AbstractArray{N}, x::AbstractArray{S};
+    kwargs...) where {S <: Quantity,N <: Number} = isapprox(x,y; kwargs...)
 
-=={S,T,D,U}(x::Quantity{S,D,U}, y::Quantity{T,D,U}) = (x.val == y.val)
+==(x::Quantity{S,D,U}, y::Quantity{T,D,U}) where {S,T,D,U} = (x.val == y.val)
 function ==(x::Quantity, y::Quantity)
     dimension(x) != dimension(y) && return false
     ==(promote(x,y)...)
@@ -785,15 +785,15 @@ isinteger(x::DimensionlessQuantity) = isinteger(uconvert(NoUnits, x))
 for f in (:floor, :ceil, :trunc, :round)
     @eval ($f)(x::Quantity) = _dimerr($f)
     @eval ($f)(x::DimensionlessQuantity) = ($f)(uconvert(NoUnits, x))
-    @eval ($f){T<:Integer}(::Type{T}, x::Quantity) = _dimerr($f)
-    @eval ($f){T<:Integer}(::Type{T}, x::DimensionlessQuantity) = ($f)(T, uconvert(NoUnits, x))
+    @eval ($f)(::Type{T}, x::Quantity) where {T <: Integer} = _dimerr($f)
+    @eval ($f)(::Type{T}, x::DimensionlessQuantity) where {T <: Integer} = ($f)(T, uconvert(NoUnits, x))
 end
 
 zero(x::Quantity) = Quantity(zero(x.val), unit(x))
-zero{T,D,U}(x::Type{Quantity{T,D,U}}) = zero(T)*U()
+zero(x::Type{Quantity{T,D,U}}) where {T,D,U} = zero(T)*U()
 
 one(x::Quantity) = one(x.val)
-one{T,D,U}(x::Type{Quantity{T,D,U}}) = one(T)
+one(x::Type{Quantity{T,D,U}}) where {T,D,U} = one(T)
 
 isreal(x::Quantity) = isreal(x.val)
 isfinite(x::Quantity) = isfinite(x.val)
@@ -825,10 +825,10 @@ Returns the sign bit of the underlying numeric value of `x`.
 """
 signbit(x::Quantity) = signbit(x.val)
 
-prevfloat{T<:AbstractFloat}(x::Quantity{T}) = Quantity(prevfloat(x.val), unit(x))
-nextfloat{T<:AbstractFloat}(x::Quantity{T}) = Quantity(nextfloat(x.val), unit(x))
+prevfloat(x::Quantity{T}) where {T <: AbstractFloat} = Quantity(prevfloat(x.val), unit(x))
+nextfloat(x::Quantity{T}) where {T <: AbstractFloat} = Quantity(nextfloat(x.val), unit(x))
 
-function frexp{T<:AbstractFloat}(x::Quantity{T})
+function frexp(x::Quantity{T}) where {T <: AbstractFloat}
     a,b = frexp(x.val)
     a*unit(x), b
 end
@@ -860,11 +860,11 @@ Rational(x::Quantity) = Quantity(Rational(x.val), unit(x))
 
 include("range.jl")
 
-typemin{T,D,U}(::Type{Quantity{T,D,U}}) = typemin(T)*U()
-typemin{T}(x::Quantity{T}) = typemin(T)*unit(x)
+typemin(::Type{Quantity{T,D,U}}) where {T,D,U} = typemin(T)*U()
+typemin(x::Quantity{T}) where {T} = typemin(T)*unit(x)
 
-typemax{T,D,U}(::Type{Quantity{T,D,U}}) = typemax(T)*U()
-typemax{T}(x::Quantity{T}) = typemax(T)*unit(x)
+typemax(::Type{Quantity{T,D,U}}) where {T,D,U} = typemax(T)*U()
+typemax(x::Quantity{T}) where {T} = typemax(T)*unit(x)
 
 """
     offsettemp(::Unit)
@@ -872,7 +872,7 @@ For temperature units, this function is used to set the scale offset.
 """
 offsettemp(::Unit) = 0
 
-@inline dimtype{U,D}(u::Unit{U,D}) = D
+@inline dimtype(u::Unit{U,D}) where {U,D} = D
 
 @generated function *(a0::FreeUnits, a::FreeUnits...)
 
@@ -964,36 +964,36 @@ true
 # Logic above is that if we're not using FreeOrContextUnits, at least one is FixedUnits.
 
 # Both methods needed for ambiguity resolution
-^{U,D}(x::Unit{U,D}, y::Integer) = Unit{U,D}(tens(x), power(x)*y)
-^{U,D}(x::Unit{U,D}, y::Number) = Unit{U,D}(tens(x), power(x)*y)
+^(x::Unit{U,D}, y::Integer) where {U,D} = Unit{U,D}(tens(x), power(x)*y)
+^(x::Unit{U,D}, y::Number) where {U,D} = Unit{U,D}(tens(x), power(x)*y)
 
 # A word of caution:
 # Exponentiation is not type-stable for `Units` objects.
 # Dimensions get reconstructed anyway so we pass () for the D type parameter...
-^{N}(x::FreeUnits{N}, y::Integer) = *(FreeUnits{map(a->a^y, N), ()}())
-^{N}(x::FreeUnits{N}, y::Number) = *(FreeUnits{map(a->a^y, N), ()}())
+^(x::FreeUnits{N}, y::Integer) where {N} = *(FreeUnits{map(a->a^y, N), ()}())
+^(x::FreeUnits{N}, y::Number) where {N} = *(FreeUnits{map(a->a^y, N), ()}())
 
-^{N,D,P}(x::ContextUnits{N,D,P}, y::Integer) =
+^(x::ContextUnits{N,D,P}, y::Integer) where {N,D,P} =
     *(ContextUnits{map(a->a^y, N), (), typeof(P()^y)}())
-^{N,D,P}(x::ContextUnits{N,D,P}, y::Number) =
+^(x::ContextUnits{N,D,P}, y::Number) where {N,D,P} =
     *(ContextUnits{map(a->a^y, N), (), typeof(P()^y)}())
 
-^{N}(x::FixedUnits{N}, y::Integer) = *(FixedUnits{map(a->a^y, N), ()}())
-^{N}(x::FixedUnits{N}, y::Number) = *(FixedUnits{map(a->a^y, N), ()}())
+^(x::FixedUnits{N}, y::Integer) where {N} = *(FixedUnits{map(a->a^y, N), ()}())
+^(x::FixedUnits{N}, y::Number) where {N} = *(FixedUnits{map(a->a^y, N), ()}())
 
-@generated function Base.literal_pow{N,p}(::typeof(^), x::FreeUnits{N}, ::Type{Val{p}})
+@generated function Base.literal_pow(::typeof(^), x::FreeUnits{N}, ::Type{Val{p}}) where {N,p}
     y = *(FreeUnits{map(a->a^p, N), ()}())
     :($y)
 end
-@generated function Base.literal_pow{N,D,P,p}(::typeof(^), x::ContextUnits{N,D,P}, ::Type{Val{p}})
+@generated function Base.literal_pow(::typeof(^), x::ContextUnits{N,D,P}, ::Type{Val{p}}) where {N,D,P,p}
     y = *(ContextUnits{map(a->a^p, N), (), typeof(P()^p)}())
     :($y)
 end
-@generated function Base.literal_pow{N,p}(::typeof(^), x::FixedUnits{N}, ::Type{Val{p}})
+@generated function Base.literal_pow(::typeof(^), x::FixedUnits{N}, ::Type{Val{p}}) where {N,p}
     y = *(FixedUnits{map(a->a^p, N), ()}())
     :($y)
 end
-Base.literal_pow{v}(::typeof(^), x::Quantity, ::Type{Val{v}}) =
+Base.literal_pow(::typeof(^), x::Quantity, ::Type{Val{v}}) where {v} =
     Quantity(Base.literal_pow(^, x.val, Val{v}),
              Base.literal_pow(^, unit(x), Val{v}))
 
