@@ -59,7 +59,7 @@ After dividing by `s`, a singleton of type
 Unitful.Unit{:Second,typeof(𝐓)}(0,-1//1,1.0,1//1)),typeof(𝐋/𝐓)}` is returned.
 """
 struct FreeUnits{N,D} <: Units{N,D} end
-FreeUnits{N,D}(::Units{N,D}) = FreeUnits{N,D}()
+FreeUnits(::Units{N,D}) where {N,D} = FreeUnits{N,D}()
 
 """
     struct ContextUnits{N,D,P} <: Units{N,D}
@@ -69,11 +69,11 @@ again a `FreeUnits{M,D}` type that specifies a preferred unit for promotion.
 See [Advanced promotion mechanisms](@ref) in the docs for details.
 """
 struct ContextUnits{N,D,P} <: Units{N,D} end
-function ContextUnits{N,D}(x::Units{N,D}, y::Units)
+function ContextUnits(x::Units{N,D}, y::Units) where {N,D}
     D() !== dimension(y) && throw(DimensionError(x,y))
     ContextUnits{N,D,typeof(FreeUnits(y))}()
 end
-ContextUnits{N,D}(u::Units{N,D}) = ContextUnits{N,D,typeof(FreeUnits(upreferred(u)))}()
+ContextUnits(u::Units{N,D}) where {N,D} = ContextUnits{N,D,typeof(FreeUnits(upreferred(u)))}()
 
 """
     struct FixedUnits{N,D} <: Units{N,D} end
@@ -82,7 +82,7 @@ These are primarily intended for use when you would like to disable automatic un
 conversions. See [Advanced promotion mechanisms](@ref) in the docs for details.
 """
 struct FixedUnits{N,D} <: Units{N,D} end
-FixedUnits{N,D}(::Units{N,D}) = FixedUnits{N,D}()
+FixedUnits(::Units{N,D}) where {N,D} = FixedUnits{N,D}()
 
 """
     struct Dimensions{N} <: Unitlike
