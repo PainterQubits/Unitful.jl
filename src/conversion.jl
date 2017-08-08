@@ -35,8 +35,8 @@ end
 Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.01`.
 """
 @generated function convfact(s::Units, t::Units)
-    sunits = s.parameters[1]
-    tunits = t.parameters[1]
+    sunits = (s.parameters[1].parameters...)
+    tunits = (t.parameters[1].parameters...)
 
     # Check if conversion is possible in principle
     sdim = dimension(s())

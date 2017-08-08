@@ -13,8 +13,8 @@ offsets, if they do not appear in combination with other dimensions.
         xData = xunits()
         conv = convfact(aData, xData)
 
-        xtup = xunits.parameters[1]
-        atup = a.parameters[1]
+        xtup = (xunits.parameters[1].parameters...)
+        atup = (a.parameters[1].parameters...)
         t0 = offsettemp(xtup[1])
         t1 = offsettemp(atup[1])
         quote

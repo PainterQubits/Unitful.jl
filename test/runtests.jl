@@ -32,45 +32,39 @@ import Unitful:
 import Unitful:
     LengthUnits, AreaUnits, MassUnits
 
-if VERSION < v"0.6.0-dev.2390"  # Make LinSpace generic, PR 18777
-    using Ranges
-    linspace = Ranges.linspace
-    LinSpace = Ranges.LinSpace
-end
-
 @testset "Construction" begin
     @test isa(NoUnits, FreeUnits)
-    @test typeof(𝐋) === Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
+    @test typeof(𝐋) === Unitful.Dimensions{Tuple{Unitful.Dimension{:Length}(1)}}
     @test 𝐋*𝐋 === 𝐋^2
     @test typeof(1.0m) ===
         Unitful.Quantity{Float64,
             typeof(𝐋),
-            Unitful.FreeUnits{(Unitful.Unit{:Meter, typeof(𝐋)}(0,1),),
+            Unitful.FreeUnits{Tuple{Unitful.Unit{:Meter, typeof(𝐋)}(0,1)},
                 typeof(𝐋)}}
     @test typeof(1m^2) ===
         Unitful.Quantity{Int,
             typeof(𝐋^2),
-            Unitful.FreeUnits{(Unitful.Unit{:Meter, typeof(𝐋)}(0,2),),
+            Unitful.FreeUnits{Tuple{Unitful.Unit{:Meter, typeof(𝐋)}(0,2)},
                 typeof(𝐋^2)}}
     @test typeof(1ac) ===
         Unitful.Quantity{Int,
             typeof(𝐋^2),
-            Unitful.FreeUnits{(Unitful.Unit{:Acre, typeof(𝐋^2)}(0,1),),
+            Unitful.FreeUnits{Tuple{Unitful.Unit{:Acre, typeof(𝐋^2)}(0,1)},
                 typeof(𝐋^2)}}
     @test typeof(ContextUnits(m,μm)) ===
-        ContextUnits{(Unitful.Unit{:Meter, typeof(𝐋)}(0,1),),
+        ContextUnits{Tuple{Unitful.Unit{:Meter, typeof(𝐋)}(0,1)},
             typeof(𝐋),
             typeof(μm)}
     @test typeof(1.0*ContextUnits(m,μm)) ===
         Unitful.Quantity{Float64,
             typeof(𝐋),
-            ContextUnits{(Unitful.Unit{:Meter, typeof(𝐋)}(0,1),),
+            ContextUnits{Tuple{Unitful.Unit{:Meter, typeof(𝐋)}(0,1)},
                 typeof(𝐋),
                 typeof(μm)}}
     @test typeof(1.0*FixedUnits(m)) ===
         Unitful.Quantity{Float64,
             typeof(𝐋),
-            FixedUnits{(Unitful.Unit{:Meter, typeof(𝐋)}(0,1),),
+            FixedUnits{Tuple{Unitful.Unit{:Meter, typeof(𝐋)}(0,1)},
                 typeof(𝐋)}}
     @test 3mm != 3*(m*m)                        # mm not interpreted as m*m
     @test (3+4im)*V === V*(3+4im) === (3V+4V*im)  # Complex quantity construction
@@ -1074,10 +1068,10 @@ let fname = tempname()
         ret = open(fname, "w") do f
             redirect_stderr(f) do
                 # wrap in eval to catch the STDERR output...
-                @test eval(:(typeof(u"m"))) == Unitful.FreeUnits{
-                    (Unitful.Unit{:MyMeter,Unitful.Dimensions{
-                    (Unitful.Dimension{:Length}(1//1),)}}(0,1//1),),
-                    Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}
+                @test eval(:(typeof(u"m"))) == Unitful.FreeUnits{Tuple{
+                    Unitful.Unit{:MyMeter, Unitful.Dimensions{Tuple{
+                    Unitful.Dimension{:Length}(1//1)}}}(0,1//1)},
+                    Unitful.Dimensions{Tuple{Unitful.Dimension{:Length}(1//1)}}}
             end
         end
     finally
@@ -1103,7 +1097,7 @@ module TUM
 end
 
 @testset "User macros" begin
-    @test typeof(TUM.f) == Unitful.Dimensions{(Unitful.Dimension{:FakeDim12345}(1//1),)}
+    @test typeof(TUM.f) == Unitful.Dimensions{Tuple{Unitful.Dimension{:FakeDim12345}(1//1)}}
     @test 1(TUM.fu) == 1(TUM.fu2)
     @test isa(1(TUM.fu), TUM.FakeDim12345)
     @test isa(TUM.fu, TUM.FakeDim12345Units)

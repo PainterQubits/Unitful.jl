@@ -77,7 +77,7 @@ variable of a [`Unitful.Units`](@ref) or [`Unitful.Dimensions`](@ref) object.
 """
 function show(io::IO, x::Unitlike)
     first = ""
-    foreach(typeof(x).parameters[1]) do y
+    foreach((typeof(x).parameters[1].parameters...)) do y
         print(io,first)
         showrep(io,y)
         first = " "

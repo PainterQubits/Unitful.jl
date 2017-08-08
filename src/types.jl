@@ -53,10 +53,10 @@ functionality that should be acceptable to most users. See
 [Basic promotion mechanisms](@ref) in the docs for details.
 
 Example: the unit `m` is actually a singleton of type
-`Unitful.FreeUnits{(Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1,1.0,1//1),),typeof(𝐋)`.
+`Unitful.FreeUnits{Tuple{Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1)},typeof(𝐋)}`.
 After dividing by `s`, a singleton of type
-`Unitful.FreeUnits{(Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1,1.0,1//1),
-Unitful.Unit{:Second,typeof(𝐓)}(0,-1//1,1.0,1//1)),typeof(𝐋/𝐓)}` is returned.
+`Unitful.FreeUnits{Tuple{Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1),
+Unitful.Unit{:Second,typeof(𝐓)}(0,-1//1)},typeof(𝐋/𝐓)}` is returned.
 """
 struct FreeUnits{N,D} <: Units{N,D} end
 FreeUnits(::Units{N,D}) where {N,D} = FreeUnits{N,D}()
@@ -109,7 +109,7 @@ struct Quantity{T,D,U} <: Number
 end
 
 """
-    DimensionlessQuantity{T,U} = Quantity{T, Dimensions{()}, U}
+    DimensionlessQuantity{T,U} = Quantity{T, Dimensions{Tuple{}}, U}
 Useful for dispatching on [`Unitful.Quantity`](@ref) types that may have units
 but no dimensions. (Units with differing power-of-ten prefixes are not canceled
 out.)
@@ -120,4 +120,4 @@ julia> isa(1.0u"mV/V", DimensionlessQuantity)
 true
 ```
 """
-const DimensionlessQuantity{T,U} = Quantity{T, Dimensions{()}, U}
+const DimensionlessQuantity{T,U} = Quantity{T, Dimensions{Tuple{}}, U}

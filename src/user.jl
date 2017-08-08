@@ -55,7 +55,7 @@ macro dimension(symb, abbr, name)
     funame = Symbol(name,"FreeUnits")
     esc(quote
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
-        const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
+        const $s = Unitful.Dimensions{Tuple{Unitful.Dimension{$x}(1)}}()
         const ($name){T,U} = Unitful.Quantity{T,typeof($s),U}
         const ($uname){U} = Unitful.Units{U,typeof($s)}
         const ($uname_old){U} = Unitful.Units{U,typeof($s)}
@@ -186,7 +186,7 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
         u = :(Unitful.Unit{$z, typeof($dimension)}($k,1//1))
         ea = esc(quote
             Unitful.basefactors[$z] = $basefactor
-            const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+            const $s = Unitful.FreeUnits{Tuple{$u},typeof(Unitful.dimension($u))}()
         end)
         push!(expr.args, ea)
     end
@@ -196,7 +196,7 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
     u = :(Unitful.Unit{$z, typeof($dimension)}(-6,1//1))
     push!(expr.args, esc(quote
         Unitful.basefactors[$z] = $basefactor
-        const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+        const $s = Unitful.FreeUnits{Tuple{$u},typeof(Unitful.dimension($u))}()
     end))
 
     expr
@@ -215,7 +215,7 @@ macro unit_symbols(symb,name,dimension,basefactor)
     u = :(Unitful.Unit{$z,typeof($dimension)}(0,1//1))
     esc(quote
         Unitful.basefactors[$z] = $basefactor
-        const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+        const $s = Unitful.FreeUnits{Tuple{$u},typeof(Unitful.dimension($u))}()
     end)
 end
 
@@ -243,17 +243,17 @@ function preferunits(u0::Units, u::Units...)
 
     for i in eachindex(units)
         unit, dim = units[i], dims[i]
-        if length(typeof(dim).parameters[1]) > 1
+        if length(typeof(dim).parameters[1].parameters) > 1
             error("preferunits can only be used with a unit that has a pure ",
             "dimension, like 𝐋 or 𝐓 but not 𝐋/𝐓.")
         end
-        if length(typeof(dim).parameters[1]) == 1 &&
-            typeof(dim).parameters[1][1].power != 1
+        if length(typeof(dim).parameters[1].parameters) == 1 &&
+            typeof(dim).parameters[1].parameters[1].power != 1
             error("preferunits cannot handle powers of pure dimensions except 1. ",
             "For instance, it should not be used with units of dimension 𝐋^2.")
         end
-        y = typeof(dim).parameters[1][1]
-        promotion[name(y)] = typeof(unit).parameters[1][1]
+        y = typeof(dim).parameters[1].parameters[1]
+        promotion[name(y)] = typeof(unit).parameters[1].parameters[1]
     end
 
     nothing
@@ -266,7 +266,7 @@ factory defaults, this function will return a product of powers of base SI units
 (as [`Unitful.FreeUnits`](@ref)).
 """
 @generated function upreferred(x::Dimensions{D}) where {D}
-    u = *(FreeUnits{((Unitful.promotion[name(z)]^z.power for z in D)...),()}())
+    u = *(FreeUnits{Tuple{(Unitful.promotion[name(z)]^z.power for z in D.parameters)...},Tuple{}}())
     :($u)
 end
 

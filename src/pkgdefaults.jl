@@ -86,8 +86,8 @@ Unitful.offsettemp(::Unitful.Unit{:Celsius}) = 27315//100
 # Area
 # The hectare is used more frequently than any other power-of-ten of an are.
 @unit a      "a"        Are         100m^2                  false
-const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, Unitful.Dimensions{
-    (Unitful.Dimension{:Length}(2//1),)}}(2,1//1),), typeof(𝐋^2)}()
+const ha = Unitful.FreeUnits{Tuple{Unitful.Unit{:Are, Unitful.Dimensions{
+    Tuple{Unitful.Dimension{:Length}(2//1)}}}(2,1//1)}, typeof(𝐋^2)}()
 
 # Volume
 # `l` is also an acceptable symbol for liters

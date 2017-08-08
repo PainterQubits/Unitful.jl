@@ -32,10 +32,10 @@ include("types.jl")
 const promotion = Dict{Symbol,Unit}()
 
 include("user.jl")
-const NoUnits = FreeUnits{(), Dimensions{()}}()
-const NoDims = Dimensions{()}()
+const NoUnits = FreeUnits{Tuple{}, Dimensions{Tuple{}}}()
+const NoDims = Dimensions{Tuple{}}()
 isunitless(::Units) = false
-isunitless(::Units{()}) = true
+isunitless(::Units{Tuple{}}) = true
 
 (y::FreeUnits)(x::Number) = uconvert(y,x)
 (y::ContextUnits)(x::Number) = uconvert(y,x)
@@ -145,7 +145,7 @@ julia> unit(1.0u"m") == u"m"
 true
 
 julia> typeof(u"m")
-Unitful.FreeUnits{(Unitful.Unit{:Meter,Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}(0, 1//1),),Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}
+Unitful.FreeUnits{Tuple{Unitful.Unit{:Meter,Unitful.Dimensions{Tuple{Unitful.Dimension{:Length}(1//1)}}}(0, 1//1)},Unitful.Dimensions{Tuple{Unitful.Dimension{:Length}(1//1)}}}
 ```
 """
 @inline unit(x::Quantity{T,D,U}) where {T,D,U} = U()
@@ -166,7 +166,7 @@ true
 
 """
     unit(x::Number)
-Returns a `Unitful.Units{(), Dimensions{()}}` object to indicate that ordinary
+Returns a `Unitful.Units{Tuple{}, Dimensions{Tuple{}}}` object to indicate that ordinary
 numbers have no units. This is a singleton, which we export as `NoUnits`.
 The unit is displayed as an empty string.
 
@@ -174,9 +174,9 @@ Examples:
 
 ```jldoctest
 julia> typeof(unit(1.0))
-Unitful.FreeUnits{(),Unitful.Dimensions{()}}
+Unitful.FreeUnits{Tuple{},Unitful.Dimensions{Tuple{}}}
 julia> typeof(unit(Float64))
-Unitful.FreeUnits{(),Unitful.Dimensions{()}}
+Unitful.FreeUnits{Tuple{},Unitful.Dimensions{Tuple{}}}
 julia> unit(1.0) == NoUnits
 true
 ```
@@ -187,7 +187,7 @@ true
 """
     dimension(x::Number)
     dimension{T<:Number}(x::Type{T})
-Returns a `Unitful.Dimensions{()}` object to indicate that ordinary
+Returns a `Unitful.Dimensions{Tuple{}}` object to indicate that ordinary
 numbers are dimensionless. This is a singleton, which we export as `NoDims`.
 The dimension is displayed as an empty string.
 
@@ -195,9 +195,9 @@ Examples:
 
 ```jldoctest
 julia> typeof(dimension(1.0))
-Unitful.Dimensions{()}
+Unitful.Dimensions{Tuple{}}
 julia> typeof(dimension(Float64))
-Unitful.Dimensions{()}
+Unitful.Dimensions{Tuple{}}
 julia> dimension(1.0) == NoDims
 true
 ```
@@ -209,7 +209,7 @@ true
     dimension{U,D}(u::Units{U,D})
 Returns a [`Unitful.Dimensions`](@ref) object corresponding to the dimensions
 of the units, `D()`. For a dimensionless combination of units, a
-`Unitful.Dimensions{()}` object is returned.
+`Unitful.Dimensions{Tuple{}}` object is returned.
 
 Examples:
 
@@ -218,10 +218,10 @@ julia> dimension(u"m")
 𝐋
 
 julia> typeof(dimension(u"m"))
-Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}
+Unitful.Dimensions{Tuple{Unitful.Dimension{:Length}(1//1)}}
 
 julia> typeof(dimension(u"m/km"))
-Unitful.Dimensions{()}
+Unitful.Dimensions{Tuple{}}
 ```
 """
 @inline dimension(u::Units{U,D}) where {U,D} = D()
@@ -230,7 +230,7 @@ Unitful.Dimensions{()}
     dimension{T,D}(x::Quantity{T,D})
 Returns a [`Unitful.Dimensions`](@ref) object `D()` corresponding to the
 dimensions of quantity `x`. For a dimensionless [`Unitful.Quantity`](@ref), a
-`Unitful.Dimensions{()}` object is returned.
+`Unitful.Dimensions{Tuple{}}` object is returned.
 
 Examples:
 
@@ -239,7 +239,7 @@ julia> dimension(1.0u"m")
 𝐋
 
 julia> typeof(dimension(1.0u"m/μm"))
-Unitful.Dimensions{()}
+Unitful.Dimensions{Tuple{}}
 ```
 """
 @inline dimension(x::Quantity{T,D}) where {T,D} = D()
@@ -268,7 +268,7 @@ made.
     d = dimension(u)
     :(Quantity{typeof(x), typeof($d), typeof($u)}(x))
 end
-Quantity(x::Number, y::Units{()}) = x
+Quantity(x::Number, y::Units{Tuple{}}) = x
 
 """
     promote_unit(::Units, ::Units...)
@@ -395,7 +395,7 @@ end
 @inline basefactor(x::Unit{U}) where {U} = basefactor(basefactors[U]..., 1, 0, power(x))
 
 function basefactor(x::Units{U}) where {U}
-    fact1 = map(basefactor, U)
+    fact1 = map(basefactor, (U.parameters...))
     inex1 = mapreduce(x->getfield(x,1), *, 1.0, fact1)
     float_ex1 = mapreduce(x->float(getfield(x,2)), *, 1, fact1)
     can_exact = (float_ex1 < typemax(Int))
@@ -450,7 +450,7 @@ function tensfactor(x::Unit)
 end
 
 @generated function tensfactor(x::Units)
-    tunits = x.parameters[1]
+    tunits = (x.parameters[1].parameters...)
     a = mapreduce(tensfactor, +, 0, tunits)
     :($a)
 end
@@ -482,10 +482,10 @@ true
 @generated function *(a0::Dimensions, a::Dimensions...)
     # Implementation is very similar to *(::Units, ::Units...)
     b = Vector{Dimension}()
-    a0p = a0.parameters[1]
+    a0p = (a0.parameters[1].parameters...)
     length(a0p) > 0 && append!(b, a0p)
     for x in a
-        xp = x.parameters[1]
+        xp = (x.parameters[1].parameters...)
         length(xp) > 0 && append!(b, xp)
     end
 
@@ -514,7 +514,7 @@ true
         end
     end
 
-    d = (c...)
+    d = Tuple{c...}
     :(Dimensions{$d}())
 end
 
@@ -524,10 +524,10 @@ end
 
 # A word of caution:
 # Exponentiation is not type-stable for `Dimensions` objects in many cases
-^(x::Dimensions{T}, y::Integer) where {T} = *(Dimensions{map(a->a^y, T)}())
-^(x::Dimensions{T}, y::Number) where {T} = *(Dimensions{map(a->a^y, T)}())
+^(x::Dimensions{T}, y::Integer) where {T} = *(Dimensions{Tuple{map(a->a^y, (T.parameters...))...}}())
+^(x::Dimensions{T}, y::Number) where {T} = *(Dimensions{Tuple{map(a->a^y, (T.parameters...))...}}())
 @generated function Base.literal_pow(::typeof(^), x::Dimensions{T}, ::Type{Val{p}}) where {T,p}
-    z = *(Dimensions{map(a->a^p, T)}())
+    z = *(Dimensions{Tuple{map(a->a^p, (T.parameters...))...}}())
     :($z)
 end
 
@@ -682,8 +682,8 @@ for (f, F) in [(:min, :<), (:max, :>)]
             x.parameters[3] !== y.parameters[3] &&
             error("automatic conversion prohibited.")
 
-        xunits = x.parameters[3].parameters[1]
-        yunits = y.parameters[3].parameters[1]
+        xunits = (x.parameters[3].parameters[1].parameters...)
+        yunits = (y.parameters[3].parameters[1].parameters...)
 
         factx = mapreduce((x,y)->broadcast(*,x,y), xunits) do x
             vcat(basefactor(x)...)
@@ -879,10 +879,10 @@ offsettemp(::Unit) = 0
     # Sort the units uniquely. This is a generated function so that we
     # don't have to figure out the units each time.
     b = Vector{Unit}()
-    a0p = a0.parameters[1]
+    a0p = (a0.parameters[1].parameters...)
     length(a0p) > 0 && append!(b, a0p)
     for x in a
-        xp = x.parameters[1]
+        xp = (x.parameters[1].parameters...)
         length(xp) > 0 && append!(b, xp)
     end
 
@@ -921,7 +921,7 @@ offsettemp(::Unit) = 0
     # results in:
     # Units[nm,cm^6,m^6,µs^3,s]
 
-    d = (c...)
+    d = Tuple{c...}
     f = typeof(mapreduce(dimension, *, NoDims, c))
     :(FreeUnits{$d,$f}())
 end
@@ -969,28 +969,32 @@ true
 
 # A word of caution:
 # Exponentiation is not type-stable for `Units` objects.
-# Dimensions get reconstructed anyway so we pass () for the D type parameter...
-^(x::FreeUnits{N}, y::Integer) where {N} = *(FreeUnits{map(a->a^y, N), ()}())
-^(x::FreeUnits{N}, y::Number) where {N} = *(FreeUnits{map(a->a^y, N), ()}())
+# Dimensions get reconstructed anyway so we pass Tuple{} for the D type parameter...
+^(x::FreeUnits{N}, y::Integer) where {N} =
+    *(FreeUnits{Tuple{map(a->a^y, (N.parameters...))...}, Tuple{}}())
+^(x::FreeUnits{N}, y::Number) where {N} =
+    *(FreeUnits{Tuple{map(a->a^y, (N.parameters...))...}, Tuple{}}())
 
 ^(x::ContextUnits{N,D,P}, y::Integer) where {N,D,P} =
-    *(ContextUnits{map(a->a^y, N), (), typeof(P()^y)}())
+    *(ContextUnits{Tuple{map(a->a^y, (N.parameters...))...}, Tuple{}, typeof(P()^y)}())
 ^(x::ContextUnits{N,D,P}, y::Number) where {N,D,P} =
-    *(ContextUnits{map(a->a^y, N), (), typeof(P()^y)}())
+    *(ContextUnits{Tuple{map(a->a^y, (N.parameters...))...}, Tuple{}, typeof(P()^y)}())
 
-^(x::FixedUnits{N}, y::Integer) where {N} = *(FixedUnits{map(a->a^y, N), ()}())
-^(x::FixedUnits{N}, y::Number) where {N} = *(FixedUnits{map(a->a^y, N), ()}())
+^(x::FixedUnits{N}, y::Integer) where {N} =
+    *(FixedUnits{Tuple{map(a->a^y, (N.parameters...))...}, Tuple{}}())
+^(x::FixedUnits{N}, y::Number) where {N} =
+    *(FixedUnits{Tuple{map(a->a^y, (N.parameters...))...}, Tuple{}}())
 
 @generated function Base.literal_pow(::typeof(^), x::FreeUnits{N}, ::Type{Val{p}}) where {N,p}
-    y = *(FreeUnits{map(a->a^p, N), ()}())
+    y = *(FreeUnits{Tuple{map(a->a^p, (N.parameters...))...}, ()}())
     :($y)
 end
 @generated function Base.literal_pow(::typeof(^), x::ContextUnits{N,D,P}, ::Type{Val{p}}) where {N,D,P,p}
-    y = *(ContextUnits{map(a->a^p, N), (), typeof(P()^p)}())
+    y = *(ContextUnits{Tuple{map(a->a^p, (N.parameters...))...}, Tuple{}, typeof(P()^p)}())
     :($y)
 end
 @generated function Base.literal_pow(::typeof(^), x::FixedUnits{N}, ::Type{Val{p}}) where {N,p}
-    y = *(FixedUnits{map(a->a^p, N), ()}())
+    y = *(FixedUnits{Tuple{map(a->a^p, (N.parameters...))...}, ()}())
     :($y)
 end
 Base.literal_pow(::typeof(^), x::Quantity, ::Type{Val{v}}) where {v} =
@@ -1007,28 +1011,28 @@ Base.literal_pow(::typeof(^), x::Quantity, ::Type{Val{v}}) where {v} =
 # and * need to be defined before this one!
 for (fun,pow) in ((:inv, -1//1), (:sqrt, 1//2), (:cbrt, 1//3))
     # The following are generated functions to ensure type stability.
-    @eval @generated function ($fun)(x::Dimensions)
-        dimtuple = map(x->x^($pow), x.parameters[1])
-        y = *(Dimensions{dimtuple}())    # sort appropriately
+    @eval @generated function ($fun)(x::Dimensions{T}) where {T}
+        dimtuple = map(x->x^($pow), (T.parameters...))
+        y = *(Dimensions{Tuple{dimtuple...}}())    # sort appropriately
         :($y)
     end
 
-    @eval @generated function ($fun)(x::FreeUnits)
-        unittuple = map(x->x^($pow), x.parameters[1])
-        y = *(FreeUnits{unittuple,()}())    # sort appropriately
+    @eval @generated function ($fun)(x::FreeUnits{T}) where {T}
+        unittuple = map(x->x^($pow), (T.parameters...))
+        y = *(FreeUnits{Tuple{unittuple...},Tuple{}}())    # sort appropriately
         :($y)
     end
 
     @eval @generated function ($fun)(x::ContextUnits)
-        unittuple = map(x->x^($pow), x.parameters[1])
+        unittuple = map(x->x^($pow), (x.parameters[1].parameters...))
         promounit = ($fun)(x.parameters[3]())
-        y = *(ContextUnits{unittuple,(),typeof(promounit)}())   # sort appropriately
+        y = *(ContextUnits{Tuple{unittuple...},(),typeof(promounit)}())   # sort appropriately
         :($y)
     end
 
-    @eval @generated function ($fun)(x::FixedUnits)
-        unittuple = map(x->x^($pow), x.parameters[1])
-        y = *(FixedUnits{unittuple,()}())   # sort appropriately
+    @eval @generated function ($fun)(x::FixedUnits{T}) where {T}
+        unittuple = map(x->x^($pow), (T.parameters...))
+        y = *(FixedUnits{Tuple{unittuple...},()}())   # sort appropriately
         :($y)
     end
 end
