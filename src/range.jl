@@ -1,3 +1,7 @@
+*(y::Units, r::Range) = *(r,y)
+*(r::Range, y::Units) = range(first(r)*y, step(r)*y, length(r))
+*(r::Range, y::Units, z::Units...) = *(x, *(y,z...))
+
 Base.linspace(start::Quantity{<:Real}, stop, len::Integer) =
     _linspace(promote(start, stop)..., len)
 Base.linspace(start, stop::Quantity{<:Real}, len::Integer) =

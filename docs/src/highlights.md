@@ -9,21 +9,21 @@ end
 Consider the following toy example, converting from voltage or power ratios to decibels:
 
 ```jldoctest
-julia> dB(num::Unitful.Voltage, den::Unitful.Voltage) = 20*log10(num/den)
- dB (generic function with 1 method)
+julia> whatsit(x::Unitful.Voltage) = "voltage!"
+ whatsit (generic function with 1 method)
 
-julia> dB(num::Unitful.Power, den::Unitful.Power) = 10*log10(num/den)
- dB (generic function with 2 methods)
+julia> whatsit(x::Unitful.Length) = "length!"
+ whatsit (generic function with 2 methods)
 
-julia> dB(1u"mV", 1u"V")
--60.0
+julia> whatsit(1u"mm")
+"length!"
 
-julia> dB(1u"mW", 1u"W")
--30.0
+julia> whatsit(1u"kV")
+"voltage!"
+
+julia> whatsit(1u"A" * 2.5u"Ω")
+"voltage!"
 ```
-
-We don't currently implement dB as a unit because the log scale would require
-special treatment, but it is under consideration.
 
 ### Dimensions in a type definition
 
@@ -77,6 +77,13 @@ julia> Diagonal([-1.0u"c^2", 1.0, 1.0, 1.0])
        ⋅   1.0   ⋅    ⋅
        ⋅    ⋅   1.0   ⋅
        ⋅    ⋅    ⋅   1.0
+```
+
+## Logarithmic units
+
+```jldoctest
+julia> uconvert(u"mW*s", 20u"dBm/Hz")
+100.0 s mW
 ```
 
 ## Units with rational exponents

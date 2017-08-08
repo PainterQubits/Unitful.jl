@@ -10,6 +10,8 @@
 @dimension 𝐉 "𝐉" Luminosity
 @dimension 𝐍 "𝐍" Amount
 
+include("temperature.jl")
+
 # Define derived dimensions.
 @derived_dimension Area             𝐋^2
 @derived_dimension Volume           𝐋^3

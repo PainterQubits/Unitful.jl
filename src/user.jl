@@ -373,6 +373,7 @@ end
 
 replace_value(literal::Number) = literal
 
+ustrcheck_bool(::MixedUnits) = true
 ustrcheck_bool(::Units) = true
 ustrcheck_bool(::Dimensions) = true
 ustrcheck_bool(::Quantity) = true

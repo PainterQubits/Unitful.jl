@@ -6,6 +6,11 @@ end
 
 # Defining new units
 
+!!! note
+    Logarithmic units cannot be defined by the user and should not be used in the `@refunit`
+    or `@unit` macros described below. This limitation will likely be lifted eventually, but
+    not until the interface for logarithmic units settles down.
+
 The package automatically generates a useful set of units and dimensions in the
 `Unitful` module in `src/pkgdefaults.jl`.
 

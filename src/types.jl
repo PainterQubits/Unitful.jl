@@ -1,3 +1,11 @@
+
+"""
+    abstract type Unitlike end
+Represents units or dimensions. Dimensions are unit-like in the sense that they are
+not numbers but you can multiply or divide them and exponentiate by rationals.
+"""
+abstract type Unitlike end
+
 """
     struct Dimension{D}
         power::Rational{Int}
@@ -11,6 +19,15 @@ parameter `N` of a [`Dimensions{N}`](@ref) object.
 struct Dimension{D}
     power::Rational{Int}
 end
+@inline name(x::Dimension{D}) where {D} = D
+@inline power(x::Dimension) = x.power
+
+"""
+    struct Dimensions{N} <: Unitlike
+Instances of this object represent dimensions, possibly combinations thereof.
+"""
+struct Dimensions{N} <: Unitlike end
+const NoDims = Dimensions{()}()
 
 """
     struct Unit{U,D}
@@ -31,13 +48,10 @@ struct Unit{U,D}
     tens::Int
     power::Rational{Int}
 end
-
-"""
-    abstract type Unitlike end
-Represents units or dimensions. Dimensions are unit-like in the sense that they are
-not numbers but you can multiply or divide them and exponentiate by rationals.
-"""
-abstract type Unitlike end
+@inline name(x::Unit{U}) where {U} = U
+@inline tens(x::Unit) = x.tens
+@inline power(x::Unit) = x.power
+@inline dimension(u::Unit{U,D}) where {U,D} = D()^u.power
 
 """
     abstract type Units{N,D} <: Unitlike end
@@ -60,6 +74,8 @@ Unitful.Unit{:Second,typeof(𝐓)}(0,-1//1,1.0,1//1)),typeof(𝐋/𝐓)}` is ret
 """
 struct FreeUnits{N,D} <: Units{N,D} end
 FreeUnits(::Units{N,D}) where {N,D} = FreeUnits{N,D}()
+const NoUnits = FreeUnits{(), Dimensions{()}}()
+(y::FreeUnits)(x::Number) = uconvert(y,x)
 
 """
     struct ContextUnits{N,D,P} <: Units{N,D}
@@ -74,6 +90,7 @@ function ContextUnits(x::Units{N,D}, y::Units) where {N,D}
     ContextUnits{N,D,typeof(FreeUnits(y))}()
 end
 ContextUnits(u::Units{N,D}) where {N,D} = ContextUnits{N,D,typeof(FreeUnits(upreferred(u)))}()
+(y::ContextUnits)(x::Number) = uconvert(y,x)
 
 """
     struct FixedUnits{N,D} <: Units{N,D} end
@@ -83,12 +100,6 @@ conversions. See [Advanced promotion mechanisms](@ref) in the docs for details.
 """
 struct FixedUnits{N,D} <: Units{N,D} end
 FixedUnits(::Units{N,D}) where {N,D} = FixedUnits{N,D}()
-
-"""
-    struct Dimensions{N} <: Unitlike
-Instances of this object represent dimensions, possibly combinations thereof.
-"""
-struct Dimensions{N} <: Unitlike end
 
 """"
     struct Quantity{T,D,U} <: Number
@@ -104,7 +115,7 @@ kept separate to permit convenient dispatch on dimensions.
 """
 struct Quantity{T,D,U} <: Number
     val::T
-    Quantity{T,D,U}(v::Number) where {T,D,U} = new(v)
+    Quantity{T,D,U}(v::Number) where {T,D,U} = new{T,D,U}(v)
     Quantity{T,D,U}(v::Quantity) where {T,D,U} = convert(Quantity{T,D,U}, v)
 end
 
@@ -121,3 +132,59 @@ true
 ```
 """
 const DimensionlessQuantity{T,U} = Quantity{T, Dimensions{()}, U}
+
+"""
+    struct LogInfo{N,B,P}
+Describes a logarithmic unit. Type parameters include:
+- `N`: The name of the logarithmic unit, e.g. `:Decibel`, `:Neper`.
+- `B`: The base of the logarithm.
+- `P`: A prefactor to multiply the logarithm when the log is of a power ratio.
+"""
+struct LogInfo{N,B,P} end
+"""
+    abstract type LogScaled{L<:LogInfo} <: Number end
+Abstract supertype of [`Unitful.Level`](@ref) and [`Unitful.Gain`](@ref). It is only
+used in promotion to put levels and gains onto a common log scale.
+"""
+abstract type LogScaled{L<:LogInfo} <: Number end
+
+"""
+    struct Level{L, S, T<:Number} <: LogScaled{L}
+A logarithmic scale-based level. Details about the logarithmic scale are encoded in
+`L <: LogInfo`. `S` is a reference quantity for the level, not a type. This type has one
+field, `val::T`, and the log of the ratio `val/S` is taken. This type differs from
+[`Unitful.Gain`](@ref) in that `val` is a linear quantity.
+"""
+struct Level{L, S, T<:Number} <: LogScaled{L}
+    val::T
+    function Level{L,S,T}(x) where {L,S,T}
+        dimension(S) != dimension(x) && throw(DimensionError(S,x))
+        return new{L,S,T}(x)
+    end
+end
+function Level{L,S}(val::Number) where {L,S}
+    dimension(S) != dimension(val) && throw(DimensionError(S, val))
+    return Level{L,S,typeof(val)}(val)
+end
+
+"""
+    struct Gain{L, T<:Real} <: LogScaled{L}
+A logarithmic scale-based gain or attenuation factor. This type has one field, `val::T`.
+For example, given a gain of `20dB`, we have `val===20`. This type differs from
+[`Unitful.Level`](@ref) in that `val` is stored after computing the logarithm.
+"""
+struct Gain{L, T<:Real} <: LogScaled{L}
+    val::T
+end
+
+"""
+    struct MixedUnits{T<:LogScaled, U<:Units}
+
+Struct for representing mixed logarithmic / linear units. Primarily useful as an
+intermediate for `uconvert`. `T` is `<: Level` or `<: Gain`.
+"""
+struct MixedUnits{T<:LogScaled, U<:Units}
+    units::U
+end
+MixedUnits{T}() where {T} = MixedUnits{T, typeof(NoUnits)}(NoUnits)
+MixedUnits{T}(u::Units) where {T} = MixedUnits{T,typeof(u)}(u)

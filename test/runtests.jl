@@ -3,11 +3,11 @@ module UnitfulTests
 using Unitful
 using Base.Test
 
-import Unitful:
-    DimensionError,
-    FreeUnits,
-    ContextUnits,
-    FixedUnits
+import Unitful: DimensionError
+
+import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, li_dB
+
+import Unitful: FreeUnits, ContextUnits, FixedUnits
 
 import Unitful:
     nm, μm, mm, cm, m, km, inch, ft, mi,
@@ -16,7 +16,10 @@ import Unitful:
     °Ra, °F, °C, K,
     rad, °,
     ms, s, minute, hr,
-    J, A, N, mol, cd, V
+    J, A, N, mol, cd, V,
+    mW, W, Hz
+
+import Unitful: dB, dBm, dBV, dBSPL, Np
 
 import Unitful: 𝐋, 𝐓, 𝐍
 
@@ -29,8 +32,7 @@ import Unitful:
     Temperature,
     Action
 
-import Unitful:
-    LengthUnits, AreaUnits, MassUnits
+import Unitful: LengthUnits, AreaUnits, MassUnits
 
 @testset "Construction" begin
     @test isa(NoUnits, FreeUnits)
@@ -292,6 +294,8 @@ end
     @test macroexpand(:(u"m/s")) == m/s
     @test macroexpand(:(u"1.0m/s")) == 1.0m/s
     @test macroexpand(:(u"m^-1")) == m^-1
+    @test macroexpand(:(u"dB/Hz")) == dB/Hz
+    @test macroexpand(:(u"3.0dB/Hz")) == 3.0dB/Hz
     @test isa(macroexpand(:(u"N m")).args[1], ParseError)
     @test isa(macroexpand(:(u"abs(2)")).args[1], ErrorException)
 
@@ -315,7 +319,8 @@ end
     @test @inferred(dimension(m/s)) === 𝐋/𝐓
     @test @inferred(dimension(1u"mol")) === 𝐍
     @test @inferred(dimension(μm/m)) === NoDims
-    @test dimension([1u"m", 1u"s"]) == [𝐋, 𝐓]
+    @test dimension.([1u"m", 1u"s"]) == [𝐋, 𝐓]
+    @test dimension.([u"m", u"s"]) == [𝐋, 𝐓]
     @test (𝐋/𝐓)^2 === 𝐋^2 / 𝐓^2
     @test isa(m, LengthUnits)
     @test isa(ContextUnits(m,km), LengthUnits)
@@ -510,7 +515,7 @@ end
         @test isapprox(1.0u"m",(1.0+eps(1.0))u"m")
         @test isapprox(1.0u"μm/m",1e-6)
         @test !isapprox(1.0u"μm/m",1e-7)
-        @test_throws DimensionError isapprox(1.0u"m",5)
+        @test !isapprox(1.0u"m",5)
         @test frexp(1.5m) == (0.75m, 1.0)
         @test unit(nextfloat(0.0m)) == m
         @test unit(prevfloat(0.0m)) == m
@@ -555,7 +560,6 @@ end
         @test @inferred(fma(1.0, 1.0μm/m, 1.0μm/m)) === 2.0μm/m      # llvm good
         @test @inferred(fma(2, 1.0, 1μm/m)) === 2.000001             # llvm BAD
         @test @inferred(fma(2, 1μm/m, 1mm/m)) === 501//500000    # llvm BAD
-
         @test @inferred(muladd(2.0, 3.0m, 1.0m)) === 7.0m
         @test @inferred(muladd(2.0, 3.0m, 35mm)) === 6.035m
         @test @inferred(muladd(2.0m, 3.0, 35mm)) === 6.035m
@@ -568,7 +572,6 @@ end
         @test @inferred(muladd(1.0, 1.0μm/m, 1.0μm/m)) === 2.0μm/m
         @test @inferred(muladd(2, 1.0, 1μm/m)) === 2.000001
         @test @inferred(muladd(2, 1μm/m, 1mm/m)) === 501//500000
-
         @test_throws DimensionError fma(2m, 1/m, 1m)
         @test_throws DimensionError fma(2, 1m, 1V)
     end
@@ -884,8 +887,9 @@ end
             @test @inferred([1m, 2m]' * [3/m, 4/m])  == 11
             @test typeof([1m, 2m]' * [3/m, 4/m])     == Int
             @test typeof([1m, 2V]' * [3/m, 4/V])     == Int
-
             @test @inferred([1V,2V]*[0.1/m, 0.4/m]') == [0.1V/m 0.4V/m; 0.2V/m 0.8V/m]
+
+            # Probably broken as soon as we stopped using custom promote_op methods
             @test_broken @inferred([1m, 2V]' * [3/m, 4/V])  == [11]
             @test_broken @inferred([1m, 2V] * [3/m, 4/V]') ==
                 [3 4u"m*V^-1"; 6u"V*m^-1" 8]
@@ -916,8 +920,8 @@ end
             @test typeof(5m .* [1m, 2m, 3m])           == Array{typeof(1u"m^2"),1}
             @test @inferred(eye(2)*V)                  == [1.0V 0.0V; 0.0V 1.0V]
             @test @inferred(V*eye(2))                  == [1.0V 0.0V; 0.0V 1.0V]
-            @test @inferred(eye(2).*V)             == [1.0V 0.0V; 0.0V 1.0V]
-            @test @inferred(V.*eye(2))             == [1.0V 0.0V; 0.0V 1.0V]
+            @test @inferred(eye(2).*V)                 == [1.0V 0.0V; 0.0V 1.0V]
+            @test @inferred(V.*eye(2))                 == [1.0V 0.0V; 0.0V 1.0V]
             @test @inferred([1V 2V; 0V 3V].*2)         == [2V 4V; 0V 6V]
             @test @inferred([1V, 2V] .* [true, false]) == [1V, 0V]
             @test @inferred([1.0m, 2.0m] ./ 3)         == [1m/3, 2m/3]
@@ -965,7 +969,8 @@ end
         end
         @testset ">> Unit stripping" begin
             @test @inferred(ustrip([1u"m", 2u"m"])) == [1,2]
-            @test @inferred(ustrip([1,2])) == [1,2]
+            @test_warn "deprecated" ustrip([1,2])
+            @test ustrip.([1,2]) == [1,2]
             @test typeof(ustrip([1u"m", 2u"m"])) == Array{Int,1}
             @test typeof(ustrip(Diagonal([1,2]u"m"))) == Diagonal{Int}
             @test typeof(ustrip(Bidiagonal([1,2,3]u"m", [1,2]u"m", true))) ==
@@ -1008,6 +1013,188 @@ end
   @test errorstr(DimensionError(u"m",2)) == "DimensionError: m and 2 are not dimensionally compatible."
 end
 
+@testset "Logarithmic quantities" begin
+    @testset "> Explicit construction" begin
+        @testset ">> Level" begin
+            # Outer constructor
+            @test Level{li_dB,1}(2) isa Level{li_dB,1,Int}
+            @test_throws DimensionError Level{li_dB,1}(2V)
+
+            # Inner constructor
+            @test Level{li_dB,1,Int}(2) === Level{li_dB,1}(2)
+        end
+
+        @testset ">> Gain" begin
+            @test Gain{li_dB}(1) isa Gain{li_dB,Int}
+            @test_throws MethodError Gain{li_dB}(1V)
+            @test_throws TypeError Gain{li_dB,typeof(1V)}(1V)
+        end
+
+    end
+
+    @testset "> Implicit construction" begin
+        @testset ">> Level" begin
+            @test 20*dBm == (@dB 100mW/mW) == (@dB 100mW/1mW)
+            @test 20*dBV == (@dB 10V/V) == (@dB 10V/1V)
+        end
+
+        @testset ">> Gain" begin
+            @test_throws ArgumentError @eval @dB 2/1
+            @test_throws ArgumentError @eval @dB 10
+            @test 20*dB  === dB*20
+        end
+
+        @testset ">> MixedUnits" begin
+            @test dBm === MixedUnits{Level{li_dB, 1mW}}()
+            @test dBm/Hz === MixedUnits{Level{li_dB, 1mW}}(Hz^-1)
+        end
+    end
+
+    @testset "> Dimensional analysis" begin
+        @testset ">> Level" begin
+            @test dimension(1dBm) === dimension(1mW)
+            @test dimension(typeof(1dBm)) === dimension(1mW)
+            @test dimension(1dBV) === dimension(1V)
+            @test dimension(typeof(1dBV)) === dimension(1V)
+            @test dimension(1dB) === NoDims
+            @test dimension(typeof(1dB)) === NoDims
+            @test dimension(@dB 3V/2.14V) === dimension(1V)
+            @test dimension(typeof(@dB 3V/2.14V)) === dimension(1V)
+        end
+
+        @testset ">> Quantity{<:Level}" begin
+            @test dimension(1dBm/Hz) === dimension(1mW/Hz)
+            @test dimension(typeof(1dBm/Hz)) === dimension(1mW/Hz)
+            @test dimension(1dB/Hz) === dimension(Hz^-1)
+            @test dimension(typeof(1dB/Hz)) === dimension(Hz^-1)
+            @test dimension((@dB 3V/2.14V)/Hz) === dimension(1V/Hz)
+            @test dimension(typeof((@dB 3V/2.14V)/Hz)) === dimension(1V/Hz)
+        end
+    end
+
+    @testset "> Conversion" begin
+        @test uconvert(V, (@dB 3V/2.14V)) === 3V
+        @test uconvert(V, (@dB 3V/1V)) === 3V
+        @test uconvert(mW/Hz, 0dBm/Hz) == 1mW/Hz
+        @test uconvert(mW/Hz, (@dB 1mW/mW)/Hz) === 1mW/Hz
+
+        @test uconvert(dB, 1Np) ≈ 8.685889638065037dB
+        @test convert(typeof(1.0dB), 1Np) ≈ 8.685889638065037dB
+        @test convert(typeof(1.0dBm), 1W) == 30.0dBm
+        @test_throws DimensionError convert(typeof(1.0dBm), 1V)
+        @test convert(typeof(3dB), 3dB) === 3dB
+        @test convert(typeof(3.0dB), 3dB) === 3.0dB
+
+        @test isapprox(fieldratio(NoUnits, 6.02dB), 2.0, atol=0.001)
+        @test fieldratio(NoUnits, 1Np) ≈ e
+        @test fieldratio(Np, e) == 1Np
+        @test fieldratio(NoUnits, 1) == 1
+        @test fieldratio(NoUnits, 20dB) == 10
+        @test fieldratio(dB, 10) == 20dB
+        @test isapprox(powerratio(NoUnits, 3.01dB), 2.0, atol=0.001)
+        @test powerratio(NoUnits, 1Np) == e^2
+        @test powerratio(Np, e^2) == 1Np
+        @test powerratio(NoUnits, 1) == 1
+        @test powerratio(NoUnits, 20dB) == 100
+        @test powerratio(dB, 100) == 20dB
+
+        @test linear(@dB(1mW/mW)/Hz) === 1mW/Hz
+        @test linear(@dB(1.4V/2.8V)/s) === 1.4V/s
+    end
+
+    @testset "> Equality" begin
+        @test !(20dBm == 20dB)
+    end
+
+    @testset "> Addition and subtraction" begin
+        @testset ">> Level" begin
+            @test isapprox(10dBm + 10dBm, 13dBm; atol=0.02dBm)
+            @test !isapprox(10dBm + 10dBm, 13dBm; atol=0.00001dBm)
+            @test isapprox(13dBm, 20mW; atol = 0.1mW)
+            @test @dB(10mW/mW) + 1mW === 11mW
+            @test 1mW + @dB(10mW/mW) === 11mW
+            @test @dB(10mW/mW) + @dB(90mW/mW) === @dB(100mW/mW)
+            @test (@dB 10mW/3mW) + (@dB 11mW/2mW) === 21mW
+            @test (@dB 10mW/3mW) + 2mW === 12mW
+            @test (@dB 10mW/3mW) + 1W === 101u"kg*m^2/s^3"//100
+            @test 20dB + 20dB == 40dB
+            @test 20dB + 20.2dB == 40.2dB
+            @test 1Np + 1.5Np == 2.5Np
+            @test_throws DimensionError (1dBm + 1dBV)
+            @test_throws DimensionError (1dBm + 1V)
+        end
+
+        @testset ">> Gain" begin
+            @test 20dB + 10dB === 30dB
+            @test 20dB - 10dB === 10dB
+            @test_throws ErrorException 20dB * 20dB
+            @test_throws ErrorException 1dB + 1Np
+        end
+
+        @testset ">> Level, meet Gain" begin
+            @test 10dBm + 30dB == 40dBm
+            @test 30dB + 10dBm == 40dBm
+            @test 10dBm - 30dB == -20dBm
+            @test isapprox(10dBm - 1Np, 1.314dBm; atol=0.001dBm)
+
+            # cannot subtract levels from gains
+            @test_throws ErrorException 1Np - 10dBm
+            @test_throws ErrorException 30dB - 10dBm
+        end
+    end
+
+    @testset "> Multiplication and division" begin
+        @testset ">> Level" begin
+            @test (0dBm) * 10 == (10dBm)
+            @test @dB(10V/V)*10 == 100V
+            @test @dB(10V/V)/20 == 0.5V
+            @test 10*@dB(10V/V) == 100V
+            @test 10/@dB(10V/V) == 1V^-1
+            @test (0dBm) * (1W) == 1*mW*W
+            @test 100*((0dBm)/s) == (20dBm)/s
+            @test isapprox((3.01dBm)*(3.01dBm), 4mW^2, atol=0.01mW^2)
+            @test typeof((1dBm * big"2").val.val) == BigFloat
+            @test 10dBm/10Hz == 1mW/Hz
+            @test 10Hz/10dBm == 1Hz/mW
+            @test true*3dBm == 3dBm
+            @test false*3dBm == -Inf*dBm
+            @test 3dBm*true == 3dBm
+            @test 3dBm*false == -Inf*dBm
+        end
+
+        @testset ">> Gain" begin
+            @test 3dB * 2 == 6dB
+            @test 3dB * 2.1 ≈ 6.3dB
+            @test 3dB * false == 0*dB
+            @test false * 3dB == 0*dB
+        end
+
+        @testset ">> Quantity, meet Gain" begin
+            @test 1mW * 20dB == 100mW
+            @test 20dB * 1mW == 100mW
+            @test 1V * 20dB == 10V
+            @test 20dB * 1V == 10V
+        end
+    end
+
+    @testset "> Unit stripping" begin
+        @test ustrip(500.0Np) === 500.0
+        @test ustrip(20dB/Hz) === 20
+        @test ustrip(20dB) === 20
+        @test ustrip(13dBm) ≈ 13
+    end
+
+    @testset "> Thanks for signing up for Log Facts!" begin
+        @test_throws ErrorException 20dB == 100
+        @test 20dBm ≈ 100mW
+        @test 20dBV ≈ 10V
+        @test 40dBV ≈ 100V
+
+        # Maximum sound pressure level is a full swing of atmospheric pressure
+        @test isapprox(uconvert(dBSPL, 1u"atm"), 194dBSPL, atol=0.1dBSPL)
+    end
+end
+
 # Test that the @u_str macro will find units in other modules.
 module ShadowUnits
     using Unitful
@@ -1030,6 +1217,7 @@ let fname = tempname()
         rm(fname, force=true)
     end
 end
+
 @test_warn "ShadowUnits" eval(:(u"m"))
 
 # Test to make sure user macros are working properly

@@ -1,3 +1,62 @@
+"""
+    promote_unit(::Units, ::Units...)
+Given `Units` objects as arguments, this function returns a `Units` object appropriate
+for the result of promoting quantities which have these units. This function is kind
+of like `promote_rule`, except that it doesn't take types. It also does not return a tuple,
+but rather just a [`Unitful.Units`](@ref) object (or it throws an error).
+
+Although we had used `promote_rule` for `Units` objects in prior versions of Unitful,
+this was always kind of a hack; it doesn't make sense to promote units directly for
+a variety of reasons.
+"""
+function promote_unit end
+
+# Generic methods
+@inline promote_unit(x) = _promote_unit(x)
+@inline _promote_unit(x::Units) = x
+
+@inline promote_unit(x,y) = _promote_unit(x,y)
+
+promote_unit(x::Units, y::Units, z::Units, t::Units...) =
+    promote_unit(_promote_unit(x,y), z, t...)
+
+# Use configurable fall-back mechanism for FreeUnits
+@inline _promote_unit(x::T, y::T) where {T <: FreeUnits} = T()
+@inline _promote_unit(x::FreeUnits{N1,D}, y::FreeUnits{N2,D}) where {N1,N2,D} =
+    upreferred(dimension(x))
+
+# same units, but promotion context disagrees
+@inline _promote_unit(x::T, y::T) where {T <: ContextUnits} = T()  #ambiguity reasons
+@inline _promote_unit(x::ContextUnits{N,D,P1}, y::ContextUnits{N,D,P2}) where {N,D,P1,P2} =
+    ContextUnits{N,D,promote_unit(P1(), P2())}()
+# different units, but promotion context agrees
+@inline _promote_unit(x::ContextUnits{N1,D,P}, y::ContextUnits{N2,D,P}) where {N1,N2,D,P} =
+    ContextUnits(P(), P())
+# different units, promotion context disagrees, fall back to FreeUnits
+@inline _promote_unit(x::ContextUnits{N1,D}, y::ContextUnits{N2,D}) where {N1,N2,D} =
+    promote_unit(FreeUnits(x), FreeUnits(y))
+
+# ContextUnits beat FreeUnits
+@inline _promote_unit(x::ContextUnits{N,D}, y::FreeUnits{N,D}) where {N,D} = x
+@inline _promote_unit(x::ContextUnits{N1,D,P}, y::FreeUnits{N2,D}) where {N1,N2,D,P} =
+    ContextUnits(P(), P())
+@inline _promote_unit(x::FreeUnits, y::ContextUnits) = promote_unit(y,x)
+
+# FixedUnits beat everything
+@inline _promote_unit(x::T, y::T) where {T <: FixedUnits} = T()
+@inline _promote_unit(x::FixedUnits{M,D}, y::Units{N,D}) where {M,N,D} = x
+@inline _promote_unit(x::Units, y::FixedUnits) = promote_unit(y,x)
+
+# Different units but same dimension are not fungible for FixedUnits
+@inline _promote_unit(x::FixedUnits{M,D}, y::FixedUnits{N,D}) where {M,N,D} =
+    error("automatic conversion prohibited.")
+
+# If we didn't handle it above, the dimensions mismatched.
+@inline _promote_unit(x::Units, y::Units) = throw(DimensionError(x,y))
+
+####
+#    Base.promote_rule
+
 # quantity, quantity (different dims)
 Base.promote_rule(::Type{Quantity{S1,D1,U1}},
         ::Type{Quantity{S2,D2,U2}}) where {S1,D1,U1,S2,D2,U2} =

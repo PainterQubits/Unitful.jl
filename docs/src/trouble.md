@@ -108,7 +108,8 @@ julia> uconvert(m,0x01cm)   # the user means cm, not 0x01c*m
 ```
 
 This behavior is a consequence of
-[a Julia issue](https://github.com/JuliaLang/julia/issues/16356).
+[a Julia issue](https://github.com/JuliaLang/julia/issues/16356) that has recently
+been fixed and will no longer be a problem in future Julia versions.
 
 ## I have a different problem
 

@@ -107,7 +107,7 @@ function convert(::Type{Quantity{T}}, x::Number) where {T}
     Quantity{T,typeof(NoDims),typeof(NoUnits)}(x)
 end
 function convert(::Type{Quantity{T}}, x::Quantity) where {T}
-    Quantity{T,typeof(dimension(x)),typeof(unit(x))}(T(ustrip(x)))
+    Quantity{T,typeof(dimension(x)),typeof(unit(x))}(convert(T, x.val))
 end
 
 """
