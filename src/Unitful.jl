@@ -26,6 +26,7 @@ import Base: length, float, start, done, next, last, one, zero, colon#, range
 import Base: getindex, eltype, step, last, first, frexp
 import Base: Integer, Rational, typemin, typemax
 import Base: steprange_last, unsigned
+import Base: rand, ones
 
 import Base.LinAlg: istril, istriu
 
@@ -1108,6 +1109,13 @@ for (fun,pow) in ((:inv, -1//1), (:sqrt, 1//2), (:cbrt, 1//3))
         :($y)
     end
 end
+
+rand(Q::Type{<: Quantity}) = reinterpret(Q, rand(typeof(one(Q))))
+rand(Q::Type{<: Quantity}, dims::Tuple{Vararg{Int64}}) =
+    reinterpret(Q, rand(typeof(one(Q)), dims))
+ones(Q::Type{<: Quantity}, dims::Tuple{Vararg{Int}}) =
+    fill!(Array{Q}(dims), oneunit(Q))
+
 
 include("Display.jl")
 include("Promotion.jl")

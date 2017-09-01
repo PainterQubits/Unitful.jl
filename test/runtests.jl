@@ -1048,6 +1048,13 @@ end
             @test istril([1 1; 0 1]u"m") == false
             @test istriu([1 1; 0 1]u"m") == true
         end
+
+        @testset ">> Array initialization" begin
+            Q = typeof(1u"m")
+            @test all(@inferred(zeros(Q, 2)) .== [0, 0]u"m")
+            @test all(@inferred(ones(Q, 2)) .== [1, 1]u"m")
+            @test eltype(@inferred(rand(Q, 2)))  == Q
+        end
     end
 end
 
