@@ -831,6 +831,8 @@ end
     @test @inferred(typemax(typeof(1.0m))) == Inf*m
     @test @inferred(typemin(0x01m)) == 0x00m
     @test @inferred(typemax(typeof(0x01m))) == 0xffm
+    @test @inferred(rand(typeof(1u"m"))) isa typeof(1u"m")
+    @test @inferred(rand(MersenneTwister(0), typeof(1u"m"))) isa typeof(1u"m")
 end
 
 @testset "Collections" begin
@@ -1051,9 +1053,17 @@ end
 
         @testset ">> Array initialization" begin
             Q = typeof(1u"m")
-            @test all(@inferred(zeros(Q, 2)) .== [0, 0]u"m")
-            @test all(@inferred(ones(Q, 2)) .== [1, 1]u"m")
-            @test eltype(@inferred(rand(Q, 2)))  == Q
+            @test @inferred(zeros(Q, 2)) == [0, 0]u"m"
+            @test @inferred(zeros(Q, (2,))) == [0, 0]u"m"
+            @test @inferred(zeros(Q)[]) == 0u"m"
+            @test @inferred(zeros([1.0, 2.0, 3.0], Q)) == [0, 0, 0]u"m"
+            @test @inferred(ones(Q, 2)) == [1, 1]u"m"
+            @test @inferred(ones(Q, (2,))) == [1, 1]u"m"
+            @test @inferred(ones(Q)[]) == 1u"m"
+            @test @inferred(ones([1.0, 2.0, 3.0], Q)) == [1, 1, 1]u"m"
+            @test size(rand(Q, 2)) == (2,)
+            @test size(rand(Q, 2, 3)) == (2,3)
+            @test eltype(@inferred(rand(Q, 2))) == Q
         end
     end
 end

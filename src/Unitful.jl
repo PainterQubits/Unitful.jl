@@ -26,7 +26,6 @@ import Base: length, float, start, done, next, last, one, zero, colon#, range
 import Base: getindex, eltype, step, last, first, frexp
 import Base: Integer, Rational, typemin, typemax
 import Base: steprange_last, unsigned
-import Base: rand, ones
 
 import Base.LinAlg: istril, istriu
 
@@ -1110,21 +1109,14 @@ for (fun,pow) in ((:inv, -1//1), (:sqrt, 1//2), (:cbrt, 1//3))
     end
 end
 
-rand(Q::Type{<: Quantity}) = reinterpret(Q, rand(typeof(one(Q))))
-rand(Q::Type{<: Quantity}, dims::Tuple{Vararg{Int64}}) =
-    reinterpret(Q, rand(typeof(one(Q)), dims))
-ones(Q::Type{<: Quantity}, dims::Tuple{Vararg{Int}}) =
-    fill!(Array{Q}(dims), oneunit(Q))
+Base.rand(r::AbstractRNG, ::Type{Quantity{T,D,U}}) where {T,D,U} = rand(r,T)*U()
+Base.ones(Q::Type{<:Quantity}, dims::Tuple) = fill!(Array{Q}(dims), oneunit(Q))
+Base.ones(a::AbstractArray, Q::Type{<:Quantity}) = fill!(similar(a,Q), oneunit(Q))
 
-
-include("Display.jl")
-include("Promotion.jl")
-include("Conversion.jl")
-@static if VERSION >= v"0.6.0-dev.2218" # Julia PR 18754
-    include("fastmath.jl")
-else
-    include("fastmath_v05.jl")
-end
+include("display.jl")
+include("promotion.jl")
+include("conversion.jl")
+include("fastmath.jl")
 include("pkgdefaults.jl")
 include("temperature.jl")
 
