@@ -32,12 +32,6 @@ import Unitful:
 import Unitful:
     LengthUnits, AreaUnits, MassUnits
 
-if VERSION < v"0.6.0-dev.2390"  # Make LinSpace generic, PR 18777
-    using Ranges
-    linspace = Ranges.linspace
-    LinSpace = Ranges.LinSpace
-end
-
 @testset "Construction" begin
     @test isa(NoUnits, FreeUnits)
     @test typeof(𝐋) === Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
@@ -207,12 +201,7 @@ end
         @test @inferred(upreferred(unit(1g |> ContextUnits(g,mg)))) === ContextUnits(mg,mg)
         @test @inferred(upreferred(1g |> ContextUnits(g,mg))) == 1000mg
 
-        # The following seems to have broken on the release-0.5 branch, I guess
-        @static if VERSION >= v"0.6.0-dev+0" # works here, broken on 0.5.0
-            @test @inferred(upreferred(1N)) === (1//1)*kg*m/s^2
-        else
-            @test upreferred(1N) === (1//1)*kg*m/s^2
-        end
+        @test @inferred(upreferred(1N)) === (1//1)*kg*m/s^2
     end
     @testset "> promote_unit" begin
         @test Unitful.promote_unit(FreeUnits(m)) === FreeUnits(m)
@@ -252,10 +241,7 @@ end
         @test @inferred(promote(1g, 1.0kg)) === (0.001kg, 1.0kg)
         @test @inferred(promote(1.0m, 1kg)) === (1.0m, 1.0kg)
         @test @inferred(promote(1kg, 1.0m)) === (1.0kg, 1.0m)
-        @static if VERSION >= v"0.6.0-dev+0"
-            # broken on 0.5 too but i want the other tests to run and it exits early on 0.5
-            @test_broken @inferred(promote(1.0m, 1)) === (1.0m, 1.0)         # issue 52
-        end
+        @test_broken @inferred(promote(1.0m, 1)) === (1.0m, 1.0)         # issue 52
 
         # prefer no units for dimensionless numbers
         @test @inferred(promote(1.0mm/m, 1.0km/m)) === (0.001,1000.0)
@@ -478,31 +464,17 @@ end
         @test_throws ErrorException @inferred(_pow_2_3(𝐋))
         @test_throws ErrorException @inferred(_pow_2_3(1.0m))
 
-        @static if VERSION >= v"0.6.0-dev.2834"
-            @test @inferred(_pow_m3(m)) == m^-3
-            @test @inferred(_pow_0(m)) == NoUnits
-            @test @inferred(_pow_3(m)) == m^3
+        @test @inferred(_pow_m3(m)) == m^-3
+        @test @inferred(_pow_0(m)) == NoUnits
+        @test @inferred(_pow_3(m)) == m^3
 
-            @test @inferred(_pow_m3(𝐋)) == 𝐋^-3
-            @test @inferred(_pow_0(𝐋)) == NoDims
-            @test @inferred(_pow_3(𝐋)) == 𝐋^3
+        @test @inferred(_pow_m3(𝐋)) == 𝐋^-3
+        @test @inferred(_pow_0(𝐋)) == NoDims
+        @test @inferred(_pow_3(𝐋)) == 𝐋^3
 
-            @test @inferred(_pow_m3(1.0m)) == 1.0m^-3
-            @test @inferred(_pow_0(1.0m)) == 1.0
-            @test @inferred(_pow_3(1.0m)) == 1.0m^3
-        else
-            @test _pow_m3(m) == m^-3
-            @test _pow_0(m) == NoUnits
-            @test _pow_3(m) == m^3
-
-            @test _pow_m3(𝐋) == 𝐋^-3
-            @test _pow_0(𝐋) == NoDims
-            @test _pow_3(𝐋) == 𝐋^3
-
-            @test _pow_m3(1.0m) == 1.0m^-3
-            @test _pow_0(1.0m) == 1.0
-            @test _pow_3(1.0m) == 1.0m^3
-        end
+        @test @inferred(_pow_m3(1.0m)) == 1.0m^-3
+        @test @inferred(_pow_0(1.0m)) == 1.0
+        @test @inferred(_pow_3(1.0m)) == 1.0m^3
     end
     @testset "> Trigonometry" begin
         @test @inferred(sin(0.0rad)) == 0.0
@@ -586,11 +558,8 @@ end
         @test @inferred(fma(1.0mm/m, 1.0, 1.0)) ≈ 1.001              # llvm good
         @test @inferred(fma(1.0, 1.0μm/m, 1.0μm/m)) === 2.0μm/m      # llvm good
         @test @inferred(fma(2, 1.0, 1μm/m)) === 2.000001             # llvm BAD
-        @static if VERSION >= v"0.6.0-dev+0"    # works here, broken on 0.5.0
-            @test @inferred(fma(2, 1μm/m, 1mm/m)) === 501//500000    # llvm BAD
-        else
-            @test fma(2, 1μm/m, 1mm/m) === 501//500000               # llvm BAD
-        end
+        @test @inferred(fma(2, 1μm/m, 1mm/m)) === 501//500000    # llvm BAD
+
         @test @inferred(muladd(2.0, 3.0m, 1.0m)) === 7.0m
         @test @inferred(muladd(2.0, 3.0m, 35mm)) === 6.035m
         @test @inferred(muladd(2.0m, 3.0, 35mm)) === 6.035m
@@ -602,11 +571,8 @@ end
         @test @inferred(muladd(1.0mm/m, 1.0, 1.0)) ≈ 1.001
         @test @inferred(muladd(1.0, 1.0μm/m, 1.0μm/m)) === 2.0μm/m
         @test @inferred(muladd(2, 1.0, 1μm/m)) === 2.000001
-        @static if VERSION >= v"0.6.0-dev+0"    # works here, broken on 0.5.0
-            @test @inferred(muladd(2, 1μm/m, 1mm/m)) === 501//500000
-        else
-            @test muladd(2, 1μm/m, 1mm/m) === 501//500000
-        end
+        @test @inferred(muladd(2, 1μm/m, 1mm/m)) === 501//500000
+
         @test_throws DimensionError fma(2m, 1/m, 1m)
         @test_throws DimensionError fma(2, 1m, 1V)
     end
@@ -885,23 +851,14 @@ end
             @test_throws ArgumentError 1.0m:0.0m:5.0m
         end
         @testset ">> LinSpace" begin
-            # Behavior of `linspace` changed, so results differ depending on
-            # which version of Julia you are running...
-            @static if VERSION < v"0.6.0-dev.2390" # Make LinSpace generic, PR 18777
-                @test isa(@inferred(linspace(1.0m, 3.0m, 5)), LinSpace{typeof(1.0m)})
-                @test isa(@inferred(linspace(1.0m, 10m, 5)), LinSpace{typeof(1.0m)})
-                @test isa(@inferred(linspace(1m, 10.0m, 5)), LinSpace{typeof(1.0m)})
-                @test isa(@inferred(linspace(1m, 10m, 5)), LinSpace{typeof(1.0m)})
-            else
-                @test isa(@inferred(linspace(1.0m, 3.0m, 5)),
-                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-                @test isa(@inferred(linspace(1.0m, 10m, 5)),
-                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-                @test isa(@inferred(linspace(1m, 10.0m, 5)),
-                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-                @test isa(@inferred(linspace(1m, 10m, 5)),
-                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-            end
+            @test isa(@inferred(linspace(1.0m, 3.0m, 5)),
+                StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+            @test isa(@inferred(linspace(1.0m, 10m, 5)),
+                StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+            @test isa(@inferred(linspace(1m, 10.0m, 5)),
+                StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+            @test isa(@inferred(linspace(1m, 10m, 5)),
+                StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
             @test_throws Unitful.DimensionError linspace(1m, 10, 5)
             @test_throws Unitful.DimensionError linspace(1, 10m, 5)
         end
@@ -921,37 +878,21 @@ end
             @test @inferred((1:2:5)*mm) === 1mm:2mm:5mm
             @test @inferred((1.0:2.0:5.01)*mm) === 1.0mm:2.0mm:5.0mm
             r = @inferred(range(0.1, 0.1, 3) * 1.0s)
-            if VERSION >= v"0.6.0-pre"
-                @test r[3] === 0.3s
-            end
+            @test r[3] === 0.3s
         end
     end
     @testset "> Arrays" begin
         @testset ">> Array multiplication" begin
             # Quantity, quantity
-            @static if VERSION >= v"0.6.0-dev.2074" # RowVector, PR 19670
-                @test @inferred([1m, 2m]' * [3m, 4m])    == 11m^2
-                @test @inferred([1m, 2m]' * [3/m, 4/m])  == 11
-                @test typeof([1m, 2m]' * [3/m, 4/m])     == Int
-                @test typeof([1m, 2V]' * [3/m, 4/V])     == Int
-            else
-                @test @inferred([1m, 2m]' * [3m, 4m])    == [11m^2]
-                @test @inferred([1m, 2m]' * [3/m, 4/m])  == [11]
-                @test typeof([1m, 2m]' * [3/m, 4/m])     == Array{Int,1}
-                @test typeof([1m, 2V]' * [3/m, 4/V])     == Array{Int,1}
-            end
-            @test @inferred([1V,2V]*[0.1/m, 0.4/m]') == [0.1V/m 0.4V/m; 0.2V/m 0.8V/m]
+            @test @inferred([1m, 2m]' * [3m, 4m])    == 11m^2
+            @test @inferred([1m, 2m]' * [3/m, 4/m])  == 11
+            @test typeof([1m, 2m]' * [3/m, 4/m])     == Int
+            @test typeof([1m, 2V]' * [3/m, 4/V])     == Int
 
-            @static if VERSION >= v"0.6.0-" # Probably broken as soon as we stopped
-                                            # using custom promote_op methods
-                @test_broken @inferred([1m, 2V]' * [3/m, 4/V])  == [11]
-                @test_broken @inferred([1m, 2V] * [3/m, 4/V]') ==
-                    [3 4u"m*V^-1"; 6u"V*m^-1" 8]
-            else
-                @test @inferred([1m, 2V]' * [3/m, 4/V])  == [11]
-                @test @inferred([1m, 2V] * [3/m, 4/V]') ==
-                    [3 4u"m*V^-1"; 6u"V*m^-1" 8]
-            end
+            @test @inferred([1V,2V]*[0.1/m, 0.4/m]') == [0.1V/m 0.4V/m; 0.2V/m 0.8V/m]
+            @test_broken @inferred([1m, 2V]' * [3/m, 4/V])  == [11]
+            @test_broken @inferred([1m, 2V] * [3/m, 4/V]') ==
+                [3 4u"m*V^-1"; 6u"V*m^-1" 8]
 
             # Quantity, number or vice versa
             @test @inferred([1 2] * [3m,4m])         == [11m]
@@ -965,13 +906,10 @@ end
             @test typeof([3m,4m] * [1,2]')       == Array{typeof(1u"m"),2}
 
             # re-allow vector*(1-row matrix), PR 20423
-            @static if VERSION >= v"0.6.0-dev.2614" || # re-allow vector*(1-row matrix), PR 20423
-                       VERSION < v"0.6.0-dev.2074"     # RowVector, PR 19670
-                @test @inferred([1,2] * [3m 4m])     == [3m 4m; 6m 8m]
-                @test typeof([1,2] * [3m 4m])        == Array{typeof(1u"m"),2}
-                @test @inferred([3m,4m] * [1 2])     == [3m 6m; 4m 8m]
-                @test typeof([3m,4m] * [1 2])        == Array{typeof(1u"m"),2}
-            end
+            @test @inferred([1,2] * [3m 4m])     == [3m 4m; 6m 8m]
+            @test typeof([1,2] * [3m 4m])        == Array{typeof(1u"m"),2}
+            @test @inferred([3m,4m] * [1 2])     == [3m 6m; 4m 8m]
+            @test typeof([3m,4m] * [1 2])        == Array{typeof(1u"m"),2}
         end
         @testset ">> Element-wise multiplication" begin
             @test @inferred([1m, 2m, 3m] * 5)          == [5m, 10m, 15m]
@@ -982,13 +920,8 @@ end
             @test typeof(5m .* [1m, 2m, 3m])           == Array{typeof(1u"m^2"),1}
             @test @inferred(eye(2)*V)                  == [1.0V 0.0V; 0.0V 1.0V]
             @test @inferred(V*eye(2))                  == [1.0V 0.0V; 0.0V 1.0V]
-            @static if v"0.6.0-dev.1632" <= VERSION < v"0.6.0-pre.beta.85"
-                @test_broken @inferred(eye(2).*V)      == [1.0V 0.0V; 0.0V 1.0V]
-                @test_broken @inferred(V.*eye(2))      == [1.0V 0.0V; 0.0V 1.0V]
-            else
-                @test @inferred(eye(2).*V)             == [1.0V 0.0V; 0.0V 1.0V]
-                @test @inferred(V.*eye(2))             == [1.0V 0.0V; 0.0V 1.0V]
-            end
+            @test @inferred(eye(2).*V)             == [1.0V 0.0V; 0.0V 1.0V]
+            @test @inferred(V.*eye(2))             == [1.0V 0.0V; 0.0V 1.0V]
             @test @inferred([1V 2V; 0V 3V].*2)         == [2V 4V; 0V 6V]
             @test @inferred([1V, 2V] .* [true, false]) == [1V, 0V]
             @test @inferred([1.0m, 2.0m] ./ 3)         == [1m/3, 2m/3]
@@ -1101,11 +1034,7 @@ let fname = tempname()
         rm(fname, force=true)
     end
 end
-
-@static if VERSION >= v"0.6.0-dev.1980" # test_warn PR 19903
-    # check for the warning...
-    @test_warn "ShadowUnits" eval(:(u"m"))
-end
+@test_warn "ShadowUnits" eval(:(u"m"))
 
 # Test to make sure user macros are working properly
 # (and incidentally, for Compat macro hygiene in @dimension, @derived_dimension)
