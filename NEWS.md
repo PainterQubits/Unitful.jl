@@ -1,3 +1,6 @@
+- v0.3.0 (not yet released)
+  - Require Julia 0.6
+  - Adds overloads for `rand` and `ones` [#96](https://github.com/ajkeller34/Unitful.jl/issues/96).
 - v0.2.6
   - Fix and close [#52](https://github.com/ajkeller34/Unitful.jl/issues/52).
   - Implement `Base.rtoldefault` for Quantity types
