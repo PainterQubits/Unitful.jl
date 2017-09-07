@@ -56,10 +56,10 @@ macro dimension(symb, abbr, name)
     esc(quote
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
         const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
-        Unitful.Compat.@compat ($name){T,U} = Unitful.Quantity{T,typeof($s),U}
-        Unitful.Compat.@compat ($uname){U} = Unitful.Units{U,typeof($s)}
-        Unitful.Compat.@compat ($uname_old){U} = Unitful.Units{U,typeof($s)}
-        Unitful.Compat.@compat ($funame){U} = Unitful.FreeUnits{U,typeof($s)}
+        const ($name){T,U} = Unitful.Quantity{T,typeof($s),U}
+        const ($uname){U} = Unitful.Units{U,typeof($s)}
+        const ($uname_old){U} = Unitful.Units{U,typeof($s)}
+        const ($funame){U} = Unitful.FreeUnits{U,typeof($s)}
         $s
     end)
 end
@@ -84,10 +84,10 @@ macro derived_dimension(name, dims)
     uname_old = Symbol(name,"Unit")
     funame = Symbol(name,"FreeUnits")
     esc(quote
-        Unitful.Compat.@compat ($name){T,U} = Unitful.Quantity{T,typeof($dims),U}
-        Unitful.Compat.@compat ($uname){U} = Unitful.Units{U,typeof($dims)}
-        Unitful.Compat.@compat ($uname_old){U} = Unitful.Units{U,typeof($dims)}
-        Unitful.Compat.@compat ($funame){U} = Unitful.FreeUnits{U,typeof($dims)}
+        const ($name){T,U} = Unitful.Quantity{T,typeof($dims),U}
+        const ($uname){U} = Unitful.Units{U,typeof($dims)}
+        const ($uname_old){U} = Unitful.Units{U,typeof($dims)}
+        const ($funame){U} = Unitful.FreeUnits{U,typeof($dims)}
         nothing
     end)
 end
@@ -265,7 +265,7 @@ Return units which are preferred for dimensions `x`. If you are using the
 factory defaults, this function will return a product of powers of base SI units
 (as [`Unitful.FreeUnits`](@ref)).
 """
-@generated function upreferred{D}(x::Dimensions{D})
+@generated function upreferred(x::Dimensions{D}) where {D}
     u = *(FreeUnits{((Unitful.promotion[name(z)]^z.power for z in D)...),()}())
     :($u)
 end
@@ -280,7 +280,7 @@ product of powers of base SI units. If quantity `x` has
 units `ContextUnits(z,z)`.
 """
 @inline upreferred(x::Number) = x
-@compat @inline upreferred(x::Quantity) = uconvert(upreferred(unit(x)), x)
+@inline upreferred(x::Quantity) = uconvert(upreferred(unit(x)), x)
 
 """
     upreferred(x::Units)
@@ -290,7 +290,7 @@ are using the factory defaults, this function will return a product of powers of
 base SI units.
 """
 @inline upreferred(x::FreeUnits) = upreferred(dimension(x))
-@inline upreferred{N,D,P}(::ContextUnits{N,D,P}) = ContextUnits(P(),P())
+@inline upreferred(::ContextUnits{N,D,P}) where {N,D,P} = ContextUnits(P(),P())
 @inline upreferred(x::FixedUnits) = x
 
 """

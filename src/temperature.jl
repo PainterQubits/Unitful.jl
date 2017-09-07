@@ -3,8 +3,8 @@
 In this method, we are special-casing temperature conversion to respect scale
 offsets, if they do not appear in combination with other dimensions.
 """
-@compat @generated function uconvert{T}(a::Units,
-        x::Quantity{T,typeof(𝚯),<:TemperatureUnits})
+@generated function uconvert(a::Units,
+        x::Quantity{T,typeof(𝚯),<:TemperatureUnits}) where {T}
     if a == typeof(unit(x))
         :(Quantity(x.val, a))
     else

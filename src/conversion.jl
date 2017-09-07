@@ -14,7 +14,7 @@ julia> uconvert(u"J",1.0u"N*m")
 1.0 J
 ```
 """
-function uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
+function uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
     if typeof(a) == U
         Quantity(x.val, a)    # preserves numeric type if convfact is 1
     else
@@ -62,7 +62,7 @@ Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.0
     if fpow > typemax(Int) || 1/(fpow) > typemax(Int)
         a *= fpow
     else
-        @compat comp = (pow > 0 ? fpow * numerator(ex) : 1/fpow * denominator(ex))
+        comp = (pow > 0 ? fpow * numerator(ex) : 1/fpow * denominator(ex))
         if comp > typemax(Int)
             a *= fpow
         else
@@ -79,14 +79,14 @@ end
     convfact{S}(s::Units{S}, t::Units{S})
 Returns 1. (Avoids effort when unnecessary.)
 """
-convfact{S}(s::Units{S}, t::Units{S}) = 1
+convfact(s::Units{S}, t::Units{S}) where {S} = 1
 
 """
     convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Number)
 Direct type conversion using `convert` is permissible provided conversion
 is between two quantities of the same dimension.
 """
-function convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Number)
+function convert(::Type{Quantity{T,D,U}}, x::Number) where {T,D,U}
     if dimension(x) == D()
         Quantity(T(uconvert(U(),x).val), U())
     else
@@ -103,10 +103,10 @@ this method returns a `Quantity{T,D,U}` object.
 This method is used in promotion when trying to promote two quantities of
 different dimension.
 """
-function convert{T}(::Type{Quantity{T}}, x::Number)
+function convert(::Type{Quantity{T}}, x::Number) where {T}
     Quantity{T,typeof(NoDims),typeof(NoUnits)}(x)
 end
-function convert{T}(::Type{Quantity{T}}, x::Quantity)
+function convert(::Type{Quantity{T}}, x::Quantity) where {T}
     Quantity{T,typeof(dimension(x)),typeof(unit(x))}(T(ustrip(x)))
 end
 
@@ -114,7 +114,7 @@ end
     convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Number)
 Convert `x` to a [`Unitful.DimensionlessQuantity`](@ref) type.
 """
-convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Number) =
+convert(::Type{DimensionlessQuantity{T,U}}, x::Number) where {T,U} =
     uconvert(U(), convert(T,x))
 
 """
@@ -123,7 +123,7 @@ Convert `x` to a [`Unitful.DimensionlessQuantity`](@ref) type.
 If `x` is already dimensionless, this is a no-op; if it is not, an
 `ErrorException` is thrown.
 """
-function convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Quantity)
+function convert(::Type{DimensionlessQuantity{T,U}}, x::Quantity) where {T,U}
     if dimension(x) == NoDims
         Quantity(T(x.val), U())
     else
@@ -132,7 +132,7 @@ function convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Quantity)
 end
 
 convert(::Type{Number}, y::Quantity) = y
-convert{T<:Real}(::Type{T}, y::Quantity) =
+convert(::Type{T}, y::Quantity) where {T <: Real} =
     T(uconvert(NoUnits, y))
-convert{T<:Complex}(::Type{T}, y::Quantity) =
+convert(::Type{T}, y::Quantity) where {T <: Complex} =
     T(uconvert(NoUnits, y))

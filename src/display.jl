@@ -63,7 +63,7 @@ end
 Show the type of a unitful quantity in a succinct way. Otherwise,
 array summaries are nearly unreadable.
 """
-function show{T,D,U}(io::IO, ::Type{Quantity{T,D,U}})
+function show(io::IO, ::Type{Quantity{T,D,U}}) where {T,D,U}
     print(io, "Quantity{", string(T),
             ", Dimensions:{", string(D()),
             "}, Units:{", string(U()), "}}")

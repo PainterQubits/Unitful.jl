@@ -48,8 +48,8 @@
 import Base: sind, cosd, tand, secd, cscd, cotd
 for (_x,_y) in ((:sin,:sind), (:cos,:cosd), (:tan,:tand),
         (:sec,:secd), (:csc,:cscd), (:cot,:cotd))
-    @eval ($_x){T}(x::Quantity{T,typeof(NoDims),typeof(°)}) = ($_y)(ustrip(x))
-    @eval ($_y){T}(x::Quantity{T,typeof(NoDims),typeof(°)}) = ($_y)(ustrip(x))
+    @eval ($_x)(x::Quantity{T,typeof(NoDims),typeof(°)}) where {T} = ($_y)(ustrip(x))
+    @eval ($_y)(x::Quantity{T,typeof(NoDims),typeof(°)}) where {T} = ($_y)(ustrip(x))
 end
 
 # SI and related units
@@ -221,17 +221,17 @@ consider invoking this function in your `.juliarc.jl` file which is loaded when
 you open Julia. This function is not exported.
 """
 function promote_to_derived()
-    Unitful.promote_unit{S<:EnergyFreeUnits, T<:EnergyFreeUnits}(::S, ::T) = Unitful.J
-    Unitful.promote_unit{S<:ForceFreeUnits, T<:ForceFreeUnits}(::S, ::T) = Unitful.N
-    Unitful.promote_unit{S<:PowerFreeUnits, T<:PowerFreeUnits}(::S, ::T) = Unitful.W
-    Unitful.promote_unit{S<:PressureFreeUnits, T<:PressureFreeUnits}(::S, ::T) = Unitful.Pa
-    Unitful.promote_unit{S<:ChargeFreeUnits, T<:ChargeFreeUnits}(::S, ::T) = Unitful.C
-    Unitful.promote_unit{S<:VoltageFreeUnits, T<:VoltageFreeUnits}(::S, ::T) = Unitful.V
-    Unitful.promote_unit{S<:ResistanceFreeUnits, T<:ResistanceFreeUnits}(::S, ::T) = Unitful.Ω
-    Unitful.promote_unit{S<:CapacitanceFreeUnits, T<:CapacitanceFreeUnits}(::S, ::T) = Unitful.F
-    Unitful.promote_unit{S<:InductanceFreeUnits, T<:InductanceFreeUnits}(::S, ::T) = Unitful.H
-    Unitful.promote_unit{S<:MagneticFluxFreeUnits, T<:MagneticFluxFreeUnits}(::S, ::T) = Unitful.Wb
-    Unitful.promote_unit{S<:BFieldFreeUnits, T<:BFieldFreeUnits}(::S, ::T) = Unitful.T
-    Unitful.promote_unit{S<:ActionFreeUnits, T<:ActionFreeUnits}(::S, ::T) = Unitful.J * Unitful.s
+    Unitful.promote_unit(::S, ::T) where {S<:EnergyFreeUnits, T<:EnergyFreeUnits} = Unitful.J
+    Unitful.promote_unit(::S, ::T) where {S<:ForceFreeUnits, T<:ForceFreeUnits} = Unitful.N
+    Unitful.promote_unit(::S, ::T) where {S<:PowerFreeUnits, T<:PowerFreeUnits} = Unitful.W
+    Unitful.promote_unit(::S, ::T) where {S<:PressureFreeUnits, T<:PressureFreeUnits} = Unitful.Pa
+    Unitful.promote_unit(::S, ::T) where {S<:ChargeFreeUnits, T<:ChargeFreeUnits} = Unitful.C
+    Unitful.promote_unit(::S, ::T) where {S<:VoltageFreeUnits, T<:VoltageFreeUnits} = Unitful.V
+    Unitful.promote_unit(::S, ::T) where {S<:ResistanceFreeUnits, T<:ResistanceFreeUnits} = Unitful.Ω
+    Unitful.promote_unit(::S, ::T) where {S<:CapacitanceFreeUnits, T<:CapacitanceFreeUnits} = Unitful.F
+    Unitful.promote_unit(::S, ::T) where {S<:InductanceFreeUnits, T<:InductanceFreeUnits} = Unitful.H
+    Unitful.promote_unit(::S, ::T) where {S<:MagneticFluxFreeUnits, T<:MagneticFluxFreeUnits} = Unitful.Wb
+    Unitful.promote_unit(::S, ::T) where {S<:BFieldFreeUnits, T<:BFieldFreeUnits} = Unitful.T
+    Unitful.promote_unit(::S, ::T) where {S<:ActionFreeUnits, T<:ActionFreeUnits} = Unitful.J * Unitful.s
     nothing
 end
