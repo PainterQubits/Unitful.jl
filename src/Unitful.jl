@@ -1033,6 +1033,10 @@ for (fun,pow) in ((:inv, -1//1), (:sqrt, 1//2), (:cbrt, 1//3))
     end
 end
 
+Base.rand(r::AbstractRNG, ::Type{Quantity{T,D,U}}) where {T,D,U} = rand(r,T)*U()
+Base.ones(Q::Type{<:Quantity}, dims::Tuple) = fill!(Array{Q}(dims), oneunit(Q))
+Base.ones(a::AbstractArray, Q::Type{<:Quantity}) = fill!(similar(a,Q), oneunit(Q))
+
 include("display.jl")
 include("promotion.jl")
 include("conversion.jl")
