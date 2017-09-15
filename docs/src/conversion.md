@@ -71,6 +71,18 @@ julia> uconvert(u"K", 21.0u"°C")
 294.15 K
 ```
 
+### Time conversion
+
+To convert from some time quantity to the time representation native to Julia,
+use `uconvert(Dates.CompoundPeriod, x)`. This allows for the conversion of 
+floats to the integer-based representation in Julia. Note that in some cases 
+accuracy will be lost (e.g. `uconvert(Dates.CompoundPeriod, 1.1u"ns") → 1 nanosecond`). 
+
+```jldoctest
+julia> uconvert(Dates.CompoundPeriod, π*u"s")
+3 seconds, 141 milliseconds, 592 microseconds, 653 nanoseconds
+```
+
 ## Basic promotion mechanisms
 
 We decide the result units for addition and subtraction operations based on looking at the
