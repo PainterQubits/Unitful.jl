@@ -286,12 +286,12 @@ end
 end
 
 @testset "Unit string macro" begin
-    @test macroexpand(:(u"m")) == :(Unitful.m)
-    @test macroexpand(:(u"m,s")) == :(Unitful.m, Unitful.s)
+    @test macroexpand(:(u"m")) == m
+    @test macroexpand(:(u"m,s")) == (m,s)
     @test macroexpand(:(u"1.0")) == 1.0
-    @test macroexpand(:(u"m/s")) == :(Unitful.m / Unitful.s)
-    @test macroexpand(:(u"1.0m/s")) == :((1.0 * Unitful.m) / Unitful.s)
-    @test macroexpand(:(u"m^-1")) == :(Unitful.m ^ -1)
+    @test macroexpand(:(u"m/s")) == m/s
+    @test macroexpand(:(u"1.0m/s")) == 1.0m/s
+    @test macroexpand(:(u"m^-1")) == m^-1
     @test isa(macroexpand(:(u"N m")).args[1], ParseError)
     @test isa(macroexpand(:(u"abs(2)")).args[1], ErrorException)
 

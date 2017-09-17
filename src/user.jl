@@ -340,7 +340,7 @@ function replace_value(ex::Expr)
                 ex.args[i]=replace_value(ex.args[i])
             end
         end
-        return ex
+        return eval(ex)
     elseif ex.head == :tuple
         for i=1:length(ex.args)
             if typeof(ex.args[i])==Symbol
@@ -349,15 +349,11 @@ function replace_value(ex::Expr)
                 error("only use symbols inside the tuple.")
             end
         end
-        return ex
+        return eval(ex)
     else
         error("Expr head $(ex.head) must equal :call or :tuple")
     end
 end
-
-dottify(s, t, u...) = dottify(Expr(:(.), s, QuoteNode(t)), u...)
-dottify(s) = s
-dottify() = Main        # needed because fullname(Main) == (). TODO: How to test?
 
 function replace_value(sym::Symbol)
     f = m->(isdefined(m,sym) && ustrcheck_bool(getfield(m, sym)))
@@ -367,13 +363,12 @@ function replace_value(sym::Symbol)
 
     m = unitmodules[inds[end]]
     u = getfield(m, sym)
-    expr = Expr(:(.), dottify(fullname(m)...), QuoteNode(sym))
 
     any(u != u1 for u1 in getfield.(unitmodules[inds[1:(end-1)]], sym)) &&
         warn("Symbol $sym was found in multiple registered unit modules. ",
              "We will use the one from $m.")
 
-    return expr
+    return u
 end
 
 replace_value(literal::Number) = literal
