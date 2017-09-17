@@ -360,26 +360,28 @@ dottify(s) = s
 dottify() = Main        # needed because fullname(Main) == (). TODO: How to test?
 
 function replace_value(sym::Symbol)
-    where = [isdefined(unitmodules[i], sym) for i in eachindex(unitmodules)]
-    count = reduce(+, 0, where)
-    if count == 0
+    f = m->(isdefined(m,sym) && ustrcheck_bool(getfield(m, sym)))
+    inds = find(f, unitmodules)
+    isempty(inds) &&
         error("Symbol $sym could not be found in registered unit modules.")
-    end
 
-    m = unitmodules[findlast(where)]
+    m = unitmodules[inds[end]]
+    u = getfield(m, sym)
     expr = Expr(:(.), dottify(fullname(m)...), QuoteNode(sym))
-    if count > 1
+
+    any(u != u1 for u1 in getfield.(unitmodules[inds[1:(end-1)]], sym)) &&
         warn("Symbol $sym was found in multiple registered unit modules. ",
-        "We will use the one from $m.")
-    end
-    return :(Unitful.ustrcheck($expr))
+             "We will use the one from $m.")
+
+    return expr
 end
 
 replace_value(literal::Number) = literal
 
-ustrcheck(x::Union{Units,Dimensions}) = x
-ustrcheck(x::Quantity) = x
-ustrcheck(x) = error("Symbol $x is not a unit, dimension, or quantity.")
+ustrcheck_bool(::Units) = true
+ustrcheck_bool(::Dimensions) = true
+ustrcheck_bool(::Quantity) = true
+ustrcheck_bool(::Any) = false
 
 """
     basefactor(x::Unit)
