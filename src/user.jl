@@ -360,26 +360,20 @@ dottify(s) = s
 dottify() = Main        # needed because fullname(Main) == (). TODO: How to test?
 
 function replace_value(sym::Symbol)
-    # `modules` is a dictionary that maps the value of `module.sym` to the module it
-    # is defined in.  Because we are using a dictionary, identical units will be
-    # automatically combined into one entry.
-    modules = Dict(getfield(m, sym)=>m for m in unitmodules if isdefined(m, sym))
-    filter!((u, m)->ustrcheck_bool(u), modules) # make sure the symbol is a unit
-
-    # One drawback of this approach is that dictionaries are unordered, so if
-    # multiple units with the same name are defined, we can't guarantee which one is
-    # being selected by `first(...)`.
-    u = first(keys(modules))
-    m = modules[u] # the module the unit is defined in
-
-    if length(modules) == 0
+    f = m->(isdefined(m,sym) && ustrcheck_bool(getfield(m, sym)))
+    inds = find(f, unitmodules)
+    isempty(inds) &&
         error("Symbol $sym could not be found in registered unit modules.")
-    elseif length(modules) > 1
+
+    m = unitmodules[inds[end]]
+    u = getfield(m, sym)
+    expr = Expr(:(.), dottify(fullname(m)...), QuoteNode(sym))
+
+    any(u != u1 for u1 in getfield.(unitmodules[inds[1:(end-1)]], sym)) &&
         warn("Symbol $sym was found in multiple registered unit modules. ",
              "We will use the one from $m.")
-    end
 
-    return u
+    return expr
 end
 
 replace_value(literal::Number) = literal
@@ -388,10 +382,6 @@ ustrcheck_bool(::Units) = true
 ustrcheck_bool(::Dimensions) = true
 ustrcheck_bool(::Quantity) = true
 ustrcheck_bool(::Any) = false
-
-ustrcheck(x::Union{Units,Dimensions}) = x
-ustrcheck(x::Quantity) = x
-ustrcheck(x) = error("Symbol $x is not a unit, dimension, or quantity.")
 
 """
     basefactor(x::Unit)

@@ -286,16 +286,12 @@ end
 end
 
 @testset "Unit string macro" begin
-    @test macroexpand(:(u"m")) == :(Unitful.ustrcheck(Unitful.m))
-    @test macroexpand(:(u"m,s")) ==
-        :(Unitful.ustrcheck(Unitful.m), Unitful.ustrcheck(Unitful.s))
+    @test macroexpand(:(u"m")) == :(Unitful.m)
+    @test macroexpand(:(u"m,s")) == :(Unitful.m, Unitful.s)
     @test macroexpand(:(u"1.0")) == 1.0
-    @test macroexpand(:(u"m/s")) ==
-        :(Unitful.ustrcheck(Unitful.m) / Unitful.ustrcheck(Unitful.s))
-    @test macroexpand(:(u"1.0m/s")) ==
-        :((1.0 * Unitful.ustrcheck(Unitful.m)) / Unitful.ustrcheck(Unitful.s))
-    @test macroexpand(:(u"m^-1")) ==
-        :(Unitful.ustrcheck(Unitful.m) ^ -1)
+    @test macroexpand(:(u"m/s")) == :(Unitful.m / Unitful.s)
+    @test macroexpand(:(u"1.0m/s")) == :((1.0 * Unitful.m) / Unitful.s)
+    @test macroexpand(:(u"m^-1")) == :(Unitful.m ^ -1)
     @test isa(macroexpand(:(u"N m")).args[1], ParseError)
     @test isa(macroexpand(:(u"abs(2)")).args[1], ErrorException)
 
@@ -303,7 +299,7 @@ end
     @test u"h" == Unitful.h
 
     # test ustrcheck(x) fallback to catch non-units / quantities
-    @test_throws ErrorException u"ustrcheck"
+    @test_throws ErrorException @eval u"basefactor"
 end
 
 @testset "Unit and dimensional analysis" begin
