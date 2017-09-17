@@ -340,7 +340,7 @@ function replace_value(ex::Expr)
                 ex.args[i]=replace_value(ex.args[i])
             end
         end
-        return eval(ex)
+        return eval(current_module(), ex)
     elseif ex.head == :tuple
         for i=1:length(ex.args)
             if typeof(ex.args[i])==Symbol
@@ -349,7 +349,7 @@ function replace_value(ex::Expr)
                 error("only use symbols inside the tuple.")
             end
         end
-        return eval(ex)
+        return eval(current_module(), ex)
     else
         error("Expr head $(ex.head) must equal :call or :tuple")
     end

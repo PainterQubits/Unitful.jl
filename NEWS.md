@@ -3,7 +3,7 @@
   - Adds overloads for `rand` and `ones` [#96](https://github.com/ajkeller34/Unitful.jl/issues/96).
   - Improve symbol resolution in `u_str` macro [#98](https://github.com/ajkeller34/Unitful.jl/pull/98).
   - More work is done inside the `u_str` macro, such that the macro returns units, dimensions,
-    or numbers (quantities) rather than expressions.
+    numbers (quantities), or tuples rather than expressions.
 - v0.2.6
   - Fix and close [#52](https://github.com/ajkeller34/Unitful.jl/issues/52).
   - Implement `Base.rtoldefault` for Quantity types
