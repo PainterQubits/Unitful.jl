@@ -1053,4 +1053,13 @@ end
     @test isa(TUM.fu^2, TUM.FakeDim212345Units)
 end
 
+@testset "Conversion to Julia time" begin
+    d = 2
+    h = 3
+    s = 4
+
+    @test uconvert(Dates.CompoundPeriod, (4 + 3*60*60 + 2*24*60*60)*u"s") == Dates.Day(d) + Dates.Hour(h) + Dates.Second(s)
+    @test uconvert(Dates.CompoundPeriod, π*u"s") == Dates.Second(3) + Dates.Millisecond(141) + Dates.Microsecond(592) + Dates.Nanosecond(653)
+end
+
 end

@@ -1043,6 +1043,7 @@ include("conversion.jl")
 include("fastmath.jl")
 include("pkgdefaults.jl")
 include("temperature.jl")
+include("time.jl")
 
 function __init__()
     # @u_str should be aware of units defined in module Unitful
