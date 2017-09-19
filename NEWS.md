@@ -1,4 +1,4 @@
-- v0.2.7
+- v0.3.0
   - Require Julia 0.6
   - Adds overloads for `rand` and `ones` [#96](https://github.com/ajkeller34/Unitful.jl/issues/96).
   - Improve symbol resolution in `u_str` macro [#98](https://github.com/ajkeller34/Unitful.jl/pull/98).
