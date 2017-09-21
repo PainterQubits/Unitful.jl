@@ -20,10 +20,16 @@ mathematical operations and collections that are found in Julia base.
 
 ## Other packages in the Unitful family
 
-- [UnitfulUS.jl](https://github.com/ajkeller34/UnitfulUS.jl): Adds U.S. customary units. Serves as an example for how to implement a units 
+### Units packages
+
+- [UnitfulUS.jl](https://github.com/ajkeller34/UnitfulUS.jl): U.S. customary units. Serves as an example for how to implement a units 
   package.
+- [UnitfulAstro.jl](https://github.com/mweastwood/UnitfulAstro.jl): Astronomical units.
+- [UnitfulAngles.jl](https://github.com/yakir12/UnitfulAngles.jl): More angular units, additional trigonometric functionalities, and clock-angle conversion.
+
+### Feature additions
+
 - [UnitfulIntegration.jl](https://github.com/ajkeller34/UnitfulIntegration.jl): Enables use of Unitful quantities with [QuadGK.jl](https://github.com/JuliaMath/QuadGK.jl). PRs for other integration packages are welcome.
-- [UnitfulAngles.jl](https://github.com/yakir12/UnitfulAngles.jl): Introduces many more angular units, includes additional trigonometric functionalities, and clock-angle conversion.
 
 ## Related packages
 
