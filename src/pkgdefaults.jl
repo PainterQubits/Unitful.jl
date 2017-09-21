@@ -100,6 +100,7 @@ end
 # Energy
 const q = 1.6021766208e-19*C        # CODATA 2014; `e` means 2.718...
 @unit eV     "eV"       eV          q*V                     true
+@unit erg    "erg"      erg         1e-7*J                  false
 
 # For convenience
 @unit Hz2π   "Hz*2π"    AngHertz    2π/s                    true
@@ -132,6 +133,9 @@ const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
 
 # Acceleration
 @unit ge     "ge"       EarthGravity gn                     false
+
+# Spectral irradiance
+@unit Jy        "Jy"       Jansky      1e-26*W/m^2/Hz           true
 
 
 #########
