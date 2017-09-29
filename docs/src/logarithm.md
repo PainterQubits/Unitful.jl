@@ -679,7 +679,7 @@ Unitful.@_doctables u"10.0dBm"+u"1mW"
 </td>
 </tr>
 <tr>
-<td align="right"><strong>10.0dBm</strong></td>
+<td align="right"><strong>10.0dBV</strong></td>
 <td align="right"></td>
 <td align="right"></td>
 <td align="right"></td>
@@ -698,7 +698,7 @@ Unitful.@_doctables u"10.0dBV"+u"1mW"
 </td>
 </tr>
 <tr>
-<td align="right"><strong>10.0dBm</strong></td>
+<td align="right"><strong>1mW</strong></td>
 <td align="right"></td>
 <td align="right"></td>
 <td align="right"></td>
