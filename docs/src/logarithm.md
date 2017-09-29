@@ -172,27 +172,304 @@ Mathematical operations are forwarded to the logarithmic part, so that for examp
 `100*((0dBm)/s) == (20dBm)/s`. We allow linear units to commute with logarithmic quantities
 for convenience, though the association is understood (e.g. `s^-1*(3dBm) == (3dBm)/s`).
 
-The behavior of multiplication is summarized in the following table (entries marked by †
-indicate prohibited operations):
+The behavior of multiplication is summarized in the following table, with entries marked by
+† indicate prohibited operations. This table is populated automatically whenever the docs
+are built.
 
-| *                   | 10   | Hz^-1 | dB    | dBm    | 1/Hz   | 1mW     | 3dB      | 3dBm      |
-| ------------------- | ---- | ----- | ----- | ------ | ------ | ------- | -------- | --------- |
-| **10**              | 100  | 10/s  | 10dB  | 10dBm  | 10/s   | 10mW    | 30dB     | 13dBm     |
-| **Hz^-1** (unit)    |      | Hz^-2 | †     | †      | 1/Hz^2 | 1mW/Hz  | (3dB)/Hz | (3dBm)/Hz |
-| **dB**              |      |       | †     | †      | †      | †       | †        | †         |
-| **dBm**             |      |       |       | †      | †      | †       | †        | †         |
-| **1/Hz** (quantity) |      |       |       |        | 1/Hz^2 | 1mW/Hz  | ‡        | ≈ 2mW/Hz  |
-| **1mW** (quantity)  |      |       |       |        |        | 1mW^2   | ≈2mW     | ≈ 2mW^2   |
-| **3dB**             |      |       |       |        |        |         | †        | †         |
-| **3dBm**            |      |       |       |        |        |         |          | ≈ 4mW^2   |
+<table>
+<thead>
+<tr>
+<th align="right">\*</th>
+<th align="right">10</th>
+<th align="right">Hz^-1</th>
+<th align="right">dB</th>
+<th align="right">dBm</th>
+<th align="right">1/Hz</th>
+<th align="right">1mW</th>
+<th align="right">3dB</th>
+<th align="right">3dBm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right"><strong>10</strong></td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables 10*10
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables 10*u"Hz^-1"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables 10*u"dB"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables 10*u"dBm"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables 10*u"1/Hz"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables 10*u"1mW"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables 10*u"3dB"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables 10*u"3dBm"
+```
+</td>
+</tr>
+<tr>
+<td align="right"><strong>Hz^-1</strong></td>
+<td align="right" />
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"Hz^-1"*u"Hz^-1"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"Hz^-1"*u"dB"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"Hz^-1"*u"dBm"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"Hz^-1"*u"1/Hz"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"Hz^-1"*u"1mW"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"Hz^-1"*u"3dB"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"Hz^-1"*u"3dBm"
+```
+</td>
+</tr>
+<tr>
+<td align="right"><strong>dB</strong></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"dB"*u"dB"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"dB"*u"dBm"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"dB"*u"1/Hz"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"dB"*u"1mW"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"dB"*u"3dB"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"dB"*u"3dBm"
+```
+</td>
+</tr>
+<tr>
+<td align="right"><strong>dBm</strong></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"dBm"*u"dBm"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"dBm"*u"1/Hz"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"dBm"*u"1mW"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"dBm"*u"3dB"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"dBm"*u"3dBm"
+```
+</td>
+</tr>
+<tr>
+<td align="right"><strong>1/Hz</strong></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"1/Hz"*u"1/Hz"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"1/Hz"*u"1mW"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"1/Hz"*u"3dB"
+```
+‡
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"1/Hz"*u"3dBm"
+```
+</td>
+</tr>
+<tr>
+<td align="right"><strong>1mW</strong></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"1mW"*u"1mW"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"1mW"*u"3dB"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"1mW"*u"3dBm"
+```
+</td>
+</tr>
+<tr>
+<td align="right"><strong>3dB</strong></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"3dB"*u"3dB"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"3dB"*u"3dBm"
+```
+</td>
+</tr>
+<tr>
+<td align="right"><strong>3dBm</strong></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"3dBm"*u"3dBm"
+```
+</td>
+</tr>
+</tbody>
+</table>
 
 ‡: `1/Hz * 3dB` is technically allowed but dumb things can happen when its unclear if a quantity
 is a root-power or power quantity:
 
 ```jldoctest
-julia> 1/u"Hz" * 20u"dB"
+julia> u"1/Hz" * u"3dB"
 WARNING: result may be incorrect. Define `Unitful.isrootpower(::Type{<:Unitful.LogInfo}, ::typeof(𝐓))` to fix.
-100.0 Hz^-1
+1.9952623149688795 Hz^-1
 ```
 
 On the other hand, if it can be determined that a power quantity or root-power quantity
@@ -258,17 +535,184 @@ julia> 20u"dBm" + @dB 1u"W"/u"W"
 ```
 i.e. `1.1 W`.
 
-Rules for addition are summarized in the following table (entries marked by †
-indicate prohibited operations):
+Rules for addition are summarized in the following table, with entries marked by †
+indicating prohibited operations. This table is populated automatically whenever the docs
+are built.
 
-|     +       | 100     | 20dB    | 1Np     | 10.0dBm  | 10.0dBV  | 1mW      |
-| ----------- | ------- | ------- | ------- | -------- | -------- | -------- |
-| **100**     | 200     | †       | †       | †        | †        | †        |
-| **20dB**    |         | 40dB    | †       | 30.0dBm  | 30.0dBV  | †        |
-| **1Np**     |         |         | 2Np     | ≈18.7dBm | ≈18.7dBV | ≈7.39mW  |
-| **10.0dBm** |         |         |         | ≈13dBm   | †        | 11.0mW   |
-| **10.0dBV** |         |         |         |          | ≈16.0dBV | †        |
-| **1mW**     |         |         |         |          |          | 2mW      |
+<table>
+<thead>
+<tr>
+<th align="right">+</th>
+<th align="right">100</th>
+<th align="right">20dB</th>
+<th align="right">1Np</th>
+<th align="right">10.0dBm</th>
+<th align="right">10.0dBv</th>
+<th align="right">1mW</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right"><strong>100</strong></td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables 100+100
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables 100+u"20dB"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables 100+u"1Np"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables 100+u"10.0dBm"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables 100+u"10.0dBV"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables 100+u"1mW"
+```
+</td>
+</tr>
+<tr>
+<td align="right"><strong>20dB</strong></td>
+<td align="right"></td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"20dB"+u"20dB"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"20dB"+u"1Np"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"20dB"+u"10.0dBm"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"20dB"+u"10.0dBV"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"20dB"+u"1mW"
+```
+</td>
+</tr>
+<tr>
+<td align="right"><strong>1Np</strong></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"1Np"+u"1Np"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"1Np"+u"10.0dBm"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"1Np"+u"10.0dBV"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"1Np"+u"1mW"
+```
+</td>
+</tr>
+<tr>
+<td align="right"><strong>10.0dBm</strong></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"10.0dBm"+u"10.0dBm"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"10.0dBm"+u"10.0dBV"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"10.0dBm"+u"1mW"
+```
+</td>
+</tr>
+<tr>
+<td align="right"><strong>10.0dBm</strong></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"10.0dBV"+u"10.0dBV"
+```
+</td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"10.0dBV"+u"1mW"
+```
+</td>
+</tr>
+<tr>
+<td align="right"><strong>10.0dBm</strong></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right"></td>
+<td align="right">
+```@eval
+using Unitful
+Unitful.@_doctables u"1mW"+u"1mW"
+```
+</td>
+</tr>
+</tbody>
+</table>
 
 Notice that we disallow implicit conversions between dimensionless logarithmic quantities
 and real numbers. This is because the results can depend on promotion rules in addition to

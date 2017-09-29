@@ -185,13 +185,13 @@ Base. *(x::Level{L,S}, y::Number) where {L,S} = Level{L,S}(x.val * y)
 Base. *(x::Level{L,S}, y::Bool) where {L,S} = Level{L,S}(x.val * y)    # for method ambiguity
 Base. *(x::Level{L,S}, y::Quantity) where {L,S} = *(x.val, y)
 Base. *(x::Level{L,S}, y::Level) where {L,S} = *(x.val, y.val)
-Base. *(x::Level{L,S}, y::Gain) where {L,S} = error("logarithmic gains add, not multiply.")
+Base. *(x::Level{L,S}, y::Gain) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(x)+y.val))
 
 Base. *(x::Number, y::Gain) = *(y,x)
 Base. *(x::Bool, y::Gain) = *(y,x)                                     # for method ambiguity
 Base. *(x::Gain{L}, y::Number) where {L} = Gain{L}(x.val * y)
 Base. *(x::Gain{L}, y::Bool) where {L} = Gain{L}(x.val * y)            # for method ambiguity
-Base. *(x::Gain{L}, y::Level) where {L} = error("logarithmic gains add, not multiply.")
+Base. *(x::Gain{L}, y::Level) where {L} = Level{L,S}(fromlog(L, S, ustrip(x)+y.val))
 Base. *(x::Gain{L}, y::Gain) where {L} = error("logarithmic gains add, not multiply.")
 
 Base. *(x::Quantity, y::Gain{L}) where {L} =
@@ -203,7 +203,7 @@ Base. /(x::Number, y::Level) = x / y.val
 Base. /(x::Level{L,S}, y::Number) where {L,S} = Level{L,S}(x.val / y)
 Base. /(x::Level{L,S}, y::Quantity) where {L,S} = x.val / y
 Base. /(x::Level{L,S}, y::Level) where {L,S} = x.val / y.val
-Base. /(x::Level{L,S}, y::Gain) where {L,S} = error("logarithmic gains subtract, not divide.")
+Base. /(x::Level{L,S}, y::Gain) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(x) - y.val))
 Base. /(x::Quantity, y::Gain) = error("logarithmic gains subtract, not divide.")
 Base. /(x::Quantity, y::Level) = x / y.val
 
@@ -395,3 +395,16 @@ Base.isapprox(x::Gain, y::Gain; kwargs...) = isapprox(promote(x,y)...; kwargs...
 Base.isapprox(x::T, y::T; kwargs...) where {T <: Gain} = _isapprox(x, y; kwargs...)
 _isapprox(x::Gain{L,T}, y::Gain{L,T}; atol = Gain{L}(oneunit(T)), kwargs...) where {L,T} =
     isapprox(ustrip(x), ustrip(y); atol = ustrip(convert(Gain{L,T}, atol)), kwargs...)
+
+struct InvalidOp end
+Base.show(io::IO, ::InvalidOp) = print(io, "†")
+
+macro _doctables(x)
+    return esc(quote
+        try
+            $x
+        catch
+            Unitful.InvalidOp()
+        end
+    end)
+end
