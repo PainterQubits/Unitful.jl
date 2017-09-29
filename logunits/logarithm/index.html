@@ -1,0 +1,1220 @@
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+        <meta name="description" content="Performant and expressive calculations with arbitrary units.">
+      
+      
+      
+        <meta name="author" content="Andrew J. Keller">
+      
+      
+        <link rel="shortcut icon" href="../assets/images/favicon.png">
+      
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.10.1">
+    
+    
+      
+        <title>Logarithmic scales - Unitful.jl</title>
+      
+    
+    
+      <script src="../assets/javascripts/modernizr-e826f8942a.js"></script>
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application-a20f419c8e.css">
+      
+        <link rel="stylesheet" href="../assets/stylesheets/application-23f75ab9c7.palette.css">
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+      <link rel="stylesheet" href="../assets/Documenter.css">
+    
+    
+  </head>
+  
+  
+  
+  
+    <body data-md-color-primary="indigo" data-md-color-accent="blue">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="Unitful.jl" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon md-icon--home"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+            
+            Logarithmic scales
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="search"></label>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">&#xE5CD;</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result" data-md-lang-search="" data-md-lang-tokenizer="[\s\-]+">
+          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+
+  <a href="https://github.com/ajkeller34/Unitful.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    <div class="md-nav__button md-logo">
+      
+        <i class="md-icon md-icon--home"></i>
+      
+    </div>
+    Unitful.jl
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/ajkeller34/Unitful.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../highlights/" title="Highlighted features" class="md-nav__link">
+      Highlighted features
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../types/" title="Types" class="md-nav__link">
+      Types
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../newunits/" title="Defining new units" class="md-nav__link">
+      Defining new units
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../conversion/" title="Conversion / promotion" class="md-nav__link">
+      Conversion / promotion
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../manipulations/" title="Manipulating units" class="md-nav__link">
+      Manipulating units
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../display/" title="How units are displayed" class="md-nav__link">
+      How units are displayed
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Logarithmic scales
+      </label>
+    
+    <a href="./" title="Logarithmic scales" class="md-nav__link md-nav__link--active">
+      Logarithmic scales
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#constructing-logarithmic-quantities" title="Constructing logarithmic quantities" class="md-nav__link">
+    Constructing logarithmic quantities
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#logarithmic-quantities-with-no-reference-level-specified" title="Logarithmic quantities with no reference level specified" class="md-nav__link">
+    Logarithmic quantities with no reference level specified
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dimensionful-logarithmic-quantities" title=""Dimensionful" logarithmic quantities?" class="md-nav__link">
+    "Dimensionful" logarithmic quantities?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiplication-rules" title="Multiplication rules" class="md-nav__link">
+    Multiplication rules
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#addition-rules" title="Addition rules" class="md-nav__link">
+    Addition rules
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conversion" title="Conversion" class="md-nav__link">
+    Conversion
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notation" title="Notation" class="md-nav__link">
+    Notation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api" title="API" class="md-nav__link">
+    API
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../extending/" title="Extending Unitful" class="md-nav__link">
+      Extending Unitful
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../trouble/" title="Troubleshooting" class="md-nav__link">
+      Troubleshooting
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../LICENSE/" title="License" class="md-nav__link">
+      License
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#constructing-logarithmic-quantities" title="Constructing logarithmic quantities" class="md-nav__link">
+    Constructing logarithmic quantities
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#logarithmic-quantities-with-no-reference-level-specified" title="Logarithmic quantities with no reference level specified" class="md-nav__link">
+    Logarithmic quantities with no reference level specified
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dimensionful-logarithmic-quantities" title=""Dimensionful" logarithmic quantities?" class="md-nav__link">
+    "Dimensionful" logarithmic quantities?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiplication-rules" title="Multiplication rules" class="md-nav__link">
+    Multiplication rules
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#addition-rules" title="Addition rules" class="md-nav__link">
+    Addition rules
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conversion" title="Conversion" class="md-nav__link">
+    Conversion
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notation" title="Notation" class="md-nav__link">
+    Notation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api" title="API" class="md-nav__link">
+    API
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/logarithm.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                  <h1>Logarithmic scales</h1>
+                
+                <p>Unitful provides a way to use logarithmically-scaled quantities as of v0.4.0. Some compromises have been made in striving for logarithmic quantities to be both usable and consistent. In the following discussion, for pedagogical purposes, we will assume prior familiarity with the definitions of <code>dB</code> and <code>dBm</code>.</p>
+<p><a id='Constructing-logarithmic-quantities-1'></a></p>
+<h2 id="constructing-logarithmic-quantities">Constructing logarithmic quantities</h2>
+<p>Left- or right-multiplying a pure number by a logarithmic "unit", whether dimensionful or dimensionless, is short-hand for constructing a logarithmic quantity.</p>
+<div class="codehilite"><pre><span></span>julia&gt; 3u&quot;dB&quot;
+3 dB
+
+julia&gt; 3u&quot;dBm&quot;
+3.0 dBm
+
+julia&gt; u&quot;dB&quot;*3 === 3u&quot;dB&quot;
+true
+</pre></div>
+
+
+<p>Currently implemented are <code>dB</code>, <code>dBm</code>, <code>dBV</code>, <code>dBu</code>, <code>dBμV</code>, <code>dBSPL</code>, <code>Np</code>.</p>
+<p>One can also construct logarithmic quantities using the <code>@dB</code> or <code>@Np</code> macros to use an arbitrary reference level:</p>
+<div class="codehilite"><pre><span></span>julia&gt; using Unitful: mW, V
+
+julia&gt; @dB 10mW/mW
+10.0 dBm
+
+julia&gt; @dB 10V/V
+20.0 dBV
+
+julia&gt; @dB 3V/4V
+-2.498774732165999 dB (4 V)
+
+julia&gt; @Np e*V/V    # e = 2.71828...
+1.0 Np (1 V)
+</pre></div>
+
+
+<p>In calculating the logarithms, the log function appropriate to the scale in question is used (<code>log10</code> for decibels, <code>log</code> for nepers).</p>
+<p>There is an important difference in these two approaches to constructing logarithmic quantities. When we construct <code>3dBm</code>, ultimately the power in <code>mW</code> is being stored, resulting in a lossy conversion. However, <code>0 dBm</code>, the power in <code>mW</code> is calculated and stored, entailing a floating point conversion. This can be avoided by constructing <code>0 dBm</code> as <code>@dB 1mW/mW</code>.</p>
+<p>Note that logarithmic "units" can only multiply or be multiplied by pure numbers, not other units or quantities. This is done to avoid issues with commutativity and associativity, e.g. <code>3*dB*m^-1 == (3dB)/m</code>, but <code>3*m^-1*dB == (3m^-1)*dB</code> does not make much sense. This is because <code>dB</code> acts more like a constructor than a proper unit. In this package and in the documentation, we take some pains to avoid using the term "logarithmic units" where possible, and the usage and design of this package reflects that.</p>
+<p><a id='Logarithmic-quantities-with-no-reference-level-specified-1'></a></p>
+<h3 id="logarithmic-quantities-with-no-reference-level-specified">Logarithmic quantities with no reference level specified</h3>
+<p>The <code>@dB</code> and <code>@Np</code> macros will fail if either a dimensionless number or a ratio of dimensionless numbers is used. This is because the ratio could be of power quantities or of root-power quantities, leading to ambiguities.</p>
+<p>Logarithmic quantities with no reference level specified typically represent some amount of gain or attenuation, i.e. a ratio which is dimensionless. These can be constructed as, for example, <code>10*dB</code>, which displays similarly (<code>10 dB</code>). The type of this kind of logarithmic quantity is:</p>
+<p><a id='Unitful.Gain' href='#Unitful.Gain'>#</a>
+<strong><code>Unitful.Gain</code></strong> &mdash; <em>Type</em>.</p>
+<div class="codehilite"><pre><span></span>struct Gain{L, T&lt;:Real} &lt;: LogScaled{L}
+</pre></div>
+
+
+<p>A logarithmic scale-based gain or attenuation factor. This type has one field, <code>val::T</code>. For example, given a gain of <code>20dB</code>, we have <code>val===20</code>. This type differs from <a href="./#Unitful.Level"><code>Unitful.Level</code></a> in that <code>val</code> is stored after computing the logarithm.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/types.jl#L170-L175' class='documenter-source'>source</a><br></p>
+<p>One might expect that any dimensionless quantity should be convertible to a pure number, that is, to <code>x</code> if you had <code>10*log10(x)</code> dB. However, it turns out that in dB, a ratio of powers is defined as <code>10*log10(x)</code>, but a ratio of voltages or other root-power quantities is defined as <code>20*log10(x)</code>. Clearly, converting back from decibels to a real number is ambiguous, and so we have not implemented automatic promotion to avoid incorrect results. You can use <a href="./#Unitful.powerratio"><code>Unitful.powerratio</code></a> to interpret a <code>Gain</code> as a ratio of power quantities, or <a href="./#Unitful.rootpowerratio"><code>Unitful.rootpowerratio</code></a> (equivalently <code>fieldratio</code>) to interpret as a ratio of field quantities.</p>
+<p><a id='"Dimensionful"-logarithmic-quantities?-1'></a></p>
+<h3 id="dimensionful-logarithmic-quantities">"Dimensionful" logarithmic quantities?</h3>
+<p>In this package, quantities with units like <code>dBm</code> are considered to have the dimension of power, even though the expression <code>P(dBm) = 10*log10(P/1mW)</code> is dimensionless and formed from a dimensionless ratio. Practically speaking, these kinds of logarithmic quantities are fungible whenever they share the same dimensions, so it is more convenient to adopt this convention (people refer to <code>dBm/Hz</code> as a power spectral density, etc.) Presumably, one would like to have <code>10dBm isa Unitful.Power</code> for dispatch too. Therefore, in the following discussion, we will shamelessly (okay, with some shame) speak of dimensionful logarithmic quantities, or <code>Level</code>s for short:</p>
+<p><a id='Unitful.Level' href='#Unitful.Level'>#</a>
+<strong><code>Unitful.Level</code></strong> &mdash; <em>Type</em>.</p>
+<div class="codehilite"><pre><span></span>struct Level{L, S, T&lt;:Number} &lt;: LogScaled{L}
+</pre></div>
+
+
+<p>A logarithmic scale-based level. Details about the logarithmic scale are encoded in <code>L &lt;: LogInfo</code>. <code>S</code> is a reference quantity for the level, not a type. This type has one field, <code>val::T</code>, and the log of the ratio <code>val/S</code> is taken. This type differs from <a href="./#Unitful.Gain"><code>Unitful.Gain</code></a> in that <code>val</code> is a linear quantity.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/types.jl#L151-L157' class='documenter-source'>source</a><br></p>
+<p>Finally, for completeness we note that both <code>Level</code> and <code>Gain</code> are subtypes of <code>LogScaled</code>:</p>
+<p><a id='Unitful.LogScaled' href='#Unitful.LogScaled'>#</a>
+<strong><code>Unitful.LogScaled</code></strong> &mdash; <em>Type</em>.</p>
+<div class="codehilite"><pre><span></span>abstract type LogScaled{L&lt;:LogInfo} &lt;: Number end
+</pre></div>
+
+
+<p>Abstract supertype of <a href="./#Unitful.Level"><code>Unitful.Level</code></a> and <a href="./#Unitful.Gain"><code>Unitful.Gain</code></a>. It is only used in promotion to put levels and gains onto a common log scale.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/types.jl#L144-L148' class='documenter-source'>source</a><br></p>
+<p><a id='Multiplication-rules-1'></a></p>
+<h2 id="multiplication-rules">Multiplication rules</h2>
+<p>Multiplying a dimensionless logarithmic quantity by a pure number acts as like it does for linear quantities:</p>
+<div class="codehilite"><pre><span></span>julia&gt; 3u&quot;dB&quot; * 2
+6 dB
+
+julia&gt; 2 * 0u&quot;dB&quot;
+0 dB
+</pre></div>
+
+
+<p>Justification by example: consider the example of the exponential attenuation of a signal on a lossy transmission line. If the attenuation goes like $10^{-kx}$, then the (power) attenuation in dB is $-10kx$. We see that the attenuation in dB is linear in length. For an attenuation constant of 3dB/m, we better calculate 6dB for a length of 2m.</p>
+<p>Multiplying a dimensionful logarithmic quantity by a pure number acts differently than multiplying a gain/attenuation by a pure number. Since <code>0dBm == 1mW</code>, we better have that <code>0dBm * 2 == 2mW</code>, implying:</p>
+<div class="codehilite"><pre><span></span>julia&gt; 0u&quot;dBm&quot; * 2
+3.010299956639812 dBm
+</pre></div>
+
+
+<p>Logarithmic quantities can only be multiplied by pure numbers, linear units, or quantities, but not logarithmic "units" or quantities.  When a logarithmic quantity is multiplied by a linear quantity, the logarithmic quantity is linearized and multiplication proceeds as usual:</p>
+<div class="codehilite"><pre><span></span>julia&gt; (0u&quot;dBm&quot;) * (1u&quot;W&quot;)
+1.0 mW W
+</pre></div>
+
+
+<p>The previous example returns a floating point value because in constructing the level <code>0 dBm</code>, the power in <code>mW</code> is calculated and stored, entailing a floating point conversion. This can be avoided by constructing <code>0 dBm</code> as <code>@dB 1mW/mW</code>:</p>
+<div class="codehilite"><pre><span></span>julia&gt; (@dB 1u&quot;mW&quot;/u&quot;mW&quot;) * (1u&quot;W&quot;)
+1 mW W
+</pre></div>
+
+
+<p>We refer to a quantity with both logarithmic "units" and linear units as a mixed quantity. For mixed quantities, the numeric value associates with the logarithmic unit, and the quantity is displayed in a way that makes this explicit:</p>
+<div class="codehilite"><pre><span></span>julia&gt; (0u&quot;dBm&quot;)/u&quot;Hz&quot;
+[0.0 dBm] Hz^-1
+
+julia&gt; (0u&quot;dB&quot;)/u&quot;Hz&quot;
+[0 dB] Hz^-1
+
+julia&gt; 0u&quot;dB/Hz&quot;
+[0 dB] Hz^-1
+</pre></div>
+
+
+<p>Mathematical operations are forwarded to the logarithmic part, so that for example, <code>100*((0dBm)/s) == (20dBm)/s</code>. We allow linear units to commute with logarithmic quantities for convenience, though the association is understood (e.g. <code>s^-1*(3dBm) == (3dBm)/s</code>).</p>
+<p>The behavior of multiplication is summarized in the following table, with entries marked by † indicate prohibited operations. This table is populated automatically whenever the docs are built.</p>
+<table> <thead> <tr> <th align="right">*</th> <th align="right">10</th> <th align="right">Hz^-1</th> <th align="right">dB</th> <th align="right">dBm</th> <th align="right">1/Hz</th> <th align="right">1mW</th> <th align="right">3dB</th> <th align="right">3dBm</th> </tr> </thead> <tbody> <tr> <td align="right"><strong>10</strong></td> <td align="right">
+
+100
+
+
+</td> <td align="right">
+
+
+10 Hz^-1
+
+
+</td> <td align="right">
+
+
+10 dB
+
+
+</td> <td align="right">
+
+
+10.0 dBm
+
+
+</td> <td align="right">
+
+
+10 Hz^-1
+
+
+</td> <td align="right">
+
+
+10 mW
+
+
+</td> <td align="right">
+
+
+30 dB
+
+
+</td> <td align="right">
+
+
+13.0 dBm
+
+
+</td> </tr> <tr> <td align="right"><strong>Hz^-1</strong></td> <td align="right" /> <td align="right">
+
+
+Hz^-2
+
+
+</td> <td align="right">
+
+
+dB Hz^-1
+
+
+</td> <td align="right">
+
+
+dBm Hz^-1
+
+
+</td> <td align="right">
+
+
+1 Hz^-2
+
+
+</td> <td align="right">
+
+
+1 Hz^-1 mW
+
+
+</td> <td align="right">
+
+
+[3 dB] Hz^-1
+
+
+</td> <td align="right">
+
+
+[3.0 dBm] Hz^-1
+
+
+</td> </tr> <tr> <td align="right"><strong>dB</strong></td> <td align="right"></td> <td align="right"></td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> </tr> <tr> <td align="right"><strong>dBm</strong></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> </tr> <tr> <td align="right"><strong>1/Hz</strong></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right">
+
+
+1 Hz^-2
+
+
+</td> <td align="right">
+
+
+1 Hz^-1 mW
+
+
+</td> <td align="right">
+
+
+1.9952623149688795 Hz^-1
+
+
+‡ </td> <td align="right">
+
+
+1.9952623149688795 Hz^-1 mW
+
+
+</td> </tr> <tr> <td align="right"><strong>1mW</strong></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right">
+
+
+1 mW^2
+
+
+</td> <td align="right">
+
+
+1.9952623149688795 mW
+
+
+</td> <td align="right">
+
+
+1.9952623149688795 mW^2
+
+
+</td> </tr> <tr> <td align="right"><strong>3dB</strong></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> </tr> <tr> <td align="right"><strong>3dBm</strong></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right">
+
+
+3.9810717055349722 mW^2
+
+
+</td> </tr> </tbody> </table>
+
+<p>‡: <code>1/Hz * 3dB</code> is technically allowed but dumb things can happen when its unclear if a quantity is a root-power or power quantity:</p>
+<div class="codehilite"><pre><span></span>julia&gt; u&quot;1/Hz&quot; * u&quot;3dB&quot;
+WARNING: result may be incorrect. Define `Unitful.isrootpower(::Type{&lt;:Unitful.LogInfo}, ::typeof(𝐓))` to fix.
+1.9952623149688795 Hz^-1
+</pre></div>
+
+
+<p>On the other hand, if it can be determined that a power quantity or root-power quantity is being multiplied by a gain, then the gain is interpreted as a power ratio or root-power ratio, respectively:</p>
+<div class="codehilite"><pre><span></span>julia&gt; 1u&quot;mW&quot; * 20u&quot;dB&quot;
+100.0 mW
+
+julia&gt; 1u&quot;V&quot; * 20u&quot;dB&quot;
+10.0 V
+</pre></div>
+
+
+<p><a id='Addition-rules-1'></a></p>
+<h2 id="addition-rules">Addition rules</h2>
+<p>We can add logarithmic quantities without reference levels specified (<code>Gain</code>s):</p>
+<div class="codehilite"><pre><span></span>julia&gt; 20u&quot;dB&quot; + 20u&quot;dB&quot;
+40 dB
+</pre></div>
+
+
+<p>The numbers out front of the <code>dB</code> just add: when we talk about gain or attenuation, we work in logarithmic units so that we can add rather than multiply gain factors. The same behavior holds when we add a <code>Gain</code> to a <code>Level</code> or vice versa:</p>
+<div class="codehilite"><pre><span></span>julia&gt; 20u&quot;dBm&quot; + 20u&quot;dB&quot;
+40.0 dBm
+</pre></div>
+
+
+<p>In the case where you have differing logarithmic scales for the <code>Level</code> and the <code>Gain</code>, the logarithmic scale of the <code>Level</code> is used for the result:</p>
+<div class="codehilite"><pre><span></span>julia&gt; 10u&quot;dBm&quot; - 1u&quot;Np&quot;
+1.3141103619349632 dBm
+</pre></div>
+
+
+<p>For logarithmic quantities with the same reference levels, the numbers out in front do not simply add:</p>
+<div class="codehilite"><pre><span></span>julia&gt; 20u&quot;dBm&quot; + 20u&quot;dBm&quot;
+23.010299956639813 dBm
+
+julia&gt; 2 * 20u&quot;dBm&quot;
+23.010299956639813 dBm
+</pre></div>
+
+
+<p>This is because <code>dBm</code> represents a power, ultimately. If we have some amount of power and we double it, we'd better get roughly <code>3 dB</code> more power. Note that the juxtaposition <code>20dBm</code> will ensure that 20 dBm is constructed before multiplication by 2 in the above example. If you were to type <code>2*20*dBm</code>, you'd get 40 dBm.</p>
+<p>If the reference levels differ but both levels represent a power, we fall back to linear quantities:</p>
+<div class="codehilite"><pre><span></span>julia&gt; 20u&quot;dBm&quot; + @dB 1u&quot;W&quot;/u&quot;W&quot;
+1.1 kg m^2 s^-3
+</pre></div>
+
+
+<p>i.e. <code>1.1 W</code>.</p>
+<p>Rules for addition are summarized in the following table, with entries marked by † indicating prohibited operations. This table is populated automatically whenever the docs are built.</p>
+<table> <thead> <tr> <th align="right">+</th> <th align="right">100</th> <th align="right">20dB</th> <th align="right">1Np</th> <th align="right">10.0dBm</th> <th align="right">10.0dBv</th> <th align="right">1mW</th> </tr> </thead> <tbody> <tr> <td align="right"><strong>100</strong></td> <td align="right">
+
+200
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> </tr> <tr> <td align="right"><strong>20dB</strong></td> <td align="right"></td> <td align="right">
+
+
+40 dB
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+30.0 dBm
+
+
+</td> <td align="right">
+
+
+30.0 dBV
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> </tr> <tr> <td align="right"><strong>1Np</strong></td> <td align="right"></td> <td align="right"></td> <td align="right">
+
+
+2 Np
+
+
+</td> <td align="right">
+
+
+18.685889638065035 dBm
+
+
+</td> <td align="right">
+
+
+18.685889638065035 dBV
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> </tr> <tr> <td align="right"><strong>10.0dBm</strong></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right">
+
+
+13.010299956639813 dBm
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> <td align="right">
+
+
+11.0 mW
+
+
+</td> </tr> <tr> <td align="right"><strong>10.0dBm</strong></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right">
+
+
+16.020599913279625 dBV
+
+
+</td> <td align="right">
+
+
+†
+
+
+</td> </tr> <tr> <td align="right"><strong>10.0dBm</strong></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right">
+
+
+2 mW
+
+
+</td> </tr> </tbody> </table>
+
+<p>Notice that we disallow implicit conversions between dimensionless logarithmic quantities and real numbers. This is because the results can depend on promotion rules in addition to being ambiguous because of the root-power vs. power ratio issue. If <code>100 + 10dB</code> were evaluated as <code>20dB + 10dB == 30dB</code>, then we'd get <code>1000</code>, but if it were evaluated as <code>100+10</code>, we'd get <code>110</code>.</p>
+<p>Also, although it is possible in principle to add e.g. <code>20dB + 1Np</code>, notice that we have not implemented that because it is unclear whether the result should be in nepers or decibels, and it is also unclear how to handle that question more generally as other logarithmic scales are introduced.</p>
+<p><a id='Conversion-1'></a></p>
+<h2 id="conversion">Conversion</h2>
+<p>As alluded to earlier, conversions can be tricky because so-called logarithmic units are not units in the conventional sense.</p>
+<p>You may use <a href="./#Unitful.linear"><code>linear</code></a> to convert to a linear scale when you have a <code>Level</code> or <code>Quantity{&lt;:Level}</code> type. There is a fallback for <code>Number</code>, which just returns the number.</p>
+<div class="codehilite"><pre><span></span>julia&gt; linear(@dB 10u&quot;mW&quot;/u&quot;mW&quot;)
+10 mW
+
+julia&gt; linear(20u&quot;dBm/Hz&quot;)
+100.0 Hz^-1 mW
+
+julia&gt; linear(30u&quot;W&quot;)
+30 W
+
+julia&gt; linear(12)
+12
+</pre></div>
+
+
+<p>Linearizing a <code>Quantity{&lt;:Gain}</code> or a <code>Gain</code> to a real number is ambiguous, because the real number may represent a ratio of powers or a ratio of root-power (field) quantities. We implement <a href="./#Unitful.powerratio"><code>Unitful.powerratio</code></a> and <a href="./#Unitful.rootpowerratio"><code>Unitful.rootpowerratio</code></a> which may be thought of as disambiguated <code>uconvert</code> functions. There is a one argument version that assumes you are converting to a unitless number. These functions can take either a <code>Gain</code> or a <code>Real</code> so that they may be used somewhat generically.</p>
+<div class="codehilite"><pre><span></span>julia&gt; fieldratio(NoUnits, 20u&quot;dB&quot;)    # the first argument is optional when it is `NoUnits`
+10.0
+
+julia&gt; fieldratio(20u&quot;dB&quot;)
+10.0
+
+julia&gt; powerratio(NoUnits, 20u&quot;dB&quot;)  
+100.0
+
+julia&gt; powerratio(u&quot;dB&quot;, 100)
+20.0 dB
+
+julia&gt; powerratio(u&quot;Np&quot;, e^2)
+1.0 Np
+
+julia&gt; fieldratio(u&quot;Np&quot;, e)
+1//1 Np
+</pre></div>
+
+
+<p>To save typing you can use <code>fieldratio</code> instead of <code>rootpowerratio</code>, although according to the infallible source <a href="https://en.wikipedia.org/wiki/Decibel#Field_quantities_and_root-power_quantities">Wikipedia</a>:</p>
+<blockquote>
+<p>The term root-power quantity is introduced by ISO Standard 80000-1:2009 as a substitute of field quantity. The term field quantity is deprecated by that standard.</p>
+</blockquote>
+<p>I would check the primary source but I'm too cheap to pay for the ISO standard. Sorry!</p>
+<p><a id='Notation-1'></a></p>
+<h2 id="notation">Notation</h2>
+<p>This package displays logarithmic quantities using shorthand like <code>dBm</code> where available. This should probably not be done in polite company. To quote "Guide for the Use of the International System of Units (SI)," NIST Special Pub. 811 (2008):</p>
+<blockquote>
+<p>The rules of Ref. [5: IEC 60027-3] preclude, for example, the use of the symbol dBm to indicate a reference level of power of 1 mW. This restriction is based on the rule of Sec. 7.4, which does not permit attachments to unit symbols.</p>
+</blockquote>
+<p>The authorities say the reference level should always specified. In practice, this hasn't stopped the use of <code>dBm</code> and the like on commercially available test equipment. Dealing with these units is unavoidable in practice. When no shorthand exists, we follow NIST's advice in displaying logarithmic quantities:</p>
+<blockquote>
+<p>When such data are presented in a table or in a figure, the following condensed notation may be used instead: -0.58 Np (1 μV/m); 25 dB (20 μPa).</p>
+</blockquote>
+<p><a id='API-1'></a></p>
+<h2 id="api">API</h2>
+<p><a id='Unitful.linear' href='#Unitful.linear'>#</a>
+<strong><code>Unitful.linear</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>linear(x::Quantity)
+linear(x::Level)
+linear(x::Number) = x
+</pre></div>
+
+
+<p>Returns a quantity equivalent to <code>x</code> but without any logarithmic scales.</p>
+<p>It is important to note that this operation will error for <code>Quantity{&lt;:Gain}</code> types. This is for two reasons:</p>
+<ul>
+<li><code>20dB</code> could be interpreted as either a power or root-power ratio.</li>
+<li>Even if <code>-20dB/m</code> were interpreted as, say, <code>0.01/m</code>, this means something fundamentally different than <code>-20dB/m</code>. <code>0.01/m</code> cannot be used to calculate exponential attenuation.</li>
+</ul>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/logarithm.jl#L342-L354' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.reflevel' href='#Unitful.reflevel'>#</a>
+<strong><code>Unitful.reflevel</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>reflevel(x::Level{L,S}) where {L,S} = S
+reflevel(::Type{Level{L,S}}) where {L,S} = S
+reflevel(::Type{Level{L,S,T}}) where {L,S,T} = S
+</pre></div>
+
+
+<p>Returns the reference level, e.g.</p>
+<div class="codehilite"><pre><span></span>julia&gt; reflevel(3u&quot;dBm&quot;)
+1 mW
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/logarithm.jl#L29-L39' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.powerratio' href='#Unitful.powerratio'>#</a>
+<strong><code>Unitful.powerratio</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>powerratio(::Type{T}, x::Real) where {T&lt;:Number} = convert(T, x)
+</pre></div>
+
+
+<p>Returns the gain as a ratio of power quantities.</p>
+<p>It is important to note that this function is undefined for <code>Quantity{&lt;:Gain}</code> types. It is tempting to make this function transform <code>-20dB/m</code> into <code>0.01/m</code>, however this means something fundamentally different than <code>-20dB/m</code>, and cannot be used to calculate exponential attenuation.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/logarithm.jl#L294-L302' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.rootpowerratio' href='#Unitful.rootpowerratio'>#</a>
+<strong><code>Unitful.rootpowerratio</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>rootpowerratio(x::Gain)
+</pre></div>
+
+
+<p>Returns the gain as a ratio of root-power quantities (field quantities), a <code>Real</code> number.</p>
+<div class="codehilite"><pre><span></span>rootpowerratio(::Type{T}, x::Gain) where {T}
+</pre></div>
+
+
+<p>Returns the gain as a ratio of root-power quantities (field quantities), a <code>Real</code> number, and converts to type <code>T</code>.</p>
+<div class="codehilite"><pre><span></span>rootpowerratio(x::Real) = x
+rootpowerratio(::Type{T}, x::Real) where {T} = convert(T, x)
+</pre></div>
+
+
+<p>Fall-back methods so that <code>rootpowerratio</code> may be used generically.</p>
+<p>It is important to note that this function is undefined for <code>Quantity{&lt;:Gain}</code> types. It is tempting to make this function transform <code>-20dB/m</code> into <code>0.1/m</code>, however this means something fundamentally different than <code>-20dB/m</code>, and cannot be used to calculate exponential attenuation.</p>
+<p><code>fieldratio</code> and <code>rootpowerratio</code> are synonymous, so you can save some typing if you like.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/logarithm.jl#L312-L330' class='documenter-source'>source</a><br></p>
+                
+                  
+                
+              
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../display/" title="How units are displayed" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                How units are displayed
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../extending/" title="Extending Unitful" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Extending Unitful
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application-f3ab9e5ff8.js"></script>
+      
+      
+      <script>app.initialize({url:{base:".."}})</script>
+      
+        <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+      
+        <script src="../assets/mathjaxhelper.js"></script>
+      
+    
+    
+      
+    
+  </body>
+</html>

@@ -1,0 +1,838 @@
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+        <meta name="description" content="Performant and expressive calculations with arbitrary units.">
+      
+      
+      
+        <meta name="author" content="Andrew J. Keller">
+      
+      
+        <link rel="shortcut icon" href="../assets/images/favicon.png">
+      
+      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.10.1">
+    
+    
+      
+        <title>Manipulating units - Unitful.jl</title>
+      
+    
+    
+      <script src="../assets/javascripts/modernizr-e826f8942a.js"></script>
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/application-a20f419c8e.css">
+      
+        <link rel="stylesheet" href="../assets/stylesheets/application-23f75ab9c7.palette.css">
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+      <link rel="stylesheet" href="../assets/Documenter.css">
+    
+    
+  </head>
+  
+  
+  
+  
+    <body data-md-color-primary="indigo" data-md-color-accent="blue">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href=".." title="Unitful.jl" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon md-icon--home"></i>
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+            
+            Manipulating units
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="search"></label>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">&#xE5CD;</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result" data-md-lang-search="" data-md-lang-tokenizer="[\s\-]+">
+          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+
+  <a href="https://github.com/ajkeller34/Unitful.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    <div class="md-nav__button md-logo">
+      
+        <i class="md-icon md-icon--home"></i>
+      
+    </div>
+    Unitful.jl
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/ajkeller34/Unitful.jl" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href=".." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../highlights/" title="Highlighted features" class="md-nav__link">
+      Highlighted features
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../types/" title="Types" class="md-nav__link">
+      Types
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../newunits/" title="Defining new units" class="md-nav__link">
+      Defining new units
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../conversion/" title="Conversion / promotion" class="md-nav__link">
+      Conversion / promotion
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Manipulating units
+      </label>
+    
+    <a href="./" title="Manipulating units" class="md-nav__link md-nav__link--active">
+      Manipulating units
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unitful-string-macro" title="Unitful string macro" class="md-nav__link">
+    Unitful string macro
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dimension-and-unit-inspection" title="Dimension and unit inspection" class="md-nav__link">
+    Dimension and unit inspection
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unit-stripping" title="Unit stripping" class="md-nav__link">
+    Unit stripping
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unit-multiplication" title="Unit multiplication" class="md-nav__link">
+    Unit multiplication
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../display/" title="How units are displayed" class="md-nav__link">
+      How units are displayed
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../logarithm/" title="Logarithmic scales" class="md-nav__link">
+      Logarithmic scales
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../extending/" title="Extending Unitful" class="md-nav__link">
+      Extending Unitful
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../trouble/" title="Troubleshooting" class="md-nav__link">
+      Troubleshooting
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../LICENSE/" title="License" class="md-nav__link">
+      License
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unitful-string-macro" title="Unitful string macro" class="md-nav__link">
+    Unitful string macro
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dimension-and-unit-inspection" title="Dimension and unit inspection" class="md-nav__link">
+    Dimension and unit inspection
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unit-stripping" title="Unit stripping" class="md-nav__link">
+    Unit stripping
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unit-multiplication" title="Unit multiplication" class="md-nav__link">
+    Unit multiplication
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/manipulations.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                  <h1>Manipulating units</h1>
+                
+                <p><a id='Unitful-string-macro-1'></a></p>
+<h2 id="unitful-string-macro">Unitful string macro</h2>
+<p><a id='Unitful.@u_str' href='#Unitful.@u_str'>#</a>
+<strong><code>Unitful.@u_str</code></strong> &mdash; <em>Macro</em>.</p>
+<div class="codehilite"><pre><span></span>@u_str(unit)
+</pre></div>
+
+
+<p>String macro to easily recall units, dimensions, or quantities defined in unit modules that have been registered with <a href="./#Unitful.register"><code>Unitful.register</code></a>.</p>
+<p>If the same symbol is used for a <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> object defined in different modules, then the symbol found in the most recently registered module will be used.</p>
+<p>Note that what goes inside must be parsable as a valid Julia expression. In other words, u"N m" will fail if you intended to write u"N*m".</p>
+<p>Examples:</p>
+<div class="codehilite"><pre><span></span>julia&gt; 1.0u&quot;m/s&quot;
+1.0 m s^-1
+
+julia&gt; 1.0u&quot;N*m&quot;
+1.0 m N
+
+julia&gt; u&quot;m,kg,s&quot;
+(m, kg, s)
+
+julia&gt; typeof(1.0u&quot;m/s&quot;)
+Quantity{Float64, Dimensions:{𝐋 𝐓^-1}, Units:{m s^-1}}
+
+julia&gt; u&quot;ħ&quot;
+1.0545718001391127e-34 J s
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/user.jl#L296-L326' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.register' href='#Unitful.register'>#</a>
+<strong><code>Unitful.register</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>register(unit_module::Module)
+</pre></div>
+
+
+<p>Makes the <a href="./#Unitful.@u_str"><code>@u_str</code></a> macro aware of units defined in new unit modules. By default, Unitful is itself a registered module. Note that Main is not, so if you define new units at the REPL, you will probably want to do <code>Unitful.register(Main)</code>.</p>
+<p>Example:</p>
+<div class="codehilite"><pre><span></span><span class="c"># somewhere in a custom units package...</span>
+<span class="k">module</span> <span class="n">MyUnitsPackage</span>
+<span class="k">using</span> <span class="n">Unitful</span>
+
+<span class="k">function</span> <span class="n">__init__</span><span class="p">()</span>
+    <span class="o">...</span>
+    <span class="n">Unitful</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">MyUnitsPackage</span><span class="p">)</span>
+<span class="k">end</span>
+<span class="k">end</span> <span class="c">#module</span>
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/user.jl#L1-L19' class='documenter-source'>source</a><br></p>
+<p><a id='Dimension-and-unit-inspection-1'></a></p>
+<h2 id="dimension-and-unit-inspection">Dimension and unit inspection</h2>
+<p>We define a function <a href="./#Unitful.dimension-Tuple{Number}"><code>dimension</code></a> that turns, for example, <code>acre^2</code> or <code>1*acre^2</code> into <code>𝐋^4</code>. We can usually add quantities with the same dimension, regardless of specific units (<code>FixedUnits</code> cannot be automatically converted, however). Note that dimensions cannot be determined by powers of the units: <code>ft^2</code> is an area, but so is <code>ac^1</code> (an acre).</p>
+<p>There is also a function <a href="./#Unitful.unit"><code>unit</code></a> that turns, for example, <code>1*acre^2</code> into <code>acre^2</code>. You can then query whether the units are <code>FreeUnits</code>, <code>FixedUnits</code>, etc.</p>
+<p><a id='Unitful.unit' href='#Unitful.unit'>#</a>
+<strong><code>Unitful.unit</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>unit(x::Quantity{T,D,U}) where {T,D,U}
+unit(x::Type{Quantity{T,D,U}}) where {T,D,U}
+</pre></div>
+
+
+<p>Returns the units associated with a <code>Quantity</code> or <code>Quantity</code> type.</p>
+<p>Examples:</p>
+<div class="codehilite"><pre><span></span>julia&gt; unit(1.0u&quot;m&quot;) == u&quot;m&quot;
+true
+
+julia&gt; unit(typeof(1.0u&quot;m&quot;)) == u&quot;m&quot;
+true
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/utils.jl#L72-L86' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>unit(x::Number)
+</pre></div>
+
+
+<p>Returns a <code>Unitful.Units{(), Dimensions{()}}</code> object to indicate that ordinary numbers have no units. This is a singleton, which we export as <code>NoUnits</code>. The unit is displayed as an empty string.</p>
+<p>Examples:</p>
+<div class="codehilite"><pre><span></span>julia&gt; typeof(unit(1.0))
+Unitful.FreeUnits{(),Unitful.Dimensions{()}}
+
+julia&gt; typeof(unit(Float64))
+Unitful.FreeUnits{(),Unitful.Dimensions{()}}
+
+julia&gt; unit(1.0) == NoUnits
+true
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/utils.jl#L91-L109' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.dimension-Tuple{Number}' href='#Unitful.dimension-Tuple{Number}'>#</a>
+<strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
+<div class="codehilite"><pre><span></span>dimension(x::Number)
+dimension(x::Type{T}) where {T&lt;:Number}
+</pre></div>
+
+
+<p>Returns a <code>Unitful.Dimensions{()}</code> object to indicate that ordinary numbers are dimensionless. This is a singleton, which we export as <code>NoDims</code>. The dimension is displayed as an empty string.</p>
+<p>Examples:</p>
+<div class="codehilite"><pre><span></span>julia&gt; typeof(dimension(1.0))
+Unitful.Dimensions{()}
+julia&gt; typeof(dimension(Float64))
+Unitful.Dimensions{()}
+julia&gt; dimension(1.0) == NoDims
+true
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/utils.jl#L113-L130' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.dimension-Union{Tuple{D}, Tuple{Unitful.Units{U,D}}, Tuple{U}} where D where U' href='#Unitful.dimension-Union{Tuple{D}, Tuple{Unitful.Units{U,D}}, Tuple{U}} where D where U'>#</a>
+<strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
+<div class="codehilite"><pre><span></span>dimension(u::Units{U,D}) where {U,D}
+</pre></div>
+
+
+<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object corresponding to the dimensions of the units, <code>D()</code>. For a dimensionless combination of units, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
+<p>Examples:</p>
+<div class="codehilite"><pre><span></span>julia&gt; dimension(u&quot;m&quot;)
+𝐋
+
+julia&gt; typeof(dimension(u&quot;m&quot;))
+Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}
+
+julia&gt; typeof(dimension(u&quot;m/km&quot;))
+Unitful.Dimensions{()}
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/utils.jl#L134-L152' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>dimension(x::Quantity{T,D}) where {T,D}
+dimension(::Type{Quantity{T,D,U}}) where {T,D,U}
+</pre></div>
+
+
+<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object <code>D()</code> corresponding to the dimensions of quantity <code>x</code>. For a dimensionless <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a>, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
+<p>Examples:</p>
+<div class="codehilite"><pre><span></span>julia&gt; dimension(1.0u&quot;m&quot;)
+𝐋
+
+julia&gt; typeof(dimension(1.0u&quot;m/μm&quot;))
+Unitful.Dimensions{()}
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/utils.jl#L155-L171' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.dimension-Union{Tuple{D}, Tuple{T}, Tuple{Unitful.Quantity{T,D,U}}, Tuple{U}} where U where D where T' href='#Unitful.dimension-Union{Tuple{D}, Tuple{T}, Tuple{Unitful.Quantity{T,D,U}}, Tuple{U}} where U where D where T'>#</a>
+<strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
+<div class="codehilite"><pre><span></span>dimension(u::Units{U,D}) where {U,D}
+</pre></div>
+
+
+<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object corresponding to the dimensions of the units, <code>D()</code>. For a dimensionless combination of units, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
+<p>Examples:</p>
+<div class="codehilite"><pre><span></span>julia&gt; dimension(u&quot;m&quot;)
+𝐋
+
+julia&gt; typeof(dimension(u&quot;m&quot;))
+Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}
+
+julia&gt; typeof(dimension(u&quot;m/km&quot;))
+Unitful.Dimensions{()}
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/utils.jl#L134-L152' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>dimension(x::Quantity{T,D}) where {T,D}
+dimension(::Type{Quantity{T,D,U}}) where {T,D,U}
+</pre></div>
+
+
+<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object <code>D()</code> corresponding to the dimensions of quantity <code>x</code>. For a dimensionless <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a>, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
+<p>Examples:</p>
+<div class="codehilite"><pre><span></span>julia&gt; dimension(1.0u&quot;m&quot;)
+𝐋
+
+julia&gt; typeof(dimension(1.0u&quot;m/μm&quot;))
+Unitful.Dimensions{()}
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/utils.jl#L155-L171' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.dimension-Union{Tuple{AbstractArray{T,N} where N}, Tuple{T}} where T<:Unitful.Units' href='#Unitful.dimension-Union{Tuple{AbstractArray{T,N} where N}, Tuple{T}} where T<:Unitful.Units'>#</a>
+<strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
+<div class="codehilite"><pre><span></span>dimension(u::Units{U,D}) where {U,D}
+</pre></div>
+
+
+<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object corresponding to the dimensions of the units, <code>D()</code>. For a dimensionless combination of units, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
+<p>Examples:</p>
+<div class="codehilite"><pre><span></span>julia&gt; dimension(u&quot;m&quot;)
+𝐋
+
+julia&gt; typeof(dimension(u&quot;m&quot;))
+Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}
+
+julia&gt; typeof(dimension(u&quot;m/km&quot;))
+Unitful.Dimensions{()}
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/utils.jl#L134-L152' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>dimension(x::Quantity{T,D}) where {T,D}
+dimension(::Type{Quantity{T,D,U}}) where {T,D,U}
+</pre></div>
+
+
+<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object <code>D()</code> corresponding to the dimensions of quantity <code>x</code>. For a dimensionless <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a>, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
+<p>Examples:</p>
+<div class="codehilite"><pre><span></span>julia&gt; dimension(1.0u&quot;m&quot;)
+𝐋
+
+julia&gt; typeof(dimension(1.0u&quot;m/μm&quot;))
+Unitful.Dimensions{()}
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/utils.jl#L155-L171' class='documenter-source'>source</a><br></p>
+<p><a id='Unit-stripping-1'></a></p>
+<h2 id="unit-stripping">Unit stripping</h2>
+<p><a id='Unitful.ustrip' href='#Unitful.ustrip'>#</a>
+<strong><code>Unitful.ustrip</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>ustrip(x::Number)
+ustrip(x::Quantity)
+</pre></div>
+
+
+<p>Returns the number out in front of any units. The value of <code>x</code> may differ from the number out front of the units in the case of dimensionless quantities, e.g. <code>1m/mm != 1</code>. See <a href="../conversion/#Unitful.uconvert"><code>uconvert</code></a> and the example below. Because the units are removed, information may be lost and this should be used with some care.</p>
+<p>This function is mainly intended for compatibility with packages that don't know how to handle quantities.</p>
+<div class="codehilite"><pre><span></span>julia&gt; ustrip(2u&quot;μm/m&quot;) == 2
+true
+
+julia&gt; uconvert(NoUnits, 2u&quot;μm/m&quot;) == 2//1000000
+true
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/utils.jl#L8-L26' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>ustrip(x::Array{Q}) where {Q &lt;: Quantity}
+</pre></div>
+
+
+<p>Strip units from an <code>Array</code> by reinterpreting to type <code>T</code>. The resulting <code>Array</code> is a not a copy, but rather a unit-stripped view into array <code>x</code>. Because the units are removed, information may be lost and this should be used with some care.</p>
+<p>This function is provided primarily for compatibility purposes; you could pass the result to PyPlot, for example.</p>
+<div class="codehilite"><pre><span></span>julia&gt; a = [1u&quot;m&quot;, 2u&quot;m&quot;]
+2-element Array{Quantity{Int64, Dimensions:{𝐋}, Units:{m}},1}:
+ 1 m
+ 2 m
+
+julia&gt; b = ustrip(a)
+2-element Array{Int64,1}:
+ 1
+ 2
+
+julia&gt; a[1] = 3u&quot;m&quot;; b
+2-element Array{Int64,1}:
+ 3
+ 2
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/utils.jl#L30-L55' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>ustrip(A::Diagonal)
+ustrip(A::Bidiagonal)
+ustrip(A::Tridiagonal)
+ustrip(A::SymTridiagonal)
+</pre></div>
+
+
+<p>Strip units from various kinds of matrices by calling <code>ustrip</code> on the underlying vectors.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/utils.jl#L60-L66' class='documenter-source'>source</a><br></p>
+<p><a id='Unit-multiplication-1'></a></p>
+<h2 id="unit-multiplication">Unit multiplication</h2>
+<p><a id='Base.:*-Tuple{Unitful.Units,Vararg{Unitful.Units,N} where N}' href='#Base.:*-Tuple{Unitful.Units,Vararg{Unitful.Units,N} where N}'>#</a>
+<strong><code>Base.:*</code></strong> &mdash; <em>Method</em>.</p>
+<div class="codehilite"><pre><span></span>*(a0::Units, a::Units...)
+</pre></div>
+
+
+<p>Given however many units, multiply them together. This is actually handled by a few different methods, since we have <code>FreeUnits</code>, <code>ContextUnits</code>, and <code>FixedUnits</code>.</p>
+<p>Collect <a href="../types/#Unitful.Unit"><code>Unitful.Unit</code></a> objects from the type parameter of the <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> objects. For identical units including SI prefixes (i.e. cm ≠ m), collect powers and sort uniquely by the name of the <code>Unit</code>. The unique sorting permits easy unit comparisons.</p>
+<p>Examples:</p>
+<div class="codehilite"><pre><span></span>julia&gt; u&quot;kg*m/s^2&quot;
+kg m s^-2
+
+julia&gt; u&quot;m/s*kg/s&quot;
+kg m s^-2
+
+julia&gt; typeof(u&quot;m/s*kg/s&quot;) == typeof(u&quot;kg*m/s^2&quot;)
+true
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/units.jl#L60-L85' class='documenter-source'>source</a><br></p>
+<p><a id='Base.:*-Tuple{Unitful.Dimensions,Vararg{Unitful.Dimensions,N} where N}' href='#Base.:*-Tuple{Unitful.Dimensions,Vararg{Unitful.Dimensions,N} where N}'>#</a>
+<strong><code>Base.:*</code></strong> &mdash; <em>Method</em>.</p>
+<div class="codehilite"><pre><span></span>*(a0::Dimensions, a::Dimensions...)
+</pre></div>
+
+
+<p>Given however many dimensions, multiply them together.</p>
+<p>Collect <a href="../types/#Unitful.Dimension"><code>Unitful.Dimension</code></a> objects from the type parameter of the <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> objects. For identical dimensions, collect powers and sort uniquely by the name of the <code>Dimension</code>.</p>
+<p>Examples:</p>
+<div class="codehilite"><pre><span></span>julia&gt; u&quot;𝐌*𝐋/𝐓^2&quot;
+𝐋 𝐌 𝐓^-2
+
+julia&gt; u&quot;𝐋*𝐌/𝐓^2&quot;
+𝐋 𝐌 𝐓^-2
+
+julia&gt; typeof(u&quot;𝐋*𝐌/𝐓^2&quot;) == typeof(u&quot;𝐌*𝐋/𝐓^2&quot;)
+true
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/dimensions.jl#L1-L21' class='documenter-source'>source</a><br></p>
+                
+                  
+                
+              
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../conversion/" title="Conversion / promotion" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Conversion / promotion
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../display/" title="How units are displayed" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                How units are displayed
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/application-f3ab9e5ff8.js"></script>
+      
+      
+      <script>app.initialize({url:{base:".."}})</script>
+      
+        <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+      
+        <script src="../assets/mathjaxhelper.js"></script>
+      
+    
+    
+      
+    
+  </body>
+</html>
