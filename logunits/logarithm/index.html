@@ -552,7 +552,7 @@ julia&gt; @Np e*V/V    # e = 2.71828...
 
 
 <p>A logarithmic scale-based gain or attenuation factor. This type has one field, <code>val::T</code>. For example, given a gain of <code>20dB</code>, we have <code>val===20</code>. This type differs from <a href="./#Unitful.Level"><code>Unitful.Level</code></a> in that <code>val</code> is stored after computing the logarithm.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/types.jl#L170-L175' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/6e3b9fc93996aa509139970fe41668348f17333e/src/types.jl#L170-L175' class='documenter-source'>source</a><br></p>
 <p>One might expect that any dimensionless quantity should be convertible to a pure number, that is, to <code>x</code> if you had <code>10*log10(x)</code> dB. However, it turns out that in dB, a ratio of powers is defined as <code>10*log10(x)</code>, but a ratio of voltages or other root-power quantities is defined as <code>20*log10(x)</code>. Clearly, converting back from decibels to a real number is ambiguous, and so we have not implemented automatic promotion to avoid incorrect results. You can use <a href="./#Unitful.powerratio"><code>Unitful.powerratio</code></a> to interpret a <code>Gain</code> as a ratio of power quantities, or <a href="./#Unitful.rootpowerratio"><code>Unitful.rootpowerratio</code></a> (equivalently <code>fieldratio</code>) to interpret as a ratio of field quantities.</p>
 <p><a id='"Dimensionful"-logarithmic-quantities?-1'></a></p>
 <h3 id="dimensionful-logarithmic-quantities">"Dimensionful" logarithmic quantities?</h3>
@@ -564,7 +564,7 @@ julia&gt; @Np e*V/V    # e = 2.71828...
 
 
 <p>A logarithmic scale-based level. Details about the logarithmic scale are encoded in <code>L &lt;: LogInfo</code>. <code>S</code> is a reference quantity for the level, not a type. This type has one field, <code>val::T</code>, and the log of the ratio <code>val/S</code> is taken. This type differs from <a href="./#Unitful.Gain"><code>Unitful.Gain</code></a> in that <code>val</code> is a linear quantity.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/types.jl#L151-L157' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/6e3b9fc93996aa509139970fe41668348f17333e/src/types.jl#L151-L157' class='documenter-source'>source</a><br></p>
 <p>Finally, for completeness we note that both <code>Level</code> and <code>Gain</code> are subtypes of <code>LogScaled</code>:</p>
 <p><a id='Unitful.LogScaled' href='#Unitful.LogScaled'>#</a>
 <strong><code>Unitful.LogScaled</code></strong> &mdash; <em>Type</em>.</p>
@@ -573,7 +573,7 @@ julia&gt; @Np e*V/V    # e = 2.71828...
 
 
 <p>Abstract supertype of <a href="./#Unitful.Level"><code>Unitful.Level</code></a> and <a href="./#Unitful.Gain"><code>Unitful.Gain</code></a>. It is only used in promotion to put levels and gains onto a common log scale.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/types.jl#L144-L148' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/6e3b9fc93996aa509139970fe41668348f17333e/src/types.jl#L144-L148' class='documenter-source'>source</a><br></p>
 <p><a id='Multiplication-rules-1'></a></p>
 <h2 id="multiplication-rules">Multiplication rules</h2>
 <p>Multiplying a dimensionless logarithmic quantity by a pure number acts as like it does for linear quantities:</p>
@@ -996,7 +996,7 @@ julia&gt; 2 * 20u&quot;dBm&quot;
 11.0 mW
 
 
-</td> </tr> <tr> <td align="right"><strong>10.0dBm</strong></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right">
+</td> </tr> <tr> <td align="right"><strong>10.0dBV</strong></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right">
 
 
 16.020599913279625 dBV
@@ -1008,7 +1008,7 @@ julia&gt; 2 * 20u&quot;dBm&quot;
 †
 
 
-</td> </tr> <tr> <td align="right"><strong>10.0dBm</strong></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right">
+</td> </tr> <tr> <td align="right"><strong>1mW</strong></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right">
 
 
 2 mW
@@ -1088,7 +1088,7 @@ linear(x::Number) = x
 <li><code>20dB</code> could be interpreted as either a power or root-power ratio.</li>
 <li>Even if <code>-20dB/m</code> were interpreted as, say, <code>0.01/m</code>, this means something fundamentally different than <code>-20dB/m</code>. <code>0.01/m</code> cannot be used to calculate exponential attenuation.</li>
 </ul>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/logarithm.jl#L342-L354' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/6e3b9fc93996aa509139970fe41668348f17333e/src/logarithm.jl#L342-L354' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.reflevel' href='#Unitful.reflevel'>#</a>
 <strong><code>Unitful.reflevel</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>reflevel(x::Level{L,S}) where {L,S} = S
@@ -1103,7 +1103,7 @@ reflevel(::Type{Level{L,S,T}}) where {L,S,T} = S
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/logarithm.jl#L29-L39' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/6e3b9fc93996aa509139970fe41668348f17333e/src/logarithm.jl#L29-L39' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.powerratio' href='#Unitful.powerratio'>#</a>
 <strong><code>Unitful.powerratio</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>powerratio(::Type{T}, x::Real) where {T&lt;:Number} = convert(T, x)
@@ -1112,7 +1112,7 @@ reflevel(::Type{Level{L,S,T}}) where {L,S,T} = S
 
 <p>Returns the gain as a ratio of power quantities.</p>
 <p>It is important to note that this function is undefined for <code>Quantity{&lt;:Gain}</code> types. It is tempting to make this function transform <code>-20dB/m</code> into <code>0.01/m</code>, however this means something fundamentally different than <code>-20dB/m</code>, and cannot be used to calculate exponential attenuation.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/logarithm.jl#L294-L302' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/6e3b9fc93996aa509139970fe41668348f17333e/src/logarithm.jl#L294-L302' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.rootpowerratio' href='#Unitful.rootpowerratio'>#</a>
 <strong><code>Unitful.rootpowerratio</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>rootpowerratio(x::Gain)
@@ -1133,7 +1133,7 @@ rootpowerratio(::Type{T}, x::Real) where {T} = convert(T, x)
 <p>Fall-back methods so that <code>rootpowerratio</code> may be used generically.</p>
 <p>It is important to note that this function is undefined for <code>Quantity{&lt;:Gain}</code> types. It is tempting to make this function transform <code>-20dB/m</code> into <code>0.1/m</code>, however this means something fundamentally different than <code>-20dB/m</code>, and cannot be used to calculate exponential attenuation.</p>
 <p><code>fieldratio</code> and <code>rootpowerratio</code> are synonymous, so you can save some typing if you like.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/36aa3a56bb77b57fbcf36ad89a3d779e0584dea2/src/logarithm.jl#L312-L330' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/6e3b9fc93996aa509139970fe41668348f17333e/src/logarithm.jl#L312-L330' class='documenter-source'>source</a><br></p>
                 
                   
                 
