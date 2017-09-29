@@ -1,6 +1,7 @@
 var DOC_VERSIONS = [
   "stable",
   "latest",
+  "logunits",
   "release-0.2",
   "release-0.1",
   "v0.2.4",
