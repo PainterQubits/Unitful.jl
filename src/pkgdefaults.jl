@@ -102,7 +102,7 @@ const q = 1.6021766208e-19*C        # CODATA 2014; `e` means 2.718...
 @unit eV     "eV"       eV          q*V                     true
 
 # For convenience
-@unit Hz2π   "Hz*2π"    AngHertz    2π/s                    true
+@unit Hz2π   "Hz2π"     AngHertz    2π/s                    true
 @unit bar    "bar"      Bar         100000Pa                true
 @unit atm    "atm"      Atmosphere  101325Pa                false
 @unit Torr   "Torr"     Torr        101325Pa//760           true
@@ -139,7 +139,7 @@ const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
 
 # Length
 #key: Symbol    Display    Name         Equivalent to           10^n prefixes?
-@unit inch      "in"       Inch         (254//10000)*m          false
+@unit inch      "inch"     Inch         (254//10000)*m          false
 @unit ft        "ft"       Foot         12inch                  false
 @unit yd        "yd"       Yard         3ft                     false
 @unit mi        "mi"       Mile         1760yd                  false
