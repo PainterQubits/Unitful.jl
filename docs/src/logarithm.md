@@ -25,10 +25,10 @@ julia> u"dB"*3 === 3u"dB"
 true
 ```
 
-Currently implemented are `dB`, `dBm`, `dBV`, `dBu`, `dBμV`, `dBSPL`, `Np`.
+Currently implemented are `dB`, `B`, `dBm`, `dBV`, `dBu`, `dBμV`, `dBSPL`, `cNp`, `Np`.
 
-One can also construct logarithmic quantities using the `@dB` or `@Np` macros to use
-an arbitrary reference level:
+One can also construct logarithmic quantities using the `@dB`, `@B`, `@cNp`, `@Np` macros to
+use an arbitrary reference level:
 
 ```jldoctest
 julia> using Unitful: mW, V
@@ -44,6 +44,16 @@ julia> @dB 3V/4V
 
 julia> @Np e*V/V    # e = 2.71828...
 1.0 Np (1 V)
+```
+
+When using the macros, the levels are constructed at parse time. The scales themselves are
+callable as functions if you need to construct a level that way:
+
+```jldoctest
+julia> using Unitful: dB, mW, V
+
+julia> u"dB"(10mW,mW)
+10.0 dBm
 ```
 
 In calculating the logarithms, the log function appropriate to the scale in question is used
@@ -463,13 +473,12 @@ Unitful.@_doctables u"3dBm"*u"3dBm"
 </tbody>
 </table>
 
-‡: `1/Hz * 3dB` is technically allowed but dumb things can happen when its unclear if a quantity
-is a root-power or power quantity:
+‡: `1/Hz * 3dB` could be allowed, technically, but we throw an error its unclear if a
+quantity is a root-power or power quantity:
 
 ```jldoctest
 julia> u"1/Hz" * u"3dB"
-WARNING: result may be incorrect. Define `Unitful.isrootpower(::Type{<:Unitful.LogInfo}, ::typeof(𝐓))` to fix.
-1.9952623149688795 Hz^-1
+ERROR: undefined behavior. Please file an issue with the code needed to reproduce.
 ```
 
 On the other hand, if it can be determined that a power quantity or root-power quantity

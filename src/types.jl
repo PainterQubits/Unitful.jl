@@ -188,3 +188,4 @@ struct MixedUnits{T<:LogScaled, U<:Units}
 end
 MixedUnits{T}() where {T} = MixedUnits{T, typeof(NoUnits)}(NoUnits)
 MixedUnits{T}(u::Units) where {T} = MixedUnits{T,typeof(u)}(u)
+(y::MixedUnits)(x::Number) = uconvert(y,x)

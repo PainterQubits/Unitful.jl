@@ -18,9 +18,9 @@ Base.convert(::Type{LogScaled{L1}}, x::Level{L2,S}) where {L1,L2,S} = Level{L1,S
 Base.convert(T::Type{<:Level}, x::Level) = T(x.val)
 
 """
-    reflevel(x::Level{L,S}) where {L,S} = S
-    reflevel(::Type{Level{L,S}}) where {L,S} = S
-    reflevel(::Type{Level{L,S,T}}) where {L,S,T} = S
+    reflevel(x::Level{L,S})
+    reflevel(::Type{Level{L,S}})
+    reflevel(::Type{Level{L,S,T}})
 Returns the reference level, e.g.
 
 ```jldoctest
@@ -51,17 +51,19 @@ Base.convert(T::Type{Gain{L1,T1}}, x::Gain{L2,T2}) where {L1,L2,T1,T2} = T(_gcon
 Base.convert(::Type{LogScaled{L1}}, x::Gain{L2}) where {L1,L2} = Gain{L1}(_gconv(L1,L2,x))
 function _gconv(L1,L2,x)
     if isrootpower(L1) == isrootpower(L2)
-        gain = tolog(L1,1,fromlog(L2,1,x.val))
+        gain = tolog(L1,fromlog(L2,x.val))
     elseif isrootpower(L1) && !isrootpower(L2)
-        gain = tolog(L1,1,fromlog(L2,1,0.5*x.val))
+        gain = tolog(L1,fromlog(L2,0.5*x.val))
     else
-        gain = tolog(L1,1,fromlog(L2,1,2*x.val))
+        gain = tolog(L1,fromlog(L2,2*x.val))
     end
     return gain
 end
 
-tolog(L,S,x) = (1+isrootpower(L,dimension(S))) * prefactor(L()) * (logfn(L()))(x)
-fromlog(L,S,x) = S * expfn(L())( x / ((1+isrootpower(L,dimension(S)))*prefactor(L())) )
+tolog(L,S,x) = (1+isrootpower(L,S)) * prefactor(L()) * (logfn(L()))(x)
+tolog(L,x) = (1+isrootpower(L)) * prefactor(L()) * (logfn(L()))(x)
+fromlog(L,S,x) = S * expfn(L())( x / ((1+isrootpower(L,S))*prefactor(L())) )
+fromlog(L,x) = expfn(L())( x / ((1+isrootpower(L))*prefactor(L())) )
 
 function Base.show(io::IO, x::MixedUnits{T,U}) where {T,U}
     print(io, abbr(x))
@@ -113,19 +115,9 @@ end
 ustrip(x::Level{L,S}) where {L<:LogInfo, S} = tolog(L,S,x.val/reflevel(x))
 ustrip(x::Gain) = x.val
 
-# TODO: some more dimensions?
-isrootpower(x,y) = isrootpower_warn(x,y)
-
-# Default to power or root-power as appropriate for the given logarithmic unit
-function isrootpower_warn(x,y)
-    irp = isrootpower(x)
-    str = ifelse(irp, "root-power", "power")
-    warn("result may be incorrect. Define ",
-        "`Unitful.isrootpower(::Type{<:Unitful.LogInfo}, ::typeof($y))` to fix.")
-    return irp
-end
-
-isrootpower(t::Type{<:LogInfo}, ::typeof(NoDims)) = isrootpower(t)
+isrootpower(T::Type{<:LogInfo}, y) = isrootpower_dim(T, dimension(y))
+isrootpower_dim(::Type{<:LogInfo}, y) =
+    error("undefined behavior. Please file an issue with the code needed to reproduce.")
 
 ==(x::Gain, y::Level) = ==(y,x)
 ==(x::Level, y::Gain) = false
@@ -155,10 +147,11 @@ Base. *(x::Bool, y::Gain) = *(y,x)                                     # for met
 Base. *(x::Gain{L}, y::Number) where {L} = Gain{L}(x.val * y)
 Base. *(x::Gain{L}, y::Bool) where {L} = Gain{L}(x.val * y)            # for method ambiguity
 Base. *(x::Gain{L}, y::Level) where {L} = Level{L,S}(fromlog(L, S, ustrip(x)+y.val))
-Base. *(x::Gain{L}, y::Gain) where {L} = error("logarithmic gains add, not multiply.")
+Base. *(x::Gain{L}, y::Gain) where {L} = *(promote(x,y)...)
+Base. *(x::Gain{L}, y::Gain{L}) where {L} = Gain{L}(x.val + y.val)     # contentious?
 
 Base. *(x::Quantity, y::Gain{L}) where {L} =
-    isrootpower(L, dimension(x)) ? rootpowerratio(y) * x : powerratio(y) * x
+    isrootpower(L, x) ? rootpowerratio(y) * x : powerratio(y) * x
 Base. *(x::Gain, y::Quantity) = *(y,x)
 
 # Division
@@ -167,6 +160,10 @@ Base. /(x::Level{L,S}, y::Number) where {L,S} = Level{L,S}(x.val / y)
 Base. /(x::Level{L,S}, y::Quantity) where {L,S} = x.val / y
 Base. /(x::Level{L,S}, y::Level) where {L,S} = x.val / y.val
 Base. /(x::Level{L,S}, y::Gain) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(x) - y.val))
+
+Base. /(x::Gain{L}, y::Gain) where {L} = /(promote(x,y)...)
+Base. /(x::Gain{L}, y::Gain{L}) where {L} = Gain{L}(x.val - y.val)
+
 Base. /(x::Quantity, y::Gain) = error("logarithmic gains subtract, not divide.")
 Base. /(x::Quantity, y::Level) = x / y.val
 
@@ -234,11 +231,11 @@ exponential attenuation.
 function powerratio end
 powerratio(x) = powerratio(NoUnits, x)
 powerratio(::Units{()}, x::Gain{L}) where {L} =
-    fromlog(L, 1, ifelse(isrootpower(L), 2, 1)*x.val)
+    fromlog(L, ifelse(isrootpower(L), 2, 1)*x.val)
 powerratio(::Units{()}, x::Real) = x
 powerratio(u::MixedUnits{<:Gain}, x::Gain) = uconvert(u, x)
 powerratio(u::T, x::Real) where {L, T <: MixedUnits{Gain{L}, <:Units{()}}} =
-    ifelse(isrootpower(L), 0.5, 1) * tolog(L, 1, x) * u
+    ifelse(isrootpower(L), 0.5, 1) * tolog(L, x) * u
 
 """
     rootpowerratio(x::Gain)
@@ -262,11 +259,11 @@ exponential attenuation.
 function rootpowerratio end
 rootpowerratio(x) = rootpowerratio(NoUnits, x)
 rootpowerratio(::Units{()}, x::Gain{L}) where {L} =
-    fromlog(L, 1, ifelse(isrootpower(L), 1.0, 0.5)*x.val)
+    fromlog(L, ifelse(isrootpower(L), 1.0, 0.5)*x.val)
 rootpowerratio(::Units{()}, x::Real) = x
 rootpowerratio(u::MixedUnits{<:Gain}, x::Gain) = uconvert(u, x)
 rootpowerratio(u::T, x::Real) where {L, T <: MixedUnits{Gain{L}, <:Units{()}}} =
-    ifelse(isrootpower(L), 1, 2) * tolog(L, 1, x) * u
+    ifelse(isrootpower(L), 1, 2) * tolog(L, x) * u
 
 fieldratio = rootpowerratio
 

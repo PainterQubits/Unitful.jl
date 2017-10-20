@@ -294,7 +294,7 @@ base SI units.
 @inline upreferred(x::FixedUnits) = x
 
 """
-    @logscale(symb,abbr,name,base,prefactor)
+    @logscale(symb,abbr,name,base,prefactor,irp)
 Define a logarithmic scale. Unlike with units, there is no special treatment for
 power-of-ten prefixes (decibels and bels are defined separately). However, arbitrary
 bases are possible, and computationally appropriate `log` and `exp` functions are used
@@ -307,12 +307,19 @@ This macro also defines another macro available as `@symb`. For example, `@dB` i
 of decibels. This can be used to construct `Level` objects at parse time. Usage is like
 `@dB 3V/1V`.
 
-Note that `prefactor` is defined with respect to taking ratios of power quantities. As
-usual, just divide by two if you want to refer to root-power / field quantities instead.
+`prefactor` is the prefactor out in front of the logarithm for this log scale.
+In all cases it is defined with respect to taking ratios of power quantities. Just divide
+by two if you want to refer to root-power / field quantities instead.
+
+`irp` (short for "is root power?") specifies whether the logarithmic scale is defined
+with respect to ratios of power or root-power quantities. In short: use `false` if your scale
+is decibel-like, or `true` if your scale is neper-like.
 
 Examples:
 ```jldoctest
-julia> @logscale dΠ "dΠ" Decipies π 10
+julia> using Unitful: V, W
+
+julia> @logscale dΠ "dΠ" Decipies π 10 false
 dΠ
 
 julia> @dΠ π*V/1V
@@ -325,17 +332,16 @@ julia> @dΠ π^2*V/1V
 40.0 dΠ (1 V)
 
 julia> @dΠ π*W/1W
-10.0 dΠ (1 V)
+10.0 dΠ (1 W)
 ```
 """
-macro logscale(symb,abbr,name,base,prefactor)
-    # name is a symbol
-    # abbr is a string
-    li = Symbol("li_", name)
-
+macro logscale(symb,abbr,name,base,prefactor,irp)
     quote
         Unitful.abbr(::Unitful.LogInfo{$(QuoteNode(name))}) = $abbr
+
         const $(esc(name)) = Unitful.LogInfo{$(QuoteNode(name)), $base, $prefactor}
+        Unitful.isrootpower(::Type{$(esc(name))}) = $irp
+
         const $(esc(symb)) = Unitful.MixedUnits{Unitful.Gain{$(esc(name))}}()
 
         macro $(esc(symb))(::Union{Real,Symbol})
@@ -353,8 +359,8 @@ macro logscale(symb,abbr,name,base,prefactor)
 
         function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Number)
             dimension(num) != dimension(den) && throw(DimensionError(num,den))
-            # dimension(num) == NoDims &&
-            #     throw(ArgumentError("cannot use this macro with dimensionless numbers."))
+            dimension(num) == NoDims &&
+                throw(ArgumentError("cannot use with dimensionless numbers."))
             return Level{$(esc(name)), den}(num)
         end
 

@@ -1125,8 +1125,8 @@ end
 
         @testset ">> Gain" begin
             @test 20dB + 10dB === 30dB
+            @test 20dB * 20dB === 40dB # support both +*, for sake of generic programming...
             @test 20dB - 10dB === 10dB
-            @test_throws ErrorException 20dB * 20dB
             @test_throws ErrorException 1dB + 1Np
         end
 

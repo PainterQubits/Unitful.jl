@@ -166,26 +166,24 @@ Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
 #########
 # Logarithmic scales and units
 
-@logscale dB    "dB"       Decibel      10      10
-@logscale B     "B"        Bel          10      1
-@logscale Np    "Np"       Neper        e       1//2
-@logscale cNp   "cNp"      Centineper   e       50
+@logscale dB    "dB"       Decibel      10      10      false
+@logscale B     "B"        Bel          10      1       false
+@logscale Np    "Np"       Neper        e       1//2    true
+@logscale cNp   "cNp"      Centineper   e       50      true
 
 @logunit  dBm   "dBm"      Decibel      1mW
 @logunit  dBV   "dBV"      Decibel      1V
 @logunit  dBu   "dBu"      Decibel      sqrt(0.6)V
 @logunit  dBμV  "dBμV"     Decibel      1μV
 @logunit  dBSPL "dBSPL"    Decibel      20μPa
-@logunit  dBFS  "dBFS"     Decibel      1
 
 const dBµV = dBμV   # different character encoding of μ
 
-isrootpower(::Type{<:LogInfo}, ::typeof(dimension(W))) = false
-isrootpower(::Type{<:LogInfo}, ::typeof(dimension(V))) = true
-isrootpower(::Type{<:LogInfo}, ::typeof(dimension(A))) = true
-isrootpower(::Type{<:LogInfo}, ::typeof(dimension(Pa))) = true
-isrootpower(::Type{Decibel}) = false
-isrootpower(::Type{Neper}) = true
+# TODO: some more dimensions?
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(W))) = false
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(V))) = true
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(A))) = true
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(Pa))) = true
 
 #########
 
