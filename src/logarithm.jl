@@ -1,6 +1,3 @@
-
-abbr(::LogInfo{:Decibel}) = "dB"
-abbr(::LogInfo{:Neper})   = "Np"
 base(::LogInfo{N,B}) where {N,B} = B
 prefactor(::LogInfo{N,B,P}) where {N,B,P} = P
 
@@ -10,13 +7,7 @@ dimension(x::Type{T}) where {L,S,T<:Level{L,S}} = dimension(S)
 logunit(x::Level{L,S}) where {L,S} = MixedUnits{Level{L,S}}()
 logunit(x::Type{T}) where {L,S,T<:Level{L,S}} = MixedUnits{Level{L,S}}()
 
-function abbr(x::Level{L,S}) where {L,S}
-    if dimension(S) == NoDims
-        return abbr(L())
-    else
-        return join([abbr(L()), " (", reflevel(x), ")"])
-    end
-end
+abbr(x::Level{L,S}) where {L,S} = join([abbr(L()), " (", reflevel(x), ")"])
 
 function uconvert(a::Units, x::Level)
     dimension(a) != dimension(x) && throw(DimensionError(a,x))
@@ -119,37 +110,11 @@ function uconvert(a::MixedUnits{<:Gain}, x::Number)
     error("perhaps you meant `($x)*($ustr)`?")
 end
 
-for (_short,_long,_base,_pre) in ((:dB, :Decibel, 10, 10),
-                                  (:Np, :Neper,   e,  1//2))
-    li = Symbol("li_",_short)
-    @eval begin
-        const $li = LogInfo{$(QuoteNode(_long)),$_base,$_pre}
-        const $_short = MixedUnits{Gain{$li}}()
-    end
-end
-
-abbr(::Level{li_dB, 1mW}) = "dBm"
-abbr(::Level{li_dB, 1V}) = "dBV"
-abbr(::Level{li_dB, sqrt(0.6)V}) = "dBu"
-abbr(::Level{li_dB, 1μV}) = "dBμV"
-abbr(::Level{li_dB, 20μPa}) = "dBSPL"
-
-const dBV   = MixedUnits{Level{li_dB, 1V}}()
-const dBu   = MixedUnits{Level{li_dB, sqrt(0.6)V}}()
-const dBμV  = MixedUnits{Level{li_dB, 1μV}}()
-const dBµV  = dBμV # different character encoding of μ
-const dBm   = MixedUnits{Level{li_dB, 1mW}}()
-const dBSPL = MixedUnits{Level{li_dB, 20μPa}}()
-
 ustrip(x::Level{L,S}) where {L<:LogInfo, S} = tolog(L,S,x.val/reflevel(x))
 ustrip(x::Gain) = x.val
 
 # TODO: some more dimensions?
 isrootpower(x,y) = isrootpower_warn(x,y)
-isrootpower(::Type{<:LogInfo}, ::typeof(dimension(W))) = false
-isrootpower(::Type{<:LogInfo}, ::typeof(dimension(V))) = true
-isrootpower(::Type{<:LogInfo}, ::typeof(dimension(A))) = true
-isrootpower(::Type{<:LogInfo}, ::typeof(dimension(Pa))) = true
 
 # Default to power or root-power as appropriate for the given logarithmic unit
 function isrootpower_warn(x,y)
@@ -161,8 +126,6 @@ function isrootpower_warn(x,y)
 end
 
 isrootpower(t::Type{<:LogInfo}, ::typeof(NoDims)) = isrootpower(t)
-isrootpower(::Type{li_dB}) = false
-isrootpower(::Type{li_Np}) = true
 
 ==(x::Gain, y::Level) = ==(y,x)
 ==(x::Level, y::Gain) = false
@@ -257,38 +220,6 @@ function Base.show(io::IO, x::Quantity{<:Union{Level,Gain},D,U}) where {D,U}
         show(io, U())
     end
     nothing
-end
-
-for li in (:B, :dB, :Np)
-    @eval begin
-        $(Expr(:export, Symbol("@",li)))
-
-        macro ($li)(r::Union{Real,Symbol})
-            throw(ArgumentError(join(["usage: `@", $(String(li)), " (a)/(b)`"])))
-        end
-
-        macro ($li)(expr::Expr)
-            s  = $(Symbol("_", li))
-            expr.args[1] != :/ &&
-                throw(ArgumentError(join(["usage: `@", $(String(li)), " (a)/(b)`"])))
-            length(expr.args) != 3 &&
-                throw(ArgumentError(join(["usage: `@", $(String(li)), " (a)/(b)`"])))
-            esc(quote
-                ($s)($(expr.args[2]), $(expr.args[3]))
-            end)
-        end
-
-        function $(Symbol("_", li))(num::Number, den::Number)
-            dimension(num) != dimension(den) && throw(DimensionError(num,den))
-            dimension(num) == NoDims &&
-                throw(ArgumentError("cannot use this macro with dimensionless numbers."))
-            return Level{$(Symbol("li_", li)), den}(num)
-        end
-
-        function $(Symbol("_", li))(num::Number, den::Units)
-            $(Symbol("_", li))(num, 1*den)
-        end
-    end
 end
 
 """

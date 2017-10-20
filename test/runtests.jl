@@ -5,7 +5,7 @@ using Base.Test
 
 import Unitful: DimensionError
 
-import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, li_dB
+import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
 
 import Unitful: FreeUnits, ContextUnits, FixedUnits
 
@@ -1017,17 +1017,17 @@ end
     @testset "> Explicit construction" begin
         @testset ">> Level" begin
             # Outer constructor
-            @test Level{li_dB,1}(2) isa Level{li_dB,1,Int}
-            @test_throws DimensionError Level{li_dB,1}(2V)
+            @test Level{Decibel,1}(2) isa Level{Decibel,1,Int}
+            @test_throws DimensionError Level{Decibel,1}(2V)
 
             # Inner constructor
-            @test Level{li_dB,1,Int}(2) === Level{li_dB,1}(2)
+            @test Level{Decibel,1,Int}(2) === Level{Decibel,1}(2)
         end
 
         @testset ">> Gain" begin
-            @test Gain{li_dB}(1) isa Gain{li_dB,Int}
-            @test_throws MethodError Gain{li_dB}(1V)
-            @test_throws TypeError Gain{li_dB,typeof(1V)}(1V)
+            @test Gain{Decibel}(1) isa Gain{Decibel,Int}
+            @test_throws MethodError Gain{Decibel}(1V)
+            @test_throws TypeError Gain{Decibel,typeof(1V)}(1V)
         end
 
     end
@@ -1039,14 +1039,13 @@ end
         end
 
         @testset ">> Gain" begin
-            @test_throws ArgumentError @eval @dB 2/1
             @test_throws ArgumentError @eval @dB 10
             @test 20*dB  === dB*20
         end
 
         @testset ">> MixedUnits" begin
-            @test dBm === MixedUnits{Level{li_dB, 1mW}}()
-            @test dBm/Hz === MixedUnits{Level{li_dB, 1mW}}(Hz^-1)
+            @test dBm === MixedUnits{Level{Decibel, 1mW}}()
+            @test dBm/Hz === MixedUnits{Level{Decibel, 1mW}}(Hz^-1)
         end
     end
 

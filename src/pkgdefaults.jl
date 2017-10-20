@@ -164,6 +164,30 @@ Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
 @unit lbf       "lbf"      PoundsForce  1lb*ge                  false
 
 #########
+# Logarithmic scales and units
+
+@logscale dB    "dB"       Decibel      10      10
+@logscale B     "B"        Bel          10      1
+@logscale Np    "Np"       Neper        e       1//2
+@logscale cNp   "cNp"      Centineper   e       50
+
+@logunit  dBm   "dBm"      Decibel      1mW
+@logunit  dBV   "dBV"      Decibel      1V
+@logunit  dBu   "dBu"      Decibel      sqrt(0.6)V
+@logunit  dBμV  "dBμV"     Decibel      1μV
+@logunit  dBSPL "dBSPL"    Decibel      20μPa
+@logunit  dBFS  "dBFS"     Decibel      1
+
+const dBµV = dBμV   # different character encoding of μ
+
+isrootpower(::Type{<:LogInfo}, ::typeof(dimension(W))) = false
+isrootpower(::Type{<:LogInfo}, ::typeof(dimension(V))) = true
+isrootpower(::Type{<:LogInfo}, ::typeof(dimension(A))) = true
+isrootpower(::Type{<:LogInfo}, ::typeof(dimension(Pa))) = true
+isrootpower(::Type{Decibel}) = false
+isrootpower(::Type{Neper}) = true
+
+#########
 
 # `using Unitful.DefaultSymbols` will bring the following into the calling namespace:
 # - Dimensions 𝐋,𝐌,𝐓,𝐈,𝚯,𝐉,𝐍

@@ -294,6 +294,91 @@ base SI units.
 @inline upreferred(x::FixedUnits) = x
 
 """
+    @logscale(symb,abbr,name,base,prefactor)
+Define a logarithmic scale. Unlike with units, there is no special treatment for
+power-of-ten prefixes (decibels and bels are defined separately). However, arbitrary
+bases are possible, and computationally appropriate `log` and `exp` functions are used
+in calculations when available (e.g. `log2`, `log10` for base 2 and base 10, respectively).
+
+This macro defines a `MixedUnits` object identified by symbol `symb`. This can be used
+to
+
+This macro also defines another macro available as `@symb`. For example, `@dB` in the case
+of decibels. This can be used to construct `Level` objects at parse time. Usage is like
+`@dB 3V/1V`.
+
+Note that `prefactor` is defined with respect to taking ratios of power quantities. As
+usual, just divide by two if you want to refer to root-power / field quantities instead.
+
+Examples:
+```jldoctest
+julia> @logscale dΠ "dΠ" Decipies π 10
+dΠ
+
+julia> @dΠ π*V/1V
+20.0 dΠ (1 V)
+
+julia> dΠ(π*V, 1V)
+20.0 dΠ (1 V)
+
+julia> @dΠ π^2*V/1V
+40.0 dΠ (1 V)
+
+julia> @dΠ π*W/1W
+10.0 dΠ (1 V)
+```
+"""
+macro logscale(symb,abbr,name,base,prefactor)
+    # name is a symbol
+    # abbr is a string
+    li = Symbol("li_", name)
+
+    quote
+        Unitful.abbr(::Unitful.LogInfo{$(QuoteNode(name))}) = $abbr
+        const $(esc(name)) = Unitful.LogInfo{$(QuoteNode(name)), $base, $prefactor}
+        const $(esc(symb)) = Unitful.MixedUnits{Unitful.Gain{$(esc(name))}}()
+
+        macro $(esc(symb))(::Union{Real,Symbol})
+            throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
+        end
+
+        macro $(esc(symb))(expr::Expr)
+            # s = Symbol("_", $(esc(symb)))
+            expr.args[1] != :/ &&
+                throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
+            length(expr.args) != 3 &&
+                throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
+            return Expr(:call, $(esc(symb)), expr.args[2], expr.args[3])
+        end
+
+        function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Number)
+            dimension(num) != dimension(den) && throw(DimensionError(num,den))
+            # dimension(num) == NoDims &&
+            #     throw(ArgumentError("cannot use this macro with dimensionless numbers."))
+            return Level{$(esc(name)), den}(num)
+        end
+
+        function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Units)
+            $(esc(symb))(num, 1*den)
+        end
+
+        $(esc(symb))
+    end
+end
+
+"""
+    @logunit(symb, abbr, logscale, reflevel)
+Defines a logarithmic unit. For examples see `src/pkgdefaults.jl`.
+"""
+macro logunit(symb, abbr, logscale, reflevel)
+    quote
+        Unitful.abbr(::Unitful.Level{$(esc(logscale)), $(esc(reflevel))}) = $abbr
+        const $(esc(symb)) =
+            Unitful.MixedUnits{Unitful.Level{$(esc(logscale)), $(esc(reflevel))}}()
+    end
+end
+
+"""
     @u_str(unit)
 String macro to easily recall units, dimensions, or quantities defined in
 unit modules that have been registered with [`Unitful.register`](@ref).

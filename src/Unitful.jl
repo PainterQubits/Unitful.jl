@@ -11,8 +11,8 @@ import Base: sin, cos, tan, cot, sec, csc, atan2, cis, vecnorm
 import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isinf, isfinite, isnan
 import Base: copysign, flipsign
-import Base: prevfloat, nextfloat, maxintfloat, rat, step #, linspace
-import Base: length, float, start, done, next, last, one, zero, colon#, range
+import Base: prevfloat, nextfloat, maxintfloat, rat, step
+import Base: length, float, start, done, next, last, one, zero, colon
 import Base: getindex, eltype, step, last, first, frexp
 import Base: Integer, Rational, typemin, typemax
 import Base: steprange_last, unsigned
@@ -21,11 +21,11 @@ import Base.LinAlg: istril, istriu
 
 export logunit, unit, dimension, uconvert, ustrip, upreferred
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
-export Quantity
-export DimensionlessQuantity
-export NoUnits, NoDims
+export Quantity, DimensionlessQuantity, NoUnits, NoDims
 
-export powerratio, fieldratio, rootpowerratio, reflevel, linear, @dB, @Np
+export powerratio, fieldratio, rootpowerratio, reflevel, linear
+export @logscale, @logunit, @dB, @B, @cNp, @Np
+export Level, Gain
 
 const unitmodules = Vector{Module}()
 const basefactors = Dict{Symbol,Tuple{Float64,Rational{Int}}}()
@@ -43,8 +43,8 @@ include("promotion.jl")
 include("conversion.jl")
 include("range.jl")
 include("fastmath.jl")
-include("pkgdefaults.jl")
 include("logarithm.jl")
+include("pkgdefaults.jl")
 
 function __init__()
     # @u_str should be aware of units defined in module Unitful

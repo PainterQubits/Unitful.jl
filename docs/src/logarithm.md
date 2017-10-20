@@ -801,6 +801,12 @@ displaying logarithmic quantities:
 > When such data are presented in a table or in a figure, the following condensed notation
 > may be used instead: -0.58 Np (1 μV/m); 25 dB (20 μPa).
 
+## Custom logarithmic scales
+
+```@docs
+    Unitful.@logscale
+```
+
 ## API
 
 ```@docs
