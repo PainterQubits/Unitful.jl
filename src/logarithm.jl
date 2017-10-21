@@ -283,6 +283,7 @@ is for two reasons:
 linear(x::Quantity{<:Level,D,U}) where {D,U} = (x.val.val)*U()
 linear(x::Quantity{<:Gain}) = error("use powerratio or rootpowerratio instead.")
 linear(x::Level) = x.val
+linear(x::Gain) = error("use powerratio or rootpowerratio instead.")
 linear(x::Number) = x
 
 """
@@ -324,9 +325,9 @@ Base.isapprox(x::T, y::T; kwargs...) where {T <: Gain} = _isapprox(x, y; kwargs.
 _isapprox(x::Gain{L,T}, y::Gain{L,T}; atol = Gain{L}(oneunit(T)), kwargs...) where {L,T} =
     isapprox(ustrip(x), ustrip(y); atol = ustrip(convert(Gain{L,T}, atol)), kwargs...)
 
+# For documentation generation...
 struct InvalidOp end
 Base.show(io::IO, ::InvalidOp) = print(io, "†")
-
 macro _doctables(x)
     return esc(quote
         try
