@@ -349,7 +349,6 @@ macro logscale(symb,abbr,name,base,prefactor,irp)
         end
 
         macro $(esc(symb))(expr::Expr)
-            # s = Symbol("_", $(esc(symb)))
             expr.args[1] != :/ &&
                 throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
             length(expr.args) != 3 &&
@@ -357,15 +356,38 @@ macro logscale(symb,abbr,name,base,prefactor,irp)
             return Expr(:call, $(esc(symb)), expr.args[2], expr.args[3])
         end
 
+        macro $(esc(symb))(expr::Expr, tf::Bool)
+            expr.args[1] != :/ &&
+                throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
+            length(expr.args) != 3 &&
+                throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
+            return Expr(:call, $(esc(symb)), expr.args[2], expr.args[3], tf)
+        end
+
         function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Number)
             dimension(num) != dimension(den) && throw(DimensionError(num,den))
             dimension(num) == NoDims &&
-                throw(ArgumentError("cannot use with dimensionless numbers."))
+                throw(ArgumentError(string("to use with dimensionless numbers, pass a ",
+                    "final `Bool` argument: true if the ratio is a root-power ratio, ",
+                    "false otherwise.")))
             return Level{$(esc(name)), den}(num)
+        end
+
+        function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Number, irp::Bool)
+            dimension(num) != dimension(den) && throw(DimensionError(num,den))
+            dimension(num) != NoDims &&
+                throw(ArgumentError(string("can only be used with dimensionless numbers ",
+                    "when passing a final Bool argument.")))
+            T = ifelse(irp, RootPowerRatio, PowerRatio)
+            return Level{$(esc(name)), T(den)}(num)
         end
 
         function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Units)
             $(esc(symb))(num, 1*den)
+        end
+
+        function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Units, irp::Bool)
+            $(esc(symb))(num, 1*den, irp)
         end
 
         $(esc(symb))

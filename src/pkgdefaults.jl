@@ -176,6 +176,7 @@ Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
 @logunit  dBu   "dBu"      Decibel      sqrt(0.6)V
 @logunit  dBμV  "dBμV"     Decibel      1μV
 @logunit  dBSPL "dBSPL"    Decibel      20μPa
+@logunit  dBFS  "dBFS"     Decibel      RootPowerRatio(1)
 
 const dBµV = dBμV   # different character encoding of μ
 

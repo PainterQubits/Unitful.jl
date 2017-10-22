@@ -1,8 +1,18 @@
+struct IsRootPowerRatio{S,T}
+    val::T
+end
+IsRootPowerRatio{S}(x) where {S} = IsRootPowerRatio{S, typeof(x)}(x)
+const PowerRatio{T} = IsRootPowerRatio{false,T}
+const RootPowerRatio{T} = IsRootPowerRatio{true,T}
+dimension(x::IsRootPowerRatio{S,T}) where {S,T} = dimension(T)
+unwrap(x::IsRootPowerRatio) = x.val
+unwrap(x) = x
+
 base(::LogInfo{N,B}) where {N,B} = B
 prefactor(::LogInfo{N,B,P}) where {N,B,P} = P
 
 dimension(x::Level) = dimension(reflevel(x))
-dimension(x::Type{T}) where {L,S,T<:Level{L,S}} = dimension(S)
+dimension(x::Type{T}) where {T<:Level} = dimension(reflevel(T))
 
 logunit(x::Level{L,S}) where {L,S} = MixedUnits{Level{L,S}}()
 logunit(x::Type{T}) where {L,S,T<:Level{L,S}} = MixedUnits{Level{L,S}}()
@@ -16,6 +26,11 @@ end
 uconvert(a::Units, x::Quantity{<:Level}) = uconvert(a, linear(x))
 Base.convert(::Type{LogScaled{L1}}, x::Level{L2,S}) where {L1,L2,S} = Level{L1,S}(x.val)
 Base.convert(T::Type{<:Level}, x::Level) = T(x.val)
+Base.convert(::Type{Quantity{T,D,U}}, x::Level) where {T,D,U} =
+    convert(Quantity{T,D,U}, x.val)
+Base.convert(::Type{Quantity{T}}, x::Level) where {T<:Number} = convert(Quantity{T}, x.val)
+Base.convert(::Type{T}, x::Quantity) where {L,S,T<:Level{L,S}} = T(x)
+Base.convert(::Type{T}, x::Level) where {T<:Real} = T(x.val)
 
 """
     reflevel(x::Level{L,S})
@@ -28,9 +43,10 @@ julia> reflevel(3u"dBm")
 1 mW
 ```
 """
-reflevel(x::Level{L,S}) where {L,S} = S
-reflevel(::Type{Level{L,S}}) where {L,S} = S
-reflevel(::Type{Level{L,S,T}}) where {L,S,T} = S
+function reflevel end
+reflevel(x::Level{L,S}) where {L,S} = unwrap(S)
+reflevel(::Type{Level{L,S}}) where {L,S} = unwrap(S)
+reflevel(::Type{Level{L,S,T}}) where {L,S,T} = unwrap(S)
 
 dimension(x::Gain) = NoDims
 dimension(x::Type{<:Gain}) = NoDims
@@ -62,7 +78,7 @@ end
 
 tolog(L,S,x) = (1+isrootpower(L,S)) * prefactor(L()) * (logfn(L()))(x)
 tolog(L,x) = (1+isrootpower(L)) * prefactor(L()) * (logfn(L()))(x)
-fromlog(L,S,x) = S * expfn(L())( x / ((1+isrootpower(L,S))*prefactor(L())) )
+fromlog(L,S,x) = unwrap(S) * expfn(L())( x / ((1+isrootpower(L,S))*prefactor(L())) )
 fromlog(L,x) = expfn(L())( x / ((1+isrootpower(L))*prefactor(L())) )
 
 function Base.show(io::IO, x::MixedUnits{T,U}) where {T,U}
@@ -99,7 +115,7 @@ Base. /(x::MixedUnits, y::Number) = inv(y) * x
 
 function uconvert(a::MixedUnits{Level{L,S}}, x::Number) where {L,S}
     dimension(a) != dimension(x) && throw(DimensionError(a,x))
-    q1 = uconvert(unit(S)*a.units, linear(x)) / a.units
+    q1 = uconvert(unit(unwrap(S))*a.units, linear(x)) / a.units
     return Level{L,S}(q1) * a.units
 end
 function uconvert(a::MixedUnits{Gain{L}}, x::Gain) where {L}
@@ -111,11 +127,16 @@ function uconvert(a::MixedUnits{<:Gain}, x::Number)
     ustr = replace(string(a), " ", "*")
     error("perhaps you meant `($x)*($ustr)`?")
 end
+function uconvert(a::MixedUnits{Gain{L1,<:Real}}, x::Level{L2,S}) where {L1,L2,S}
+    dimension(a) != dimension(x) && throw(DimensionError(a,x))
+    return Level{L1,S}(x.val)
+end
 
-ustrip(x::Level{L,S}) where {L<:LogInfo, S} = tolog(L,S,x.val/reflevel(x))
+ustrip(x::Level{L,S}) where {L<:LogInfo,S} = tolog(L,S,x.val/reflevel(x))
 ustrip(x::Gain) = x.val
 
 isrootpower(T::Type{<:LogInfo}, y) = isrootpower_dim(T, dimension(y))
+isrootpower(::Type{<:LogInfo}, y::IsRootPowerRatio{T}) where {T} = T
 isrootpower_dim(::Type{<:LogInfo}, y) =
     error("undefined behavior. Please file an issue with the code needed to reproduce.")
 
@@ -159,7 +180,8 @@ Base. /(x::Number, y::Level) = x / y.val
 Base. /(x::Level{L,S}, y::Number) where {L,S} = Level{L,S}(x.val / y)
 Base. /(x::Level{L,S}, y::Quantity) where {L,S} = x.val / y
 Base. /(x::Level{L,S}, y::Level) where {L,S} = x.val / y.val
-Base. /(x::Level{L,S}, y::Gain) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(x) - y.val))
+Base. /(x::Level{L,S}, y::Gain) where {L,S} =
+    Level{L,S}(fromlog(L, S, ustrip(x) - y.val))
 
 Base. /(x::Gain{L}, y::Gain) where {L} = /(promote(x,y)...)
 Base. /(x::Gain{L}, y::Gain{L}) where {L} = Gain{L}(x.val - y.val)
@@ -187,17 +209,18 @@ end
 function Base.promote_rule(::Type{Quantity{T,D,U}}, ::Type{Level{L,R,S}}) where {L,R,S,T,D,U}
     return promote_type(S, Quantity{T,D,U})
 end
+function Base.promote_rule(::Type{Level{L,R,S}}, ::Type{T}) where {L,R,S,T<:Real}
+    return promote_type(S,T)
+end
+function Base.promote_rule(::Type{T}, ::Type{Level{L,R,S}}) where {L,R,S,T<:Real}
+    return promote_type(S,T)
+end
 
 Base.promote_rule(::Type{G1}, ::Type{G2}) where {L,T1,T2, G1<:Gain{L,T1}, G2<:Gain{L,T2}} =
     Gain{L,promote_type(T1,T2)}
 Base.promote_rule(A::Type{G}, B::Type{N}) where {L,T1, G<:Gain{L,T1}, N<:Number} =
     error("no automatic promotion of $A and $B.")
 Base.promote_rule(A::Type{G}, B::Type{L}) where {G<:Gain, L2, L<:Level{L2}} = LogScaled{L2}
-
-Base.convert(::Type{Quantity{T,D,U}}, x::Level) where {T,D,U} =
-    convert(Quantity{T,D,U}, x.val)
-Base.convert(::Type{Quantity{T}}, x::Level) where {T<:Number} = convert(Quantity{T}, x.val)
-Base.convert(::Type{T}, x::Quantity) where {L,S, T<:Level{L,S}} = T(x)
 
 function Base.show(io::IO, x::Gain)
     print(io, x.val, " ", abbr(x))
@@ -220,12 +243,20 @@ function Base.show(io::IO, x::Quantity{<:Union{Level,Gain},D,U}) where {D,U}
 end
 
 """
-    powerratio(::Type{T}, x::Real) where {T<:Number} = convert(T, x)
-Returns the gain as a ratio of power quantities.
+    powerratio(x)
+Treat `x` as a ratio of power quantities (field quantities) and unit-convert to no units.
+
+    powerratio(u::Units{()}, x::Gain)
+    powerratio(u::MixedUnits{<:Gain}, x::Gain)
+Treat `x` as a ratio of power quantities (field quantities) and unit-convert to `u`.
+
+    powerratio(u::Units{()}, x::Real)
+    powerratio(u::MixedUnits{<:Gain, <:Units{()})}, x::Real)
+Fall-back methods so that `powerratio` may be used with real numbers.
 
 It is important to note that this function is undefined for `Quantity{<:Gain}` types. It is
-tempting to make this function transform `-20dB/m` into `0.01/m`, however this means
-something fundamentally different than `-20dB/m`, and cannot be used to calculate
+tempting to make this function transform `-20dB/m` into `0.1/m`, however this means
+something fundamentally different than `-20dB/m`: `0.1/m` cannot be used to calculate
 exponential attenuation.
 """
 function powerratio end
@@ -238,20 +269,20 @@ powerratio(u::T, x::Real) where {L, T <: MixedUnits{Gain{L}, <:Units{()}}} =
     ifelse(isrootpower(L), 0.5, 1) * tolog(L, x) * u
 
 """
-    rootpowerratio(x::Gain)
-Returns the gain as a ratio of root-power quantities (field quantities), a `Real` number.
+    rootpowerratio(x)
+Treat `x` as a ratio of root-power quantities (field quantities) and unit-convert to no units.
 
-    rootpowerratio(::Type{T}, x::Gain) where {T}
-Returns the gain as a ratio of root-power quantities (field quantities), a `Real` number,
-and converts to type `T`.
+    rootpowerratio(u::Units{()}, x::Gain)
+    rootpowerratio(u::MixedUnits{<:Gain}, x::Gain)
+Treat `x` as a ratio of root-power quantities (field quantities) and unit-convert to `u`.
 
-    rootpowerratio(x::Real) = x
-    rootpowerratio(::Type{T}, x::Real) where {T} = convert(T, x)
-Fall-back methods so that `rootpowerratio` may be used generically.
+    rootpowerratio(u::Units{()}, x::Real)
+    rootpowerratio(u::MixedUnits{<:Gain, <:Units{()})}, x::Real)
+Fall-back methods so that `rootpowerratio` may be used with real numbers.
 
 It is important to note that this function is undefined for `Quantity{<:Gain}` types. It is
 tempting to make this function transform `-20dB/m` into `0.1/m`, however this means
-something fundamentally different than `-20dB/m`, and cannot be used to calculate
+something fundamentally different than `-20dB/m`: `0.1/m` cannot be used to calculate
 exponential attenuation.
 
 `fieldratio` and `rootpowerratio` are synonymous, so you can save some typing if you like.
@@ -311,12 +342,12 @@ expfn(x::LogInfo{N,e})  where {N} = exp
 expfn(x::LogInfo{N,B})  where {N,B} = x->B^x
 
 Base.rtoldefault(::Type{Level{L,S,T}}) where {L,S,T} =
-    Base.rtoldefault(typeof(tolog(L,S,oneunit(T)/S)))
+    Base.rtoldefault(typeof(tolog(L,S,oneunit(T)/unwrap(S))))
 Base.rtoldefault(::Type{Gain{L,T}}) where {L,T} = Base.rtoldefault(T)
 
 Base.isapprox(x::Level, y::Level; kwargs...) = isapprox(promote(x,y)...; kwargs...)
 Base.isapprox(x::T, y::T; kwargs...) where {T <: Level} = _isapprox(x, y; kwargs...)
-_isapprox(x::Level{L,S,T}, y::Level{L,S,T}; atol = Level{L,S}(S), kwargs...) where {L,S,T} =
+_isapprox(x::Level{L,S,T}, y::Level{L,S,T}; atol = Level{L,S}(reflevel(x)), kwargs...) where {L,S,T} =
     isapprox(ustrip(x), ustrip(y); atol = ustrip(convert(Level{L,S}, atol)),
         kwargs...)
 
