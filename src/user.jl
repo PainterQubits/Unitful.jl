@@ -32,9 +32,9 @@ This macro extends [`Unitful.abbr`](@ref) to display the new dimension in an
 abbreviated format using the string `abbr`.
 
 Type aliases are created that allow the user to dispatch on
-[`Unitful.Quantity`](@ref) and [`Unitful.Units`](@ref) objects of the newly
-defined dimension. The type alias for quantities is simply given by `name`,
-and the type alias for units is given by `name*"Units"`, e.g. `LengthUnits`.
+[`Unitful.Quantity`](@ref), [`Unitful.Level`](@ref) and [`Unitful.Units`](@ref) objects
+of the newly defined dimension. The type alias for quantities or levels is simply given by
+`name`, and the type alias for units is given by `name*"Units"`, e.g. `LengthUnits`.
 Note that there is also `LengthFreeUnits`, for example, which is an alias for
 dispatching on `FreeUnits` with length dimensions. The aliases are not exported.
 
@@ -55,7 +55,9 @@ macro dimension(symb, abbr, name)
     esc(quote
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
         const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
-        const ($name){T,U} = Unitful.Quantity{T,typeof($s),U}
+        const ($name){T,U} = Union{
+            Unitful.Quantity{T,typeof($s),U},
+            Unitful.Level{L,S,Unitful.Quantity{T,typeof($s),U}} where {L,S}}
         const ($uname){U} = Unitful.Units{U,typeof($s)}
         const ($funame){U} = Unitful.FreeUnits{U,typeof($s)}
         $s
@@ -64,9 +66,9 @@ end
 
 """
     @derived_dimension(name, dims)
-Creates type aliases to allow dispatch on [`Unitful.Quantity`](@ref) and
-[`Unitful.Units`](@ref) objects of a derived dimension, like area, which is just
-length squared. The type aliases are not exported.
+Creates type aliases to allow dispatch on [`Unitful.Quantity`](@ref),
+[`Unitful.Level`](@ref), and [`Unitful.Units`](@ref) objects of a derived dimension,
+like area, which is just length squared. The type aliases are not exported.
 
 `dims` is a [`Unitful.Dimensions`](@ref) object.
 
@@ -81,7 +83,9 @@ macro derived_dimension(name, dims)
     uname = Symbol(name,"Units")
     funame = Symbol(name,"FreeUnits")
     esc(quote
-        const ($name){T,U} = Unitful.Quantity{T,typeof($dims),U}
+        const ($name){T,U} = Union{
+            Unitful.Quantity{T,typeof($dims),U},
+            Unitful.Level{L,S,Unitful.Quantity{T,typeof($dims),U}} where {L,S}}
         const ($uname){U} = Unitful.Units{U,typeof($dims)}
         const ($funame){U} = Unitful.FreeUnits{U,typeof($dims)}
         nothing

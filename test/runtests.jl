@@ -30,7 +30,8 @@ import Unitful:
     Mass,
     Current,
     Temperature,
-    Action
+    Action,
+    Power
 
 import Unitful: LengthUnits, AreaUnits, MassUnits
 
@@ -349,6 +350,9 @@ end
     @test isa(1cd, Luminosity)
     @test isa(2π*rad*1.0m, Length)
     @test isa(u"h", Action)
+    @test isa(3u"dBm", Power)
+    @test isa(3u"dBm*Hz*s", Power)
+
 end
 
 @testset "Mathematics" begin
