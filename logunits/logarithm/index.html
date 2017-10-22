@@ -355,6 +355,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#custom-logarithmic-scales" title="Custom logarithmic scales" class="md-nav__link">
+    Custom logarithmic scales
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#api" title="API" class="md-nav__link">
     API
   </a>
@@ -480,6 +487,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#custom-logarithmic-scales" title="Custom logarithmic scales" class="md-nav__link">
+    Custom logarithmic scales
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#api" title="API" class="md-nav__link">
     API
   </a>
@@ -520,8 +534,8 @@ true
 </pre></div>
 
 
-<p>Currently implemented are <code>dB</code>, <code>dBm</code>, <code>dBV</code>, <code>dBu</code>, <code>dBμV</code>, <code>dBSPL</code>, <code>Np</code>.</p>
-<p>One can also construct logarithmic quantities using the <code>@dB</code> or <code>@Np</code> macros to use an arbitrary reference level:</p>
+<p>Currently implemented are <code>dB</code>, <code>B</code>, <code>dBm</code>, <code>dBV</code>, <code>dBu</code>, <code>dBμV</code>, <code>dBSPL</code>, <code>dBFS</code>, <code>cNp</code>, <code>Np</code>.</p>
+<p>One can also construct logarithmic quantities using the <code>@dB</code>, <code>@B</code>, <code>@cNp</code>, <code>@Np</code> macros to use an arbitrary reference level:</p>
 <div class="codehilite"><pre><span></span>julia&gt; using Unitful: mW, V
 
 julia&gt; @dB 10mW/mW
@@ -538,12 +552,50 @@ julia&gt; @Np e*V/V    # e = 2.71828...
 </pre></div>
 
 
+<p>These macros are exported by default since empirically macros are defined less often than variables and generic functions. When using the macros, the levels are constructed at parse time. The scales themselves are callable as functions if you need to construct a level that way (they are not exported):</p>
+<div class="codehilite"><pre><span></span>julia&gt; using Unitful: dB, mW, V
+
+julia&gt; dB(10mW,mW)
+10.0 dBm
+</pre></div>
+
+
 <p>In calculating the logarithms, the log function appropriate to the scale in question is used (<code>log10</code> for decibels, <code>log</code> for nepers).</p>
-<p>There is an important difference in these two approaches to constructing logarithmic quantities. When we construct <code>3dBm</code>, ultimately the power in <code>mW</code> is being stored, resulting in a lossy conversion. However, <code>0 dBm</code>, the power in <code>mW</code> is calculated and stored, entailing a floating point conversion. This can be avoided by constructing <code>0 dBm</code> as <code>@dB 1mW/mW</code>.</p>
+<p>There is an important difference in these two approaches to constructing logarithmic quantities. When we construct <code>0dBm</code>, the power in <code>mW</code> is calculated and stored, resulting in a lossy floating-point conversion. This can be avoided by constructing <code>0 dBm</code> as <code>@dB 1mW/mW</code>.</p>
+<p>It is important to keep in mind that the reference level is just used to calculate the logarithms, and nothing more. When there is ambiguity about what to do, we fall back to the underlying linear quantities, paying no mind to the reference levels:</p>
+<div class="codehilite"><pre><span></span>julia&gt; using Unitful: mW
+
+julia&gt; (@dB 10mW/1mW) + (@dB 10mW/2mW)
+20 mW
+</pre></div>
+
+
+<p>Addition will be discussed more later.</p>
 <p>Note that logarithmic "units" can only multiply or be multiplied by pure numbers, not other units or quantities. This is done to avoid issues with commutativity and associativity, e.g. <code>3*dB*m^-1 == (3dB)/m</code>, but <code>3*m^-1*dB == (3m^-1)*dB</code> does not make much sense. This is because <code>dB</code> acts more like a constructor than a proper unit. In this package and in the documentation, we take some pains to avoid using the term "logarithmic units" where possible, and the usage and design of this package reflects that.</p>
+<p>The <code>@dB</code> and <code>@Np</code> macros will fail if either a dimensionless number or a ratio of dimensionless numbers is used. This is because the ratio could be of power quantities or of root-power quantities, leading to ambiguities. After all, usually it is the ratio that is dimensionless, not the numerator and denominator that make up the ratio. In some cases it may nonetheless be convenient to have a dimensionless reference level. By providing an extra <code>Bool</code> argument to these macros, you can explicitly choose whether the resulting ratio should be considered a "root-power" or "power" ratio. You can only do this for dimensionless numbers:</p>
+<div class="codehilite"><pre><span></span>julia&gt; @dB 10/1 true   # is a root-power (amplitude) ratio
+20.0 dBFS
+
+julia&gt; @dB 10/1 false  # is not a root-power ratio; is a power ratio
+10.0 dB (power ratio with reference 1)
+</pre></div>
+
+
+<p>Note that <code>dBFS</code> is defined to represent amplitudes relative to 1 in <code>dB</code>, hence the custom display logic.</p>
+<p>Also, you can of course use functions instead of macros:</p>
+<div class="codehilite"><pre><span></span>julia&gt; using Unitful: dB, mW
+
+julia&gt; dB(10,1,true)
+20.0 dBFS
+
+julia&gt; dB(10mW,mW,true)
+ERROR: ArgumentError: when passing a final Bool argument, this can only be used with dimensionless numbers.
+[...]
+</pre></div>
+
+
 <p><a id='Logarithmic-quantities-with-no-reference-level-specified-1'></a></p>
 <h3 id="logarithmic-quantities-with-no-reference-level-specified">Logarithmic quantities with no reference level specified</h3>
-<p>The <code>@dB</code> and <code>@Np</code> macros will fail if either a dimensionless number or a ratio of dimensionless numbers is used. This is because the ratio could be of power quantities or of root-power quantities, leading to ambiguities.</p>
 <p>Logarithmic quantities with no reference level specified typically represent some amount of gain or attenuation, i.e. a ratio which is dimensionless. These can be constructed as, for example, <code>10*dB</code>, which displays similarly (<code>10 dB</code>). The type of this kind of logarithmic quantity is:</p>
 <p><a id='Unitful.Gain' href='#Unitful.Gain'>#</a>
 <strong><code>Unitful.Gain</code></strong> &mdash; <em>Type</em>.</p>
@@ -552,7 +604,7 @@ julia&gt; @Np e*V/V    # e = 2.71828...
 
 
 <p>A logarithmic scale-based gain or attenuation factor. This type has one field, <code>val::T</code>. For example, given a gain of <code>20dB</code>, we have <code>val===20</code>. This type differs from <a href="./#Unitful.Level"><code>Unitful.Level</code></a> in that <code>val</code> is stored after computing the logarithm.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/6e3b9fc93996aa509139970fe41668348f17333e/src/types.jl#L170-L175' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f4c73d6e17de4765affd8209f482b3731221bc44/src/types.jl#L170-L175' class='documenter-source'>source</a><br></p>
 <p>One might expect that any dimensionless quantity should be convertible to a pure number, that is, to <code>x</code> if you had <code>10*log10(x)</code> dB. However, it turns out that in dB, a ratio of powers is defined as <code>10*log10(x)</code>, but a ratio of voltages or other root-power quantities is defined as <code>20*log10(x)</code>. Clearly, converting back from decibels to a real number is ambiguous, and so we have not implemented automatic promotion to avoid incorrect results. You can use <a href="./#Unitful.powerratio"><code>Unitful.powerratio</code></a> to interpret a <code>Gain</code> as a ratio of power quantities, or <a href="./#Unitful.rootpowerratio"><code>Unitful.rootpowerratio</code></a> (equivalently <code>fieldratio</code>) to interpret as a ratio of field quantities.</p>
 <p><a id='"Dimensionful"-logarithmic-quantities?-1'></a></p>
 <h3 id="dimensionful-logarithmic-quantities">"Dimensionful" logarithmic quantities?</h3>
@@ -564,7 +616,8 @@ julia&gt; @Np e*V/V    # e = 2.71828...
 
 
 <p>A logarithmic scale-based level. Details about the logarithmic scale are encoded in <code>L &lt;: LogInfo</code>. <code>S</code> is a reference quantity for the level, not a type. This type has one field, <code>val::T</code>, and the log of the ratio <code>val/S</code> is taken. This type differs from <a href="./#Unitful.Gain"><code>Unitful.Gain</code></a> in that <code>val</code> is a linear quantity.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/6e3b9fc93996aa509139970fe41668348f17333e/src/types.jl#L151-L157' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f4c73d6e17de4765affd8209f482b3731221bc44/src/types.jl#L151-L157' class='documenter-source'>source</a><br></p>
+<p>Actually, the defining characteristic of a <code>Level</code> is that it has a reference level, which may or may not be dimensionful. It usually is, but is not in the case of e.g. <code>dBFS</code>.</p>
 <p>Finally, for completeness we note that both <code>Level</code> and <code>Gain</code> are subtypes of <code>LogScaled</code>:</p>
 <p><a id='Unitful.LogScaled' href='#Unitful.LogScaled'>#</a>
 <strong><code>Unitful.LogScaled</code></strong> &mdash; <em>Type</em>.</p>
@@ -573,7 +626,7 @@ julia&gt; @Np e*V/V    # e = 2.71828...
 
 
 <p>Abstract supertype of <a href="./#Unitful.Level"><code>Unitful.Level</code></a> and <a href="./#Unitful.Gain"><code>Unitful.Gain</code></a>. It is only used in promotion to put levels and gains onto a common log scale.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/6e3b9fc93996aa509139970fe41668348f17333e/src/types.jl#L144-L148' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f4c73d6e17de4765affd8209f482b3731221bc44/src/types.jl#L144-L148' class='documenter-source'>source</a><br></p>
 <p><a id='Multiplication-rules-1'></a></p>
 <h2 id="multiplication-rules">Multiplication rules</h2>
 <p>Multiplying a dimensionless logarithmic quantity by a pure number acts as like it does for linear quantities:</p>
@@ -788,7 +841,7 @@ dBm Hz^-1
 </td> <td align="right">
 
 
-1.9952623149688795 Hz^-1
+†
 
 
 ‡ </td> <td align="right">
@@ -818,7 +871,7 @@ dBm Hz^-1
 </td> </tr> <tr> <td align="right"><strong>3dB</strong></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right"></td> <td align="right">
 
 
-†
+6 dB
 
 
 </td> <td align="right">
@@ -835,10 +888,9 @@ dBm Hz^-1
 
 </td> </tr> </tbody> </table>
 
-<p>‡: <code>1/Hz * 3dB</code> is technically allowed but dumb things can happen when its unclear if a quantity is a root-power or power quantity:</p>
+<p>‡: <code>1/Hz * 3dB</code> could be allowed, technically, but we throw an error its unclear if a quantity is a root-power or power quantity:</p>
 <div class="codehilite"><pre><span></span>julia&gt; u&quot;1/Hz&quot; * u&quot;3dB&quot;
-WARNING: result may be incorrect. Define `Unitful.isrootpower(::Type{&lt;:Unitful.LogInfo}, ::typeof(𝐓))` to fix.
-1.9952623149688795 Hz^-1
+ERROR: undefined behavior. Please file an issue with the code needed to reproduce.
 </pre></div>
 
 
@@ -1072,6 +1124,40 @@ julia&gt; fieldratio(u&quot;Np&quot;, e)
 <blockquote>
 <p>When such data are presented in a table or in a figure, the following condensed notation may be used instead: -0.58 Np (1 μV/m); 25 dB (20 μPa).</p>
 </blockquote>
+<p><a id='Custom-logarithmic-scales-1'></a></p>
+<h2 id="custom-logarithmic-scales">Custom logarithmic scales</h2>
+<p><a id='Unitful.@logscale' href='#Unitful.@logscale'>#</a>
+<strong><code>Unitful.@logscale</code></strong> &mdash; <em>Macro</em>.</p>
+<div class="codehilite"><pre><span></span>@logscale(symb,abbr,name,base,prefactor,irp)
+</pre></div>
+
+
+<p>Define a logarithmic scale. Unlike with units, there is no special treatment for power-of-ten prefixes (decibels and bels are defined separately). However, arbitrary bases are possible, and computationally appropriate <code>log</code> and <code>exp</code> functions are used in calculations when available (e.g. <code>log2</code>, <code>log10</code> for base 2 and base 10, respectively).</p>
+<p>This macro defines a <code>MixedUnits</code> object identified by symbol <code>symb</code>. This can be used to</p>
+<p>This macro also defines another macro available as <code>@symb</code>. For example, <code>@dB</code> in the case of decibels. This can be used to construct <code>Level</code> objects at parse time. Usage is like <code>@dB 3V/1V</code>.</p>
+<p><code>prefactor</code> is the prefactor out in front of the logarithm for this log scale. In all cases it is defined with respect to taking ratios of power quantities. Just divide by two if you want to refer to root-power / field quantities instead.</p>
+<p><code>irp</code> (short for "is root power?") specifies whether the logarithmic scale is defined with respect to ratios of power or root-power quantities. In short: use <code>false</code> if your scale is decibel-like, or <code>true</code> if your scale is neper-like.</p>
+<p>Examples:</p>
+<div class="codehilite"><pre><span></span>julia&gt; using Unitful: V, W
+
+julia&gt; @logscale dΠ &quot;dΠ&quot; Decipies π 10 false
+dΠ
+
+julia&gt; @dΠ π*V/1V
+20.0 dΠ (1 V)
+
+julia&gt; dΠ(π*V, 1V)
+20.0 dΠ (1 V)
+
+julia&gt; @dΠ π^2*V/1V
+40.0 dΠ (1 V)
+
+julia&gt; @dΠ π*W/1W
+10.0 dΠ (1 W)
+</pre></div>
+
+
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f4c73d6e17de4765affd8209f482b3731221bc44/src/user.jl#L296-L337' class='documenter-source'>source</a><br></p>
 <p><a id='API-1'></a></p>
 <h2 id="api">API</h2>
 <p><a id='Unitful.linear' href='#Unitful.linear'>#</a>
@@ -1088,12 +1174,12 @@ linear(x::Number) = x
 <li><code>20dB</code> could be interpreted as either a power or root-power ratio.</li>
 <li>Even if <code>-20dB/m</code> were interpreted as, say, <code>0.01/m</code>, this means something fundamentally different than <code>-20dB/m</code>. <code>0.01/m</code> cannot be used to calculate exponential attenuation.</li>
 </ul>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/6e3b9fc93996aa509139970fe41668348f17333e/src/logarithm.jl#L342-L354' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f4c73d6e17de4765affd8209f482b3731221bc44/src/logarithm.jl#L303-L315' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.reflevel' href='#Unitful.reflevel'>#</a>
 <strong><code>Unitful.reflevel</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>reflevel(x::Level{L,S}) where {L,S} = S
-reflevel(::Type{Level{L,S}}) where {L,S} = S
-reflevel(::Type{Level{L,S,T}}) where {L,S,T} = S
+<div class="codehilite"><pre><span></span>reflevel(x::Level{L,S})
+reflevel(::Type{Level{L,S}})
+reflevel(::Type{Level{L,S,T}})
 </pre></div>
 
 
@@ -1103,37 +1189,50 @@ reflevel(::Type{Level{L,S,T}}) where {L,S,T} = S
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/6e3b9fc93996aa509139970fe41668348f17333e/src/logarithm.jl#L29-L39' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f4c73d6e17de4765affd8209f482b3731221bc44/src/logarithm.jl#L37-L47' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.powerratio' href='#Unitful.powerratio'>#</a>
 <strong><code>Unitful.powerratio</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>powerratio(::Type{T}, x::Real) where {T&lt;:Number} = convert(T, x)
+<div class="codehilite"><pre><span></span>powerratio(x)
 </pre></div>
 
 
-<p>Returns the gain as a ratio of power quantities.</p>
-<p>It is important to note that this function is undefined for <code>Quantity{&lt;:Gain}</code> types. It is tempting to make this function transform <code>-20dB/m</code> into <code>0.01/m</code>, however this means something fundamentally different than <code>-20dB/m</code>, and cannot be used to calculate exponential attenuation.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/6e3b9fc93996aa509139970fe41668348f17333e/src/logarithm.jl#L294-L302' class='documenter-source'>source</a><br></p>
+<p>Treat <code>x</code> as a ratio of power quantities (field quantities) and unit-convert to no units.</p>
+<div class="codehilite"><pre><span></span>powerratio(u::Units{()}, x::Gain)
+powerratio(u::MixedUnits{&lt;:Gain}, x::Gain)
+</pre></div>
+
+
+<p>Treat <code>x</code> as a ratio of power quantities (field quantities) and unit-convert to <code>u</code>.</p>
+<div class="codehilite"><pre><span></span>powerratio(u::Units{()}, x::Real)
+powerratio(u::MixedUnits{&lt;:Gain, &lt;:Units{()})}, x::Real)
+</pre></div>
+
+
+<p>Fall-back methods so that <code>powerratio</code> may be used with real numbers.</p>
+<p>It is important to note that this function is undefined for <code>Quantity{&lt;:Gain}</code> types. It is tempting to make this function transform <code>-20dB/m</code> into <code>0.1/m</code>, however this means something fundamentally different than <code>-20dB/m</code>: <code>0.1/m</code> cannot be used to calculate exponential attenuation.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f4c73d6e17de4765affd8209f482b3731221bc44/src/logarithm.jl#L247-L263' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.rootpowerratio' href='#Unitful.rootpowerratio'>#</a>
 <strong><code>Unitful.rootpowerratio</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>rootpowerratio(x::Gain)
+<div class="codehilite"><pre><span></span>rootpowerratio(x)
 </pre></div>
 
 
-<p>Returns the gain as a ratio of root-power quantities (field quantities), a <code>Real</code> number.</p>
-<div class="codehilite"><pre><span></span>rootpowerratio(::Type{T}, x::Gain) where {T}
+<p>Treat <code>x</code> as a ratio of root-power quantities (field quantities) and unit-convert to no units.</p>
+<div class="codehilite"><pre><span></span>rootpowerratio(u::Units{()}, x::Gain)
+rootpowerratio(u::MixedUnits{&lt;:Gain}, x::Gain)
 </pre></div>
 
 
-<p>Returns the gain as a ratio of root-power quantities (field quantities), a <code>Real</code> number, and converts to type <code>T</code>.</p>
-<div class="codehilite"><pre><span></span>rootpowerratio(x::Real) = x
-rootpowerratio(::Type{T}, x::Real) where {T} = convert(T, x)
+<p>Treat <code>x</code> as a ratio of root-power quantities (field quantities) and unit-convert to <code>u</code>.</p>
+<div class="codehilite"><pre><span></span>rootpowerratio(u::Units{()}, x::Real)
+rootpowerratio(u::MixedUnits{&lt;:Gain, &lt;:Units{()})}, x::Real)
 </pre></div>
 
 
-<p>Fall-back methods so that <code>rootpowerratio</code> may be used generically.</p>
-<p>It is important to note that this function is undefined for <code>Quantity{&lt;:Gain}</code> types. It is tempting to make this function transform <code>-20dB/m</code> into <code>0.1/m</code>, however this means something fundamentally different than <code>-20dB/m</code>, and cannot be used to calculate exponential attenuation.</p>
+<p>Fall-back methods so that <code>rootpowerratio</code> may be used with real numbers.</p>
+<p>It is important to note that this function is undefined for <code>Quantity{&lt;:Gain}</code> types. It is tempting to make this function transform <code>-20dB/m</code> into <code>0.1/m</code>, however this means something fundamentally different than <code>-20dB/m</code>: <code>0.1/m</code> cannot be used to calculate exponential attenuation.</p>
 <p><code>fieldratio</code> and <code>rootpowerratio</code> are synonymous, so you can save some typing if you like.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/6e3b9fc93996aa509139970fe41668348f17333e/src/logarithm.jl#L312-L330' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f4c73d6e17de4765affd8209f482b3731221bc44/src/logarithm.jl#L273-L291' class='documenter-source'>source</a><br></p>
                 
                   
                 
