@@ -376,8 +376,8 @@ macro logscale(symb,abbr,name,base,prefactor,irp)
         function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Number, irp::Bool)
             dimension(num) != dimension(den) && throw(DimensionError(num,den))
             dimension(num) != NoDims &&
-                throw(ArgumentError(string("can only be used with dimensionless numbers ",
-                    "when passing a final Bool argument.")))
+                throw(ArgumentError(string("when passing a final Bool argument, ",
+                    "this can only be used with dimensionless numbers.")))
             T = ifelse(irp, RootPowerRatio, PowerRatio)
             return Level{$(esc(name)), T(den)}(num)
         end

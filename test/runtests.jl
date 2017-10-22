@@ -1034,8 +1034,9 @@ end
 
     @testset "> Implicit construction" begin
         @testset ">> Level" begin
-            @test 20*dBm == (@dB 100mW/mW) == (@dB 100mW/1mW)
-            @test 20*dBV == (@dB 10V/V) == (@dB 10V/1V)
+            @test 20*dBm == (@dB 100mW/mW) == (@dB 100mW/1mW) == dB(100mW,mW) == dB(100mW,1mW)
+            @test 20*dBV == (@dB 10V/V) == (@dB 10V/1V) == dB(10V,V) == dB(10V,1V)
+            @test_throws ArgumentError @dB 10V/V true
         end
 
         @testset ">> Gain" begin

@@ -25,7 +25,8 @@ julia> u"dB"*3 === 3u"dB"
 true
 ```
 
-Currently implemented are `dB`, `B`, `dBm`, `dBV`, `dBu`, `dBμV`, `dBSPL`, `cNp`, `Np`.
+Currently implemented are `dB`, `B`, `dBm`, `dBV`, `dBu`, `dBμV`, `dBSPL`, `dBFS`, `cNp`,
+`Np`.
 
 One can also construct logarithmic quantities using the `@dB`, `@B`, `@cNp`, `@Np` macros to
 use an arbitrary reference level:
@@ -46,13 +47,15 @@ julia> @Np e*V/V    # e = 2.71828...
 1.0 Np (1 V)
 ```
 
-When using the macros, the levels are constructed at parse time. The scales themselves are
-callable as functions if you need to construct a level that way:
+These macros are exported by default since empirically macros are defined less often than
+variables and generic functions. When using the macros, the levels are constructed at parse
+time. The scales themselves are callable as functions if you need to construct a level that
+way (they are not exported):
 
 ```jldoctest
 julia> using Unitful: dB, mW, V
 
-julia> u"dB"(10mW,mW)
+julia> dB(10mW,mW)
 10.0 dBm
 ```
 
@@ -60,10 +63,22 @@ In calculating the logarithms, the log function appropriate to the scale in ques
 (`log10` for decibels, `log` for nepers).
 
 There is an important difference in these two approaches to constructing logarithmic
-quantities. When we construct `3dBm`, ultimately the power in `mW` is being stored,
-resulting in a lossy conversion. However,
-`0 dBm`, the power in `mW` is calculated and stored, entailing a floating point
-conversion. This can be avoided by constructing `0 dBm` as `@dB 1mW/mW`.
+quantities. When we construct `0dBm`, the power in `mW` is calculated and stored,
+resulting in a lossy floating-point conversion. This can be avoided by constructing
+`0 dBm` as `@dB 1mW/mW`.
+
+It is important to keep in mind that the reference level is just used to calculate the
+logarithms, and nothing more. When there is ambiguity about what to do, we fall back
+to the underlying linear quantities, paying no mind to the reference levels:
+
+```jldoctest
+julia> using Unitful: mW
+
+julia> (@dB 10mW/1mW) + (@dB 10mW/2mW)
+20 mW
+```
+
+Addition will be discussed more later.
 
 Note that logarithmic "units" can only multiply or be multiplied by pure numbers, not
 other units or quantities. This is done to avoid issues with commutativity and associativity,
@@ -72,11 +87,40 @@ is because `dB` acts more like a constructor than a proper unit. In this package
 documentation, we take some pains to avoid using the term "logarithmic units" where possible,
 and the usage and design of this package reflects that.
 
-### Logarithmic quantities with no reference level specified
-
 The `@dB` and `@Np` macros will fail if either a dimensionless number or a ratio of
 dimensionless numbers is used. This is because the ratio could be of power quantities or of
-root-power quantities, leading to ambiguities.
+root-power quantities, leading to ambiguities. After all, usually it is the ratio that is
+dimensionless, not the numerator and denominator that make up the ratio. In some cases
+it may nonetheless be convenient to have a dimensionless reference level. By providing an
+extra `Bool` argument to these macros, you can explicitly choose whether the resulting ratio
+should be considered a "root-power" or "power" ratio. You can only do this for dimensionless
+numbers:
+
+```jldoctest
+julia> @dB 10/1 true   # is a root-power (amplitude) ratio
+20.0 dBFS
+
+julia> @dB 10/1 false  # is not a root-power ratio; is a power ratio
+10.0 dB (power ratio with reference 1)
+```
+
+Note that `dBFS` is defined to represent amplitudes relative to 1 in `dB`, hence the
+custom display logic.
+
+Also, you can of course use functions instead of macros:
+
+```jldoctest
+julia> using Unitful: dB, mW
+
+julia> dB(10,1,true)
+20.0 dBFS
+
+julia> dB(10mW,mW,true)
+ERROR: ArgumentError: when passing a final Bool argument, this can only be used with dimensionless numbers.
+[...]
+```
+
+### Logarithmic quantities with no reference level specified
 
 Logarithmic quantities with no reference level specified typically represent some amount of
 gain or attenuation, i.e. a ratio which is dimensionless. These can be constructed as,
@@ -110,6 +154,9 @@ quantities, or `Level`s for short:
 ```@docs
     Unitful.Level
 ```
+
+Actually, the defining characteristic of a `Level` is that it has a reference level,
+which may or may not be dimensionful. It usually is, but is not in the case of e.g. `dBFS`.
 
 Finally, for completeness we note that both `Level` and `Gain` are subtypes of `LogScaled`:
 

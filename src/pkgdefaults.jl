@@ -185,6 +185,9 @@ isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(W))) = false
 isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(V))) = true
 isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(A))) = true
 isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(Pa))) = true
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(W/m^2/Hz))) = false # spectral flux dens.
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(W/m^2))) = false    # intensity
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(𝐋^3)) = false                 # reflectivity
 
 #########
 

@@ -2,6 +2,8 @@ struct IsRootPowerRatio{S,T}
     val::T
 end
 IsRootPowerRatio{S}(x) where {S} = IsRootPowerRatio{S, typeof(x)}(x)
+Base.show(io::IO, x::IsRootPowerRatio{S}) where {S} =
+    print(io, ifelse(S, "root-power ratio", "power ratio"), " with reference ", x.val)
 const PowerRatio{T} = IsRootPowerRatio{false,T}
 const RootPowerRatio{T} = IsRootPowerRatio{true,T}
 dimension(x::IsRootPowerRatio{S,T}) where {S,T} = dimension(T)
@@ -17,7 +19,7 @@ dimension(x::Type{T}) where {T<:Level} = dimension(reflevel(T))
 logunit(x::Level{L,S}) where {L,S} = MixedUnits{Level{L,S}}()
 logunit(x::Type{T}) where {L,S,T<:Level{L,S}} = MixedUnits{Level{L,S}}()
 
-abbr(x::Level{L,S}) where {L,S} = join([abbr(L()), " (", reflevel(x), ")"])
+abbr(x::Level{L,S}) where {L,S} = join([abbr(L()), " (", S, ")"])
 
 function uconvert(a::Units, x::Level)
     dimension(a) != dimension(x) && throw(DimensionError(a,x))
