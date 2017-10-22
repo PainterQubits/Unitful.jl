@@ -51,14 +51,12 @@ macro dimension(symb, abbr, name)
     s = Symbol(symb)
     x = Expr(:quote, name)
     uname = Symbol(name,"Units")
-    uname_old = Symbol(name,"Unit")
     funame = Symbol(name,"FreeUnits")
     esc(quote
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
         const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
         const ($name){T,U} = Unitful.Quantity{T,typeof($s),U}
         const ($uname){U} = Unitful.Units{U,typeof($s)}
-        const ($uname_old){U} = Unitful.Units{U,typeof($s)}
         const ($funame){U} = Unitful.FreeUnits{U,typeof($s)}
         $s
     end)
@@ -81,12 +79,10 @@ Usage examples:
 """
 macro derived_dimension(name, dims)
     uname = Symbol(name,"Units")
-    uname_old = Symbol(name,"Unit")
     funame = Symbol(name,"FreeUnits")
     esc(quote
         const ($name){T,U} = Unitful.Quantity{T,typeof($dims),U}
         const ($uname){U} = Unitful.Units{U,typeof($dims)}
-        const ($uname_old){U} = Unitful.Units{U,typeof($dims)}
         const ($funame){U} = Unitful.FreeUnits{U,typeof($dims)}
         nothing
     end)
