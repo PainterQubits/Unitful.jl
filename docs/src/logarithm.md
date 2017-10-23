@@ -4,6 +4,9 @@ DocTestSetup = quote
 end
 ```
 
+!!! note
+    Logarithmic scales are new to Unitful and should be considered experimental.
+
 Unitful provides a way to use logarithmically-scaled quantities as of v0.4.0. Some
 compromises have been made in striving for logarithmic quantities to be both usable and
 consistent. In the following discussion, for pedagogical purposes, we will assume prior
