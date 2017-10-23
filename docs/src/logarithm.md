@@ -80,12 +80,11 @@ julia> (@dB 10mW/1mW) + (@dB 10mW/2mW)
 
 Addition will be discussed more later.
 
-Note that logarithmic "units" can only multiply or be multiplied by pure numbers, not
-other units or quantities. This is done to avoid issues with commutativity and associativity,
-e.g. `3*dB*m^-1 == (3dB)/m`, but `3*m^-1*dB == (3m^-1)*dB` does not make much sense. This
-is because `dB` acts more like a constructor than a proper unit. In this package and in the
-documentation, we take some pains to avoid using the term "logarithmic units" where possible,
-and the usage and design of this package reflects that.
+Note that logarithmic "units" can only multiply or be multiplied by pure numbers and linear
+units, not other logarithmic units or quantities. This is done to avoid issues with
+commutativity and associativity, e.g. `3*dB*m^-1 == (3dB)/m`, but `3*m^-1*dB == (3m^-1)*dB`
+does not make much sense. This is because `dB` acts more like a constructor than a proper
+unit.
 
 The `@dB` and `@Np` macros will fail if either a dimensionless number or a ratio of
 dimensionless numbers is used. This is because the ratio could be of power quantities or of
