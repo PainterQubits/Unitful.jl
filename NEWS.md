@@ -1,10 +1,12 @@
 - v0.4.0
-  - Introduce logarithmic quantities.
+  - Introduce logarithmic quantities (experimental!)
   - Update syntax for Julia 0.6 and reorganize code for clarity.
   - Redefine `ustrip(x::Quantity) = ustrip(x.val)`. In most cases, this is unlikely to
     affect user code. The generic fallback `ustrip(x::Number)` remains unchanged.
   - `isapprox(1.0u"m",5)` returns `false` instead of throwing a `DimensionError`,
     in keeping with the behavior of an equality check (`==`).
+  - Display of some units has changed to match their symbols [#104](https://github.com/ajkeller34/Unitful.jl/issues/104).
+  - Don't export `cd` from Unitful.DefaultSymbols in order to avoid conflicts [#102](https://github.com/ajkeller34/Unitful.jl/issues/102).
   - Deprecated `dimension(x::AbstractArray{T}) where T<:Number`, use broadcasting instead.
   - Deprecated `dimension(x::AbstractArray{T}) where T<:Units`, use broadcasting instead.
   - Deprecated `ustrip(A::AbstractArray{T}) where T<:Number`, use broadcasting instead.
