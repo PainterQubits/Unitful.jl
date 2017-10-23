@@ -194,13 +194,14 @@ isrootpower_dim(::Type{<:LogInfo}, ::typeof(𝐋^3)) = false                 # r
 # `using Unitful.DefaultSymbols` will bring the following into the calling namespace:
 # - Dimensions 𝐋,𝐌,𝐓,𝐈,𝚯,𝐉,𝐍
 # - Base and derived SI units, with SI prefixes
+#   - Candela conflicts with `Base.cd` so it is not brought in (issue #102)
 # - Degrees: °
 
 # The following line has two different character encodings for μ
 const si_prefixes = (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
     Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
 
-const si_no_prefix = (:m, :s, :A, :K, :cd, :g, :mol, :rad, :sr, :Hz, :N, :Pa,
+const si_no_prefix = (:m, :s, :A, :K, :g, :mol, :rad, :sr, :Hz, :N, :Pa, #:cd,
     :J, :W, :C, :V, :F, :Ω, :S, :Wb, :T, :H, :°C, :lm, :lx, :Bq, :Gy, :Sv, :kat)
 
 baremodule DefaultSymbols

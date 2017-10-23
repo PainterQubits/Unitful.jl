@@ -51,7 +51,8 @@ retrieve them from Unitful in one of three ways:
    calling namespace:
      - Dimensions `𝐋,𝐌,𝐓,𝐈,𝚯,𝐉,𝐍` for length, mass, time, current, temperature,
      luminosity, and amount, respectively.
-     - Base and derived SI units, with SI prefixes.
+     - Base and derived SI units, with SI prefixes (except for `cd`, which conflicts
+       with `Base.cd`)
      - `°` (degrees)
   If you have been using the [SIUnits.jl](https://github.com/keno/SIUnits.jl)
   package, this is not unlike typing `using SIUnits.ShortUnits` with that package.
