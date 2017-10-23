@@ -32,9 +32,9 @@ This macro extends [`Unitful.abbr`](@ref) to display the new dimension in an
 abbreviated format using the string `abbr`.
 
 Type aliases are created that allow the user to dispatch on
-[`Unitful.Quantity`](@ref) and [`Unitful.Units`](@ref) objects of the newly
-defined dimension. The type alias for quantities is simply given by `name`,
-and the type alias for units is given by `name*"Units"`, e.g. `LengthUnits`.
+[`Unitful.Quantity`](@ref), [`Unitful.Level`](@ref) and [`Unitful.Units`](@ref) objects
+of the newly defined dimension. The type alias for quantities or levels is simply given by
+`name`, and the type alias for units is given by `name*"Units"`, e.g. `LengthUnits`.
 Note that there is also `LengthFreeUnits`, for example, which is an alias for
 dispatching on `FreeUnits` with length dimensions. The aliases are not exported.
 
@@ -51,14 +51,14 @@ macro dimension(symb, abbr, name)
     s = Symbol(symb)
     x = Expr(:quote, name)
     uname = Symbol(name,"Units")
-    uname_old = Symbol(name,"Unit")
     funame = Symbol(name,"FreeUnits")
     esc(quote
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
         const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
-        const ($name){T,U} = Unitful.Quantity{T,typeof($s),U}
+        const ($name){T,U} = Union{
+            Unitful.Quantity{T,typeof($s),U},
+            Unitful.Level{L,S,Unitful.Quantity{T,typeof($s),U}} where {L,S}}
         const ($uname){U} = Unitful.Units{U,typeof($s)}
-        const ($uname_old){U} = Unitful.Units{U,typeof($s)}
         const ($funame){U} = Unitful.FreeUnits{U,typeof($s)}
         $s
     end)
@@ -66,9 +66,9 @@ end
 
 """
     @derived_dimension(name, dims)
-Creates type aliases to allow dispatch on [`Unitful.Quantity`](@ref) and
-[`Unitful.Units`](@ref) objects of a derived dimension, like area, which is just
-length squared. The type aliases are not exported.
+Creates type aliases to allow dispatch on [`Unitful.Quantity`](@ref),
+[`Unitful.Level`](@ref), and [`Unitful.Units`](@ref) objects of a derived dimension,
+like area, which is just length squared. The type aliases are not exported.
 
 `dims` is a [`Unitful.Dimensions`](@ref) object.
 
@@ -81,12 +81,12 @@ Usage examples:
 """
 macro derived_dimension(name, dims)
     uname = Symbol(name,"Units")
-    uname_old = Symbol(name,"Unit")
     funame = Symbol(name,"FreeUnits")
     esc(quote
-        const ($name){T,U} = Unitful.Quantity{T,typeof($dims),U}
+        const ($name){T,U} = Union{
+            Unitful.Quantity{T,typeof($dims),U},
+            Unitful.Level{L,S,Unitful.Quantity{T,typeof($dims),U}} where {L,S}}
         const ($uname){U} = Unitful.Units{U,typeof($dims)}
-        const ($uname_old){U} = Unitful.Units{U,typeof($dims)}
         const ($funame){U} = Unitful.FreeUnits{U,typeof($dims)}
         nothing
     end)
@@ -294,6 +294,119 @@ base SI units.
 @inline upreferred(x::FixedUnits) = x
 
 """
+    @logscale(symb,abbr,name,base,prefactor,irp)
+Define a logarithmic scale. Unlike with units, there is no special treatment for
+power-of-ten prefixes (decibels and bels are defined separately). However, arbitrary
+bases are possible, and computationally appropriate `log` and `exp` functions are used
+in calculations when available (e.g. `log2`, `log10` for base 2 and base 10, respectively).
+
+This macro defines a `MixedUnits` object identified by symbol `symb`. This can be used
+to
+
+This macro also defines another macro available as `@symb`. For example, `@dB` in the case
+of decibels. This can be used to construct `Level` objects at parse time. Usage is like
+`@dB 3V/1V`.
+
+`prefactor` is the prefactor out in front of the logarithm for this log scale.
+In all cases it is defined with respect to taking ratios of power quantities. Just divide
+by two if you want to refer to root-power / field quantities instead.
+
+`irp` (short for "is root power?") specifies whether the logarithmic scale is defined
+with respect to ratios of power or root-power quantities. In short: use `false` if your scale
+is decibel-like, or `true` if your scale is neper-like.
+
+Examples:
+```jldoctest
+julia> using Unitful: V, W
+
+julia> @logscale dΠ "dΠ" Decipies π 10 false
+dΠ
+
+julia> @dΠ π*V/1V
+20.0 dΠ (1 V)
+
+julia> dΠ(π*V, 1V)
+20.0 dΠ (1 V)
+
+julia> @dΠ π^2*V/1V
+40.0 dΠ (1 V)
+
+julia> @dΠ π*W/1W
+10.0 dΠ (1 W)
+```
+"""
+macro logscale(symb,abbr,name,base,prefactor,irp)
+    quote
+        Unitful.abbr(::Unitful.LogInfo{$(QuoteNode(name))}) = $abbr
+
+        const $(esc(name)) = Unitful.LogInfo{$(QuoteNode(name)), $base, $prefactor}
+        Unitful.isrootpower(::Type{$(esc(name))}) = $irp
+
+        const $(esc(symb)) = Unitful.MixedUnits{Unitful.Gain{$(esc(name))}}()
+
+        macro $(esc(symb))(::Union{Real,Symbol})
+            throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
+        end
+
+        macro $(esc(symb))(expr::Expr)
+            expr.args[1] != :/ &&
+                throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
+            length(expr.args) != 3 &&
+                throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
+            return Expr(:call, $(esc(symb)), expr.args[2], expr.args[3])
+        end
+
+        macro $(esc(symb))(expr::Expr, tf::Bool)
+            expr.args[1] != :/ &&
+                throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
+            length(expr.args) != 3 &&
+                throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
+            return Expr(:call, $(esc(symb)), expr.args[2], expr.args[3], tf)
+        end
+
+        function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Number)
+            dimension(num) != dimension(den) && throw(DimensionError(num,den))
+            dimension(num) == NoDims &&
+                throw(ArgumentError(string("to use with dimensionless numbers, pass a ",
+                    "final `Bool` argument: true if the ratio is a root-power ratio, ",
+                    "false otherwise.")))
+            return Level{$(esc(name)), den}(num)
+        end
+
+        function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Number, irp::Bool)
+            dimension(num) != dimension(den) && throw(DimensionError(num,den))
+            dimension(num) != NoDims &&
+                throw(ArgumentError(string("when passing a final Bool argument, ",
+                    "this can only be used with dimensionless numbers.")))
+            T = ifelse(irp, RootPowerRatio, PowerRatio)
+            return Level{$(esc(name)), T(den)}(num)
+        end
+
+        function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Units)
+            $(esc(symb))(num, 1*den)
+        end
+
+        function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Units, irp::Bool)
+            $(esc(symb))(num, 1*den, irp)
+        end
+
+        $(esc(symb))
+    end
+end
+
+"""
+    @logunit(symb, abbr, logscale, reflevel)
+Defines a logarithmic unit. For examples see `src/pkgdefaults.jl`.
+"""
+macro logunit(symb, abbr, logscale, reflevel)
+    quote
+        Unitful.abbr(::Unitful.Level{$(esc(logscale)), $(esc(reflevel))}) = $abbr
+        const $(esc(symb)) =
+            Unitful.MixedUnits{Unitful.Level{$(esc(logscale)), $(esc(reflevel))}}()
+    end
+end
+
+"""
     @u_str(unit)
 String macro to easily recall units, dimensions, or quantities defined in
 unit modules that have been registered with [`Unitful.register`](@ref).
@@ -373,6 +486,7 @@ end
 
 replace_value(literal::Number) = literal
 
+ustrcheck_bool(::MixedUnits) = true
 ustrcheck_bool(::Units) = true
 ustrcheck_bool(::Dimensions) = true
 ustrcheck_bool(::Quantity) = true

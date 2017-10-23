@@ -1,7 +1,7 @@
 site_name:        Unitful.jl
 repo_url:         https://github.com/ajkeller34/Unitful.jl
-site_description: Package for units.
-site_author:      Andrew Keller
+site_description: Performant and expressive calculations with arbitrary units.
+site_author:      Andrew J. Keller
 
 theme: material
 extra:
@@ -33,6 +33,7 @@ pages:
 - Conversion / promotion: conversion.md
 - Manipulating units: manipulations.md
 - How units are displayed: display.md
+- Logarithmic scales: logarithm.md
 - Extending Unitful: extending.md
 - Troubleshooting: trouble.md
 - License: LICENSE.md

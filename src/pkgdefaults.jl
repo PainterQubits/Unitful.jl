@@ -10,6 +10,8 @@
 @dimension 𝐉 "𝐉" Luminosity
 @dimension 𝐍 "𝐍" Amount
 
+include("temperature.jl")
+
 # Define derived dimensions.
 @derived_dimension Area             𝐋^2
 @derived_dimension Volume           𝐋^3
@@ -160,6 +162,32 @@ Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
 
 # Force
 @unit lbf       "lbf"      PoundsForce  1lb*ge                  false
+
+#########
+# Logarithmic scales and units
+
+@logscale dB    "dB"       Decibel      10      10      false
+@logscale B     "B"        Bel          10      1       false
+@logscale Np    "Np"       Neper        e       1//2    true
+@logscale cNp   "cNp"      Centineper   e       50      true
+
+@logunit  dBm   "dBm"      Decibel      1mW
+@logunit  dBV   "dBV"      Decibel      1V
+@logunit  dBu   "dBu"      Decibel      sqrt(0.6)V
+@logunit  dBμV  "dBμV"     Decibel      1μV
+@logunit  dBSPL "dBSPL"    Decibel      20μPa
+@logunit  dBFS  "dBFS"     Decibel      RootPowerRatio(1)
+
+const dBµV = dBμV   # different character encoding of μ
+
+# TODO: some more dimensions?
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(W))) = false
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(V))) = true
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(A))) = true
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(Pa))) = true
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(W/m^2/Hz))) = false # spectral flux dens.
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(W/m^2))) = false    # intensity
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(𝐋^3)) = false                 # reflectivity
 
 #########
 
