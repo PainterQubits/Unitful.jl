@@ -3,7 +3,7 @@ module Unitful
 
 import Base: ==, <, <=, +, -, *, /, //, ^
 import Base: show, convert
-import Base: abs, abs2, float, fma, muladd, inv, sqrt, cbrt
+import Base: abs, abs2, angle, float, fma, muladd, inv, sqrt, cbrt
 import Base: min, max, floor, ceil, real, imag, conj
 import Base: exp, exp10, exp2, expm1, log, log10, log1p, log2
 import Base: sin, cos, tan, cot, sec, csc, atan2, cis, vecnorm

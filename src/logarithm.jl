@@ -15,7 +15,10 @@ prefactor(::LogInfo{N,B,P}) where {N,B,P} = P
 
 dimension(x::Level) = dimension(reflevel(x))
 dimension(x::Type{T}) where {T<:Level} = dimension(reflevel(T))
-
+function Base.float(x::Level{L,S}) where {L,S}
+    v = float(x.val)
+    return Level{L,S,typeof(v)}(v)
+end
 logunit(x::Level{L,S}) where {L,S} = MixedUnits{Level{L,S}}()
 logunit(x::Type{T}) where {L,S,T<:Level{L,S}} = MixedUnits{Level{L,S}}()
 
@@ -52,7 +55,10 @@ reflevel(::Type{Level{L,S,T}}) where {L,S,T} = unwrap(S)
 
 dimension(x::Gain) = NoDims
 dimension(x::Type{<:Gain}) = NoDims
-
+function Base.float(x::Gain{L}) where {L}
+    v = float(x.val)
+    return Gain{L,typeof(v)}(v)
+end
 logunit(x::Gain{L}) where {L} = MixedUnits{Gain{L}}()
 logunit(x::Type{T}) where {L, T<:Gain{L}} = MixedUnits{Gain{L}}()
 

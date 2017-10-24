@@ -1,3 +1,8 @@
+- v0.4.1
+  - Add `dBΩ` and `dBS` to permit working with impedances and admittances in dB. These are
+    used in the Touchstone format and in microwave measurements.
+  - Implement `angle` for `Quantity{<:Complex}`.
+  - Implement `float` for `Gain`, `Level`.
 - v0.4.0
   - Introduce logarithmic quantities (experimental!)
   - Update syntax for Julia 0.6 and reorganize code for clarity.

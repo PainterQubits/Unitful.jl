@@ -191,6 +191,7 @@ end
 
 abs(x::Quantity) = Quantity(abs(x.val), unit(x))
 abs2(x::Quantity) = Quantity(abs2(x.val), unit(x)*unit(x))
+angle(x::Quantity{<:Complex}) = angle(x.val)
 
 copysign(x::Quantity, y::Number) = Quantity(copysign(x.val,y/unit(y)), unit(x))
 flipsign(x::Quantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), unit(x))

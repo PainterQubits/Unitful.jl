@@ -488,15 +488,14 @@ end
         @test @inferred(csc(π*rad/2)) == 1
         @test @inferred(sec(0.0*rad)) == 1
         @test @inferred(cot(π*rad/4)) ≈ 1
-        @test @inferred(sin(90.0°)) == 1
-            # note that there is a type instability for sind(90) on 0.5.1 which
-            # is gone in the nightlies, so for now I changed 90° to 90.0°
+        @test @inferred(sin(90°)) == 1
         @test @inferred(cos(0.0°)) == 1
         @test @inferred(tan(45°)) == 1
         @test @inferred(csc(90°)) == 1
         @test @inferred(sec(0°)) == 1
         @test @inferred(cot(45°)) == 1
         @test @inferred(atan2(m*sqrt(3),1m)) ≈ 60°
+        @test @inferred(angle((3im)*V)) ≈ 90°
     end
     @testset "> Exponentials and logarithms" begin
         for f in (exp, exp10, exp2, expm1, log, log10, log1p, log2)
@@ -1077,6 +1076,8 @@ end
     end
 
     @testset "> Conversion" begin
+        @test float(3dB) == 3.0dB
+        @test float(@dB 3V/1V) === @dB 3.0V/1V
         @test uconvert(V, (@dB 3V/2.14V)) === 3V
         @test uconvert(V, (@dB 3V/1V)) === 3V
         @test uconvert(mW/Hz, 0dBm/Hz) == 1mW/Hz

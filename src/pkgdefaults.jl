@@ -177,6 +177,8 @@ Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
 @logunit  dBμV  "dBμV"     Decibel      1μV
 @logunit  dBSPL "dBSPL"    Decibel      20μPa
 @logunit  dBFS  "dBFS"     Decibel      RootPowerRatio(1)
+@logunit  dBΩ   "dBΩ"      Decibel      1Ω
+@logunit  dBS   "dBS"      Decibel      1S
 
 const dBµV = dBμV   # different character encoding of μ
 
@@ -188,6 +190,8 @@ isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(Pa))) = true
 isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(W/m^2/Hz))) = false # spectral flux dens.
 isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(W/m^2))) = false    # intensity
 isrootpower_dim(::Type{<:LogInfo}, ::typeof(𝐋^3)) = false                 # reflectivity
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(Ω))) = true
+isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(S))) = true
 
 #########
 
