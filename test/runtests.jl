@@ -1078,30 +1078,32 @@ end
     @testset "> Conversion" begin
         @test float(3dB) == 3.0dB
         @test float(@dB 3V/1V) === @dB 3.0V/1V
+
         @test uconvert(V, (@dB 3V/2.14V)) === 3V
         @test uconvert(V, (@dB 3V/1V)) === 3V
         @test uconvert(mW/Hz, 0dBm/Hz) == 1mW/Hz
         @test uconvert(mW/Hz, (@dB 1mW/mW)/Hz) === 1mW/Hz
-
         @test uconvert(dB, 1Np) ≈ 8.685889638065037dB
+        @test uconvert(dB, 10dB*m/mm) == 10000dB
+
         @test convert(typeof(1.0dB), 1Np) ≈ 8.685889638065037dB
         @test convert(typeof(1.0dBm), 1W) == 30.0dBm
         @test_throws DimensionError convert(typeof(1.0dBm), 1V)
         @test convert(typeof(3dB), 3dB) === 3dB
         @test convert(typeof(3.0dB), 3dB) === 3.0dB
 
-        @test isapprox(fieldratio(NoUnits, 6.02dB), 2.0, atol=0.001)
-        @test fieldratio(NoUnits, 1Np) ≈ e
-        @test fieldratio(Np, e) == 1Np
-        @test fieldratio(NoUnits, 1) == 1
-        @test fieldratio(NoUnits, 20dB) == 10
-        @test fieldratio(dB, 10) == 20dB
-        @test isapprox(powerratio(NoUnits, 3.01dB), 2.0, atol=0.001)
-        @test powerratio(NoUnits, 1Np) == e^2
-        @test powerratio(Np, e^2) == 1Np
-        @test powerratio(NoUnits, 1) == 1
-        @test powerratio(NoUnits, 20dB) == 100
-        @test powerratio(dB, 100) == 20dB
+        @test isapprox(uconvertrp(NoUnits, 6.02dB), 2.0, atol=0.001)
+        @test uconvertrp(NoUnits, 1Np) ≈ e
+        @test uconvertrp(Np, e) == 1Np
+        @test uconvertrp(NoUnits, 1) == 1
+        @test uconvertrp(NoUnits, 20dB) == 10
+        @test uconvertrp(dB, 10) == 20dB
+        @test isapprox(uconvertp(NoUnits, 3.01dB), 2.0, atol=0.001)
+        @test uconvertp(NoUnits, 1Np) == e^2
+        @test uconvertp(Np, e^2) == 1Np
+        @test uconvertp(NoUnits, 1) == 1
+        @test uconvertp(NoUnits, 20dB) == 100
+        @test uconvertp(dB, 100) == 20dB
 
         @test linear(@dB(1mW/mW)/Hz) === 1mW/Hz
         @test linear(@dB(1.4V/2.8V)/s) === 1.4V/s

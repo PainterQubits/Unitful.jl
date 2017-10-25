@@ -138,9 +138,9 @@ that is, to `x` if you had `10*log10(x)` dB. However, it turns out that in dB, a
 powers is defined as `10*log10(x)`, but a ratio of voltages or other root-power quantities
 is defined as `20*log10(x)`. Clearly, converting back from decibels to a real number is
 ambiguous, and so we have not implemented automatic promotion to avoid incorrect results.
-You can use [`Unitful.powerratio`](@ref) to interpret a `Gain` as a ratio of power
-quantities, or [`Unitful.rootpowerratio`](@ref) (equivalently `fieldratio`) to interpret
-as a ratio of field quantities.
+You can use [`Unitful.uconvertp`](@ref) to interpret a `Gain` as a ratio of power
+quantities (hence the `p` in `uconvertp`), or [`Unitful.uconvertrp`](@ref) to interpret as
+a ratio of root-power (field) quantities.
 
 ### "Dimensionful" logarithmic quantities?
 
@@ -807,39 +807,30 @@ julia> linear(12)
 
 Linearizing a `Quantity{<:Gain}` or a `Gain` to a real number is ambiguous, because the real
 number may represent a ratio of powers or a ratio of root-power (field) quantities. We
-implement [`Unitful.powerratio`](@ref) and [`Unitful.rootpowerratio`](@ref) which may be
+implement [`Unitful.uconvertp`](@ref) and [`Unitful.uconvertrp`](@ref) which may be
 thought of as disambiguated `uconvert` functions. There is a one argument version that
 assumes you are converting to a unitless number. These functions can take either a `Gain`
 or a `Real` so that they may be used somewhat generically.
 
 ```jldoctest
-julia> fieldratio(NoUnits, 20u"dB")    # the first argument is optional when it is `NoUnits`
+julia> uconvertrp(NoUnits, 20u"dB")    # the first argument is optional when it is `NoUnits`
 10.0
 
-julia> fieldratio(20u"dB")
+julia> uconvertrp(20u"dB")
 10.0
 
-julia> powerratio(NoUnits, 20u"dB")  
+julia> uconvertp(NoUnits, 20u"dB")  
 100.0
 
-julia> powerratio(u"dB", 100)
+julia> uconvertp(u"dB", 100)
 20.0 dB
 
-julia> powerratio(u"Np", e^2)
+julia> uconvertp(u"Np", e^2)
 1.0 Np
 
-julia> fieldratio(u"Np", e)
+julia> uconvertrp(u"Np", e)
 1//1 Np
 ```
-
-To save typing you can use `fieldratio` instead of `rootpowerratio`,
-although according to the infallible source
-[Wikipedia](https://en.wikipedia.org/wiki/Decibel#Field_quantities_and_root-power_quantities):
-
-> The term root-power quantity is introduced by ISO Standard 80000-1:2009 as a substitute
-> of field quantity. The term field quantity is deprecated by that standard.
-
-I would check the primary source but I'm too cheap to pay for the ISO standard. Sorry!
 
 ## Notation
 
@@ -870,6 +861,6 @@ displaying logarithmic quantities:
 ```@docs
     Unitful.linear
     Unitful.reflevel
-    Unitful.powerratio
-    Unitful.rootpowerratio
+    Unitful.uconvertp
+    Unitful.uconvertrp
 ```

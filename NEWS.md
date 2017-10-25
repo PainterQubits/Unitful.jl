@@ -1,8 +1,18 @@
-- v0.4.1
+- v0.5.0
   - Add `dBΩ` and `dBS` to permit working with impedances and admittances in dB. These are
     used in the Touchstone format and in microwave measurements.
   - Implement `angle` for `Quantity{<:Complex}`.
   - Implement `float` for `Gain`, `Level`.
+  - Replace `fieldratio` and `rootpowerratio` with `uconvertrp`.
+    - Permits unit conversion between `NoUnits` and `dB`, etc. by presuming unitless ratios
+      are of root-power quantities (hence the `rp` after `uconvert`).
+      This fixes the prefactor in front of the logarithm.
+    - `uconvertrp` has generic fallbacks and can be used as a drop-in replacement for
+      `uconvert` otherwise.
+  - Likewise, replace `powerratio` with `uconvertp` for ratios of power quantities.
+  - Introduce `convertrp` and `convertp`. These are like `convert` but they make
+    similar assumptions about unitless ratios being of power or root-power quantities,
+    respectively.
 - v0.4.0
   - Introduce logarithmic quantities (experimental!)
   - Update syntax for Julia 0.6 and reorganize code for clarity.

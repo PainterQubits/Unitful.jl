@@ -24,11 +24,6 @@ logunit(x::Type{T}) where {L,S,T<:Level{L,S}} = MixedUnits{Level{L,S}}()
 
 abbr(x::Level{L,S}) where {L,S} = join([abbr(L()), " (", S, ")"])
 
-function uconvert(a::Units, x::Level)
-    dimension(a) != dimension(x) && throw(DimensionError(a,x))
-    return uconvert(a, x.val)
-end
-uconvert(a::Units, x::Quantity{<:Level}) = uconvert(a, linear(x))
 Base.convert(::Type{LogScaled{L1}}, x::Level{L2,S}) where {L1,L2,S} = Level{L1,S}(x.val)
 Base.convert(T::Type{<:Level}, x::Level) = T(x.val)
 Base.convert(::Type{Quantity{T,D,U}}, x::Level) where {T,D,U} =
@@ -121,24 +116,41 @@ Base. *(x::MixedUnits, y::Number) = y * x
 Base. /(x::Number, y::MixedUnits) = error("cannot divide out logarithmic units; try `linear`.")
 Base. /(x::MixedUnits, y::Number) = inv(y) * x
 
+function uconvert(a::Units, x::Level)
+    dimension(a) != dimension(x) && throw(DimensionError(a,x))
+    return uconvert(a, x.val)
+end
+uconvert(a::Units, x::Quantity{<:Level}) = uconvert(a, linear(x))
+uconvert(a::Units, x::Quantity{<:Gain}) = uconvert(a, linear(x))
 function uconvert(a::MixedUnits{Level{L,S}}, x::Number) where {L,S}
     dimension(a) != dimension(x) && throw(DimensionError(a,x))
     q1 = uconvert(unit(unwrap(S))*a.units, linear(x)) / a.units
     return Level{L,S}(q1) * a.units
 end
+
 function uconvert(a::MixedUnits{Gain{L}}, x::Gain) where {L}
     dimension(a) != dimension(x) && throw(DimensionError(a,x))
     return convert(Gain{L}, x)
 end
 function uconvert(a::MixedUnits{<:Gain}, x::Number)
     dimension(a) != dimension(x) && throw(DimensionError(a,x))
-    ustr = replace(string(a), " ", "*")
-    error("perhaps you meant `($x)*($ustr)`?")
+    error("ambiguous; use `uconvertr` or `uconvertrp`.")
+end
+function uconvert(a::MixedUnits{Gain{L}}, x::Quantity) where {L}
+    dimension(a) != dimension(x) && throw(DimensionError(a,x))
+    convert(Gain{L}, x.val) * convfact(unit(a), unit(x)) * unit(a)
 end
 function uconvert(a::MixedUnits{Gain{L1,<:Real}}, x::Level{L2,S}) where {L1,L2,S}
     dimension(a) != dimension(x) && throw(DimensionError(a,x))
     return Level{L1,S}(x.val)
 end
+
+
+# function uconvertrp(a::MixedUnits{<:Gain}, x::Number)
+#     dimension(a) != dimension(x) && throw(DimensionError(a,x))
+#
+# end
+
 
 ustrip(x::Level{L,S}) where {L<:LogInfo,S} = tolog(L,S,x.val/reflevel(x))
 ustrip(x::Gain) = x.val
@@ -180,7 +192,7 @@ Base. *(x::Gain{L}, y::Gain) where {L} = *(promote(x,y)...)
 Base. *(x::Gain{L}, y::Gain{L}) where {L} = Gain{L}(x.val + y.val)     # contentious?
 
 Base. *(x::Quantity, y::Gain{L}) where {L} =
-    isrootpower(L, x) ? rootpowerratio(y) * x : powerratio(y) * x
+    isrootpower(L, x) ? uconvertrp(NoUnits, y) * x : uconvertp(NoUnits, y) * x
 Base. *(x::Gain, y::Quantity) = *(y,x)
 
 # Division
@@ -251,60 +263,58 @@ function Base.show(io::IO, x::Quantity{<:Union{Level,Gain},D,U}) where {D,U}
 end
 
 """
-    powerratio(x)
-Treat `x` as a ratio of power quantities (field quantities) and unit-convert to no units.
+    uconvertp(u::Units, x)
+    uconvertp(u::MixedUnits, x)
+Generically, this is the same as [`Unitful.uconvert`](@ref). In cases where unit conversion
+would be ambiguous without further information (e.g. `uconvert(dB, 10)`), `uconvertp`
+presumes ratios are of root-power quantities.
 
-    powerratio(u::Units{()}, x::Gain)
-    powerratio(u::MixedUnits{<:Gain}, x::Gain)
-Treat `x` as a ratio of power quantities (field quantities) and unit-convert to `u`.
+It is important to note that careless use of this function can lead to erroneous calculations.
+Consider `Quantity{<:Gain}` types: it is tempting to use this to transform `-20dB/m` into
+`0.1/m`, however this means something fundamentally different than `-20dB/m`. Consider what
+happens when you try to compute exponential attenuation by multiplying `0.1/m` by a length.
 
-    powerratio(u::Units{()}, x::Real)
-    powerratio(u::MixedUnits{<:Gain, <:Units{()})}, x::Real)
-Fall-back methods so that `powerratio` may be used with real numbers.
+Examples:
+```jldoctest
+julia> using Unitful
 
-It is important to note that this function is undefined for `Quantity{<:Gain}` types. It is
-tempting to make this function transform `-20dB/m` into `0.1/m`, however this means
-something fundamentally different than `-20dB/m`: `0.1/m` cannot be used to calculate
-exponential attenuation.
+julia> uconvertp(u"dB", 10)
+20 dB
+
+julia> uconvertp(NoUnits, 20u"dB")
+10
+```
 """
-function powerratio end
-powerratio(x) = powerratio(NoUnits, x)
-powerratio(::Units{()}, x::Gain{L}) where {L} =
+function uconvertp end
+uconvertp(u, x) = uconvert(u, x)    # fallback
+uconvertp(::Units{()}, x::Gain{L}) where {L} =
     fromlog(L, ifelse(isrootpower(L), 2, 1)*x.val)
-powerratio(::Units{()}, x::Real) = x
-powerratio(u::MixedUnits{<:Gain}, x::Gain) = uconvert(u, x)
-powerratio(u::T, x::Real) where {L, T <: MixedUnits{Gain{L}, <:Units{()}}} =
+uconvertp(u::T, x::Real) where {L, T <: MixedUnits{Gain{L}, <:Units{()}}} =
     ifelse(isrootpower(L), 0.5, 1) * tolog(L, x) * u
+function uconvertp(a::MixedUnits{Gain{L}}, x::Number) where {L}
+    dimension(a) != dimension(x) && throw(DimensionError(a,x))
+
+end
 
 """
-    rootpowerratio(x)
-Treat `x` as a ratio of root-power quantities (field quantities) and unit-convert to no units.
+    uconvertrp(u::Units, x)
+    uconvertrp(u::MixedUnits, x)
+In most cases, this is the same as [`Unitful.uconvert`](@ref). In cases where unit conversion
+would be ambiguous without further information (e.g. `uconvert(dB, 10)`), `uconvertp`
+presumes ratios are of power quantities.
 
-    rootpowerratio(u::Units{()}, x::Gain)
-    rootpowerratio(u::MixedUnits{<:Gain}, x::Gain)
-Treat `x` as a ratio of root-power quantities (field quantities) and unit-convert to `u`.
-
-    rootpowerratio(u::Units{()}, x::Real)
-    rootpowerratio(u::MixedUnits{<:Gain, <:Units{()})}, x::Real)
-Fall-back methods so that `rootpowerratio` may be used with real numbers.
-
-It is important to note that this function is undefined for `Quantity{<:Gain}` types. It is
-tempting to make this function transform `-20dB/m` into `0.1/m`, however this means
-something fundamentally different than `-20dB/m`: `0.1/m` cannot be used to calculate
-exponential attenuation.
-
-`fieldratio` and `rootpowerratio` are synonymous, so you can save some typing if you like.
+It is important to note that careless use of this function can lead to erroneous calculations.
+Consider `Quantity{<:Gain}` types: it is tempting to use this to transform `-20dB/m` into
+`0.01/m`, however this means something fundamentally different than `-20dB/m`. Consider what
+happens when you try to compute exponential attenuation by multiplying `0.01/m` by a length.
 """
-function rootpowerratio end
-rootpowerratio(x) = rootpowerratio(NoUnits, x)
-rootpowerratio(::Units{()}, x::Gain{L}) where {L} =
+
+function uconvertrp end
+uconvertrp(u, x) = uconvert(u, x)
+uconvertrp(::Units{()}, x::Gain{L}) where {L} =
     fromlog(L, ifelse(isrootpower(L), 1.0, 0.5)*x.val)
-rootpowerratio(::Units{()}, x::Real) = x
-rootpowerratio(u::MixedUnits{<:Gain}, x::Gain) = uconvert(u, x)
-rootpowerratio(u::T, x::Real) where {L, T <: MixedUnits{Gain{L}, <:Units{()}}} =
+uconvertrp(u::T, x::Real) where {L, T <: MixedUnits{Gain{L}, <:Units{()}}} =
     ifelse(isrootpower(L), 1, 2) * tolog(L, x) * u
-
-fieldratio = rootpowerratio
 
 """
     linear(x::Quantity)
@@ -320,9 +330,9 @@ is for two reasons:
   different than `-20dB/m`. `0.01/m` cannot be used to calculate exponential attenuation.
 """
 linear(x::Quantity{<:Level,D,U}) where {D,U} = (x.val.val)*U()
-linear(x::Quantity{<:Gain}) = error("use powerratio or rootpowerratio instead.")
+linear(x::Quantity{<:Gain}) = error("undefined for Quantity{<:Gain} types.")
 linear(x::Level) = x.val
-linear(x::Gain) = error("use powerratio or rootpowerratio instead.")
+linear(x::Gain) = error("use uconvertp or uconvertrp instead.")
 linear(x::Number) = x
 
 """

@@ -23,7 +23,7 @@ export logunit, unit, dimension, uconvert, ustrip, upreferred
 export @dimension, @derived_dimension, @refunit, @unit, @u_str
 export Quantity, DimensionlessQuantity, NoUnits, NoDims
 
-export powerratio, fieldratio, rootpowerratio, reflevel, linear
+export uconvertp, uconvertrp, convertr, convertrp, reflevel, linear
 export @logscale, @logunit, @dB, @B, @cNp, @Np
 export Level, Gain
 
