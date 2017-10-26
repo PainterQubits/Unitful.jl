@@ -56,14 +56,10 @@ end
 //(x::Number, y::Units) = Rational(x)/y
 //(x::Units, y::Number) = (1//y) * x
 
-# Division (quantities)
-for op in (:/, ://)
-    @eval begin
-        ($op)(x::Quantity, y::Quantity) = Quantity(($op)(x.val, y.val), unit(x) / unit(y))
-        ($op)(x::Quantity, y::Number) = Quantity(($op)(x.val, y), unit(x))
-        ($op)(x::Number, y::Quantity) = Quantity(($op)(x, y.val), inv(unit(y)))
-    end
-end
+/(x::Quantity, y::Quantity) = Quantity(/(x.val, y.val), unit(x) / unit(y))
+//(x::Quantity, y::Quantity) = Quantity(//(x.val, y.val), unit(x) / unit(y))
+//(x::Quantity, y::Number) = Quantity(//(x.val, y), unit(x))
+//(x::Number, y::Quantity) = Quantity(//(x, y.val), inv(unit(y)))
 
 # ambiguity resolution
 //(x::Quantity, y::Complex) = Quantity(//(x.val, y), unit(x))

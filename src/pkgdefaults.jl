@@ -183,15 +183,15 @@ Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
 const dBµV = dBμV   # different character encoding of μ
 
 # TODO: some more dimensions?
-isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(W))) = false
-isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(V))) = true
-isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(A))) = true
-isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(Pa))) = true
-isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(W/m^2/Hz))) = false # spectral flux dens.
-isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(W/m^2))) = false    # intensity
-isrootpower_dim(::Type{<:LogInfo}, ::typeof(𝐋^3)) = false                 # reflectivity
-isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(Ω))) = true
-isrootpower_dim(::Type{<:LogInfo}, ::typeof(dimension(S))) = true
+isrootpower_dim(::typeof(dimension(W)))         = false
+isrootpower_dim(::typeof(dimension(V)))         = true
+isrootpower_dim(::typeof(dimension(A)))         = true
+isrootpower_dim(::typeof(dimension(Pa)))        = true
+isrootpower_dim(::typeof(dimension(W/m^2/Hz)))  = false     # spectral flux dens.
+isrootpower_dim(::typeof(dimension(W/m^2)))     = false     # intensity
+isrootpower_dim(::typeof(𝐋^3))                  = false     # reflectivity
+isrootpower_dim(::typeof(dimension(Ω)))         = true
+isrootpower_dim(::typeof(dimension(S)))         = true
 
 #########
 

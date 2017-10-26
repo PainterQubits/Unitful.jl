@@ -13,6 +13,7 @@ unwrap(x) = x
 base(::LogInfo{N,B}) where {N,B} = B
 prefactor(::LogInfo{N,B,P}) where {N,B,P} = P
 
+leveltype(x::Level{L,S}) where {L,S} = Level{L,S}
 dimension(x::Level) = dimension(reflevel(x))
 dimension(x::Type{T}) where {T<:Level} = dimension(reflevel(T))
 function Base.float(x::Level{L,S}) where {L,S}
@@ -48,6 +49,7 @@ reflevel(x::Level{L,S}) where {L,S} = unwrap(S)
 reflevel(::Type{Level{L,S}}) where {L,S} = unwrap(S)
 reflevel(::Type{Level{L,S,T}}) where {L,S,T} = unwrap(S)
 
+gaintype(x::Gain{L}) where {L} = Gain{L}
 dimension(x::Gain) = NoDims
 dimension(x::Type{<:Gain}) = NoDims
 function Base.float(x::Gain{L}) where {L}
@@ -79,9 +81,9 @@ function _gconv(L1,L2,x)
     return gain
 end
 
-tolog(L,S,x) = (1+isrootpower(L,S)) * prefactor(L()) * (logfn(L()))(x)
+tolog(L,S,x) = (1+isrootpower(S)) * prefactor(L()) * (logfn(L()))(x)
 tolog(L,x) = (1+isrootpower(L)) * prefactor(L()) * (logfn(L()))(x)
-fromlog(L,S,x) = unwrap(S) * expfn(L())( x / ((1+isrootpower(L,S))*prefactor(L())) )
+fromlog(L,S,x) = unwrap(S) * expfn(L())( x / ((1+isrootpower(S))*prefactor(L())) )
 fromlog(L,x) = expfn(L())( x / ((1+isrootpower(L))*prefactor(L())) )
 
 function Base.show(io::IO, x::MixedUnits{T,U}) where {T,U}
@@ -155,9 +157,9 @@ end
 ustrip(x::Level{L,S}) where {L<:LogInfo,S} = tolog(L,S,x.val/reflevel(x))
 ustrip(x::Gain) = x.val
 
-isrootpower(T::Type{<:LogInfo}, y) = isrootpower_dim(T, dimension(y))
-isrootpower(::Type{<:LogInfo}, y::IsRootPowerRatio{T}) where {T} = T
-isrootpower_dim(::Type{<:LogInfo}, y) =
+isrootpower(y::IsRootPowerRatio{T}) where {T} = T
+isrootpower(y) = isrootpower_dim(dimension(y))
+isrootpower_dim(y) =
     error("undefined behavior. Please file an issue with the code needed to reproduce.")
 
 ==(x::Gain, y::Level) = ==(y,x)
@@ -177,37 +179,45 @@ Base. -(x::Gain, y::Level) = error("cannot subtract a level from a gain.")
 Base. *(x::Number, y::Level) = *(y,x)
 Base. *(x::Bool, y::Level) = *(y,x)                                    # for method ambiguity
 Base. *(x::Quantity, y::Level) = *(y,x)                                # for method ambiguity
-Base. *(x::Level{L,S}, y::Number) where {L,S} = Level{L,S}(x.val * y)
-Base. *(x::Level{L,S}, y::Bool) where {L,S} = Level{L,S}(x.val * y)    # for method ambiguity
-Base. *(x::Level{L,S}, y::Quantity) where {L,S} = *(x.val, y)
-Base. *(x::Level{L,S}, y::Level) where {L,S} = *(x.val, y.val)
-Base. *(x::Level{L,S}, y::Gain) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(x)+y.val))
+Base. *(x::Level, y::Number) = (leveltype(x))(x.val * y)
+Base. *(x::Level, y::Bool) = (leveltype(x))(x.val * y)    # for method ambiguity
+Base. *(x::Level, y::Quantity) = *(x.val, y)
+Base. *(x::Level, y::Level) = *(x.val, y.val)
+Base. *(x::Level, y::Gain) = *(promote(x,y)...)
+Base. *(x::Level{L,S}, y::Gain{L}) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(x)+y.val))
 
 Base. *(x::Number, y::Gain) = *(y,x)
 Base. *(x::Bool, y::Gain) = *(y,x)                                     # for method ambiguity
-Base. *(x::Gain{L}, y::Number) where {L} = Gain{L}(x.val * y)
-Base. *(x::Gain{L}, y::Bool) where {L} = Gain{L}(x.val * y)            # for method ambiguity
-Base. *(x::Gain{L}, y::Level) where {L} = Level{L,S}(fromlog(L, S, ustrip(x)+y.val))
-Base. *(x::Gain{L}, y::Gain) where {L} = *(promote(x,y)...)
+Base. *(x::Gain, y::Number) = (gaintype(x))(x.val * y)
+Base. *(x::Gain, y::Bool) = (gaintype(x))(x.val * y)                   # for method ambiguity
+Base. *(x::Gain, y::Level) = *(promote(x,y)...)
+Base. *(x::Gain, y::Gain) = *(promote(x,y)...)
+Base. *(x::Gain{L}, y::Level{L,S}) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(x)+y.val))
 Base. *(x::Gain{L}, y::Gain{L}) where {L} = Gain{L}(x.val + y.val)     # contentious?
 
-Base. *(x::Quantity, y::Gain{L}) where {L} =
-    isrootpower(L, x) ? uconvertrp(NoUnits, y) * x : uconvertp(NoUnits, y) * x
+Base. *(x::Quantity, y::Gain) =
+    isrootpower(x) ? uconvertrp(NoUnits, y) * x : uconvertp(NoUnits, y) * x
 Base. *(x::Gain, y::Quantity) = *(y,x)
 
 # Division
-Base. /(x::Number, y::Level) = x / y.val
-Base. /(x::Level{L,S}, y::Number) where {L,S} = Level{L,S}(x.val / y)
-Base. /(x::Level{L,S}, y::Quantity) where {L,S} = x.val / y
-Base. /(x::Level{L,S}, y::Level) where {L,S} = x.val / y.val
-Base. /(x::Level{L,S}, y::Gain) where {L,S} =
-    Level{L,S}(fromlog(L, S, ustrip(x) - y.val))
+Base. /(x::Level, y::Number) = (leveltype(x))(linear(x) / y)
+Base. /(x::Level, y::Quantity) = linear(x) / y
+Base. /(x::Level, y::Level) = linear(x) / linear(y)
+Base. /(x::Level{L,S}, y::Gain{L}) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(x) - y.val))
+Base. //(x::Level, y::Number) = (leveltype(x))(linear(x) // y)
+Base. //(x::Quantity, y::Level) = x // linear(y)
+Base. //(x::Level, y::Quantity) = linear(x) // y
+Base. //(x::Level, y::Level) = linear(x) // linear(y)
+Base. //(x::Level, y::Complex) = linear(x) // y     # ambiguity resolution
+Base. //(x::Number, y::Level) = x//linear(y)
+Base. //(x::Level, y::Units) = x/y
+Base. //(x::Units, y::Level) = x//linear(y)
 
-Base. /(x::Gain{L}, y::Gain) where {L} = /(promote(x,y)...)
 Base. /(x::Gain{L}, y::Gain{L}) where {L} = Gain{L}(x.val - y.val)
-
-Base. /(x::Quantity, y::Gain) = error("logarithmic gains subtract, not divide.")
-Base. /(x::Quantity, y::Level) = x / y.val
+Base. /(x::Quantity, y::Gain) =
+    isrootpower(x) ? x / uconvertrp(NoUnits, y) : x / uconvertp(NoUnits, y)
+Base. //(x::Gain, y::Units) = x/y
+Base. //(x::Units, y::Gain) = x//linear(y)
 
 function (Base.promote_rule(::Type{Level{L1,S1,T1}}, ::Type{Level{L2,S2,T2}})
         where {L1,L2,S1,S2,T1<:Number,T2<:Number})
