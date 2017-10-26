@@ -1053,7 +1053,7 @@ end
         end
     end
 
-    @testset "> Dimensional analysis" begin
+    @testset "> Unit and dimensional analysis" begin
         @testset ">> Level" begin
             @test dimension(1dBm) === dimension(1mW)
             @test dimension(typeof(1dBm)) === dimension(1mW)
@@ -1063,6 +1063,13 @@ end
             @test dimension(typeof(1dB)) === NoDims
             @test dimension(@dB 3V/2.14V) === dimension(1V)
             @test dimension(typeof(@dB 3V/2.14V)) === dimension(1V)
+            @test logunit(1dBm) === dBm
+            @test logunit(typeof(1dBm)) === dBm
+        end
+
+        @testset ">> Gain" begin
+            @test logunit(3dB) === dB
+            @test logunit(typeof(3dB)) === dB
         end
 
         @testset ">> Quantity{<:Level}" begin
@@ -1091,6 +1098,7 @@ end
         @test_throws DimensionError convert(typeof(1.0dBm), 1V)
         @test convert(typeof(3dB), 3dB) === 3dB
         @test convert(typeof(3.0dB), 3dB) === 3.0dB
+        @test convert(Float64, 0u"dBFS") === 1.0
 
         @test isapprox(uconvertrp(NoUnits, 6.02dB), 2.0, atol=0.001)
         @test uconvertrp(NoUnits, 1Np) ≈ e
@@ -1111,6 +1119,7 @@ end
 
     @testset "> Equality" begin
         @test !(20dBm == 20dB)
+        @test !(20dB == 20dBm)
     end
 
     @testset "> Addition and subtraction" begin
@@ -1158,6 +1167,7 @@ end
             @test 10*@dB(10V/V) == 100V
             @test 10/@dB(10V/V) == 1V^-1
             @test (0dBm) * (1W) == 1*mW*W
+            @test (1W) * (0dBm) == 1*W*mW
             @test 100*((0dBm)/s) == (20dBm)/s
             @test isapprox((3.01dBm)*(3.01dBm), 4mW^2, atol=0.01mW^2)
             @test typeof((1dBm * big"2").val.val) == BigFloat
@@ -1167,16 +1177,15 @@ end
             @test false*3dBm == -Inf*dBm
             @test 3dBm*true == 3dBm
             @test 3dBm*false == -Inf*dBm
+            @test (0dBV)*(1Np) ≈ 8.685889638dBV
         end
 
         @testset ">> Gain" begin
-            @test 3dB * 2 == 6dB
+            @test 3dB * 2 === 6dB
+            @test 2 * 3dB === 6dB
             @test 3dB * 2.1 ≈ 6.3dB
             @test 3dB * false == 0*dB
             @test false * 3dB == 0*dB
-        end
-
-        @testset ">> Quantity, meet Gain" begin
             @test 1mW * 20dB == 100mW
             @test 20dB * 1mW == 100mW
             @test 1V * 20dB == 10V
@@ -1189,6 +1198,11 @@ end
         @test ustrip(20dB/Hz) === 20
         @test ustrip(20dB) === 20
         @test ustrip(13dBm) ≈ 13
+    end
+
+    @testset "> Display" begin
+        @test Unitful.abbr(3u"dBm") == "dBm"
+        @test Unitful.abbr(@dB 3V/1.241V) == "dB (1.241 V)"
     end
 
     @testset "> Thanks for signing up for Log Facts!" begin

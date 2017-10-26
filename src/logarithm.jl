@@ -147,13 +147,6 @@ function uconvert(a::MixedUnits{Gain{L1,<:Real}}, x::Level{L2,S}) where {L1,L2,S
     return Level{L1,S}(x.val)
 end
 
-
-# function uconvertrp(a::MixedUnits{<:Gain}, x::Number)
-#     dimension(a) != dimension(x) && throw(DimensionError(a,x))
-#
-# end
-
-
 ustrip(x::Level{L,S}) where {L<:LogInfo,S} = tolog(L,S,x.val/reflevel(x))
 ustrip(x::Gain) = x.val
 
@@ -301,10 +294,10 @@ uconvertp(::Units{()}, x::Gain{L}) where {L} =
     fromlog(L, ifelse(isrootpower(L), 2, 1)*x.val)
 uconvertp(u::T, x::Real) where {L, T <: MixedUnits{Gain{L}, <:Units{()}}} =
     ifelse(isrootpower(L), 0.5, 1) * tolog(L, x) * u
-function uconvertp(a::MixedUnits{Gain{L}}, x::Number) where {L}
-    dimension(a) != dimension(x) && throw(DimensionError(a,x))
-
-end
+# function uconvertp(a::MixedUnits{Gain{L}}, x::Number) where {L}
+#     dimension(a) != dimension(x) && throw(DimensionError(a,x))
+#
+# end
 
 """
     uconvertrp(u::Units, x)
@@ -339,8 +332,8 @@ is for two reasons:
 - Even if `-20dB/m` were interpreted as, say, `0.01/m`, this means something fundamentally
   different than `-20dB/m`. `0.01/m` cannot be used to calculate exponential attenuation.
 """
-linear(x::Quantity{<:Level,D,U}) where {D,U} = (x.val.val)*U()
-linear(x::Quantity{<:Gain}) = error("undefined for Quantity{<:Gain} types.")
+linear(x::Quantity{<:Level}) = (x.val.val)*unit(x)
+linear(x::Quantity{<:Gain}) = error("use uconvertp or uconvertrp instead.")
 linear(x::Level) = x.val
 linear(x::Gain) = error("use uconvertp or uconvertrp instead.")
 linear(x::Number) = x
