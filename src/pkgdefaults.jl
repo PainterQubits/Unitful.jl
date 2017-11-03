@@ -163,6 +163,9 @@ Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
 # Force
 @unit lbf       "lbf"      PoundsForce  1lb*ge                  false
 
+# More masses
+@unit sl        "sl"       Slug         1lbf*s^2/ft             false
+
 #########
 # Logarithmic scales and units
 
