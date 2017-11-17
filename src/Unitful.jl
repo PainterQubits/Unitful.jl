@@ -8,7 +8,7 @@ import Base: min, max, floor, ceil, real, imag, conj
 import Base: exp, exp10, exp2, expm1, log, log10, log1p, log2
 import Base: sin, cos, tan, cot, sec, csc, atan2, cis, vecnorm
 
-import Base: mod, rem, div, fld, cld, trunc, round, sign, signbit
+import Base: eps, mod, rem, div, fld, cld, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isinf, isfinite, isnan
 import Base: copysign, flipsign
 import Base: prevfloat, nextfloat, maxintfloat, rat, step
