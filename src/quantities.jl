@@ -280,6 +280,9 @@ isfinite(x::Quantity) = isfinite(x.val)
 isinf(x::Quantity) = isinf(x.val)
 isnan(x::Quantity) = isnan(x.val)
 
+eps(x::T) where {T<:Quantity} = T(eps(x.val))
+eps(x::Type{T}) where {T<:Quantity} = T(eps(Unitful.numtype(T)))
+
 unsigned(x::Quantity) = Quantity(unsigned(x.val), unit(x))
 
 for f in (:exp, :exp10, :exp2, :expm1, :log, :log10, :log1p, :log2)
