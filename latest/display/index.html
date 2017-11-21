@@ -1,21 +1,38 @@
 
+
+
+
 <!DOCTYPE html>
 <html lang="en" class="no-js">
   <head>
     
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
       
-        <meta name="description" content="Package for units.">
-      
-      
-      
-        <meta name="author" content="Andrew Keller">
+        <meta name="description" content="Performant and expressive calculations with arbitrary units.">
       
       
-        <link rel="shortcut icon" href="../assets/images/favicon.png">
       
-      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.7.3">
+        <meta name="author" content="Andrew J. Keller">
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-0.17.2, mkdocs-material-2.1.0">
     
     
       
@@ -23,19 +40,14 @@
       
     
     
-      <script src="../assets/javascripts/modernizr-1df76c4e58.js"></script>
-    
-    
-      <link rel="stylesheet" href="../assets/stylesheets/application-acc56dad49.css">
-      
-        <link rel="stylesheet" href="../assets/stylesheets/application-8817cfa535.palette.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application-3368aa6b74.css">
       
     
     
+      <script src="../assets/javascripts/modernizr-e826f8942a.js"></script>
+    
+    
       
-        
-        
-        
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
@@ -47,10 +59,7 @@
     
   </head>
   
-  
-  
-  
-    <body data-md-color-primary="indigo" data-md-color-accent="blue">
+    <body>
   
     <svg class="md-svg">
       <defs>
@@ -68,40 +77,46 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        
-          <a href=".." title="Unitful.jl" class="md-icon md-icon--home md-header-nav__button">
-          </a>
-        
+        <a href=".." title="Unitful.jl" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
         <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
       </div>
       <div class="md-flex__cell md-flex__cell--stretch">
-        <span class="md-flex__ellipsis md-header-nav__title">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           
             
-              
+              <span class="md-header-nav__topic">
+                Unitful.jl
+              </span>
+              <span class="md-header-nav__topic">
+                How units are displayed
+              </span>
             
-            How units are displayed
           
-        </span>
+        </div>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
         
-          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
           
-<div class="md-search" data-md-component="search">
+            <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+            
+<div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="search"></label>
   <div class="md-search__inner">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
       <label class="md-icon md-search__icon" for="search"></label>
-      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">close</button>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">&#xE5CD;</button>
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="result" data-md-lang-search="">
-          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
             Type to start searching
           </div>
           <ol class="md-search-result__list"></ol>
@@ -110,6 +125,7 @@
     </div>
   </div>
 </div>
+          
         
       </div>
       
@@ -121,7 +137,7 @@
   
 
 
-  <a href="https://github.com/ajkeller34/Unitful.jl" title="Go to repository" class="md-source" data-md-source="github">
+  <a href="https://github.com/ajkeller34/Unitful.jl/" title="Go to repository" class="md-source" data-md-source="github">
     
       <div class="md-source__icon">
         <svg viewBox="0 0 24 24" width="24" height="24">
@@ -143,7 +159,6 @@
     
     <div class="md-container">
       
-      
       <main class="md-main">
         <div class="md-main__inner md-grid" data-md-component="container">
           
@@ -153,9 +168,11 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="drawer">
-    
-      <i class="md-icon md-icon--home md-nav__button"></i>
-    
+    <span class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </span>
     Unitful.jl
   </label>
   
@@ -166,7 +183,7 @@
   
 
 
-  <a href="https://github.com/ajkeller34/Unitful.jl" title="Go to repository" class="md-source" data-md-source="github">
+  <a href="https://github.com/ajkeller34/Unitful.jl/" title="Go to repository" class="md-source" data-md-source="github">
     
       <div class="md-source__icon">
         <svg viewBox="0 0 24 24" width="24" height="24">
@@ -280,6 +297,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../logarithm/" title="Logarithmic scales" class="md-nav__link">
+      Logarithmic scales
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
     <a href="../extending/" title="Extending Unitful" class="md-nav__link">
       Extending Unitful
     </a>
@@ -317,25 +346,12 @@
               </div>
             
             
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-<nav class="md-nav md-nav--secondary">
-  
-  
-  
-</nav>
-                  </div>
-                </div>
-              </div>
-            
           
           <div class="md-content">
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/display.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/display.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
                   <h1>How units are displayed</h1>
@@ -343,7 +359,7 @@
                 <p><a id='Unitful.abbr' href='#Unitful.abbr'>#</a>
 <strong><code>Unitful.abbr</code></strong> &mdash; <em>Function</em>.</p>
 <p><code>abbr(x)</code> provides abbreviations for units or dimensions. Since a method should always be defined for each unit and dimension type, absence of a method for a specific unit or dimension type is likely an error. Consequently, we return ❓ for generic arguments to flag unexpected behavior.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/Display.jl#L26-L31' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/display.jl#L26-L31' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.prefix' href='#Unitful.prefix'>#</a>
 <strong><code>Unitful.prefix</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>prefix(x::Unit)
@@ -351,7 +367,7 @@
 
 
 <p>Returns a string representing the SI prefix for the power-of-ten held by this particular unit.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/Display.jl#L34-L41' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/display.jl#L34-L38' class='documenter-source'>source</a><br></p>
 <p><a id='Base.show-Tuple{IO,Unitful.Quantity}' href='#Base.show-Tuple{IO,Unitful.Quantity}'>#</a>
 <strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>show(io::IO, x::Quantity)
@@ -359,7 +375,7 @@
 
 
 <p>Show a unitful quantity by calling <code>show</code> on the numeric value, appending a space, and then calling <code>show</code> on a units object <code>U()</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/Display.jl#L50-L57' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/display.jl#L47-L51' class='documenter-source'>source</a><br></p>
 <p><a id='Base.show-Union{Tuple{D}, Tuple{IO,Type{Unitful.Quantity{T,D,U}}}, Tuple{T}, Tuple{U}} where U where D where T' href='#Base.show-Union{Tuple{D}, Tuple{IO,Type{Unitful.Quantity{T,D,U}}}, Tuple{T}, Tuple{U}} where U where D where T'>#</a>
 <strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>show{T,D,U}(io::IO, ::Type{Quantity{T,D,U}})
@@ -367,7 +383,7 @@
 
 
 <p>Show the type of a unitful quantity in a succinct way. Otherwise, array summaries are nearly unreadable.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/Display.jl#L67-L74' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/display.jl#L61-L65' class='documenter-source'>source</a><br></p>
 <p><a id='Base.show-Tuple{IO,Unitful.Unitlike}' href='#Base.show-Tuple{IO,Unitful.Unitlike}'>#</a>
 <strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>show(io::IO, x::Unitlike)
@@ -375,7 +391,7 @@
 
 
 <p>Call <a href="./#Unitful.showrep-Tuple{IO,Unitful.Unit}"><code>Unitful.showrep</code></a> on each object in the tuple that is the type variable of a <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> or <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/Display.jl#L82-L89' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/display.jl#L73-L77' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.showrep-Tuple{IO,Unitful.Unit}' href='#Unitful.showrep-Tuple{IO,Unitful.Unit}'>#</a>
 <strong><code>Unitful.showrep</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>showrep(io::IO, x::Unit)
@@ -383,7 +399,7 @@
 
 
 <p>Show the unit, prefixing with any decimal prefix and appending the exponent as formatted by <a href="./#Unitful.superscript"><code>Unitful.superscript</code></a>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/Display.jl#L101-L108' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/display.jl#L88-L92' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.showrep-Tuple{IO,Unitful.Dimension}' href='#Unitful.showrep-Tuple{IO,Unitful.Dimension}'>#</a>
 <strong><code>Unitful.showrep</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>showrep(io::IO, x::Dimension)
@@ -391,7 +407,7 @@
 
 
 <p>Show the dimension, appending any exponent as formatted by <a href="./#Unitful.superscript"><code>Unitful.superscript</code></a>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/Display.jl#L116-L123' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/display.jl#L100-L104' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.superscript' href='#Unitful.superscript'>#</a>
 <strong><code>Unitful.superscript</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>superscript(i::Rational)
@@ -399,7 +415,7 @@
 
 
 <p>Prints exponents.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/Display.jl#L129-L135' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/display.jl#L110-L113' class='documenter-source'>source</a><br></p>
                 
                   
                 
@@ -433,13 +449,13 @@
           </a>
         
         
-          <a href="../extending/" title="Extending Unitful" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../logarithm/" title="Logarithmic scales" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Extending Unitful
+                Logarithmic scales
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
@@ -455,9 +471,9 @@
       <div class="md-footer-copyright">
         
         powered by
-        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        <a href="http://www.mkdocs.org">MkDocs</a>
         and
-        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+        <a href="https://squidfunk.github.io/mkdocs-material/">
           Material for MkDocs</a>
       </div>
       
@@ -469,10 +485,9 @@
       
     </div>
     
-      <script src="../assets/javascripts/application-b30566c560.js"></script>
+      <script src="../assets/javascripts/application-a5397a53ce.js"></script>
       
-      
-      <script>app.initialize({url:{base:".."}})</script>
+      <script>app.initialize({version:"0.17.2",url:{base:".."}})</script>
       
         <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
       

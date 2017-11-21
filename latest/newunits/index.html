@@ -1,21 +1,38 @@
 
+
+
+
 <!DOCTYPE html>
 <html lang="en" class="no-js">
   <head>
     
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
       
-        <meta name="description" content="Package for units.">
-      
-      
-      
-        <meta name="author" content="Andrew Keller">
+        <meta name="description" content="Performant and expressive calculations with arbitrary units.">
       
       
-        <link rel="shortcut icon" href="../assets/images/favicon.png">
       
-      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.7.3">
+        <meta name="author" content="Andrew J. Keller">
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-0.17.2, mkdocs-material-2.1.0">
     
     
       
@@ -23,19 +40,14 @@
       
     
     
-      <script src="../assets/javascripts/modernizr-1df76c4e58.js"></script>
-    
-    
-      <link rel="stylesheet" href="../assets/stylesheets/application-acc56dad49.css">
-      
-        <link rel="stylesheet" href="../assets/stylesheets/application-8817cfa535.palette.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application-3368aa6b74.css">
       
     
     
+      <script src="../assets/javascripts/modernizr-e826f8942a.js"></script>
+    
+    
       
-        
-        
-        
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
@@ -47,10 +59,7 @@
     
   </head>
   
-  
-  
-  
-    <body data-md-color-primary="indigo" data-md-color-accent="blue">
+    <body>
   
     <svg class="md-svg">
       <defs>
@@ -68,40 +77,46 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        
-          <a href=".." title="Unitful.jl" class="md-icon md-icon--home md-header-nav__button">
-          </a>
-        
+        <a href=".." title="Unitful.jl" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
         <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
       </div>
       <div class="md-flex__cell md-flex__cell--stretch">
-        <span class="md-flex__ellipsis md-header-nav__title">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           
             
-              
+              <span class="md-header-nav__topic">
+                Unitful.jl
+              </span>
+              <span class="md-header-nav__topic">
+                Defining new units
+              </span>
             
-            Defining new units
           
-        </span>
+        </div>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
         
-          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
           
-<div class="md-search" data-md-component="search">
+            <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+            
+<div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="search"></label>
   <div class="md-search__inner">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
       <label class="md-icon md-search__icon" for="search"></label>
-      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">close</button>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">&#xE5CD;</button>
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="result" data-md-lang-search="">
-          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
             Type to start searching
           </div>
           <ol class="md-search-result__list"></ol>
@@ -110,6 +125,7 @@
     </div>
   </div>
 </div>
+          
         
       </div>
       
@@ -121,7 +137,7 @@
   
 
 
-  <a href="https://github.com/ajkeller34/Unitful.jl" title="Go to repository" class="md-source" data-md-source="github">
+  <a href="https://github.com/ajkeller34/Unitful.jl/" title="Go to repository" class="md-source" data-md-source="github">
     
       <div class="md-source__icon">
         <svg viewBox="0 0 24 24" width="24" height="24">
@@ -143,7 +159,6 @@
     
     <div class="md-container">
       
-      
       <main class="md-main">
         <div class="md-main__inner md-grid" data-md-component="container">
           
@@ -153,9 +168,11 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="drawer">
-    
-      <i class="md-icon md-icon--home md-nav__button"></i>
-    
+    <span class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </span>
     Unitful.jl
   </label>
   
@@ -166,7 +183,7 @@
   
 
 
-  <a href="https://github.com/ajkeller34/Unitful.jl" title="Go to repository" class="md-source" data-md-source="github">
+  <a href="https://github.com/ajkeller34/Unitful.jl/" title="Go to repository" class="md-source" data-md-source="github">
     
       <div class="md-source__icon">
         <svg viewBox="0 0 24 24" width="24" height="24">
@@ -316,6 +333,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../logarithm/" title="Logarithmic scales" class="md-nav__link">
+      Logarithmic scales
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
     <a href="../extending/" title="Extending Unitful" class="md-nav__link">
       Extending Unitful
     </a>
@@ -394,11 +423,15 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/newunits.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/newunits.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
                 <p><a id='Defining-new-units-1'></a></p>
 <h1 id="defining-new-units">Defining new units</h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Logarithmic units should not be used in the <code>@refunit</code> or <code>@unit</code> macros described below. See the section on logarithmic scales for customization help.</p>
+</div>
 <p>The package automatically generates a useful set of units and dimensions in the <code>Unitful</code> module in <code>src/pkgdefaults.jl</code>.</p>
 <p>If a different set of default units or dimensions is desired, macros for generating units and dimensions are provided. To create new units interactively, most users will be happy with the <a href="./#Unitful.@unit"><code>@unit</code></a> macro and the <a href="../manipulations/#Unitful.register"><code>Unitful.register</code></a> function, which makes units defined in a module available to the <a href="../manipulations/#Unitful.@u_str"><code>@u_str</code></a> string macro.</p>
 <p>An example of defining units in a module:</p>
@@ -438,24 +471,24 @@ julia&gt; 1u&quot;mM&quot;
 <h2 id="useful-functions-and-macros">Useful functions and macros</h2>
 <p><a id='Unitful.@dimension' href='#Unitful.@dimension'>#</a>
 <strong><code>Unitful.@dimension</code></strong> &mdash; <em>Macro</em>.</p>
-<div class="codehilite"><pre><span></span>macro dimension(symb, abbr, name)
+<div class="codehilite"><pre><span></span>@dimension(symb, abbr, name)
 </pre></div>
 
 
 <p>Creates new dimensions. <code>name</code> will be used like an identifier in the type parameter for a <a href="../types/#Unitful.Dimension"><code>Unitful.Dimension</code></a> object. <code>symb</code> will be a symbol defined in the namespace from which this macro is called that is bound to a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object. For most intents and purposes it is this object that the user would manipulate in doing dimensional analysis. The symbol is not exported.</p>
 <p>This macro extends <a href="../display/#Unitful.abbr"><code>Unitful.abbr</code></a> to display the new dimension in an abbreviated format using the string <code>abbr</code>.</p>
-<p>Type aliases are created that allow the user to dispatch on <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a> and <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> objects of the newly defined dimension. The type alias for quantities is simply given by <code>name</code>, and the type alias for units is given by <code>name*"Units"</code>, e.g. <code>LengthUnits</code>. Note that there is also <code>LengthFreeUnits</code>, for example, which is an alias for dispatching on <code>FreeUnits</code> with length dimensions. The aliases are not exported.</p>
+<p>Type aliases are created that allow the user to dispatch on <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a>, <a href="../logarithm/#Unitful.Level"><code>Unitful.Level</code></a> and <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> objects of the newly defined dimension. The type alias for quantities or levels is simply given by <code>name</code>, and the type alias for units is given by <code>name*"Units"</code>, e.g. <code>LengthUnits</code>. Note that there is also <code>LengthFreeUnits</code>, for example, which is an alias for dispatching on <code>FreeUnits</code> with length dimensions. The aliases are not exported.</p>
 <p>Finally, if you define new dimensions with <a href="./#Unitful.@dimension"><code>@dimension</code></a> you will need to specify a preferred unit for that dimension with <a href="../conversion/#Unitful.preferunits"><code>Unitful.preferunits</code></a>, otherwise promotion will not work with that dimension. This is done automatically in the <a href="./#Unitful.@refunit"><code>@refunit</code></a> macro.</p>
 <p>Returns the <code>Dimensions</code> object to which <code>symb</code> is bound.</p>
 <p>Usage example from <code>src/pkgdefaults.jl</code>: <code>@dimension 𝐋 "𝐋" Length</code></p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/User.jl#L25-L55' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/user.jl#L22-L49' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.@derived_dimension' href='#Unitful.@derived_dimension'>#</a>
 <strong><code>Unitful.@derived_dimension</code></strong> &mdash; <em>Macro</em>.</p>
-<div class="codehilite"><pre><span></span>macro derived_dimension(name, dims)
+<div class="codehilite"><pre><span></span>@derived_dimension(name, dims)
 </pre></div>
 
 
-<p>Creates type aliases to allow dispatch on <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a> and <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> objects of a derived dimension, like area, which is just length squared. The type aliases are not exported.</p>
+<p>Creates type aliases to allow dispatch on <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a>, <a href="../logarithm/#Unitful.Level"><code>Unitful.Level</code></a>, and <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> objects of a derived dimension, like area, which is just length squared. The type aliases are not exported.</p>
 <p><code>dims</code> is a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object.</p>
 <p>Returns <code>nothing</code>.</p>
 <p>Usage examples:</p>
@@ -463,10 +496,10 @@ julia&gt; 1u&quot;mM&quot;
 <li><code>@derived_dimension Area 𝐋^2</code> gives <code>Area</code> and <code>AreaUnit</code> type aliases</li>
 <li><code>@derived_dimension Speed 𝐋/𝐓</code> gives <code>Speed</code> and <code>SpeedUnit</code> type aliases</li>
 </ul>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/User.jl#L73-L90' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/user.jl#L67-L81' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.@refunit' href='#Unitful.@refunit'>#</a>
 <strong><code>Unitful.@refunit</code></strong> &mdash; <em>Macro</em>.</p>
-<div class="codehilite"><pre><span></span>macro refunit(symb, name, abbr, dimension, tf)
+<div class="codehilite"><pre><span></span>@refunit(symb, name, abbr, dimension, tf)
 </pre></div>
 
 
@@ -477,10 +510,10 @@ julia&gt; 1u&quot;mM&quot;
 <p>Returns the <a href="../types/#Unitful.FreeUnits"><code>Unitful.FreeUnits</code></a> object to which <code>symb</code> is bound.</p>
 <p>Usage example: <code>@refunit m "m" Meter 𝐋 true</code></p>
 <p>This example, found in <code>src/pkgdefaults.jl</code>, generates <code>km</code>, <code>m</code>, <code>cm</code>, ...</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/User.jl#L105-L136' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/user.jl#L96-L124' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.@unit' href='#Unitful.@unit'>#</a>
 <strong><code>Unitful.@unit</code></strong> &mdash; <em>Macro</em>.</p>
-<div class="codehilite"><pre><span></span>macro unit(symb,abbr,name,equals,tf)
+<div class="codehilite"><pre><span></span>@unit(symb,abbr,name,equals,tf)
 </pre></div>
 
 
@@ -488,7 +521,7 @@ julia&gt; 1u&quot;mM&quot;
 <p>Returns the <a href="../types/#Unitful.FreeUnits"><code>Unitful.FreeUnits</code></a> object to which <code>symb</code> is bound.</p>
 <p>Usage example: <code>@unit mi "mi" Mile (201168//125)*m false</code></p>
 <p>This example will <em>not</em> generate <code>kmi</code> (kilomiles).</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/User.jl#L151-L165' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/user.jl#L139-L150' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.offsettemp' href='#Unitful.offsettemp'>#</a>
 <strong><code>Unitful.offsettemp</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>offsettemp(::Unit)
@@ -496,27 +529,27 @@ julia&gt; 1u&quot;mM&quot;
 
 
 <p>For temperature units, this function is used to set the scale offset.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/Unitful.jl#L982-L988' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/temperature.jl#L1-L4' class='documenter-source'>source</a><br></p>
 <p><a id='Internals-1'></a></p>
 <h2 id="internals">Internals</h2>
 <p><a id='Unitful.@prefixed_unit_symbols' href='#Unitful.@prefixed_unit_symbols'>#</a>
 <strong><code>Unitful.@prefixed_unit_symbols</code></strong> &mdash; <em>Macro</em>.</p>
-<div class="codehilite"><pre><span></span>macro prefixed_unit_symbols(symb,name,dimension,basefactor)
+<div class="codehilite"><pre><span></span>@prefixed_unit_symbols(symb,name,dimension,basefactor)
 </pre></div>
 
 
 <p>Not called directly by the user. Given a unit symbol and a unit's name, will define units for each possible SI power-of-ten prefix on that unit.</p>
 <p>Example: <code>@prefixed_unit_symbols m Meter 𝐋 (1.0,1)</code> results in nm, cm, m, km, ... all getting defined in the calling namespace.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/User.jl#L187-L197' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/user.jl#L172-L179' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.@unit_symbols' href='#Unitful.@unit_symbols'>#</a>
 <strong><code>Unitful.@unit_symbols</code></strong> &mdash; <em>Macro</em>.</p>
-<div class="codehilite"><pre><span></span>macro unit_symbols(symb,name)
+<div class="codehilite"><pre><span></span>@unit_symbols(symb,name)
 </pre></div>
 
 
 <p>Not called directly by the user. Given a unit symbol and a unit's name, will define units without SI power-of-ten prefixes.</p>
 <p>Example: <code>@unit_symbols ft Foot 𝐋</code> results in <code>ft</code> getting defined but not <code>kft</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/User.jl#L223-L232' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/user.jl#L205-L211' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.basefactor' href='#Unitful.basefactor'>#</a>
 <strong><code>Unitful.basefactor</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>basefactor(x::Unit)
@@ -524,7 +557,7 @@ julia&gt; 1u&quot;mM&quot;
 
 
 <p>Specifies conversion factors to reference units. It returns a tuple. The first value is any irrational part of the conversion, and the second value is a rational component. This segregation permits exact conversions within unit systems that have no rational conversion to the reference units.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/tree/f37320a4d798be02427cb5aa0df8d4175ba8f0f9/src/User.jl#L420-L430' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2429f48fde4b9d4b3bfa61c0da955268feb8a99c/src/user.jl#L495-L502' class='documenter-source'>source</a><br></p>
                 
                   
                 
@@ -580,9 +613,9 @@ julia&gt; 1u&quot;mM&quot;
       <div class="md-footer-copyright">
         
         powered by
-        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        <a href="http://www.mkdocs.org">MkDocs</a>
         and
-        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+        <a href="https://squidfunk.github.io/mkdocs-material/">
           Material for MkDocs</a>
       </div>
       
@@ -594,10 +627,9 @@ julia&gt; 1u&quot;mM&quot;
       
     </div>
     
-      <script src="../assets/javascripts/application-b30566c560.js"></script>
+      <script src="../assets/javascripts/application-a5397a53ce.js"></script>
       
-      
-      <script>app.initialize({url:{base:".."}})</script>
+      <script>app.initialize({version:"0.17.2",url:{base:".."}})</script>
       
         <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
       

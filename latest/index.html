@@ -1,21 +1,38 @@
 
+
+
+
 <!DOCTYPE html>
 <html lang="en" class="no-js">
   <head>
     
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
       
-        <meta name="description" content="Package for units.">
-      
-      
-      
-        <meta name="author" content="Andrew Keller">
+        <meta name="description" content="Performant and expressive calculations with arbitrary units.">
       
       
-        <link rel="shortcut icon" href="./assets/images/favicon.png">
       
-      <meta name="generator" content="mkdocs-0.16.3, mkdocs-material-1.7.3">
+        <meta name="author" content="Andrew J. Keller">
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="./assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-0.17.2, mkdocs-material-2.1.0">
     
     
       
@@ -23,19 +40,14 @@
       
     
     
-      <script src="./assets/javascripts/modernizr-1df76c4e58.js"></script>
-    
-    
-      <link rel="stylesheet" href="./assets/stylesheets/application-acc56dad49.css">
-      
-        <link rel="stylesheet" href="./assets/stylesheets/application-8817cfa535.palette.css">
+      <link rel="stylesheet" href="./assets/stylesheets/application-3368aa6b74.css">
       
     
     
+      <script src="./assets/javascripts/modernizr-e826f8942a.js"></script>
+    
+    
       
-        
-        
-        
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
@@ -47,10 +59,7 @@
     
   </head>
   
-  
-  
-  
-    <body data-md-color-primary="indigo" data-md-color-accent="blue">
+    <body>
   
     <svg class="md-svg">
       <defs>
@@ -68,40 +77,46 @@
   <nav class="md-header-nav md-grid">
     <div class="md-flex">
       <div class="md-flex__cell md-flex__cell--shrink">
-        
-          <a href="." title="Unitful.jl" class="md-icon md-icon--home md-header-nav__button">
-          </a>
-        
+        <a href="." title="Unitful.jl" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
         <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
       </div>
       <div class="md-flex__cell md-flex__cell--stretch">
-        <span class="md-flex__ellipsis md-header-nav__title">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
           
             
-              
+              <span class="md-header-nav__topic">
+                Unitful.jl
+              </span>
+              <span class="md-header-nav__topic">
+                Home
+              </span>
             
-            Home
           
-        </span>
+        </div>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
         
-          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
           
-<div class="md-search" data-md-component="search">
+            <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+            
+<div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="search"></label>
   <div class="md-search__inner">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
       <label class="md-icon md-search__icon" for="search"></label>
-      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">close</button>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">&#xE5CD;</button>
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="result" data-md-lang-search="">
-          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
             Type to start searching
           </div>
           <ol class="md-search-result__list"></ol>
@@ -110,6 +125,7 @@
     </div>
   </div>
 </div>
+          
         
       </div>
       
@@ -121,7 +137,7 @@
   
 
 
-  <a href="https://github.com/ajkeller34/Unitful.jl" title="Go to repository" class="md-source" data-md-source="github">
+  <a href="https://github.com/ajkeller34/Unitful.jl/" title="Go to repository" class="md-source" data-md-source="github">
     
       <div class="md-source__icon">
         <svg viewBox="0 0 24 24" width="24" height="24">
@@ -143,7 +159,6 @@
     
     <div class="md-container">
       
-      
       <main class="md-main">
         <div class="md-main__inner md-grid" data-md-component="container">
           
@@ -153,9 +168,11 @@
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
   <label class="md-nav__title md-nav__title--site" for="drawer">
-    
-      <i class="md-icon md-icon--home md-nav__button"></i>
-    
+    <span class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </span>
     Unitful.jl
   </label>
   
@@ -166,7 +183,7 @@
   
 
 
-  <a href="https://github.com/ajkeller34/Unitful.jl" title="Go to repository" class="md-source" data-md-source="github">
+  <a href="https://github.com/ajkeller34/Unitful.jl/" title="Go to repository" class="md-source" data-md-source="github">
     
       <div class="md-source__icon">
         <svg viewBox="0 0 24 24" width="24" height="24">
@@ -323,6 +340,18 @@
 
 
   <li class="md-nav__item">
+    <a href="logarithm/" title="Logarithmic scales" class="md-nav__link">
+      Logarithmic scales
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
     <a href="extending/" title="Extending Unitful" class="md-nav__link">
       Extending Unitful
     </a>
@@ -408,7 +437,7 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/index.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/ajkeller34/Unitful.jl/edit/master/docs/index.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
                 <p><a id='Unitful.jl-1'></a></p>
@@ -419,15 +448,11 @@
 <li><a href="https://github.com/dhoegh/EngUnits.jl">EngUnits.jl</a></li>
 <li><a href="https://github.com/timholy/Units.jl">Units.jl</a></li>
 </ul>
-<p>We want to support not only SI units but also any other unit system. We also want to minimize or in some cases eliminate the run-time penalty of units. There should be facilities for dimensional analysis. All of this should integrate easily with the usual mathematical operations and collections that are found in Julia base.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If you have been previously using Unitful 0.0.4 or earlier, the defaults mechanism has been completely rewritten. This means you will now need to define new units in your <code>.juliarc.jl</code> file or in a new module. See <a href="newunits/#Defining-new-units-1">Defining new units</a> and <a href="extending/#Extending-Unitful-1">Extending Unitful</a> for details. Additionally, to specify custom rules for promotion, see <a href="conversion/#Basic-promotion-mechanisms-1">Basic promotion mechanisms</a> and <a href="conversion/#Advanced-promotion-mechanisms-1">Advanced promotion mechanisms</a>.</p>
-</div>
+<p>We want to support not only SI units but also any other unit system. We also want to minimize or in some cases eliminate the run-time penalty of units. There should be facilities for dimensional analysis. All of this should integrate easily with the usual mathematical operations and collections that are defined in Julia.</p>
 <p><a id='Quick-start-1'></a></p>
 <h2 id="quick-start">Quick start</h2>
 <ul>
-<li>This package requires Julia 0.5. Older versions will not be supported.</li>
+<li>This package requires Julia 0.6. Older versions will not be supported.</li>
 <li><code>Pkg.add("Unitful")</code></li>
 <li><code>using Unitful</code></li>
 </ul>
@@ -458,7 +483,7 @@
 </ul>
 <p>luminosity, and amount, respectively.</p>
 <ul>
-<li>Base and derived SI units, with SI prefixes.</li>
+<li>Base and derived SI units, with SI prefixes (except for <code>cd</code>, which conflicts with <code>Base.cd</code>)</li>
 <li><code>°</code> (degrees)</li>
 </ul>
 </li>
@@ -531,9 +556,9 @@ julia&gt; mod(1hr+3minute+5s, 24s)
       <div class="md-footer-copyright">
         
         powered by
-        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        <a href="http://www.mkdocs.org">MkDocs</a>
         and
-        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+        <a href="https://squidfunk.github.io/mkdocs-material/">
           Material for MkDocs</a>
       </div>
       
@@ -545,10 +570,9 @@ julia&gt; mod(1hr+3minute+5s, 24s)
       
     </div>
     
-      <script src="./assets/javascripts/application-b30566c560.js"></script>
+      <script src="./assets/javascripts/application-a5397a53ce.js"></script>
       
-      
-      <script>app.initialize({url:{base:"."}})</script>
+      <script>app.initialize({version:"0.17.2",url:{base:"."}})</script>
       
         <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
       
