@@ -1,6 +1,8 @@
-*(y::Units, r::Range) = *(r,y)
-*(r::Range, y::Units) = range(first(r)*y, step(r)*y, length(r))
-*(r::Range, y::Units, z::Units...) = *(x, *(y,z...))
+using Compat: AbstractRange
+
+*(y::Units, r::AbstractRange) = *(r,y)
+*(r::AbstractRange, y::Units) = range(first(r)*y, step(r)*y, length(r))
+*(r::AbstractRange, y::Units, z::Units...) = *(x, *(y,z...))
 
 Base.linspace(start::Quantity{<:Real}, stop, len::Integer) =
     _linspace(promote(start, stop)..., len)

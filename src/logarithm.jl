@@ -348,7 +348,7 @@ Neper-based yield `ln`, and so on. Returns `x->log(base, x)` as a fallback.
 function logfn end
 logfn(x::LogInfo{N,10}) where {N} = log10
 logfn(x::LogInfo{N,2})  where {N} = log2
-logfn(x::LogInfo{N,e})  where {N} = log
+logfn(x::LogInfo{N,ℯ})  where {N} = log
 logfn(x::LogInfo{N,B})  where {N,B} = x->log(B,x)
 
 """
@@ -360,7 +360,7 @@ Neper-based yield `exp`, and so on. Returns `x->(base)^x` as a fallback.
 function expfn end
 expfn(x::LogInfo{N,10}) where {N} = exp10
 expfn(x::LogInfo{N,2})  where {N} = exp2
-expfn(x::LogInfo{N,e})  where {N} = exp
+expfn(x::LogInfo{N,ℯ})  where {N} = exp
 expfn(x::LogInfo{N,B})  where {N,B} = x->B^x
 
 Base.rtoldefault(::Type{Level{L,S,T}}) where {L,S,T} =

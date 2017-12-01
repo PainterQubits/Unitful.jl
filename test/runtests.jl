@@ -1,7 +1,7 @@
 module UnitfulTests
 
 using Unitful
-using Base.Test
+using Compat.Test
 
 import Unitful: DimensionError
 

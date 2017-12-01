@@ -168,8 +168,8 @@ Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
 
 @logscale dB    "dB"       Decibel      10      10      false
 @logscale B     "B"        Bel          10      1       false
-@logscale Np    "Np"       Neper        e       1//2    true
-@logscale cNp   "cNp"      Centineper   e       50      true
+@logscale Np    "Np"       Neper        ℯ       1//2    true
+@logscale cNp   "cNp"      Centineper   ℯ       50      true
 
 @logunit  dBm   "dBm"      Decibel      1mW
 @logunit  dBV   "dBV"      Decibel      1V
@@ -254,17 +254,31 @@ consider invoking this function in your `.juliarc.jl` file which is loaded when
 you open Julia. This function is not exported.
 """
 function promote_to_derived()
-    Unitful.promote_unit(::S, ::T) where {S<:EnergyFreeUnits, T<:EnergyFreeUnits} = Unitful.J
-    Unitful.promote_unit(::S, ::T) where {S<:ForceFreeUnits, T<:ForceFreeUnits} = Unitful.N
-    Unitful.promote_unit(::S, ::T) where {S<:PowerFreeUnits, T<:PowerFreeUnits} = Unitful.W
-    Unitful.promote_unit(::S, ::T) where {S<:PressureFreeUnits, T<:PressureFreeUnits} = Unitful.Pa
-    Unitful.promote_unit(::S, ::T) where {S<:ChargeFreeUnits, T<:ChargeFreeUnits} = Unitful.C
-    Unitful.promote_unit(::S, ::T) where {S<:VoltageFreeUnits, T<:VoltageFreeUnits} = Unitful.V
-    Unitful.promote_unit(::S, ::T) where {S<:ResistanceFreeUnits, T<:ResistanceFreeUnits} = Unitful.Ω
-    Unitful.promote_unit(::S, ::T) where {S<:CapacitanceFreeUnits, T<:CapacitanceFreeUnits} = Unitful.F
-    Unitful.promote_unit(::S, ::T) where {S<:InductanceFreeUnits, T<:InductanceFreeUnits} = Unitful.H
-    Unitful.promote_unit(::S, ::T) where {S<:MagneticFluxFreeUnits, T<:MagneticFluxFreeUnits} = Unitful.Wb
-    Unitful.promote_unit(::S, ::T) where {S<:BFieldFreeUnits, T<:BFieldFreeUnits} = Unitful.T
-    Unitful.promote_unit(::S, ::T) where {S<:ActionFreeUnits, T<:ActionFreeUnits} = Unitful.J * Unitful.s
+    eval(quote
+         Unitful.promote_unit(::S, ::T) where
+         {S<:EnergyFreeUnits, T<:EnergyFreeUnits} = Unitful.J
+         Unitful.promote_unit(::S, ::T) where
+         {S<:ForceFreeUnits, T<:ForceFreeUnits} = Unitful.N
+         Unitful.promote_unit(::S, ::T) where
+         {S<:PowerFreeUnits, T<:PowerFreeUnits} = Unitful.W
+         Unitful.promote_unit(::S, ::T) where
+         {S<:PressureFreeUnits, T<:PressureFreeUnits} = Unitful.Pa
+         Unitful.promote_unit(::S, ::T) where
+         {S<:ChargeFreeUnits, T<:ChargeFreeUnits} = Unitful.C
+         Unitful.promote_unit(::S, ::T) where
+         {S<:VoltageFreeUnits, T<:VoltageFreeUnits} = Unitful.V
+         Unitful.promote_unit(::S, ::T) where
+         {S<:ResistanceFreeUnits, T<:ResistanceFreeUnits} = Unitful.Ω
+         Unitful.promote_unit(::S, ::T) where
+         {S<:CapacitanceFreeUnits, T<:CapacitanceFreeUnits} = Unitful.F
+         Unitful.promote_unit(::S, ::T) where
+         {S<:InductanceFreeUnits, T<:InductanceFreeUnits} = Unitful.H
+         Unitful.promote_unit(::S, ::T) where
+         {S<:MagneticFluxFreeUnits, T<:MagneticFluxFreeUnits} = Unitful.Wb
+         Unitful.promote_unit(::S, ::T) where
+         {S<:BFieldFreeUnits, T<:BFieldFreeUnits} = Unitful.T
+         Unitful.promote_unit(::S, ::T) where
+         {S<:ActionFreeUnits, T<:ActionFreeUnits} = Unitful.J * Unitful.s
+        end)
     nothing
 end

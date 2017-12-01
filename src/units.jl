@@ -44,7 +44,7 @@
     # results in:
     # [nm,cm^6,m^6,µs^3,s]
 
-    d = (c...)
+    d = (c...,)
     f = typeof(mapreduce(dimension, *, NoDims, d))
     :(FreeUnits{$d,$f}())
 end

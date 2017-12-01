@@ -1,5 +1,5 @@
 """
-    \*(a0::Dimensions, a::Dimensions...)
+    *(a0::Dimensions, a::Dimensions...)
 Given however many dimensions, multiply them together.
 
 Collect [`Unitful.Dimension`](@ref) objects from the type parameter of the
@@ -54,7 +54,7 @@ true
         end
     end
 
-    d = (c...)
+    d = (c...,)
     :(Dimensions{$d}())
 end
 

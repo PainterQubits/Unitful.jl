@@ -266,7 +266,7 @@ factory defaults, this function will return a product of powers of base SI units
 (as [`Unitful.FreeUnits`](@ref)).
 """
 @generated function upreferred(x::Dimensions{D}) where {D}
-    u = *(FreeUnits{((Unitful.promotion[name(z)]^z.power for z in D)...),()}())
+    u = *(FreeUnits{((Unitful.promotion[name(z)]^z.power for z in D)...,),()}())
     :($u)
 end
 
@@ -438,7 +438,7 @@ julia> u"ħ"
 ```
 """
 macro u_str(unit)
-    ex = parse(unit)
+    ex = Meta.parse(unit)
     esc(replace_value(ex))
 end
 
@@ -453,7 +453,7 @@ function replace_value(ex::Expr)
                 ex.args[i]=replace_value(ex.args[i])
             end
         end
-        return eval(current_module(), ex)
+        return eval(@__MODULE__, ex)
     elseif ex.head == :tuple
         for i=1:length(ex.args)
             if typeof(ex.args[i])==Symbol
