@@ -149,24 +149,34 @@ Usage example: `@unit mi "mi" Mile (201168//125)*m false`
 This example will *not* generate `kmi` (kilomiles).
 """
 macro unit(symb,abbr,name,equals,tf)
+    expr = Expr(:block)
     # name is a symbol
     # abbr is a string
     x = Expr(:quote, name)
-    quote
-        d = Unitful.dimension($(esc(equals)))
-        inex, ex = Unitful.basefactor(Unitful.unit($(esc(equals))))
-        t = Unitful.tensfactor(Unitful.unit($(esc(equals))))
-        eq = ($(esc(equals)))/Unitful.unit($(esc(equals)))
-        Unitful.abbr(::Unitful.Unit{$(esc(x)),typeof(d)}) = $abbr
-        if $tf
-            Unitful.@prefixed_unit_symbols($(esc(symb)), $(esc(name)), d,
-                Unitful.basefactor(inex, ex, eq, t, 1))
-        else
-            Unitful.@unit_symbols($(esc(symb)), $(esc(name)), d,
-                Unitful.basefactor(inex, ex, eq, t, 1))
-        end
-        $(esc(symb))
+    d = :(Unitful.dimension($equals))
+    t = :(Unitful.tensfactor(Unitful.unit($equals)))
+    eq = :(($(esc(equals)))/Unitful.unit($equals))
+    push!(expr.args, esc(quote
+          Unitful.abbr(::Unitful.Unit{$x,typeof($d)}) = $abbr
+          end))
+    if tf
+        push!(expr.args, quote
+              inex, ex = Unitful.basefactor(Unitful.unit($equals))
+              Unitful.@prefixed_unit_symbols($symb, $name, $d,
+                                             Unitful.basefactor(inex, ex, $eq, $t, 1))
+              end)
+    else
+        push!(expr.args, quote
+              inex, ex = Unitful.basefactor(Unitful.unit($equals))
+              Unitful.@unit_symbols($symb, $name, $d,
+                                    Unitful.basefactor(inex, ex, $eq, $t, 1))
+              end)
     end
+    push!(expr.args, quote
+          $(esc(symb))
+          end)
+
+    expr
 end
 
 """
@@ -179,25 +189,26 @@ all getting defined in the calling namespace.
 """
 macro prefixed_unit_symbols(symb,name,dimension,basefactor)
     expr = Expr(:block)
-
-    z = Expr(:quote, name)
+    n = Meta.quot(Symbol(name))
+    
     for (k,v) in prefixdict
         s = Symbol(v,symb)
-        u = :(Unitful.Unit{$z, typeof($dimension)}($k,1//1))
-        ea = esc(quote
-            Unitful.basefactors[$z] = $basefactor
-            const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
-        end)
+        u = :(Unitful.Unit{$n, typeof($(esc(dimension)))}($k,1//1))
+        ea = quote
+            Unitful.basefactors[$n] = $basefactor
+            const $(esc(s)) = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+        end
         push!(expr.args, ea)
     end
 
     # These lines allow for μ to be typed with option-m on a Mac.
     s = Symbol(:µ, symb)
-    u = :(Unitful.Unit{$z, typeof($dimension)}(-6,1//1))
-    push!(expr.args, esc(quote
-        Unitful.basefactors[$z] = $basefactor
-        const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
-    end))
+    n = Meta.quot(Symbol(name))
+    u = :(Unitful.Unit{$n, typeof($(esc(dimension)))}(-6,1//1))
+    push!(expr.args, quote
+        Unitful.basefactors[$n] = $basefactor
+        const $(esc(s)) = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+    end)
 
     expr
 end
@@ -211,12 +222,12 @@ Example: `@unit_symbols ft Foot 𝐋` results in `ft` getting defined but not `k
 """
 macro unit_symbols(symb,name,dimension,basefactor)
     s = Symbol(symb)
-    z = Expr(:quote, name)
-    u = :(Unitful.Unit{$z,typeof($dimension)}(0,1//1))
-    esc(quote
-        Unitful.basefactors[$z] = $basefactor
-        const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
-    end)
+    n = Meta.quot(Symbol(name))
+    u = :(Unitful.Unit{$n,typeof($(esc(dimension)))}(0,1//1))
+    quote
+        Unitful.basefactors[$n] = $basefactor
+        const $(esc(s)) = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+    end
 end
 
 """
