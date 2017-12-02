@@ -1,5 +1,6 @@
 __precompile__(true)
 module Unitful
+using Compat
 
 import Base: ==, <, <=, +, -, *, /, //, ^
 import Base: show, convert
