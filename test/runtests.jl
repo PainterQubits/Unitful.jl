@@ -2,7 +2,6 @@ module UnitfulTests
 
 using Unitful
 using Compat.Test
-
 import Unitful: DimensionError
 
 import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
@@ -1268,7 +1267,7 @@ end
 # (and incidentally, for Compat macro hygiene in @dimension, @derived_dimension)
 module TUM
     using Unitful
-    using Base.Test
+    using Compat.Test
 
     @dimension f "f" FakeDim12345
     @derived_dimension FakeDim212345 f^2

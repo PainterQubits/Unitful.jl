@@ -123,17 +123,29 @@ Usage example: `@refunit m "m" Meter 𝐋 true`
 This example, found in `src/pkgdefaults.jl`, generates `km`, `m`, `cm`, ...
 """
 macro refunit(symb, abbr, name, dimension, tf)
-    x = Expr(:quote, name)
-    esc(quote
-        Unitful.abbr(::Unitful.Unit{$x,typeof($dimension)}) = $abbr
-        if $tf
-            Unitful.@prefixed_unit_symbols $symb $name $dimension (1.0, 1)
+    expr = Expr(:block)
+    n = Meta.quot(Symbol(name))
+    push!(expr.args,
+          quote
+          Unitful.abbr(::Unitful.Unit{$n,typeof($dimension)}) = $abbr
+          end)
+        if tf
+            push!(expr.args,
+                  quote
+@static if VERSION < v"0.7.0-" begin Unitful.@prefixed_unit_symbols $(esc(symb)) $(esc(name)) $dimension (1.0, 1) end else begin Unitful.@prefixed_unit_symbols $symb $name $dimension (1.0, 1) end end
+                  end)
         else
-            Unitful.@unit_symbols $symb $name $dimension (1.0, 1)
+            push!(expr.args,
+                  quote
+@static if VERSION < v"0.7.0-" begin Unitful.@unit_symbols $(esc(symb)) $(esc(name)) $dimension (1.0, 1) end else begin Unitful.@unit_symbols $symb $name $dimension (1.0, 1) end end
+                  end)
         end
-        Unitful.preferunits($symb)
-        $symb
-    end)
+    push!(expr.args,
+          esc(quote
+              Unitful.preferunits($symb)
+              $symb
+              end))
+    expr
 end
 
 """
@@ -152,30 +164,30 @@ macro unit(symb,abbr,name,equals,tf)
     expr = Expr(:block)
     # name is a symbol
     # abbr is a string
-    x = Expr(:quote, name)
+    n = Meta.quot(Symbol(name))
     d = :(Unitful.dimension($equals))
-    t = :(Unitful.tensfactor(Unitful.unit($equals)))
-    eq = :(($(esc(equals)))/Unitful.unit($equals))
-    push!(expr.args, esc(quote
-          Unitful.abbr(::Unitful.Unit{$x,typeof($d)}) = $abbr
-          end))
+    basef = :(Unitful.basefactor(Unitful.basefactor(Unitful.unit($equals))...,
+                                 ($equals)/Unitful.unit($equals),
+                                 Unitful.tensfactor(Unitful.unit($equals)), 1))
+    push!(expr.args,
+          quote
+          Unitful.abbr(::Unitful.Unit{$n,typeof($d)}) = $abbr
+          end)
     if tf
         push!(expr.args, quote
-              inex, ex = Unitful.basefactor(Unitful.unit($equals))
-              Unitful.@prefixed_unit_symbols($symb, $name, $d,
-                                             Unitful.basefactor(inex, ex, $eq, $t, 1))
+@static if VERSION < v"0.7.0-" begin Unitful.@prefixed_unit_symbols $(esc(symb)) $(esc(name)) $d $basef end else begin Unitful.@prefixed_unit_symbols $symb $name $d $basef end end
               end)
     else
         push!(expr.args, quote
-              inex, ex = Unitful.basefactor(Unitful.unit($equals))
-              Unitful.@unit_symbols($symb, $name, $d,
-                                    Unitful.basefactor(inex, ex, $eq, $t, 1))
+@static if VERSION < v"0.7.0-" begin Unitful.@unit_symbols $(esc(symb)) $(esc(name)) $d $basef end else begin Unitful.@unit_symbols $symb $name $d $basef end end
               end)
     end
-    push!(expr.args, quote
-          $(esc(symb))
-          end)
-
+    push!(expr.args,
+          esc(quote
+              @static if VERSION > v"0.7.0-" import Unitful.$symb end
+              $symb
+              end))
+    
     expr
 end
 
