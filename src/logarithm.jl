@@ -195,6 +195,7 @@ Base. *(x::Gain, y::Quantity) = *(y,x)
 # Division
 Base. /(x::Level, y::Number) = (leveltype(x))(linear(x) / y)
 Base. /(x::Level, y::Quantity) = linear(x) / y
+Base. /(x::Quantity, y::Level) = x / linear(y)
 Base. /(x::Level, y::Level) = linear(x) / linear(y)
 Base. /(x::Level{L,S}, y::Gain{L}) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(x) - y.val))
 Base. //(x::Level, y::Number) = (leveltype(x))(linear(x) // y)

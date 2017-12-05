@@ -428,6 +428,8 @@ end
         @test @inferred(false*1kg) === 0kg                # Boolean multiplication (F)
     end
     @testset "> Division" begin
+        @test 360° / 2 === 180.0°            # Issue 110
+        @test 360° // 2 === 180°//1
         @test 2m // 5s == (2//5)*(m/s)       # Units propagate through rationals
         @test (2//3)*m // 5 == (2//15)*m     # Quantity // Real
         @test 5.0m // s === 5.0m/s           # Quantity // Unit. Just pass units through
@@ -529,7 +531,7 @@ end
         @test !isapprox(1.0u"m", 1.1u"m"; atol=50u"mm")
         @test isapprox(1.0u"m", 1.1u"m"; rtol=0.2)
         @test !isapprox(1.0u"m", 1.1u"m"; rtol=0.05)
-        
+
         # Test eps
         @test eps(1.0u"s") == eps(1.0)u"s"
         @test eps(typeof(1.0u"s")) == eps(Float64)u"s"
