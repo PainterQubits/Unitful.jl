@@ -17,11 +17,16 @@ function _linspace(start::Quantity{T}, stop::Quantity{T}, len::Integer) where {T
     dimension(start) != dimension(stop) && throw(DimensionError(start, stop))
     linspace(start, stop, len)
 end
+# first promote start and stop, leaving step alone
+colon(start::A, step, stop::C) where {A<:Real,C<:Quantity} = colonstartstop(start,step,stop)
+colon(start::A, step, stop::C) where {A<:Quantity,C<:Real} = colonstartstop(start,step,stop)
+colon(start::Quantity{<:Real}, step, stop::Quantity{<:Real}) = colonstartstop(start,step,stop)
+colon(a::T, b::Quantity, c::T) where {T<:Real} = colon(promote(a,b,c)...)
 
-function colon(start::Quantity{<:Real}, step, stop::Quantity{<:Real})
+# promotes start and stop
+function colonstartstop(start::A, step, stop::C) where {A,C}
     dimension(start) != dimension(stop) && throw(DimensionError(start, stop))
-    T = promote_type(typeof(start),typeof(stop))
-    return colon(convert(T,start), step, convert(T,stop))
+    colon(convert(promote_type(A,C),start), step, convert(promote_type(A,C),stop))
 end
 
 function colon(start::A, step::B, stop::A) where A<:Quantity{<:Real} where B<:Quantity{<:Real}
@@ -50,10 +55,9 @@ _colon(::Any, ::Any, start::T, step, stop::T) where {T} =
 *(x::Base.TwicePrecision, y::Units) = Base.TwicePrecision(x.hi*y, x.lo*y)
 *(x::Base.TwicePrecision, y::Quantity) = (x * ustrip(y)) * unit(y)
 function colon(start::T, step::T, stop::T) where (T<:Quantity{S}
-    where S<:Union{Float16,Float32,Float64})
+        where S<:Union{Float16,Float32,Float64})
     # This will always return a StepRangeLen
-    r = colon(ustrip(start), ustrip(step), ustrip(stop))
-    return r*unit(T)
+    return colon(ustrip(start), ustrip(step), ustrip(stop)) * unit(T)
 end
 function Base.linspace(start::T, stop::T, len::Integer) where (T<:Quantity{S}
     where S<:Union{Float16,Float32,Float64})
