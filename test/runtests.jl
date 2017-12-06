@@ -877,6 +877,8 @@ end
             @test @inferred(last(range(0,10°,37))) == 2pi
             @test @inferred(last(range(0°,2pi/36,37))) == 2pi
             @test_throws ArgumentError 1.0m:0.0m:5.0m
+            @test_throws DimensionError range(1.0m, 1.0V, 5)
+            @test step(range(1.0m, 1m, 5)) === 1.0m
         end
         @testset ">> LinSpace" begin
             @test isa(@inferred(linspace(1.0m, 3.0m, 5)),
