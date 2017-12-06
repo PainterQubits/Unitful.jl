@@ -20,8 +20,9 @@ end
 # first promote start and stop, leaving step alone
 colon(start::A, step, stop::C) where {A<:Real,C<:Quantity} = colonstartstop(start,step,stop)
 colon(start::A, step, stop::C) where {A<:Quantity,C<:Real} = colonstartstop(start,step,stop)
-colon(start::Quantity{<:Real}, step, stop::Quantity{<:Real}) = colonstartstop(start,step,stop)
 colon(a::T, b::Quantity, c::T) where {T<:Real} = colon(promote(a,b,c)...)
+colon(start::Quantity{<:Real}, step, stop::Quantity{<:Real}) =
+    colon(promote(start, step, stop)...)
 
 # promotes start and stop
 function colonstartstop(start::A, step, stop::C) where {A,C}
@@ -80,8 +81,8 @@ range(a::Quantity{<:AbstractFloat}, st::Quantity{<:Real}, len::Integer) =
     range(a, float(st), len)
 range(a::Quantity{<:AbstractFloat}, st::Quantity{<:AbstractFloat}, len::Integer) =
     _range(promote(a, st)..., len)
-range(a::Quantity, st::Real, len::Integer) = _range(promote(a, st)..., len)
-range(a::Real, st::Quantity, len::Integer) = _range(promote(a, st)..., len)
+range(a::Quantity, st::Real, len::Integer) = range(promote(a, st)..., len)
+range(a::Real, st::Quantity, len::Integer) = range(promote(a, st)..., len)
 
 _range(a::T, st::T, len) where {T<:Quantity} = range(a, st, len)
 _range(a, st, len) = throw(DimensionError(a, st))
