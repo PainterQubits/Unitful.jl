@@ -81,8 +81,14 @@ range(a::Quantity{<:AbstractFloat}, st::Quantity{<:Real}, len::Integer) =
     range(a, float(st), len)
 range(a::Quantity{<:AbstractFloat}, st::Quantity{<:AbstractFloat}, len::Integer) =
     _range(promote(a, st)..., len)
+_range(a::T, st::T, len) where {T<:Quantity} = range(a, st, len)
+_range(a, st, len) = throw(DimensionError(a, st))
+
 range(a::Quantity, st::Real, len::Integer) = range(promote(a, st)..., len)
 range(a::Real, st::Quantity, len::Integer) = range(promote(a, st)..., len)
 
-_range(a::T, st::T, len) where {T<:Quantity} = range(a, st, len)
-_range(a, st, len) = throw(DimensionError(a, st))
+# the following is needed to give sane error messages when doing e.g. range(1°, 2V, 5)
+function range(a::T, step, len::Integer) where {T<:Quantity}
+    dimension(a) != dimension(step) && throw(DimensionError(a,step))
+    return Base._range(TypeOrder(T), TypeArithmetic(T), a, step, len)
+end

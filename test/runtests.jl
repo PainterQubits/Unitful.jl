@@ -851,7 +851,18 @@ end
             @test @inferred(length(r)) === 5
             @test @inferred(step(r)) === 1m
 
+            @test @inferred(first(range(1mm, 2m, 4))) === 1mm
+            @test @inferred(step(range(1mm, 2m, 4))) === 2m
+            @test @inferred(last(range(1mm, 2m, 4))) === 6001mm
             @test_throws ArgumentError 1m:0m:5m
+
+            @test_throws DimensionError range(1m, 2V, 5)
+            try
+                range(1m, 2V, 5)
+            catch e
+                @test e.x == 1m
+                @test e.y == 2V
+            end
         end
         @testset ">> StepRangeLen" begin
             @test isa(@inferred(colon(1.0m, 1m, 5m)), StepRangeLen{typeof(1.0m)})
