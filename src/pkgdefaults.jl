@@ -192,6 +192,7 @@ isrootpower_dim(::typeof(dimension(W/m^2)))     = false     # intensity
 isrootpower_dim(::typeof(𝐋^3))                  = false     # reflectivity
 isrootpower_dim(::typeof(dimension(Ω)))         = true
 isrootpower_dim(::typeof(dimension(S)))         = true
+isrootpower_dim(::Dimensions)                   = false     # allow logarithmic display of any dimension
 
 #########
 
