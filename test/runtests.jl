@@ -846,17 +846,39 @@ end
             @test typeof((1m:2m:13m)[2:3:7]) == typeof(3m:6m:13m)
         end
         @testset ">> StepRange" begin
-            r = @inferred(colon(1m, 1m, 5m)) # 1m:1m:5m
-            @test isa(r, StepRange)
+            r = @inferred(colon(1m, 1m, 5m))
+            @test isa(r, StepRange{typeof(1m)})
             @test @inferred(length(r)) === 5
             @test @inferred(step(r)) === 1m
+
+            @test @inferred(first(range(1mm, 2m, 4))) === 1mm
+            @test @inferred(step(range(1mm, 2m, 4))) === 2m
+            @test @inferred(last(range(1mm, 2m, 4))) === 6001mm
+            @test_throws ArgumentError 1m:0m:5m
+
+            @test_throws DimensionError range(1m, 2V, 5)
+            try
+                range(1m, 2V, 5)
+            catch e
+                @test e.x == 1m
+                @test e.y == 2V
+            end
         end
-        @testset ">> Float StepRange" begin
-            # @test isa(@inferred(colon(1.0m, 1m, 5m)), StepRange{typeof(1.0m)})
+        @testset ">> StepRangeLen" begin
+            @test isa(@inferred(colon(1.0m, 1m, 5m)), StepRangeLen{typeof(1.0m)})
             @test @inferred(length(1.0m:1m:5m)) === 5
             @test @inferred(step(1.0m:1m:5m)) === 1.0m
+            @test @inferred(length(0:10°:360°)) == 37 # issue 111
+            @test @inferred(length(0.0:10°:2pi)) == 37 # issue 111 fallout
+            @test @inferred(last(0°:0.1:360°)) === 6.2 # issue 111 fallout
 
+            @test @inferred(first(range(1mm, 0.1mm, 50))) === 1.0mm # issue 111
+            @test @inferred(step(range(1mm, 0.1mm, 50))) === 0.1mm # issue 111
+            @test @inferred(last(range(0,10°,37))) == 2pi
+            @test @inferred(last(range(0°,2pi/36,37))) == 2pi
             @test_throws ArgumentError 1.0m:0.0m:5.0m
+            @test_throws DimensionError range(1.0m, 1.0V, 5)
+            @test step(range(1.0m, 1m, 5)) === 1.0m
         end
         @testset ">> LinSpace" begin
             @test isa(@inferred(linspace(1.0m, 3.0m, 5)),
@@ -869,11 +891,6 @@ end
                 StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
             @test_throws Unitful.DimensionError linspace(1m, 10, 5)
             @test_throws Unitful.DimensionError linspace(1, 10m, 5)
-        end
-        @testset ">> Range → Range" begin
-            # @test isa((1m:5m)*2, StepRange)
-            # @test isa((1m:5m)/2, FloatRange)
-            # @test isa((1m:2m:5m)/2, FloatRange)
         end
         @testset ">> Range → Array" begin
             @test isa(collect(1m:1m:5m), Array{typeof(1m),1})
