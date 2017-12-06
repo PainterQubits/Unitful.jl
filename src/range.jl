@@ -61,7 +61,7 @@ function colon(start::T, step::T, stop::T) where (T<:Quantity{S}
 end
 function Base.linspace(start::T, stop::T, len::Integer) where (T<:Quantity{S}
     where S<:Union{Float16,Float32,Float64})
-    linspace(ustrip(start), ustrip(stop), len)*unit(T)
+    linspace(ustrip(start), ustrip(stop), len) * unit(T)
 end
 
 # No need to confuse things by changing the type once units are on there,
@@ -69,3 +69,19 @@ end
 *(r::StepRangeLen, y::Units) = StepRangeLen(r.ref*y, r.step*y, length(r), r.offset)
 *(r::LinSpace, y::Units) = LinSpace(r.start*y, r.stop*y, length(r))
 *(r::StepRange, y::Units) = StepRange(r.start*y, r.step*y, r.stop*y)
+
+function range(a::T, st::T, len::Integer) where (T<:Quantity{S}
+        where S<:Union{Float16,Float32,Float64})
+    return range(ustrip(a), ustrip(st), len) * unit(T)
+end
+range(a::Quantity{<:Real}, st::Quantity{<:AbstractFloat}, len::Integer) =
+    range(float(a), st, len)
+range(a::Quantity{<:AbstractFloat}, st::Quantity{<:Real}, len::Integer) =
+    range(a, float(st), len)
+range(a::Quantity{<:AbstractFloat}, st::Quantity{<:AbstractFloat}, len::Integer) =
+    _range(promote(a, st)..., len)
+range(a::Quantity, st::Real, len::Integer) = _range(promote(a, st)..., len)
+range(a::Real, st::Quantity, len::Integer) = _range(promote(a, st)..., len)
+
+_range(a::T, st::T, len) where {T<:Quantity} = range(a, st, len)
+_range(a, st, len) = throw(DimensionError(a, st))
