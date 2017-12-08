@@ -1,3 +1,6 @@
+- v0.5.1
+  - Dimensionless quantities no longer lose their units when dividing by a real number.
+  - Ranges constructed via `range` or `colon` should work more reliably (e.g., 0:10°:350° works now).
 - v0.5.0
   - Add `dBΩ` and `dBS` to permit working with impedances and admittances in dB. These are
     used in the Touchstone format and in microwave measurements.
