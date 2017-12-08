@@ -125,27 +125,27 @@ This example, found in `src/pkgdefaults.jl`, generates `km`, `m`, `cm`, ...
 macro refunit(symb, abbr, name, dimension, tf)
     expr = Expr(:block)
     n = Meta.quot(Symbol(name))
-    push!(expr.args,
-          quote
-          Unitful.abbr(::Unitful.Unit{$n,typeof($dimension)}) = $abbr
-          end)
-        if tf
-            push!(expr.args,
-                  quote
-@static if VERSION < v"0.7.0-" begin Unitful.@prefixed_unit_symbols $(esc(symb)) $(esc(name)) $dimension (1.0, 1) end else begin Unitful.@prefixed_unit_symbols $symb $name $dimension (1.0, 1) end end
-                  end)
-        else
-            push!(expr.args,
-                  quote
-@static if VERSION < v"0.7.0-" begin Unitful.@unit_symbols $(esc(symb)) $(esc(name)) $dimension (1.0, 1) end else begin Unitful.@unit_symbols $symb $name $dimension (1.0, 1) end end
-                  end)
-        end
-    push!(expr.args,
-          esc(quote
-              Unitful.preferunits($symb)
-              $symb
-              end))
-    expr
+
+    push!(expr.args, quote
+        Unitful.abbr(::Unitful.Unit{$n,typeof($dimension)}) = $abbr
+    end)
+
+    if tf
+        push!(expr.args, quote
+            Unitful.@prefixed_unit_symbols $symb $name $dimension (1.0, 1)
+        end)
+    else
+        push!(expr.args, quote
+            Unitful.@unit_symbols $symb $name $dimension (1.0, 1)
+        end)
+    end
+
+    push!(expr.args, quote
+        Unitful.preferunits($symb)
+        $symb
+    end)
+
+    esc(expr)
 end
 
 """
@@ -162,33 +162,31 @@ This example will *not* generate `kmi` (kilomiles).
 """
 macro unit(symb,abbr,name,equals,tf)
     expr = Expr(:block)
-    # name is a symbol
-    # abbr is a string
     n = Meta.quot(Symbol(name))
+
     d = :(Unitful.dimension($equals))
     basef = :(Unitful.basefactor(Unitful.basefactor(Unitful.unit($equals))...,
                                  ($equals)/Unitful.unit($equals),
                                  Unitful.tensfactor(Unitful.unit($equals)), 1))
-    push!(expr.args,
-          quote
-          Unitful.abbr(::Unitful.Unit{$n,typeof($d)}) = $abbr
-          end)
+    push!(expr.args, quote
+        Unitful.abbr(::Unitful.Unit{$n,typeof($d)}) = $abbr
+    end)
+
     if tf
         push!(expr.args, quote
-@static if VERSION < v"0.7.0-" begin Unitful.@prefixed_unit_symbols $(esc(symb)) $(esc(name)) $d $basef end else begin Unitful.@prefixed_unit_symbols $symb $name $d $basef end end
-              end)
+            Unitful.@prefixed_unit_symbols $symb $name $d $basef
+        end)
     else
         push!(expr.args, quote
-@static if VERSION < v"0.7.0-" begin Unitful.@unit_symbols $(esc(symb)) $(esc(name)) $d $basef end else begin Unitful.@unit_symbols $symb $name $d $basef end end
-              end)
+            Unitful.@unit_symbols $symb $name $d $basef
+        end)
     end
-    push!(expr.args,
-          esc(quote
-              @static if VERSION > v"0.7.0-" import Unitful.$symb end
-              $symb
-              end))
-    
-    expr
+
+    push!(expr.args, quote
+        $symb
+    end)
+
+    esc(expr)
 end
 
 """
@@ -202,27 +200,26 @@ all getting defined in the calling namespace.
 macro prefixed_unit_symbols(symb,name,dimension,basefactor)
     expr = Expr(:block)
     n = Meta.quot(Symbol(name))
-    
+
     for (k,v) in prefixdict
         s = Symbol(v,symb)
-        u = :(Unitful.Unit{$n, typeof($(esc(dimension)))}($k,1//1))
+        u = :(Unitful.Unit{$n, typeof($dimension)}($k,1//1))
         ea = quote
             Unitful.basefactors[$n] = $basefactor
-            const $(esc(s)) = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+            const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
         end
         push!(expr.args, ea)
     end
 
     # These lines allow for μ to be typed with option-m on a Mac.
     s = Symbol(:µ, symb)
-    n = Meta.quot(Symbol(name))
-    u = :(Unitful.Unit{$n, typeof($(esc(dimension)))}(-6,1//1))
+    u = :(Unitful.Unit{$n, typeof($dimension)}(-6,1//1))
     push!(expr.args, quote
         Unitful.basefactors[$n] = $basefactor
-        const $(esc(s)) = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+        const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
     end)
 
-    expr
+    esc(expr)
 end
 
 """
@@ -235,11 +232,11 @@ Example: `@unit_symbols ft Foot 𝐋` results in `ft` getting defined but not `k
 macro unit_symbols(symb,name,dimension,basefactor)
     s = Symbol(symb)
     n = Meta.quot(Symbol(name))
-    u = :(Unitful.Unit{$n,typeof($(esc(dimension)))}(0,1//1))
-    quote
+    u = :(Unitful.Unit{$n,typeof($dimension)}(0,1//1))
+    esc(quote
         Unitful.basefactors[$n] = $basefactor
-        const $(esc(s)) = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
-    end
+        const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+    end)
 end
 
 """
@@ -476,7 +473,7 @@ function replace_value(ex::Expr)
                 ex.args[i]=replace_value(ex.args[i])
             end
         end
-        return eval(@__MODULE__, ex)
+        return eval(Compat.@__MODULE__, ex)
     elseif ex.head == :tuple
         for i=1:length(ex.args)
             if typeof(ex.args[i])==Symbol
@@ -485,7 +482,7 @@ function replace_value(ex::Expr)
                 error("only use symbols inside the tuple.")
             end
         end
-        return eval(current_module(), ex)
+        return eval(Compat.@__MODULE__, ex)
     else
         error("Expr head $(ex.head) must equal :call or :tuple")
     end

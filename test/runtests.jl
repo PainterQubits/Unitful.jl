@@ -2,6 +2,7 @@ module UnitfulTests
 
 using Unitful
 using Compat.Test
+import Compat
 import Unitful: DimensionError
 
 import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
@@ -230,11 +231,18 @@ end
     end
     @testset "> Simple promotion" begin
         # promotion should do nothing to units alone
-        @test @inferred(promote(m, km)) === (m, km)
-        @test @inferred(promote(ContextUnits(m, km), ContextUnits(mm, km))) ===
-            (ContextUnits(m, km), ContextUnits(mm, km))
-        @test @inferred(promote(FixedUnits(m), FixedUnits(km))) ===
-            (FixedUnits(m), FixedUnits(km))
+        @static if VERSION < v"0.7.0-DEV.1579" # PR 23491
+            @test @inferred(promote(m, km)) === (m, km)
+            @test @inferred(promote(ContextUnits(m, km), ContextUnits(mm, km))) ===
+                (ContextUnits(m, km), ContextUnits(mm, km))
+            @test @inferred(promote(FixedUnits(m), FixedUnits(km))) ===
+                (FixedUnits(m), FixedUnits(km))
+        else
+            # promote throws an error if no types are be changed
+            @test_throws ErrorException promote(m, km)
+            @test_throws ErrorException promote(ContextUnits(m, km), ContextUnits(mm, km))
+            @test_throws ErrorException promote(FixedUnits(m), FixedUnits(km))
+        end
 
         # promote the numeric type
         @test @inferred(promote(1.0m, 1m)) === (1.0m, 1.0m)
@@ -282,28 +290,39 @@ end
     @testset "> Issue 52" begin
         x,y = 10m, 1
         px,py = promote(x,y)
-        ppx,ppy = promote(px,py)
-        @test typeof(py) == typeof(ppy)
+        @static if VERSION < v"0.7.0-DEV.1579" # PR 23491
+            ppx,ppy = promote(px,py)
+            @test typeof(py) == typeof(ppy)
+        else
+            # promoting the second time should not change the types
+            @test_throws ErrorException promote(px, py)
+        end
     end
 end
 
 @testset "Unit string macro" begin
-    @test macroexpand(:(u"m")) == m
-    @test macroexpand(:(u"m,s")) == (m,s)
-    @test macroexpand(:(u"1.0")) == 1.0
-    @test macroexpand(:(u"m/s")) == m/s
-    @test macroexpand(:(u"1.0m/s")) == 1.0m/s
-    @test macroexpand(:(u"m^-1")) == m^-1
-    @test macroexpand(:(u"dB/Hz")) == dB/Hz
-    @test macroexpand(:(u"3.0dB/Hz")) == 3.0dB/Hz
-    @test isa(macroexpand(:(u"N m")).args[1], ParseError)
-    @test isa(macroexpand(:(u"abs(2)")).args[1], ErrorException)
+    @test macroexpand(Compat.@__MODULE__, :(u"m")) == m
+    @test macroexpand(Compat.@__MODULE__, :(u"m,s")) == (m,s)
+    @test macroexpand(Compat.@__MODULE__, :(u"1.0")) == 1.0
+    @test macroexpand(Compat.@__MODULE__, :(u"m/s")) == m/s
+    @test macroexpand(Compat.@__MODULE__, :(u"1.0m/s")) == 1.0m/s
+    @test macroexpand(Compat.@__MODULE__, :(u"m^-1")) == m^-1
+    @test macroexpand(Compat.@__MODULE__, :(u"dB/Hz")) == dB/Hz
+    @test macroexpand(Compat.@__MODULE__, :(u"3.0dB/Hz")) == 3.0dB/Hz
+    @static if VERSION >= v"0.7.0-DEV.1729" # PR 23533
+        @test_throws LoadError macroexpand(Compat.@__MODULE__, :(u"N m"))
+        @test_throws LoadError macroexpand(Compat.@__MODULE__, :(u"abs(2)"))
+        @test_throws LoadError @eval u"basefactor"
+    else
+        @test isa(macroexpand(:(u"N m")).args[1], ParseError)
+        @test isa(macroexpand(:(u"abs(2)")).args[1], ErrorException)
+
+        # test ustrcheck(x) fallback to catch non-units / quantities
+        @test_throws ErrorException @eval u"basefactor"
+    end
 
     # test ustrcheck(::Quantity)
     @test u"h" == Unitful.h
-
-    # test ustrcheck(x) fallback to catch non-units / quantities
-    @test_throws ErrorException @eval u"basefactor"
 end
 
 @testset "Unit and dimensional analysis" begin
