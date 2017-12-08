@@ -344,9 +344,15 @@ typemin(x::Quantity{T}) where {T} = typemin(T)*unit(x)
 typemax(::Type{Quantity{T,D,U}}) where {T,D,U} = typemax(T)*U()
 typemax(x::Quantity{T}) where {T} = typemax(T)*unit(x)
 
-Base.literal_pow(::typeof(^), x::Quantity, ::Type{Val{v}}) where {v} =
-    Quantity(Base.literal_pow(^, x.val, Val{v}),
-             Base.literal_pow(^, unit(x), Val{v}))
+@static if VERSION < v"0.7.0-DEV.843"
+    Base.literal_pow(::typeof(^), x::Quantity, ::Type{Val{v}}) where {v} =
+        Quantity(Base.literal_pow(^, x.val, Val{v}),
+                 Base.literal_pow(^, unit(x), Val{v}))
+else
+    Base.literal_pow(::typeof(^), x::Quantity, ::Val{v}) where {v} =
+        Quantity(Base.literal_pow(^, x.val, Val(v)),
+                 Base.literal_pow(^, unit(x), Val(v)))
+end
 
 # All of these are needed for ambiguity resolution
 ^(x::Quantity, y::Integer) = Quantity((x.val)^y, unit(x)^y)

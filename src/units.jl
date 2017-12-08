@@ -107,17 +107,32 @@ true
 ^(x::FixedUnits{N}, y::Integer) where {N} = *(FixedUnits{map(a->a^y, N), ()}())
 ^(x::FixedUnits{N}, y::Number) where {N} = *(FixedUnits{map(a->a^y, N), ()}())
 
-@generated function Base.literal_pow(::typeof(^), x::FreeUnits{N}, ::Type{Val{p}}) where {N,p}
-    y = *(FreeUnits{map(a->a^p, N), ()}())
-    :($y)
-end
-@generated function Base.literal_pow(::typeof(^), x::ContextUnits{N,D,P}, ::Type{Val{p}}) where {N,D,P,p}
-    y = *(ContextUnits{map(a->a^p, N), (), typeof(P()^p)}())
-    :($y)
-end
-@generated function Base.literal_pow(::typeof(^), x::FixedUnits{N}, ::Type{Val{p}}) where {N,p}
-    y = *(FixedUnits{map(a->a^p, N), ()}())
-    :($y)
+@static if VERSION < v"0.7.0-DEV.843"
+    @generated function Base.literal_pow(::typeof(^), x::FreeUnits{N}, ::Type{Val{p}}) where {N,p}
+        y = *(FreeUnits{map(a->a^p, N), ()}())
+        :($y)
+    end
+    @generated function Base.literal_pow(::typeof(^), x::ContextUnits{N,D,P}, ::Type{Val{p}}) where {N,D,P,p}
+        y = *(ContextUnits{map(a->a^p, N), (), typeof(P()^p)}())
+        :($y)
+    end
+    @generated function Base.literal_pow(::typeof(^), x::FixedUnits{N}, ::Type{Val{p}}) where {N,p}
+        y = *(FixedUnits{map(a->a^p, N), ()}())
+        :($y)
+    end
+else
+    @generated function Base.literal_pow(::typeof(^), x::FreeUnits{N}, ::Val{p}) where {N,p}
+        y = *(FreeUnits{map(a->a^p, N), ()}())
+        :($y)
+    end
+    @generated function Base.literal_pow(::typeof(^), x::ContextUnits{N,D,P}, ::Val{p}) where {N,D,P,p}
+        y = *(ContextUnits{map(a->a^p, N), (), typeof(P()^p)}())
+        :($y)
+    end
+    @generated function Base.literal_pow(::typeof(^), x::FixedUnits{N}, ::Val{p}) where {N,p}
+        y = *(FixedUnits{map(a->a^p, N), ()}())
+        :($y)
+    end
 end
 
 # Since exponentiation is not type stable, we define a special `inv` method to enable fast
