@@ -203,14 +203,13 @@ isless(x::Quantity, y::Quantity) = _isless(promote(x,y)...)
 isless(x::Quantity, y::Number) = _isless(promote(x,y)...)
 isless(x::Number, y::Quantity) = _isless(promote(x,y)...)
 
-@inline <(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} = _lt(x,y)
+<(x::Quantity, y::Quantity) = _lt(x,y)
 @inline _lt(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} = <(x.val,y.val)
+@inline _lt(x::Quantity{T,D,U1}, y::Quantity{T,D,U2}) where {T,D,U1,U2} = <(promote(x,y)...)
 @inline _lt(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) where {T,D1,D2,U1,U2} = throw(DimensionError(x,y))
-@inline _lt(x,y) = <(x,y)
 
-<(x::Quantity, y::Quantity) = _lt(promote(x,y)...)
-<(x::Quantity, y::Number) = _lt(promote(x,y)...)
-<(x::Number, y::Quantity) = _lt(promote(x,y)...)
+<(x::Quantity, y::Number) = <(promote(x,y)...)
+<(x::Number, y::Quantity) = <(promote(x,y)...)
 
 Base.rtoldefault(::Type{Quantity{T,D,U}}) where {T,D,U} = Base.rtoldefault(T)
 isapprox(x::Quantity{T,D,U}, y::Quantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) where {T,D,U} =

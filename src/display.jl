@@ -59,18 +59,6 @@ function show(io::IO, x::Quantity)
 end
 
 """
-    show{T,D,U}(io::IO, ::Type{Quantity{T,D,U}})
-Show the type of a unitful quantity in a succinct way. Otherwise,
-array summaries are nearly unreadable.
-"""
-function show(io::IO, ::Type{Quantity{T,D,U}}) where {T,D,U}
-    print(io, "Quantity{", string(T),
-            ", Dimensions:{", string(D()),
-            "}, Units:{", string(U()), "}}")
-    nothing
-end
-
-"""
     show(io::IO, x::Unitlike)
 Call [`Unitful.showrep`](@ref) on each object in the tuple that is the type
 variable of a [`Unitful.Units`](@ref) or [`Unitful.Dimensions`](@ref) object.

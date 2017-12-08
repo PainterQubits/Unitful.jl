@@ -176,16 +176,17 @@ Unitful.Dimensions{()}
 @deprecate(dimension(x::AbstractArray{T}) where {T<:Units}, dimension.(x))
 
 """
-    mutable struct DimensionError{T,S} <: Exception
-      x::T
-      y::S
+    struct DimensionError <: Exception
+      x
+      y
     end
 Thrown when dimensions don't match in an operation that demands they do.
 Display `x` and `y` in error message.
 """
-mutable struct DimensionError{T,S} <: Exception
-    x::T
-    y::S
+struct DimensionError <: Exception
+    x
+    y
 end
+
 Base.showerror(io::IO, e::DimensionError) =
     print(io, "DimensionError: $(e.x) and $(e.y) are not dimensionally compatible.");
