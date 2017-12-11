@@ -821,8 +821,8 @@ end
     @test @inferred(conj((3+4im)V)) == (3-4im)V
     @test @inferred(typemin(1.0m)) == -Inf*m
     @test @inferred(typemax(typeof(1.0m))) == Inf*m
-    @test @inferred(typemin(0x01m)) == 0x00m
-    @test @inferred(typemax(typeof(0x01m))) == 0xffm
+    @test @inferred(typemin(0x01*m)) == 0x00*m
+    @test @inferred(typemax(typeof(0x01*m))) == 0xff*m
     @test @inferred(rand(typeof(1u"m"))) isa typeof(1u"m")
     @test @inferred(rand(MersenneTwister(0), typeof(1u"m"))) isa typeof(1u"m")
 end
