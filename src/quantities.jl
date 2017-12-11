@@ -359,6 +359,15 @@ end
 ^(x::Quantity, y::Rational) = Quantity((x.val)^y, unit(x)^y)
 ^(x::Quantity, y::Real) = Quantity((x.val)^y, unit(x)^y)
 
-Base.rand(r::AbstractRNG, ::Type{Quantity{T,D,U}}) where {T,D,U} = rand(r,T)*U()
-Base.ones(Q::Type{<:Quantity}, dims::Tuple) = fill!(Array{Q}(dims), oneunit(Q))
+@static if VERSION >= v"0.7.0-DEV.2708" #julia PR 23964
+    Base.rand(r::AbstractRNG, ::Base.Random.SamplerType{Quantity{T,D,U}}) where {T,D,U} =
+        rand(r, T) * U()
+else
+    Base.rand(r::AbstractRNG, ::Type{Quantity{T,D,U}}) where {T,D,U} = rand(r,T) * U()
+end
+@static if VERSION >= v"0.7.0-DEV.2581" #julia PR 24652
+    Base.ones(Q::Type{<:Quantity}, dims::Tuple) = fill!(Array{Q}(uninitialized, dims), oneunit(Q))
+else
+    Base.ones(Q::Type{<:Quantity}, dims::Tuple) = fill!(Array{Q}(dims), oneunit(Q))
+end
 Base.ones(a::AbstractArray, Q::Type{<:Quantity}) = fill!(similar(a,Q), oneunit(Q))
