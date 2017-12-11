@@ -603,9 +603,9 @@ end
         @test_throws DimensionError fma(2, 1m, 1V)
     end
     @testset "> @fastmath" begin
-        const one32 = one(Float32)*m
-        const eps32 = eps(Float32)*m
-        const eps32_2 = eps32/2
+        one32 = one(Float32)*m
+        eps32 = eps(Float32)*m
+        eps32_2 = eps32/2
 
         # Note: Cannot use local functions since these are not yet optimized
         fm_ieee_32(x) = x + eps32_2 + eps32_2
@@ -614,9 +614,9 @@ end
         @test (fm_fast_32(one32) == one32 ||
             fm_fast_32(one32) == one32 + eps32 > one32)
 
-        const one64 = one(Float64)*m
-        const eps64 = eps(Float64)*m
-        const eps64_2 = eps64/2
+        one64 = one(Float64)*m
+        eps64 = eps(Float64)*m
+        eps64_2 = eps64/2
 
         # Note: Cannot use local functions since these are not yet optimized
         fm_ieee_64(x) = x + eps64_2 + eps64_2
