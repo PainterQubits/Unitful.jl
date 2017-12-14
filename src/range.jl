@@ -81,11 +81,10 @@ range(a::Quantity{<:Real}, st::Quantity{<:AbstractFloat}, len::Integer) =
     range(float(a), st, len)
 range(a::Quantity{<:AbstractFloat}, st::Quantity{<:Real}, len::Integer) =
     range(a, float(st), len)
-range(a::Quantity{<:AbstractFloat}, st::Quantity{<:AbstractFloat}, len::Integer) =
-    _range(promote(a, st)..., len)
-_range(a::T, st::T, len) where {T<:Quantity} = range(a, st, len)
-_range(a, st, len) = throw(DimensionError(a, st))
-
+function range(a::Quantity{<:AbstractFloat}, st::Quantity{<:AbstractFloat}, len::Integer)
+    dimension(a) != dimension(st) && throw(DimensionError(a, st))
+    range(promote(a, st)..., len)
+end
 range(a::Quantity, st::Real, len::Integer) = range(promote(a, st)..., len)
 range(a::Real, st::Quantity, len::Integer) = range(promote(a, st)..., len)
 
