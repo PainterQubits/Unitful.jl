@@ -1,8 +1,8 @@
 module UnitfulTests
 
 using Unitful
-using Base.Test
-
+using Compat.Test
+import Compat
 import Unitful: DimensionError
 
 import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
@@ -231,11 +231,18 @@ end
     end
     @testset "> Simple promotion" begin
         # promotion should do nothing to units alone
-        @test @inferred(promote(m, km)) === (m, km)
-        @test @inferred(promote(ContextUnits(m, km), ContextUnits(mm, km))) ===
-            (ContextUnits(m, km), ContextUnits(mm, km))
-        @test @inferred(promote(FixedUnits(m), FixedUnits(km))) ===
-            (FixedUnits(m), FixedUnits(km))
+        @static if VERSION < v"0.7.0-DEV.1579" # PR 23491
+            @test @inferred(promote(m, km)) === (m, km)
+            @test @inferred(promote(ContextUnits(m, km), ContextUnits(mm, km))) ===
+                (ContextUnits(m, km), ContextUnits(mm, km))
+            @test @inferred(promote(FixedUnits(m), FixedUnits(km))) ===
+                (FixedUnits(m), FixedUnits(km))
+        else
+            # promote throws an error if no types are be changed
+            @test_throws ErrorException promote(m, km)
+            @test_throws ErrorException promote(ContextUnits(m, km), ContextUnits(mm, km))
+            @test_throws ErrorException promote(FixedUnits(m), FixedUnits(km))
+        end
 
         # promote the numeric type
         @test @inferred(promote(1.0m, 1m)) === (1.0m, 1.0m)
@@ -283,28 +290,39 @@ end
     @testset "> Issue 52" begin
         x,y = 10m, 1
         px,py = promote(x,y)
-        ppx,ppy = promote(px,py)
-        @test typeof(py) == typeof(ppy)
+        @static if VERSION < v"0.7.0-DEV.1579" # PR 23491
+            ppx,ppy = promote(px,py)
+            @test typeof(py) == typeof(ppy)
+        else
+            # promoting the second time should not change the types
+            @test_throws ErrorException promote(px, py)
+        end
     end
 end
 
 @testset "Unit string macro" begin
-    @test macroexpand(:(u"m")) == m
-    @test macroexpand(:(u"m,s")) == (m,s)
-    @test macroexpand(:(u"1.0")) == 1.0
-    @test macroexpand(:(u"m/s")) == m/s
-    @test macroexpand(:(u"1.0m/s")) == 1.0m/s
-    @test macroexpand(:(u"m^-1")) == m^-1
-    @test macroexpand(:(u"dB/Hz")) == dB/Hz
-    @test macroexpand(:(u"3.0dB/Hz")) == 3.0dB/Hz
-    @test isa(macroexpand(:(u"N m")).args[1], ParseError)
-    @test isa(macroexpand(:(u"abs(2)")).args[1], ErrorException)
+    @test macroexpand(Compat.@__MODULE__, :(u"m")) == m
+    @test macroexpand(Compat.@__MODULE__, :(u"m,s")) == (m,s)
+    @test macroexpand(Compat.@__MODULE__, :(u"1.0")) == 1.0
+    @test macroexpand(Compat.@__MODULE__, :(u"m/s")) == m/s
+    @test macroexpand(Compat.@__MODULE__, :(u"1.0m/s")) == 1.0m/s
+    @test macroexpand(Compat.@__MODULE__, :(u"m^-1")) == m^-1
+    @test macroexpand(Compat.@__MODULE__, :(u"dB/Hz")) == dB/Hz
+    @test macroexpand(Compat.@__MODULE__, :(u"3.0dB/Hz")) == 3.0dB/Hz
+    @static if VERSION >= v"0.7.0-DEV.1729" # PR 23533
+        @test_throws LoadError macroexpand(Compat.@__MODULE__, :(u"N m"))
+        @test_throws LoadError macroexpand(Compat.@__MODULE__, :(u"abs(2)"))
+        @test_throws LoadError @eval u"basefactor"
+    else
+        @test isa(macroexpand(:(u"N m")).args[1], ParseError)
+        @test isa(macroexpand(:(u"abs(2)")).args[1], ErrorException)
+
+        # test ustrcheck(x) fallback to catch non-units / quantities
+        @test_throws ErrorException @eval u"basefactor"
+    end
 
     # test ustrcheck(::Quantity)
     @test u"h" == Unitful.h
-
-    # test ustrcheck(x) fallback to catch non-units / quantities
-    @test_throws ErrorException @eval u"basefactor"
 end
 
 @testset "Unit and dimensional analysis" begin
@@ -585,9 +603,9 @@ end
         @test_throws DimensionError fma(2, 1m, 1V)
     end
     @testset "> @fastmath" begin
-        const one32 = one(Float32)*m
-        const eps32 = eps(Float32)*m
-        const eps32_2 = eps32/2
+        one32 = one(Float32)*m
+        eps32 = eps(Float32)*m
+        eps32_2 = eps32/2
 
         # Note: Cannot use local functions since these are not yet optimized
         fm_ieee_32(x) = x + eps32_2 + eps32_2
@@ -596,9 +614,9 @@ end
         @test (fm_fast_32(one32) == one32 ||
             fm_fast_32(one32) == one32 + eps32 > one32)
 
-        const one64 = one(Float64)*m
-        const eps64 = eps(Float64)*m
-        const eps64_2 = eps64/2
+        one64 = one(Float64)*m
+        eps64 = eps(Float64)*m
+        eps64_2 = eps64/2
 
         # Note: Cannot use local functions since these are not yet optimized
         fm_ieee_64(x) = x + eps64_2 + eps64_2
@@ -643,7 +661,7 @@ end
             end
         end
 
-        for T in (Complex64, Complex128, Complex{BigFloat})
+        for T in (Complex{Float32}, Complex{Float64}, Complex{BigFloat})
             _zero = convert(T, 0)*m
             _one = convert(T, 1)*m + im*eps(real(convert(T,1)))*m
             _two = convert(T, 2)*m + im*m//10
@@ -706,7 +724,7 @@ end
         end
 
         # complex arithmetic
-        for T in (Complex64, Complex128, Complex{BigFloat})
+        for T in (Complex{Float32}, Complex{Float64}, Complex{BigFloat})
             half = (1+1im)V/T(2)
             third = (1-1im)V/T(3)
 
@@ -803,8 +821,8 @@ end
     @test @inferred(conj((3+4im)V)) == (3-4im)V
     @test @inferred(typemin(1.0m)) == -Inf*m
     @test @inferred(typemax(typeof(1.0m))) == Inf*m
-    @test @inferred(typemin(0x01m)) == 0x00m
-    @test @inferred(typemax(typeof(0x01m))) == 0xffm
+    @test @inferred(typemin(0x01*m)) == 0x00*m
+    @test @inferred(typemax(typeof(0x01*m))) == 0xff*m
     @test @inferred(rand(typeof(1u"m"))) isa typeof(1u"m")
     @test @inferred(rand(MersenneTwister(0), typeof(1u"m"))) isa typeof(1u"m")
 end
@@ -938,20 +956,20 @@ end
             @test typeof([3m,4m] * [1 2])        == Array{typeof(1u"m"),2}
         end
         @testset ">> Element-wise multiplication" begin
-            @test @inferred([1m, 2m, 3m] * 5)          == [5m, 10m, 15m]
-            @test typeof([1m, 2m, 3m] * 5)             == Array{typeof(1u"m"),1}
-            @test @inferred([1m, 2m, 3m] .* 5m)        == [5m^2, 10m^2, 15m^2]
-            @test typeof([1m, 2m, 3m] * 5m)            == Array{typeof(1u"m^2"),1}
-            @test @inferred(5m .* [1m, 2m, 3m])        == [5m^2, 10m^2, 15m^2]
-            @test typeof(5m .* [1m, 2m, 3m])           == Array{typeof(1u"m^2"),1}
-            @test @inferred(eye(2)*V)                  == [1.0V 0.0V; 0.0V 1.0V]
-            @test @inferred(V*eye(2))                  == [1.0V 0.0V; 0.0V 1.0V]
-            @test @inferred(eye(2).*V)                 == [1.0V 0.0V; 0.0V 1.0V]
-            @test @inferred(V.*eye(2))                 == [1.0V 0.0V; 0.0V 1.0V]
-            @test @inferred([1V 2V; 0V 3V].*2)         == [2V 4V; 0V 6V]
-            @test @inferred([1V, 2V] .* [true, false]) == [1V, 0V]
-            @test @inferred([1.0m, 2.0m] ./ 3)         == [1m/3, 2m/3]
-            @test @inferred([1V, 2.0V] ./ [3m, 4m])    == [1V/(3m), 0.5V/m]
+            @test @inferred([1m, 2m, 3m] * 5)            == [5m, 10m, 15m]
+            @test typeof([1m, 2m, 3m] * 5)               == Array{typeof(1u"m"),1}
+            @test @inferred([1m, 2m, 3m] .* 5m)          == [5m^2, 10m^2, 15m^2]
+            @test typeof([1m, 2m, 3m] * 5m)              == Array{typeof(1u"m^2"),1}
+            @test @inferred(5m .* [1m, 2m, 3m])          == [5m^2, 10m^2, 15m^2]
+            @test typeof(5m .* [1m, 2m, 3m])             == Array{typeof(1u"m^2"),1}
+            @test @inferred(Matrix{Float64}(I, 2, 2)*V)  == [1.0V 0.0V; 0.0V 1.0V]
+            @test @inferred(V*Matrix{Float64}(I, 2, 2))  == [1.0V 0.0V; 0.0V 1.0V]
+            @test @inferred(Matrix{Float64}(I, 2, 2).*V) == [1.0V 0.0V; 0.0V 1.0V]
+            @test @inferred(V.*Matrix{Float64}(I, 2, 2)) == [1.0V 0.0V; 0.0V 1.0V]
+            @test @inferred([1V 2V; 0V 3V].*2)           == [2V 4V; 0V 6V]
+            @test @inferred([1V, 2V] .* [true, false])   == [1V, 0V]
+            @test @inferred([1.0m, 2.0m] ./ 3)           == [1m/3, 2m/3]
+            @test @inferred([1V, 2.0V] ./ [3m, 4m])      == [1V/(3m), 0.5V/m]
 
             @test @inferred([1, 2]kg)                  == [1, 2] * kg
             @test @inferred([1, 2]kg .* [2, 3]kg^-1)   == [2, 6]
@@ -997,13 +1015,22 @@ end
             @test @inferred(ustrip([1u"m", 2u"m"])) == [1,2]
             @test_warn "deprecated" ustrip([1,2])
             @test ustrip.([1,2]) == [1,2]
-            @test typeof(ustrip([1u"m", 2u"m"])) == Array{Int,1}
-            @test typeof(ustrip(Diagonal([1,2]u"m"))) == Diagonal{Int}
-            @test typeof(ustrip(Bidiagonal([1,2,3]u"m", [1,2]u"m", true))) ==
-                Bidiagonal{Int}
-            @test typeof(ustrip(Tridiagonal([1,2]u"m", [3,4,5]u"m", [6,7]u"m"))) ==
+            @static if VERSION >= v"0.7.0-DEV.2083" # PR 23750
+                @test typeof(ustrip([1u"m", 2u"m"])) <: Base.ReinterpretArray{Int,1}
+            else
+                @test typeof(ustrip([1u"m", 2u"m"])) <: Array{Int,1}
+            end
+            @test typeof(ustrip(Diagonal([1,2]u"m"))) <: Diagonal{Int}
+            @static if VERSION >= v"0.7.0-DEV.884" # PR 22703
+                @test typeof(ustrip(Bidiagonal([1,2,3]u"m", [1,2]u"m", :U))) <:
+                    Bidiagonal{Int}
+            else
+                @test typeof(ustrip(Bidiagonal([1,2,3]u"m", [1,2]u"m", true))) <:
+                    Bidiagonal{Int}
+            end
+            @test typeof(ustrip(Tridiagonal([1,2]u"m", [3,4,5]u"m", [6,7]u"m"))) <:
                 Tridiagonal{Int}
-            @test typeof(ustrip(SymTridiagonal([1,2,3]u"m", [4,5]u"m"))) ==
+            @test typeof(ustrip(SymTridiagonal([1,2,3]u"m", [4,5]u"m"))) <:
                 SymTridiagonal{Int}
         end
         @testset ">> Linear algebra" begin
@@ -1016,11 +1043,11 @@ end
             @test @inferred(zeros(Q, 2)) == [0, 0]u"m"
             @test @inferred(zeros(Q, (2,))) == [0, 0]u"m"
             @test @inferred(zeros(Q)[]) == 0u"m"
-            @test @inferred(zeros([1.0, 2.0, 3.0], Q)) == [0, 0, 0]u"m"
+            @test @inferred(fill!(similar([1.0, 2.0, 3.0], Q), zero(Q))) == [0, 0, 0]u"m"
             @test @inferred(ones(Q, 2)) == [1, 1]u"m"
             @test @inferred(ones(Q, (2,))) == [1, 1]u"m"
             @test @inferred(ones(Q)[]) == 1u"m"
-            @test @inferred(ones([1.0, 2.0, 3.0], Q)) == [1, 1, 1]u"m"
+            @test @inferred(fill!(similar([1.0, 2.0, 3.0], Q), oneunit(Q))) == [1, 1, 1]u"m"
             @test size(rand(Q, 2)) == (2,)
             @test size(rand(Q, 2, 3)) == (2,3)
             @test eltype(@inferred(rand(Q, 2))) == Q
@@ -1032,7 +1059,7 @@ end
   function errorstr(e)
     b = IOBuffer()
     Base.showerror(b,e)
-    String(b)
+    String(take!(b))
   end
   @test errorstr(DimensionError(1u"m",2)) == "DimensionError: 1 m and 2 are not dimensionally compatible."
   @test errorstr(DimensionError(1u"m",NoDims)) == "DimensionError: 1 m and  are not dimensionally compatible."
@@ -1066,7 +1093,11 @@ end
         end
 
         @testset ">> Gain" begin
-            @test_throws ArgumentError @eval @dB 10
+            @static if VERSION >= v"0.7.0-DEV.1729" # PR 23533
+                @test_throws LoadError @eval @dB 10
+            else
+                @test_throws ArgumentError @eval @dB 10
+            end
             @test 20*dB  === dB*20
         end
 
@@ -1124,14 +1155,14 @@ end
         @test convert(Float64, 0u"dBFS") === 1.0
 
         @test isapprox(uconvertrp(NoUnits, 6.02dB), 2.0, atol=0.001)
-        @test uconvertrp(NoUnits, 1Np) ≈ e
-        @test uconvertrp(Np, e) == 1Np
+        @test uconvertrp(NoUnits, 1Np) ≈ Compat.MathConstants.e
+        @test uconvertrp(Np, Compat.MathConstants.e) == 1Np
         @test uconvertrp(NoUnits, 1) == 1
         @test uconvertrp(NoUnits, 20dB) == 10
         @test uconvertrp(dB, 10) == 20dB
         @test isapprox(uconvertp(NoUnits, 3.01dB), 2.0, atol=0.001)
-        @test uconvertp(NoUnits, 1Np) == e^2
-        @test uconvertp(Np, e^2) == 1Np
+        @test uconvertp(NoUnits, 1Np) == (Compat.MathConstants.e)^2
+        @test uconvertp(Np, (Compat.MathConstants.e)^2) == 1Np
         @test uconvertp(NoUnits, 1) == 1
         @test uconvertp(NoUnits, 20dB) == 100
         @test uconvertp(dB, 100) == 20dB
@@ -1268,7 +1299,7 @@ end
 # (and incidentally, for Compat macro hygiene in @dimension, @derived_dimension)
 module TUM
     using Unitful
-    using Base.Test
+    using Compat.Test
 
     @dimension f "f" FakeDim12345
     @derived_dimension FakeDim212345 f^2

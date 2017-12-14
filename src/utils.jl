@@ -65,7 +65,11 @@ julia> a[1] = 3u"m"; b
 Strip units from various kinds of matrices by calling `ustrip` on the underlying vectors.
 """
 ustrip(A::Diagonal) = Diagonal(ustrip(A.diag))
-ustrip(A::Bidiagonal) = Bidiagonal(ustrip(A.dv), ustrip(A.ev), A.isupper)
+@static if VERSION >= v"0.7.0-DEV.884" # PR 22703
+    ustrip(A::Bidiagonal) = Bidiagonal(ustrip(A.dv), ustrip(A.ev), ifelse(istriu(A), :U, :L))
+else
+    ustrip(A::Bidiagonal) = Bidiagonal(ustrip(A.dv), ustrip(A.ev), istriu(A))
+end
 ustrip(A::Tridiagonal) = Tridiagonal(ustrip(A.dl), ustrip(A.d), ustrip(A.du))
 ustrip(A::SymTridiagonal) = SymTridiagonal(ustrip(A.dv), ustrip(A.ev))
 
@@ -176,16 +180,17 @@ Unitful.Dimensions{()}
 @deprecate(dimension(x::AbstractArray{T}) where {T<:Units}, dimension.(x))
 
 """
-    mutable struct DimensionError{T,S} <: Exception
-      x::T
-      y::S
+    struct DimensionError <: Exception
+      x
+      y
     end
 Thrown when dimensions don't match in an operation that demands they do.
 Display `x` and `y` in error message.
 """
-mutable struct DimensionError{T,S} <: Exception
-    x::T
-    y::S
+struct DimensionError <: Exception
+    x
+    y
 end
+
 Base.showerror(io::IO, e::DimensionError) =
     print(io, "DimensionError: $(e.x) and $(e.y) are not dimensionally compatible.");

@@ -54,12 +54,12 @@ macro dimension(symb, abbr, name)
     funame = Symbol(name,"FreeUnits")
     esc(quote
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
-        const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
-        const ($name){T,U} = Union{
+        const global $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
+        const global ($name){T,U} = Union{
             Unitful.Quantity{T,typeof($s),U},
             Unitful.Level{L,S,Unitful.Quantity{T,typeof($s),U}} where {L,S}}
-        const ($uname){U} = Unitful.Units{U,typeof($s)}
-        const ($funame){U} = Unitful.FreeUnits{U,typeof($s)}
+        const global ($uname){U} = Unitful.Units{U,typeof($s)}
+        const global ($funame){U} = Unitful.FreeUnits{U,typeof($s)}
         $s
     end)
 end
@@ -83,11 +83,11 @@ macro derived_dimension(name, dims)
     uname = Symbol(name,"Units")
     funame = Symbol(name,"FreeUnits")
     esc(quote
-        const ($name){T,U} = Union{
+        const global ($name){T,U} = Union{
             Unitful.Quantity{T,typeof($dims),U},
             Unitful.Level{L,S,Unitful.Quantity{T,typeof($dims),U}} where {L,S}}
-        const ($uname){U} = Unitful.Units{U,typeof($dims)}
-        const ($funame){U} = Unitful.FreeUnits{U,typeof($dims)}
+        const global ($uname){U} = Unitful.Units{U,typeof($dims)}
+        const global ($funame){U} = Unitful.FreeUnits{U,typeof($dims)}
         nothing
     end)
 end
@@ -123,17 +123,29 @@ Usage example: `@refunit m "m" Meter 𝐋 true`
 This example, found in `src/pkgdefaults.jl`, generates `km`, `m`, `cm`, ...
 """
 macro refunit(symb, abbr, name, dimension, tf)
-    x = Expr(:quote, name)
-    esc(quote
-        Unitful.abbr(::Unitful.Unit{$x,typeof($dimension)}) = $abbr
-        if $tf
+    expr = Expr(:block)
+    n = Meta.quot(Symbol(name))
+
+    push!(expr.args, quote
+        Unitful.abbr(::Unitful.Unit{$n,typeof($dimension)}) = $abbr
+    end)
+
+    if tf
+        push!(expr.args, quote
             Unitful.@prefixed_unit_symbols $symb $name $dimension (1.0, 1)
-        else
+        end)
+    else
+        push!(expr.args, quote
             Unitful.@unit_symbols $symb $name $dimension (1.0, 1)
-        end
+        end)
+    end
+
+    push!(expr.args, quote
         Unitful.preferunits($symb)
         $symb
     end)
+
+    esc(expr)
 end
 
 """
@@ -149,24 +161,32 @@ Usage example: `@unit mi "mi" Mile (201168//125)*m false`
 This example will *not* generate `kmi` (kilomiles).
 """
 macro unit(symb,abbr,name,equals,tf)
-    # name is a symbol
-    # abbr is a string
-    x = Expr(:quote, name)
-    quote
-        d = Unitful.dimension($(esc(equals)))
-        inex, ex = Unitful.basefactor(Unitful.unit($(esc(equals))))
-        t = Unitful.tensfactor(Unitful.unit($(esc(equals))))
-        eq = ($(esc(equals)))/Unitful.unit($(esc(equals)))
-        Unitful.abbr(::Unitful.Unit{$(esc(x)),typeof(d)}) = $abbr
-        if $tf
-            Unitful.@prefixed_unit_symbols($(esc(symb)), $(esc(name)), d,
-                Unitful.basefactor(inex, ex, eq, t, 1))
-        else
-            Unitful.@unit_symbols($(esc(symb)), $(esc(name)), d,
-                Unitful.basefactor(inex, ex, eq, t, 1))
-        end
-        $(esc(symb))
+    expr = Expr(:block)
+    n = Meta.quot(Symbol(name))
+
+    d = :(Unitful.dimension($equals))
+    basef = :(Unitful.basefactor(Unitful.basefactor(Unitful.unit($equals))...,
+                                 ($equals)/Unitful.unit($equals),
+                                 Unitful.tensfactor(Unitful.unit($equals)), 1))
+    push!(expr.args, quote
+        Unitful.abbr(::Unitful.Unit{$n,typeof($d)}) = $abbr
+    end)
+
+    if tf
+        push!(expr.args, quote
+            Unitful.@prefixed_unit_symbols $symb $name $d $basef
+        end)
+    else
+        push!(expr.args, quote
+            Unitful.@unit_symbols $symb $name $d $basef
+        end)
     end
+
+    push!(expr.args, quote
+        $symb
+    end)
+
+    esc(expr)
 end
 
 """
@@ -179,27 +199,27 @@ all getting defined in the calling namespace.
 """
 macro prefixed_unit_symbols(symb,name,dimension,basefactor)
     expr = Expr(:block)
+    n = Meta.quot(Symbol(name))
 
-    z = Expr(:quote, name)
     for (k,v) in prefixdict
         s = Symbol(v,symb)
-        u = :(Unitful.Unit{$z, typeof($dimension)}($k,1//1))
-        ea = esc(quote
-            Unitful.basefactors[$z] = $basefactor
-            const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
-        end)
+        u = :(Unitful.Unit{$n, typeof($dimension)}($k,1//1))
+        ea = quote
+            Unitful.basefactors[$n] = $basefactor
+            const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+        end
         push!(expr.args, ea)
     end
 
     # These lines allow for μ to be typed with option-m on a Mac.
     s = Symbol(:µ, symb)
-    u = :(Unitful.Unit{$z, typeof($dimension)}(-6,1//1))
-    push!(expr.args, esc(quote
-        Unitful.basefactors[$z] = $basefactor
-        const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
-    end))
+    u = :(Unitful.Unit{$n, typeof($dimension)}(-6,1//1))
+    push!(expr.args, quote
+        Unitful.basefactors[$n] = $basefactor
+        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+    end)
 
-    expr
+    esc(expr)
 end
 
 """
@@ -211,11 +231,11 @@ Example: `@unit_symbols ft Foot 𝐋` results in `ft` getting defined but not `k
 """
 macro unit_symbols(symb,name,dimension,basefactor)
     s = Symbol(symb)
-    z = Expr(:quote, name)
-    u = :(Unitful.Unit{$z,typeof($dimension)}(0,1//1))
+    n = Meta.quot(Symbol(name))
+    u = :(Unitful.Unit{$n,typeof($dimension)}(0,1//1))
     esc(quote
-        Unitful.basefactors[$z] = $basefactor
-        const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+        Unitful.basefactors[$n] = $basefactor
+        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
     end)
 end
 
@@ -266,7 +286,7 @@ factory defaults, this function will return a product of powers of base SI units
 (as [`Unitful.FreeUnits`](@ref)).
 """
 @generated function upreferred(x::Dimensions{D}) where {D}
-    u = *(FreeUnits{((Unitful.promotion[name(z)]^z.power for z in D)...),()}())
+    u = *(FreeUnits{((Unitful.promotion[name(z)]^z.power for z in D)...,),()}())
     :($u)
 end
 
@@ -339,10 +359,10 @@ macro logscale(symb,abbr,name,base,prefactor,irp)
     quote
         Unitful.abbr(::Unitful.LogInfo{$(QuoteNode(name))}) = $abbr
 
-        const $(esc(name)) = Unitful.LogInfo{$(QuoteNode(name)), $base, $prefactor}
+        const global $(esc(name)) = Unitful.LogInfo{$(QuoteNode(name)), $base, $prefactor}
         Unitful.isrootpower(::Type{$(esc(name))}) = $irp
 
-        const $(esc(symb)) = Unitful.MixedUnits{Unitful.Gain{$(esc(name))}}()
+        const global $(esc(symb)) = Unitful.MixedUnits{Unitful.Gain{$(esc(name))}}()
 
         macro $(esc(symb))(::Union{Real,Symbol})
             throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
@@ -401,7 +421,7 @@ Defines a logarithmic unit. For examples see `src/pkgdefaults.jl`.
 macro logunit(symb, abbr, logscale, reflevel)
     quote
         Unitful.abbr(::Unitful.Level{$(esc(logscale)), $(esc(reflevel))}) = $abbr
-        const $(esc(symb)) =
+        const global $(esc(symb)) =
             Unitful.MixedUnits{Unitful.Level{$(esc(logscale)), $(esc(reflevel))}}()
     end
 end
@@ -438,7 +458,7 @@ julia> u"ħ"
 ```
 """
 macro u_str(unit)
-    ex = parse(unit)
+    ex = Meta.parse(unit)
     esc(replace_value(ex))
 end
 
@@ -453,7 +473,7 @@ function replace_value(ex::Expr)
                 ex.args[i]=replace_value(ex.args[i])
             end
         end
-        return eval(current_module(), ex)
+        return eval(Compat.@__MODULE__, ex)
     elseif ex.head == :tuple
         for i=1:length(ex.args)
             if typeof(ex.args[i])==Symbol
@@ -462,7 +482,7 @@ function replace_value(ex::Expr)
                 error("only use symbols inside the tuple.")
             end
         end
-        return eval(current_module(), ex)
+        return eval(Compat.@__MODULE__, ex)
     else
         error("Expr head $(ex.head) must equal :call or :tuple")
     end

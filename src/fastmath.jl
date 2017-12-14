@@ -1,6 +1,6 @@
 import Base.FastMath
 import Core.Intrinsics:
-    sqrt_llvm_fast,
+    sqrt_llvm,
     neg_float_fast,
     add_float_fast,
     sub_float_fast,
@@ -161,7 +161,7 @@ pow_fast(x::Quantity, y::Integer) = x^y
 pow_fast(x::Quantity, y::Rational) = x^y
 
 sqrt_fast(x::Quantity{T}) where {T <: FloatTypes} =
-    Quantity(sqrt_llvm_fast(x.val), sqrt(unit(x)))
+    Quantity(sqrt_llvm(x.val), sqrt(unit(x)))
 
 for f in (:cos, :sin, :tan)
     f_fast = fast_op[f]

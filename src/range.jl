@@ -1,6 +1,8 @@
-*(y::Units, r::Range) = *(r,y)
-*(r::Range, y::Units) = range(first(r)*y, step(r)*y, length(r))
-*(r::Range, y::Units, z::Units...) = *(x, *(y,z...))
+using Compat: AbstractRange
+
+*(y::Units, r::AbstractRange) = *(r,y)
+*(r::AbstractRange, y::Units) = range(first(r)*y, step(r)*y, length(r))
+*(r::AbstractRange, y::Units, z::Units...) = *(x, *(y,z...))
 
 Base.linspace(start::Quantity{<:Real}, stop, len::Integer) =
     _linspace(promote(start, stop)..., len)
@@ -79,11 +81,10 @@ range(a::Quantity{<:Real}, st::Quantity{<:AbstractFloat}, len::Integer) =
     range(float(a), st, len)
 range(a::Quantity{<:AbstractFloat}, st::Quantity{<:Real}, len::Integer) =
     range(a, float(st), len)
-range(a::Quantity{<:AbstractFloat}, st::Quantity{<:AbstractFloat}, len::Integer) =
-    _range(promote(a, st)..., len)
-_range(a::T, st::T, len) where {T<:Quantity} = range(a, st, len)
-_range(a, st, len) = throw(DimensionError(a, st))
-
+function range(a::Quantity{<:AbstractFloat}, st::Quantity{<:AbstractFloat}, len::Integer)
+    dimension(a) != dimension(st) && throw(DimensionError(a, st))
+    range(promote(a, st)..., len)
+end
 range(a::Quantity, st::Real, len::Integer) = range(promote(a, st)..., len)
 range(a::Real, st::Quantity, len::Integer) = range(promote(a, st)..., len)
 

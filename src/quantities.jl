@@ -203,14 +203,13 @@ isless(x::Quantity, y::Quantity) = _isless(promote(x,y)...)
 isless(x::Quantity, y::Number) = _isless(promote(x,y)...)
 isless(x::Number, y::Quantity) = _isless(promote(x,y)...)
 
-@inline <(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} = _lt(x,y)
+<(x::Quantity, y::Quantity) = _lt(x,y)
 @inline _lt(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} = <(x.val,y.val)
+@inline _lt(x::Quantity{T,D,U1}, y::Quantity{T,D,U2}) where {T,D,U1,U2} = <(promote(x,y)...)
 @inline _lt(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) where {T,D1,D2,U1,U2} = throw(DimensionError(x,y))
-@inline _lt(x,y) = <(x,y)
 
-<(x::Quantity, y::Quantity) = _lt(promote(x,y)...)
-<(x::Quantity, y::Number) = _lt(promote(x,y)...)
-<(x::Number, y::Quantity) = _lt(promote(x,y)...)
+<(x::Quantity, y::Number) = <(promote(x,y)...)
+<(x::Number, y::Quantity) = <(promote(x,y)...)
 
 Base.rtoldefault(::Type{Quantity{T,D,U}}) where {T,D,U} = Base.rtoldefault(T)
 isapprox(x::Quantity{T,D,U}, y::Quantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) where {T,D,U} =
@@ -223,7 +222,7 @@ isapprox(x::Quantity, y::Number; kwargs...) = isapprox(promote(x,y)...; kwargs..
 isapprox(x::Number, y::Quantity; kwargs...) = isapprox(y, x; kwargs...)
 
 function isapprox(x::AbstractArray{Quantity{T1,D,U1}},
-        y::AbstractArray{Quantity{T2,D,U2}}; rtol::Real=Base.rtoldefault(T1,T2),
+        y::AbstractArray{Quantity{T2,D,U2}}; rtol::Real=Base.rtoldefault(T1,T2,0),
         atol=zero(Quantity{T1,D,U1}), norm::Function=vecnorm) where {T1,D,U1,T2,U2}
 
     d = norm(x - y)
@@ -345,15 +344,30 @@ typemin(x::Quantity{T}) where {T} = typemin(T)*unit(x)
 typemax(::Type{Quantity{T,D,U}}) where {T,D,U} = typemax(T)*U()
 typemax(x::Quantity{T}) where {T} = typemax(T)*unit(x)
 
-Base.literal_pow(::typeof(^), x::Quantity, ::Type{Val{v}}) where {v} =
-    Quantity(Base.literal_pow(^, x.val, Val{v}),
-             Base.literal_pow(^, unit(x), Val{v}))
+@static if VERSION < v"0.7.0-DEV.843"
+    Base.literal_pow(::typeof(^), x::Quantity, ::Type{Val{v}}) where {v} =
+        Quantity(Base.literal_pow(^, x.val, Val{v}),
+                 Base.literal_pow(^, unit(x), Val{v}))
+else
+    Base.literal_pow(::typeof(^), x::Quantity, ::Val{v}) where {v} =
+        Quantity(Base.literal_pow(^, x.val, Val(v)),
+                 Base.literal_pow(^, unit(x), Val(v)))
+end
 
 # All of these are needed for ambiguity resolution
 ^(x::Quantity, y::Integer) = Quantity((x.val)^y, unit(x)^y)
 ^(x::Quantity, y::Rational) = Quantity((x.val)^y, unit(x)^y)
 ^(x::Quantity, y::Real) = Quantity((x.val)^y, unit(x)^y)
 
-Base.rand(r::AbstractRNG, ::Type{Quantity{T,D,U}}) where {T,D,U} = rand(r,T)*U()
-Base.ones(Q::Type{<:Quantity}, dims::Tuple) = fill!(Array{Q}(dims), oneunit(Q))
+@static if VERSION >= v"0.7.0-DEV.2708" #julia PR 23964
+    Base.rand(r::AbstractRNG, ::Base.Random.SamplerType{Quantity{T,D,U}}) where {T,D,U} =
+        rand(r, T) * U()
+else
+    Base.rand(r::AbstractRNG, ::Type{Quantity{T,D,U}}) where {T,D,U} = rand(r,T) * U()
+end
+@static if VERSION >= v"0.7.0-DEV.2581" #julia PR 24652
+    Base.ones(Q::Type{<:Quantity}, dims::Tuple) = fill!(Array{Q}(uninitialized, dims), oneunit(Q))
+else
+    Base.ones(Q::Type{<:Quantity}, dims::Tuple) = fill!(Array{Q}(dims), oneunit(Q))
+end
 Base.ones(a::AbstractArray, Q::Type{<:Quantity}) = fill!(similar(a,Q), oneunit(Q))
