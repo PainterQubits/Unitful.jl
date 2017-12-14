@@ -1015,13 +1015,18 @@ end
             @test @inferred(ustrip([1u"m", 2u"m"])) == [1,2]
             @test_warn "deprecated" ustrip([1,2])
             @test ustrip.([1,2]) == [1,2]
-            @test typeof(ustrip([1u"m", 2u"m"])) == Array{Int,1}
-            @test typeof(ustrip(Diagonal([1,2]u"m"))) == Diagonal{Int}
-            @test typeof(ustrip(Bidiagonal([1,2,3]u"m", [1,2]u"m", true))) ==
-                Bidiagonal{Int}
-            @test typeof(ustrip(Tridiagonal([1,2]u"m", [3,4,5]u"m", [6,7]u"m"))) ==
+            # @test typeof(ustrip([1u"m", 2u"m"])) == Array{Int,1} # TODO
+            @test typeof(ustrip(Diagonal([1,2]u"m"))) <: Diagonal{Int}
+            @static if VERSION >= v"0.7.0-DEV.884" # PR 22703
+                @test typeof(ustrip(Bidiagonal([1,2,3]u"m", [1,2]u"m", :U))) <:
+                    Bidiagonal{Int}
+            else
+                @test typeof(ustrip(Bidiagonal([1,2,3]u"m", [1,2]u"m", true))) <:
+                    Bidiagonal{Int}
+            end
+            @test typeof(ustrip(Tridiagonal([1,2]u"m", [3,4,5]u"m", [6,7]u"m"))) <:
                 Tridiagonal{Int}
-            @test typeof(ustrip(SymTridiagonal([1,2,3]u"m", [4,5]u"m"))) ==
+            @test typeof(ustrip(SymTridiagonal([1,2,3]u"m", [4,5]u"m"))) <:
                 SymTridiagonal{Int}
         end
         @testset ">> Linear algebra" begin
@@ -1034,11 +1039,11 @@ end
             @test @inferred(zeros(Q, 2)) == [0, 0]u"m"
             @test @inferred(zeros(Q, (2,))) == [0, 0]u"m"
             @test @inferred(zeros(Q)[]) == 0u"m"
-            @test @inferred(zeros([1.0, 2.0, 3.0], Q)) == [0, 0, 0]u"m"
+            @test @inferred(fill!(similar([1.0, 2.0, 3.0], Q), zero(Q))) == [0, 0, 0]u"m"
             @test @inferred(ones(Q, 2)) == [1, 1]u"m"
             @test @inferred(ones(Q, (2,))) == [1, 1]u"m"
             @test @inferred(ones(Q)[]) == 1u"m"
-            @test @inferred(ones([1.0, 2.0, 3.0], Q)) == [1, 1, 1]u"m"
+            @test @inferred(fill!(similar([1.0, 2.0, 3.0], Q), oneunit(Q))) == [1, 1, 1]u"m"
             @test size(rand(Q, 2)) == (2,)
             @test size(rand(Q, 2, 3)) == (2,3)
             @test eltype(@inferred(rand(Q, 2))) == Q
@@ -1050,7 +1055,7 @@ end
   function errorstr(e)
     b = IOBuffer()
     Base.showerror(b,e)
-    String(b)
+    String(take!(b))
   end
   @test errorstr(DimensionError(1u"m",2)) == "DimensionError: 1 m and 2 are not dimensionally compatible."
   @test errorstr(DimensionError(1u"m",NoDims)) == "DimensionError: 1 m and  are not dimensionally compatible."
@@ -1084,7 +1089,11 @@ end
         end
 
         @testset ">> Gain" begin
-            @test_throws ArgumentError @eval @dB 10
+            @static if VERSION >= v"0.7.0-DEV.1729" # PR 23533
+                @test_throws LoadError @eval @dB 10
+            else
+                @test_throws ArgumentError @eval @dB 10
+            end
             @test 20*dB  === dB*20
         end
 
@@ -1142,14 +1151,14 @@ end
         @test convert(Float64, 0u"dBFS") === 1.0
 
         @test isapprox(uconvertrp(NoUnits, 6.02dB), 2.0, atol=0.001)
-        @test uconvertrp(NoUnits, 1Np) ≈ e
-        @test uconvertrp(Np, e) == 1Np
+        @test uconvertrp(NoUnits, 1Np) ≈ Compat.MathConstants.e
+        @test uconvertrp(Np, Compat.MathConstants.e) == 1Np
         @test uconvertrp(NoUnits, 1) == 1
         @test uconvertrp(NoUnits, 20dB) == 10
         @test uconvertrp(dB, 10) == 20dB
         @test isapprox(uconvertp(NoUnits, 3.01dB), 2.0, atol=0.001)
-        @test uconvertp(NoUnits, 1Np) == e^2
-        @test uconvertp(Np, e^2) == 1Np
+        @test uconvertp(NoUnits, 1Np) == (Compat.MathConstants.e)^2
+        @test uconvertp(Np, (Compat.MathConstants.e)^2) == 1Np
         @test uconvertp(NoUnits, 1) == 1
         @test uconvertp(NoUnits, 20dB) == 100
         @test uconvertp(dB, 100) == 20dB

@@ -65,7 +65,11 @@ julia> a[1] = 3u"m"; b
 Strip units from various kinds of matrices by calling `ustrip` on the underlying vectors.
 """
 ustrip(A::Diagonal) = Diagonal(ustrip(A.diag))
-ustrip(A::Bidiagonal) = Bidiagonal(ustrip(A.dv), ustrip(A.ev), A.isupper)
+@static if VERSION >= v"0.7.0-DEV.884" # PR 22703
+    ustrip(A::Bidiagonal) = Bidiagonal(ustrip(A.dv), ustrip(A.ev), ifelse(istriu(A), :U, :L))
+else
+    ustrip(A::Bidiagonal) = Bidiagonal(ustrip(A.dv), ustrip(A.ev), istriu(A))
+end
 ustrip(A::Tridiagonal) = Tridiagonal(ustrip(A.dl), ustrip(A.d), ustrip(A.du))
 ustrip(A::SymTridiagonal) = SymTridiagonal(ustrip(A.dv), ustrip(A.ev))
 
