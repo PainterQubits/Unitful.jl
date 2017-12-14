@@ -222,7 +222,7 @@ isapprox(x::Quantity, y::Number; kwargs...) = isapprox(promote(x,y)...; kwargs..
 isapprox(x::Number, y::Quantity; kwargs...) = isapprox(y, x; kwargs...)
 
 function isapprox(x::AbstractArray{Quantity{T1,D,U1}},
-        y::AbstractArray{Quantity{T2,D,U2}}; rtol::Real=Base.rtoldefault(T1,T2),
+        y::AbstractArray{Quantity{T2,D,U2}}; rtol::Real=Base.rtoldefault(T1,T2,0),
         atol=zero(Quantity{T1,D,U1}), norm::Function=vecnorm) where {T1,D,U1,T2,U2}
 
     d = norm(x - y)
