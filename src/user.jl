@@ -54,12 +54,12 @@ macro dimension(symb, abbr, name)
     funame = Symbol(name,"FreeUnits")
     esc(quote
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
-        const $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
-        const ($name){T,U} = Union{
+        const global $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
+        const global ($name){T,U} = Union{
             Unitful.Quantity{T,typeof($s),U},
             Unitful.Level{L,S,Unitful.Quantity{T,typeof($s),U}} where {L,S}}
-        const ($uname){U} = Unitful.Units{U,typeof($s)}
-        const ($funame){U} = Unitful.FreeUnits{U,typeof($s)}
+        const global ($uname){U} = Unitful.Units{U,typeof($s)}
+        const global ($funame){U} = Unitful.FreeUnits{U,typeof($s)}
         $s
     end)
 end
@@ -83,11 +83,11 @@ macro derived_dimension(name, dims)
     uname = Symbol(name,"Units")
     funame = Symbol(name,"FreeUnits")
     esc(quote
-        const ($name){T,U} = Union{
+        const global ($name){T,U} = Union{
             Unitful.Quantity{T,typeof($dims),U},
             Unitful.Level{L,S,Unitful.Quantity{T,typeof($dims),U}} where {L,S}}
-        const ($uname){U} = Unitful.Units{U,typeof($dims)}
-        const ($funame){U} = Unitful.FreeUnits{U,typeof($dims)}
+        const global ($uname){U} = Unitful.Units{U,typeof($dims)}
+        const global ($funame){U} = Unitful.FreeUnits{U,typeof($dims)}
         nothing
     end)
 end
@@ -206,7 +206,7 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
         u = :(Unitful.Unit{$n, typeof($dimension)}($k,1//1))
         ea = quote
             Unitful.basefactors[$n] = $basefactor
-            const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+            const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
         end
         push!(expr.args, ea)
     end
@@ -216,7 +216,7 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
     u = :(Unitful.Unit{$n, typeof($dimension)}(-6,1//1))
     push!(expr.args, quote
         Unitful.basefactors[$n] = $basefactor
-        const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
     end)
 
     esc(expr)
@@ -235,7 +235,7 @@ macro unit_symbols(symb,name,dimension,basefactor)
     u = :(Unitful.Unit{$n,typeof($dimension)}(0,1//1))
     esc(quote
         Unitful.basefactors[$n] = $basefactor
-        const $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
     end)
 end
 
@@ -359,10 +359,10 @@ macro logscale(symb,abbr,name,base,prefactor,irp)
     quote
         Unitful.abbr(::Unitful.LogInfo{$(QuoteNode(name))}) = $abbr
 
-        const $(esc(name)) = Unitful.LogInfo{$(QuoteNode(name)), $base, $prefactor}
+        const global $(esc(name)) = Unitful.LogInfo{$(QuoteNode(name)), $base, $prefactor}
         Unitful.isrootpower(::Type{$(esc(name))}) = $irp
 
-        const $(esc(symb)) = Unitful.MixedUnits{Unitful.Gain{$(esc(name))}}()
+        const global $(esc(symb)) = Unitful.MixedUnits{Unitful.Gain{$(esc(name))}}()
 
         macro $(esc(symb))(::Union{Real,Symbol})
             throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
@@ -421,7 +421,7 @@ Defines a logarithmic unit. For examples see `src/pkgdefaults.jl`.
 macro logunit(symb, abbr, logscale, reflevel)
     quote
         Unitful.abbr(::Unitful.Level{$(esc(logscale)), $(esc(reflevel))}) = $abbr
-        const $(esc(symb)) =
+        const global $(esc(symb)) =
             Unitful.MixedUnits{Unitful.Level{$(esc(logscale)), $(esc(reflevel))}}()
     end
 end

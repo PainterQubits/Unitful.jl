@@ -661,7 +661,7 @@ end
             end
         end
 
-        for T in (Complex64, Complex128, Complex{BigFloat})
+        for T in (Complex{Float32}, Complex{Float64}, Complex{BigFloat})
             _zero = convert(T, 0)*m
             _one = convert(T, 1)*m + im*eps(real(convert(T,1)))*m
             _two = convert(T, 2)*m + im*m//10
@@ -724,7 +724,7 @@ end
         end
 
         # complex arithmetic
-        for T in (Complex64, Complex128, Complex{BigFloat})
+        for T in (Complex{Float32}, Complex{Float64}, Complex{BigFloat})
             half = (1+1im)V/T(2)
             third = (1-1im)V/T(3)
 
@@ -1015,7 +1015,11 @@ end
             @test @inferred(ustrip([1u"m", 2u"m"])) == [1,2]
             @test_warn "deprecated" ustrip([1,2])
             @test ustrip.([1,2]) == [1,2]
-            # @test typeof(ustrip([1u"m", 2u"m"])) == Array{Int,1} # TODO
+            @static if VERSION >= v"0.7.0-DEV.2083" # PR 23750
+                @test typeof(ustrip([1u"m", 2u"m"])) <: Base.ReinterpretArray{Int,1}
+            else
+                @test typeof(ustrip([1u"m", 2u"m"])) <: Array{Int,1}
+            end
             @test typeof(ustrip(Diagonal([1,2]u"m"))) <: Diagonal{Int}
             @static if VERSION >= v"0.7.0-DEV.884" # PR 22703
                 @test typeof(ustrip(Bidiagonal([1,2,3]u"m", [1,2]u"m", :U))) <:
