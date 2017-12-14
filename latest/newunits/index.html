@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-0.17.2, mkdocs-material-2.2.2">
+      <meta name="generator" content="mkdocs-0.17.2, mkdocs-material-2.2.3">
     
     
       
@@ -40,7 +40,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/application.7a4cdee3.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application.bcabdff3.css">
       
     
     
@@ -484,7 +484,7 @@ julia&gt; 1u&quot;mM&quot;
 <p>Finally, if you define new dimensions with <a href="./#Unitful.@dimension"><code>@dimension</code></a> you will need to specify a preferred unit for that dimension with <a href="../conversion/#Unitful.preferunits"><code>Unitful.preferunits</code></a>, otherwise promotion will not work with that dimension. This is done automatically in the <a href="./#Unitful.@refunit"><code>@refunit</code></a> macro.</p>
 <p>Returns the <code>Dimensions</code> object to which <code>symb</code> is bound.</p>
 <p>Usage example from <code>src/pkgdefaults.jl</code>: <code>@dimension 𝐋 "𝐋" Length</code></p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a429e565c76579d0dae29a97bf782c587ab8ade1/src/user.jl#L22-L49' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/c54ddaf4aa22d7e06085b5c6496ef11cc8a6865a/src/user.jl#L22-L49' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.@derived_dimension' href='#Unitful.@derived_dimension'>#</a>
 <strong><code>Unitful.@derived_dimension</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="codehilite"><pre><span></span>@derived_dimension(name, dims)
@@ -499,7 +499,7 @@ julia&gt; 1u&quot;mM&quot;
 <li><code>@derived_dimension Area 𝐋^2</code> gives <code>Area</code> and <code>AreaUnit</code> type aliases</li>
 <li><code>@derived_dimension Speed 𝐋/𝐓</code> gives <code>Speed</code> and <code>SpeedUnit</code> type aliases</li>
 </ul>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a429e565c76579d0dae29a97bf782c587ab8ade1/src/user.jl#L67-L81' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/c54ddaf4aa22d7e06085b5c6496ef11cc8a6865a/src/user.jl#L67-L81' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.@refunit' href='#Unitful.@refunit'>#</a>
 <strong><code>Unitful.@refunit</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="codehilite"><pre><span></span>@refunit(symb, name, abbr, dimension, tf)
@@ -513,7 +513,7 @@ julia&gt; 1u&quot;mM&quot;
 <p>Returns the <a href="../types/#Unitful.FreeUnits"><code>Unitful.FreeUnits</code></a> object to which <code>symb</code> is bound.</p>
 <p>Usage example: <code>@refunit m "m" Meter 𝐋 true</code></p>
 <p>This example, found in <code>src/pkgdefaults.jl</code>, generates <code>km</code>, <code>m</code>, <code>cm</code>, ...</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a429e565c76579d0dae29a97bf782c587ab8ade1/src/user.jl#L96-L124' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/c54ddaf4aa22d7e06085b5c6496ef11cc8a6865a/src/user.jl#L96-L124' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.@unit' href='#Unitful.@unit'>#</a>
 <strong><code>Unitful.@unit</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="codehilite"><pre><span></span>@unit(symb,abbr,name,equals,tf)
@@ -524,7 +524,7 @@ julia&gt; 1u&quot;mM&quot;
 <p>Returns the <a href="../types/#Unitful.FreeUnits"><code>Unitful.FreeUnits</code></a> object to which <code>symb</code> is bound.</p>
 <p>Usage example: <code>@unit mi "mi" Mile (201168//125)*m false</code></p>
 <p>This example will <em>not</em> generate <code>kmi</code> (kilomiles).</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a429e565c76579d0dae29a97bf782c587ab8ade1/src/user.jl#L139-L150' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/c54ddaf4aa22d7e06085b5c6496ef11cc8a6865a/src/user.jl#L151-L162' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.offsettemp' href='#Unitful.offsettemp'>#</a>
 <strong><code>Unitful.offsettemp</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>offsettemp(::Unit)
@@ -532,7 +532,7 @@ julia&gt; 1u&quot;mM&quot;
 
 
 <p>For temperature units, this function is used to set the scale offset.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a429e565c76579d0dae29a97bf782c587ab8ade1/src/temperature.jl#L1-L4' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/c54ddaf4aa22d7e06085b5c6496ef11cc8a6865a/src/temperature.jl#L1-L4' class='documenter-source'>source</a><br></p>
 <p><a id='Internals-1'></a></p>
 <h2 id="internals">Internals</h2>
 <p><a id='Unitful.@prefixed_unit_symbols' href='#Unitful.@prefixed_unit_symbols'>#</a>
@@ -543,7 +543,7 @@ julia&gt; 1u&quot;mM&quot;
 
 <p>Not called directly by the user. Given a unit symbol and a unit's name, will define units for each possible SI power-of-ten prefix on that unit.</p>
 <p>Example: <code>@prefixed_unit_symbols m Meter 𝐋 (1.0,1)</code> results in nm, cm, m, km, ... all getting defined in the calling namespace.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a429e565c76579d0dae29a97bf782c587ab8ade1/src/user.jl#L172-L179' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/c54ddaf4aa22d7e06085b5c6496ef11cc8a6865a/src/user.jl#L192-L199' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.@unit_symbols' href='#Unitful.@unit_symbols'>#</a>
 <strong><code>Unitful.@unit_symbols</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="codehilite"><pre><span></span>@unit_symbols(symb,name)
@@ -552,7 +552,7 @@ julia&gt; 1u&quot;mM&quot;
 
 <p>Not called directly by the user. Given a unit symbol and a unit's name, will define units without SI power-of-ten prefixes.</p>
 <p>Example: <code>@unit_symbols ft Foot 𝐋</code> results in <code>ft</code> getting defined but not <code>kft</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a429e565c76579d0dae29a97bf782c587ab8ade1/src/user.jl#L205-L211' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/c54ddaf4aa22d7e06085b5c6496ef11cc8a6865a/src/user.jl#L225-L231' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.basefactor' href='#Unitful.basefactor'>#</a>
 <strong><code>Unitful.basefactor</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>basefactor(x::Unit)
@@ -560,7 +560,7 @@ julia&gt; 1u&quot;mM&quot;
 
 
 <p>Specifies conversion factors to reference units. It returns a tuple. The first value is any irrational part of the conversion, and the second value is a rational component. This segregation permits exact conversions within unit systems that have no rational conversion to the reference units.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a429e565c76579d0dae29a97bf782c587ab8ade1/src/user.jl#L495-L502' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/c54ddaf4aa22d7e06085b5c6496ef11cc8a6865a/src/user.jl#L515-L522' class='documenter-source'>source</a><br></p>
                 
                   
                 
