@@ -506,6 +506,7 @@ end
 
 replace_value(literal::Number) = literal
 
+ustrcheck_bool(::Number) = true
 ustrcheck_bool(::MixedUnits) = true
 ustrcheck_bool(::Units) = true
 ustrcheck_bool(::Dimensions) = true

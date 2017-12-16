@@ -323,6 +323,7 @@ end
 
     # test ustrcheck(::Quantity)
     @test u"h" == Unitful.h
+    @test u"π" == π              # issue 112
 end
 
 @testset "Unit and dimensional analysis" begin
