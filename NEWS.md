@@ -1,3 +1,7 @@
+- v0.6.1
+  - Permit symbols that are bound to `Number`s to be used in `u_str` macro.
+- v0.6.0
+  - Restore compatibility with 0.7.0-DEV.
 - v0.5.1
   - Dimensionless quantities no longer lose their units when dividing by a real number.
   - Ranges constructed via `range` or `colon` should work more reliably (e.g., 0:10°:350° works now).
