@@ -149,28 +149,37 @@ const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
 # Shared Imperial / US customary units
 
 # Length
-#key: Symbol    Display    Name         Equivalent to           10^n prefixes?
-@unit inch      "inch"     Inch         (254//10000)*m          false
-@unit ft        "ft"       Foot         12inch                  false
-@unit yd        "yd"       Yard         3ft                     false
-@unit mi        "mi"       Mile         1760yd                  false
+#key: Symbol    Display    Name                 Equivalent to           10^n prefixes?
+@unit inch      "inch"     Inch                 (254//10000)*m          false
+@unit ft        "ft"       Foot                 12inch                  false
+@unit yd        "yd"       Yard                 3ft                     false
+@unit mi        "mi"       Mile                 1760yd                  false
 
 # Area
-@unit ac        "ac"       Acre         (316160658//78125)*m^2  false
+@unit ac        "ac"       Acre                 (316160658//78125)*m^2  false
 
 # Temperatures
-@unit °Ra       "°Ra"      Rankine      (5//9)*K                false
-@unit °F        "°F"       Fahrenheit   (5//9)*K                false
+@unit °Ra       "°Ra"      Rankine              (5//9)*K                false
+@unit °F        "°F"       Fahrenheit           (5//9)*K                false
 Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
 
 # Masses
-@unit lb        "lb"       Pound        0.45359237kg            false # is exact
-@unit oz        "oz"       Ounce        lb//16                  false
-@unit dr        "dr"       Dram         oz//16                  false
-@unit gr        "gr"       Grain        (32//875)*dr            false
+@unit lb        "lb"       Pound                0.45359237kg            false # is exact
+@unit oz        "oz"       Ounce                lb//16                  false
+@unit slug      "slug"     Slug                 1lb*ge*s^2/ft           false
+@unit dr        "dr"       Dram                 oz//16                  false
+@unit gr        "gr"       Grain                (32//875)*dr            false
 
 # Force
-@unit lbf       "lbf"      PoundsForce  1lb*ge                  false
+@unit lbf       "lbf"      PoundsForce          1lb*ge                  false
+
+# Energy
+# Use ISO 31-4 for BTU definition
+@unit cal       "cal"      Calorie              4.184J                  true
+@unit btu       "btu"      BritishThermalUnit   1055.06J                false
+
+# Pressure
+@unit psi       "psi"      PoundsPerSquareInch  1lbf/inch^2             false
 
 #########
 # Logarithmic scales and units
