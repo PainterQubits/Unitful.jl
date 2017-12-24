@@ -13,23 +13,26 @@
 include("temperature.jl")
 
 # Define derived dimensions.
-@derived_dimension Area             𝐋^2
-@derived_dimension Volume           𝐋^3
-@derived_dimension Frequency        inv(𝐓)
-@derived_dimension Force            𝐌*𝐋/𝐓^2
-@derived_dimension Pressure         𝐌*𝐋^-1*𝐓^-2
-@derived_dimension Energy           𝐌*𝐋^2/𝐓^2
-@derived_dimension Momentum         𝐌*𝐋/𝐓
-@derived_dimension Power            𝐋^2*𝐌*𝐓^-3
-@derived_dimension Charge           𝐈*𝐓
-@derived_dimension Voltage          𝐈^-1*𝐋^2*𝐌*𝐓^-3
-@derived_dimension Resistance       𝐈^-2*𝐋^2*𝐌*𝐓^-3
-@derived_dimension Capacitance      𝐈^2*𝐋^-2*𝐌^-1*𝐓^4
-@derived_dimension Inductance       𝐈^-2*𝐋^2*𝐌*𝐓^-2
-@derived_dimension MagneticFlux     𝐈^-1*𝐋^2*𝐌*𝐓^-2
-@derived_dimension HField           𝐈/𝐋
-@derived_dimension BField           𝐈^-1*𝐌*𝐓^-2
-@derived_dimension Action           𝐋^2*𝐌*𝐓^-1
+@derived_dimension Area                 𝐋^2
+@derived_dimension Volume               𝐋^3
+@derived_dimension Frequency            inv(𝐓)
+@derived_dimension Force                𝐌*𝐋/𝐓^2
+@derived_dimension Pressure             𝐌*𝐋^-1*𝐓^-2
+@derived_dimension Energy               𝐌*𝐋^2/𝐓^2
+@derived_dimension Momentum             𝐌*𝐋/𝐓
+@derived_dimension Power                𝐋^2*𝐌*𝐓^-3
+@derived_dimension Charge               𝐈*𝐓
+@derived_dimension Voltage              𝐈^-1*𝐋^2*𝐌*𝐓^-3
+@derived_dimension Resistance           𝐈^-2*𝐋^2*𝐌*𝐓^-3
+@derived_dimension Capacitance          𝐈^2*𝐋^-2*𝐌^-1*𝐓^4
+@derived_dimension Inductance           𝐈^-2*𝐋^2*𝐌*𝐓^-2
+@derived_dimension MagneticFlux         𝐈^-1*𝐋^2*𝐌*𝐓^-2
+@derived_dimension HField               𝐈/𝐋
+@derived_dimension BField               𝐈^-1*𝐌*𝐓^-2
+@derived_dimension Action               𝐋^2*𝐌*𝐓^-1
+@derived_dimension DynamicViscosity     𝐌*𝐋^-1*𝐓^-1
+@derived_dimension KinematicViscosity   𝐋^2*𝐓^-1
+@derived_dimension Wavenumber           inv(𝐋)
 
 # Define base units. This is not to imply g is the base SI unit instead of kg.
 # See the documentation for further details.
@@ -134,6 +137,12 @@ const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
 
 # Acceleration
 @unit ge     "ge"       EarthGravity gn                     false
+
+
+# CGS units
+@unit dyn    "dyn"      Dyne        1g*cm/s^2               true
+@unit P      "P"        Poise       1g/cm/s                 true
+@unit St     "St"       Stokes      1cm^2/s                 true
 
 
 #########
