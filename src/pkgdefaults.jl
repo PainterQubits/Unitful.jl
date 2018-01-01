@@ -181,6 +181,9 @@ Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
 # Pressure
 @unit psi       "psi"      PoundsPerSquareInch  1lbf/inch^2             false
 
+# More masses
+@unit sl        "sl"       Slug         1lbf*s^2/ft             false
+
 #########
 # Logarithmic scales and units
 
