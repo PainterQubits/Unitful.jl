@@ -194,22 +194,19 @@ angle(x::Quantity{<:Complex}) = angle(x.val)
 copysign(x::Quantity, y::Number) = Quantity(copysign(x.val,y/unit(y)), unit(x))
 flipsign(x::Quantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
 
-@inline isless(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} = _isless(x,y)
-@inline _isless(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} = isless(x.val, y.val)
-@inline _isless(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) where {T,D1,D2,U1,U2} = throw(DimensionError(x,y))
-@inline _isless(x,y) = isless(x,y)
+for (i,j) in zip((:<, :isless), (:_lt, :_isless))
+    @eval ($i)(x::Quantity, y::Quantity) = ($j)(x,y)
+    @eval ($i)(x::Quantity, y::Number) = ($i)(promote(x,y)...)
+    @eval ($i)(x::Number, y::Quantity) = ($i)(promote(x,y)...)
 
-isless(x::Quantity, y::Quantity) = _isless(promote(x,y)...)
-isless(x::Quantity, y::Number) = _isless(promote(x,y)...)
-isless(x::Number, y::Quantity) = _isless(promote(x,y)...)
-
-<(x::Quantity, y::Quantity) = _lt(x,y)
-@inline _lt(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} = <(x.val,y.val)
-@inline _lt(x::Quantity{T,D,U1}, y::Quantity{T,D,U2}) where {T,D,U1,U2} = <(promote(x,y)...)
-@inline _lt(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) where {T,D1,D2,U1,U2} = throw(DimensionError(x,y))
-
-<(x::Quantity, y::Number) = <(promote(x,y)...)
-<(x::Number, y::Quantity) = <(promote(x,y)...)
+    # promotion might not yield Quantity types
+    @eval @inline ($j)(x::Quantity{T1}, y::Quantity{T2}) where {T1,T2} = ($i)(promote(x,y)...)
+    # If it does yield Quantity types, we'll get back here,
+    # since at least the numeric part can be promoted.
+    @eval @inline ($j)(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} = ($i)(x.val,y.val)
+    @eval @inline ($j)(x::Quantity{T,D,U1}, y::Quantity{T,D,U2}) where {T,D,U1,U2} = ($i)(promote(x,y)...)
+    @eval @inline ($j)(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) where {T,D1,D2,U1,U2} = throw(DimensionError(x,y))
+end
 
 Base.rtoldefault(::Type{Quantity{T,D,U}}) where {T,D,U} = Base.rtoldefault(T)
 isapprox(x::Quantity{T,D,U}, y::Quantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) where {T,D,U} =

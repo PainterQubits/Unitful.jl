@@ -398,6 +398,7 @@ end
         @test max(1ft, 1m) == 1m
         @test max(10J, 1kg*m^2/s^2) === 10J
         @test max(1J//10, 1kg*m^2/s^2) === 1kg*m^2/s^2
+        @test @inferred(0m < 1.0m)
         @test @inferred(2.0m < 3.0m)
         @test @inferred(2.0m .< 3.0m)
         @test !(@inferred 3.0m .< 3.0m)
