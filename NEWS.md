@@ -1,5 +1,8 @@
 - v0.6.1
-  - Permit symbols that are bound to `Number`s to be used in `u_str` macro.
+  - Permit symbols that are bound to `Number`s to be used in `u_str` macro, such that
+    π and other non-literal numbers can be used.
+  - Add some cgs units and a few dimensions [#115](https://github.com/ajkeller34/Unitful.jl/pull/115).
+  - Fix a comparison / promotion bug introduced in v0.6.0.
 - v0.6.0
   - Restore compatibility with 0.7.0-DEV.
 - v0.5.1
