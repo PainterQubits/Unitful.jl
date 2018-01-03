@@ -114,7 +114,7 @@ end
 
         # Issue 26
         @unit altL "altL" altLiter 1000*cm^3 true
-        @test Float64(1altL/cm^3) === 1000.0
+        @test convert(Float64, 1altL/cm^3) === 1000.0
     end
     @testset "> Unitful ↔ unitful conversion" begin
         @testset ">> Numeric conversion" begin
@@ -1015,7 +1015,11 @@ end
         end
         @testset ">> Unit stripping" begin
             @test @inferred(ustrip([1u"m", 2u"m"])) == [1,2]
-            @test_warn "deprecated" ustrip([1,2])
+            @static if VERSION >= v"0.7.0-DEV.2988"
+                @test_deprecated ustrip([1,2])
+            else
+                @test_warn "deprecated" ustrip([1,2])
+            end
             @test ustrip.([1,2]) == [1,2]
             @static if VERSION >= v"0.7.0-DEV.2083" # PR 23750
                 @test typeof(ustrip([1u"m", 2u"m"])) <: Base.ReinterpretArray{Int,1}
@@ -1295,7 +1299,11 @@ let fname = tempname()
     end
 end
 
-@test_warn "ShadowUnits" eval(:(u"m"))
+@static if VERSION > v"0.7.0-DEV.2988"
+    @test_logs (:warn, r"found in multiple") eval(:(u"m"))
+else
+    @test_warn "ShadowUnits" eval(:(u"m"))
+end
 
 # Test to make sure user macros are working properly
 # (and incidentally, for Compat macro hygiene in @dimension, @derived_dimension)
