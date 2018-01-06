@@ -1263,6 +1263,7 @@ end
     @testset "> Display" begin
         @test Unitful.abbr(3u"dBm") == "dBm"
         @test Unitful.abbr(@dB 3V/1.241V) == "dB (1.241 V)"
+        @test string(@dB 2m/1m) == "3.010299956639812 dB (1 m)"
     end
 
     @testset "> Thanks for signing up for Log Facts!" begin
