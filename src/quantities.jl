@@ -28,22 +28,8 @@ Quantity(x::Number, y::Units{()}) = x
 *(y::Number, x::Quantity) = *(x,y)
 *(x::Quantity, y::Number) = Quantity(x.val*y, unit(x))
 
-# looked in arraymath.jl for similar code
-function *(A::Units, B::AbstractArray{T}) where {T}
-    F = similar(B, Base.promote_op(*, typeof(A), T))
-    for (iF, iB) in zip(eachindex(F), eachindex(B))
-        @inbounds F[iF] = *(A, B[iB])
-    end
-    return F
-end
-
-function *(A::AbstractArray{T}, B::Units) where {T}
-    F = similar(A, Base.promote_op(*, T, typeof(B)))
-    for (iF, iA) in zip(eachindex(F), eachindex(A))
-        @inbounds F[iF] = *(A[iA], B)
-    end
-    return F
-end
+*(A::Units, B::AbstractArray) = broadcast(*, A, B)
+*(A::AbstractArray, B::Units) = broadcast(*, A, B)
 
 # Division (units)
 /(x::Quantity, y::Units) = Quantity(x.val, unit(x) / y)

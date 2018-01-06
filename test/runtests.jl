@@ -19,7 +19,7 @@ import Unitful:
     J, A, N, mol, cd, V,
     mW, W, Hz
 
-import Unitful: dB, dBm, dBV, dBSPL, Np
+import Unitful: dB, dB_rp, dB_p, dBm, dBV, dBSPL, Np, Np_rp, Np_p, Decibel, Neper
 
 import Unitful: 𝐋, 𝐓, 𝐍
 
@@ -1064,14 +1064,17 @@ end
 end
 
 @testset "DimensionError message" begin
-  function errorstr(e)
-    b = IOBuffer()
-    Base.showerror(b,e)
-    String(take!(b))
-  end
-  @test errorstr(DimensionError(1u"m",2)) == "DimensionError: 1 m and 2 are not dimensionally compatible."
-  @test errorstr(DimensionError(1u"m",NoDims)) == "DimensionError: 1 m and  are not dimensionally compatible."
-  @test errorstr(DimensionError(u"m",2)) == "DimensionError: m and 2 are not dimensionally compatible."
+    function errorstr(e)
+        b = IOBuffer()
+        Base.showerror(b,e)
+        String(take!(b))
+    end
+    @test errorstr(DimensionError(1u"m",2)) ==
+        "DimensionError: 1 m and 2 are not dimensionally compatible."
+    @test errorstr(DimensionError(1u"m",NoDims)) ==
+        "DimensionError: 1 m and  are not dimensionally compatible."
+    @test errorstr(DimensionError(u"m",2)) ==
+        "DimensionError: m and 2 are not dimensionally compatible."
 end
 
 @testset "Logarithmic quantities" begin
@@ -1086,11 +1089,12 @@ end
         end
 
         @testset ">> Gain" begin
-            @test Gain{Decibel}(1) isa Gain{Decibel,Int}
+            @test Gain{Decibel}(1) isa Gain{Decibel,:?,Int}
+            @test Gain{Decibel,:rp}(1) isa Gain{Decibel,:rp,Int}
             @test_throws MethodError Gain{Decibel}(1V)
-            @test_throws TypeError Gain{Decibel,typeof(1V)}(1V)
+            @test_throws MethodError Gain{Decibel,:?}(1V)
+            @test_throws TypeError Gain{Decibel,:?,typeof(1V)}(1V)
         end
-
     end
 
     @testset "> Implicit construction" begin
@@ -1106,7 +1110,7 @@ end
             else
                 @test_throws ArgumentError @eval @dB 10
             end
-            @test 20*dB  === dB*20
+            @test 20*dB === dB*20
         end
 
         @testset ">> MixedUnits" begin
@@ -1131,7 +1135,11 @@ end
 
         @testset ">> Gain" begin
             @test logunit(3dB) === dB
+            @test logunit(3dB_rp) === dB_rp
+            @test logunit(3dB_p) === dB_p
             @test logunit(typeof(3dB)) === dB
+            @test logunit(typeof(3dB_rp)) === dB_rp
+            @test logunit(typeof(3dB_p)) === dB_p
         end
 
         @testset ">> Quantity{<:Level}" begin
@@ -1162,6 +1170,10 @@ end
         @test convert(typeof(3.0dB), 3dB) === 3.0dB
         @test convert(Float64, 0u"dBFS") === 1.0
 
+        @test_throws ErrorException convert(Float64, u"10dB")
+        @test convert(Float64, u"10dB_p") === 10.0
+        @test convert(Float64, u"20dB_rp") === 10.0
+
         @test isapprox(uconvertrp(NoUnits, 6.02dB), 2.0, atol=0.001)
         @test uconvertrp(NoUnits, 1Np) ≈ Compat.MathConstants.e
         @test uconvertrp(Np, Compat.MathConstants.e) == 1Np
@@ -1177,6 +1189,13 @@ end
 
         @test linear(@dB(1mW/mW)/Hz) === 1mW/Hz
         @test linear(@dB(1.4V/2.8V)/s) === 1.4V/s
+
+        @test convert(Gain{Decibel}, 0dB_rp) === 0dB_rp
+        @test convert(Gain{Neper}, 10dB) === 1.151292546497023Np
+        @test convert(Gain{Decibel,:?}, 0dB_rp) === 0dB
+        @test convert(Gain{Neper,:?}, 10dB) === 1.151292546497023Np
+        @test convert(Gain{Decibel,:?,Float32}, 0dB_rp) === 0.0f0*dB
+        @test convert(Gain{Neper,:rp,Float32}, 10dB) === 1.1512926f0*Np_rp
     end
 
     @testset "> Equality" begin
@@ -1203,21 +1222,56 @@ end
         end
 
         @testset ">> Gain" begin
-            @test 20dB + 10dB === 30dB
-            @test 20dB * 20dB === 40dB # support both +*, for sake of generic programming...
-            @test 20dB - 10dB === 10dB
-            @test_throws ErrorException 1dB + 1Np
+            for op in (:+, :*)
+                @test @eval ($op)(20dB, 10dB)      === 30dB
+                @test @eval ($op)(20dB_rp, 10dB)   === 30dB_rp
+                @test @eval ($op)(20dB, 10dB_rp)   === 30dB_rp
+                @test @eval ($op)(20dB_p, 10dB)    === 30dB_p
+                @test @eval ($op)(20dB, 10dB_p)    === 30dB_p
+                @test @eval ($op)(20dB_rp, 10dB_p) === 30dB
+                @test @eval ($op)(20dB_p, 10dB_rp) === 30dB
+                @test_throws ErrorException @eval ($op)(1dB, 1Np)
+                @test_throws ErrorException @eval ($op)(1dB_rp, 1Np)
+            end
+            for op in (:-, :/)
+                @test @eval ($op)(20dB, 10dB)      === 10dB
+                @test @eval ($op)(20dB_rp, 10dB)   === 10dB_rp
+                @test @eval ($op)(20dB, 10dB_rp)   === 10dB_rp
+                @test @eval ($op)(20dB_p, 10dB)    === 10dB_p
+                @test @eval ($op)(20dB, 10dB_p)    === 10dB_p
+                @test @eval ($op)(20dB_rp, 10dB_p) === 10dB
+                @test @eval ($op)(20dB_p, 10dB_rp) === 10dB
+                @test_throws ErrorException @eval ($op)(1dB, 1Np)
+                @test_throws ErrorException @eval ($op)(1dB_rp, 1Np)
+            end
         end
 
         @testset ">> Level, meet Gain" begin
-            @test 10dBm + 30dB == 40dBm
-            @test 30dB + 10dBm == 40dBm
-            @test 10dBm - 30dB == -20dBm
-            @test isapprox(10dBm - 1Np, 1.314dBm; atol=0.001dBm)
+            for op in (:+, :*)
+                @test @eval ($op)(10dBm, 30dB)    == 40dBm
+                @test @eval ($op)(30dB, 10dBm)    == 40dBm
+                @test @eval ($op)(10dBm, 30dB_rp) == 40dBm
+                @test @eval ($op)(30dB_rp, 10dBm) == 40dBm
+                @test @eval ($op)(10dBm, 30dB_p)  == 40dBm
+                @test @eval ($op)(30dB_p, 10dBm)  == 40dBm
+                @test @eval ($op)(0Np, 3dBm)      == 3dBm
+            end
+            for op in (:-, :/)
+                @test @eval ($op)(10dBm, 30dB)    == -20dBm
+                @test @eval ($op)(10dBm, 30dB_rp) == -20dBm
+                @test @eval ($op)(10dBm, 30dB_p) == -20dBm
+                @test @eval isapprox(($op)(10dBm, 1Np), 1.314dBm; atol=0.001dBm)
+                @test @eval isapprox(($op)(10dBm, 1Np_rp), 1.314dBm; atol=0.001dBm)
+                @test @eval isapprox(($op)(10dBm, 1Np_p), 1.314dBm; atol=0.001dBm)
 
-            # cannot subtract levels from gains
-            @test_throws ErrorException 1Np - 10dBm
-            @test_throws ErrorException 30dB - 10dBm
+                # cannot subtract Levels from Gains
+                @test_throws ErrorException @eval ($op)(10dB, 30dBm)
+                @test_throws ErrorException @eval ($op)(10dB_rp, 30dBm)
+                @test_throws ErrorException @eval ($op)(10dB_p, 30dBm)
+                @test_throws ErrorException @eval ($op)(1Np, 10dBm)
+                @test_throws ErrorException @eval ($op)(1Np_rp, 10dBm)
+                @test_throws ErrorException @eval ($op)(1Np_p, 10dBm)
+            end
         end
     end
 
@@ -1240,18 +1294,34 @@ end
             @test 3dBm*true == 3dBm
             @test 3dBm*false == -Inf*dBm
             @test (0dBV)*(1Np) ≈ 8.685889638dBV
+            @test dBm/5 ≈ 0.2dBm
+            @test linear((@dB 3W/W)//3) === 1W//1
+            @test (@dB 3W/W)//(@dB 3W/W) === 1//1
         end
 
         @testset ">> Gain" begin
             @test 3dB * 2 === 6dB
             @test 2 * 3dB === 6dB
+            @test 3dB_rp * 2 === 6dB_rp
+            @test 2 * 3dB_rp === 6dB_rp
+            @test 3dB_p * 2 === 6dB_p
+            @test 2 * 3dB_p === 6dB_p
+            @test 20dB * 1mW == 100mW
+            @test 1mW * 20dB == 100mW
             @test 3dB * 2.1 ≈ 6.3dB
             @test 3dB * false == 0*dB
             @test false * 3dB == 0*dB
-            @test 1mW * 20dB == 100mW
-            @test 20dB * 1mW == 100mW
             @test 1V * 20dB == 10V
             @test 20dB * 1V == 10V
+        end
+
+        @testset ">> MixedUnits" begin
+            @test_throws ErrorException dB*dB
+            @test_throws ErrorException dB/Np
+            @test dB/dB === NoUnits
+            @test (dB*m)/(dB*s) === m/s
+            @test m*dB === dB*m
+            @test [1,2,3]u"dB" == u"dB"*[1,2,3]
         end
     end
 
@@ -1259,6 +1329,7 @@ end
         @test ustrip(500.0Np) === 500.0
         @test ustrip(20dB/Hz) === 20
         @test ustrip(20dB) === 20
+        @test ustrip(20dB_rp) === 20
         @test ustrip(13dBm) ≈ 13
     end
 

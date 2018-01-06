@@ -13,7 +13,6 @@ unwrap(x) = x
 base(::LogInfo{N,B}) where {N,B} = B
 prefactor(::LogInfo{N,B,P}) where {N,B,P} = P
 
-leveltype(x::Level{L,S}) where {L,S} = Level{L,S}
 dimension(x::Level) = dimension(reflevel(x))
 dimension(x::Type{T}) where {T<:Level} = dimension(reflevel(T))
 function Base.float(x::Level{L,S}) where {L,S}
@@ -49,27 +48,46 @@ reflevel(x::Level{L,S}) where {L,S} = unwrap(S)
 reflevel(::Type{Level{L,S}}) where {L,S} = unwrap(S)
 reflevel(::Type{Level{L,S,T}}) where {L,S,T} = unwrap(S)
 
-gaintype(x::Gain{L}) where {L} = Gain{L}
 dimension(x::Gain) = NoDims
 dimension(x::Type{<:Gain}) = NoDims
-function Base.float(x::Gain{L}) where {L}
+function Base.float(x::Gain{L,S}) where {L,S}
     v = float(x.val)
-    return Gain{L,typeof(v)}(v)
+    return Gain{L,S,typeof(v)}(v)
 end
-logunit(x::Gain{L}) where {L} = MixedUnits{Gain{L}}()
-logunit(x::Type{T}) where {L, T<:Gain{L}} = MixedUnits{Gain{L}}()
+logunit(x::Gain{L,S}) where {L,S} = MixedUnits{Gain{L,S}}()
+logunit(x::Type{T}) where {L,S, T<:Gain{L,S}} = MixedUnits{Gain{L,S}}()
 
 abbr(x::Gain{L}) where {L} = abbr(L())
+
 function Gain{L}(val::Real) where {L <: LogInfo}
     dimension(val) != NoDims && throw(DimensionError(val,1))
-    return Gain{L, typeof(val)}(val)
+    return Gain{L, :?, typeof(val)}(val)
+end
+function Gain{L,S}(val::Real) where {L <: LogInfo,S}
+    dimension(val) != NoDims && throw(DimensionError(val,1))
+    return Gain{L, S, typeof(val)}(val)
 end
 
-Base.convert(::Type{Gain{L}}, x::Gain{L}) where {L} = Gain{L}(x.val)
-Base.convert(::Type{Gain{L1}}, x::Gain{L2}) where {L1,L2} = Gain{L1}(_gconv(L1,L2,x))
-Base.convert(::Type{Gain{L,T1}}, x::Gain{L,T2}) where {L,T1,T2} = Gain{L,T1}(x.val)
-Base.convert(T::Type{Gain{L1,T1}}, x::Gain{L2,T2}) where {L1,L2,T1,T2} = T(_gconv(L1,L2,x))
+Base.convert(::Type{Gain{L}}, x::Gain{L,S}) where {L,S} = Gain{L,S}(x.val)
+Base.convert(::Type{Gain{L1}}, x::Gain{L2,S}) where {L1,L2,S} = Gain{L1,S}(_gconv(L1,L2,x))
+
+Base.convert(::Type{Gain{L,S}}, x::Gain{L,S}) where {L,S} = Gain{L,S}(x.val)
+Base.convert(::Type{Gain{L1,S}}, x::Gain{L2,S}) where {L1,L2,S} = Gain{L1,S}(_gconv(L1,L2,x))
+Base.convert(::Type{Gain{L,S1}}, x::Gain{L,S2}) where {L,S1,S2} = Gain{L,S1}(x.val)
+Base.convert(::Type{Gain{L1,S1}}, x::Gain{L2,S2}) where {L1,L2,S1,S2} =
+    Gain{L1,S1}(_gconv(L1,L2,x))
+
+Base.convert(::Type{Gain{L,S,T}}, x::Gain{L,S}) where {L,S,T} = Gain{L,S,T}(x.val)
+Base.convert(::Type{Gain{L1,S,T}}, x::Gain{L2,S}) where {L1,L2,S,T} =
+    Gain{L1,S,T}(_gconv(L1,L2,x))
+Base.convert(::Type{Gain{L,S1,T}}, x::Gain{L,S2}) where {L,S1,S2,T} =
+    Gain{L,S1,T}(x.val)
+Base.convert(::Type{Gain{L1,S1,T}}, x::Gain{L2,S2}) where {L1,L2,S1,S2,T} =
+    Gain{L1,S1,T}(_gconv(L1,L2,x))
+
 Base.convert(::Type{LogScaled{L1}}, x::Gain{L2}) where {L1,L2} = Gain{L1}(_gconv(L1,L2,x))
+Base.convert(::Type{T}, y::Gain) where {T<:Real} = convert(T, uconvert(NoUnits, y))
+
 function _gconv(L1,L2,x)
     if isrootpower(L1) == isrootpower(L2)
         gain = tolog(L1,fromlog(L2,x.val))
@@ -102,7 +120,7 @@ unit(a::MixedUnits{L,U}) where {L,U} = U()
 logunit(a::MixedUnits{L}) where {L} = MixedUnits{L}()
 isunitless(::MixedUnits) = false
 
-Base. *(::MixedUnits, ::MixedUnits) = error("cannot have more than one logarithmic unit.")
+Base. *(::MixedUnits, ::MixedUnits) = error("cannot multiply logarithmic units together.")
 Base. /(::MixedUnits{T}, ::MixedUnits{S}) where {T,S} =
     error("cannot divide logarithmic units except to cancel.")
 Base. /(x::MixedUnits{T}, y::MixedUnits{T}) where {T} = x.units / y.units
@@ -113,14 +131,18 @@ Base. /(x::MixedUnits{T}, y::Units) where {T} = MixedUnits{T}(x.units / y)
 Base. /(x::Units, y::MixedUnits) = error("cannot divide logarithmic units except to cancel.")
 
 Base. *(x::Real, y::MixedUnits{Level{L,S}}) where {L,S} = (Level{L,S}(fromlog(L,S,x)))*y.units
-Base. *(x::Real, y::MixedUnits{Gain{L}}) where {L} = (Gain{L}(x))*y.units
+Base. *(x::Real, y::MixedUnits{Gain{L,S}}) where {L,S} = (Gain{L,S}(x))*y.units
 Base. *(x::MixedUnits, y::Number) = y * x
-Base. /(x::Number, y::MixedUnits) = error("cannot divide out logarithmic units; try `linear`.")
+Base. /(x::Number, y::MixedUnits) = error("cannot divide $x by logarithmic units.")
 Base. /(x::MixedUnits, y::Number) = inv(y) * x
 
 function uconvert(a::Units, x::Level)
     dimension(a) != dimension(x) && throw(DimensionError(a,x))
     return uconvert(a, x.val)
+end
+function uconvert(a::Units, x::Gain)
+    dimension(a) != dimension(x) && throw(DimensionError(a,x))
+    uconvert(a, linear(x))
 end
 uconvert(a::Units, x::Quantity{<:Level}) = uconvert(a, linear(x))
 uconvert(a::Units, x::Quantity{<:Gain}) = uconvert(a, linear(x))
@@ -129,22 +151,29 @@ function uconvert(a::MixedUnits{Level{L,S}}, x::Number) where {L,S}
     q1 = uconvert(unit(unwrap(S))*a.units, linear(x)) / a.units
     return Level{L,S}(q1) * a.units
 end
+function uconvert(a::MixedUnits{Gain{L,S}}, x::Gain) where {L,S}
+    dimension(a) != dimension(x) && throw(DimensionError(a,x))
+    return convert(Gain{L,S}, x)
+end
+function uconvert(a::MixedUnits{Gain{L,S}}, x::Number) where {L,S}
+    dimension(a) != dimension(x) && throw(DimensionError(a,x))
+    if S == :rp
+        return uconvertrp(a, x)
+    elseif S == :p
+        return uconvertp(a, x)
+    else
+        error("$x is not obviously a ratio of power or root-power quantities; ",
+            "use `uconvertrp` or `uconvertp` instead.")
+    end
+end
 
-function uconvert(a::MixedUnits{Gain{L}}, x::Gain) where {L}
+function uconvert(a::MixedUnits{Gain{L,S}}, x::Quantity) where {L,S}
     dimension(a) != dimension(x) && throw(DimensionError(a,x))
-    return convert(Gain{L}, x)
+    convert(Gain{L,S}, x.val) * convfact(unit(a), unit(x)) * unit(a)
 end
-function uconvert(a::MixedUnits{<:Gain}, x::Number)
+function uconvert(a::MixedUnits{Gain{L1,S1,<:Real}}, x::Level{L2,S2}) where {L1,L2,S1,S2}
     dimension(a) != dimension(x) && throw(DimensionError(a,x))
-    error("ambiguous; use `uconvertr` or `uconvertrp`.")
-end
-function uconvert(a::MixedUnits{Gain{L}}, x::Quantity) where {L}
-    dimension(a) != dimension(x) && throw(DimensionError(a,x))
-    convert(Gain{L}, x.val) * convfact(unit(a), unit(x)) * unit(a)
-end
-function uconvert(a::MixedUnits{Gain{L1,<:Real}}, x::Level{L2,S}) where {L1,L2,S}
-    dimension(a) != dimension(x) && throw(DimensionError(a,x))
-    return Level{L1,S}(x.val)
+    return Level{L1,S2}(x.val)
 end
 
 ustrip(x::Level{L,S}) where {L<:LogInfo,S} = tolog(L,S,x.val/reflevel(x))
@@ -158,58 +187,85 @@ isrootpower_dim(y) =
 ==(x::Gain, y::Level) = ==(y,x)
 ==(x::Level, y::Gain) = false
 
-Base. +(x::Level{L,S}, y::Level{L,S}) where {L,S} = Level{L,S}(x.val + y.val)
-Base. +(x::Gain{L}, y::Gain{L}) where {L} = Gain{L}(x.val + y.val)
-Base. +(x::Level{L,S}, y::Gain{L}) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(x)+y.val))
+# Addition and subtraction
+for op in (:+, :-)
+    @eval Base. $op(x::Level{L,S}, y::Level{L,S}) where {L,S} = Level{L,S}(($op)(x.val, y.val))
+    @eval Base. $op(x::Gain{L,S}, y::Gain{L,S}) where {L,S} = Gain{L,S}(($op)(x.val, y.val))
+    @eval function Base. $op(x::Gain{L,S1}, y::Gain{L,S2}) where {L,S1,S2}
+        if S1 == :?
+            return Gain{L,S2}(($op)(x.val, y.val))
+        elseif S2 == :?
+            return Gain{L,S1}(($op)(x.val, y.val))
+        else
+            return Gain{L,:?}(($op)(x.val, y.val))
+        end
+    end
+    @eval Base. $op(x::Level{L,S}, y::Gain{L}) where {L,S} =
+        Level{L,S}(fromlog(L, S, ($op)(ustrip(x), y.val)))
+end
 Base. +(x::Gain, y::Level) = +(y,x)
-
-Base. -(x::Level{L,S}, y::Level{L,S}) where {L,S} = Level{L,S}(x.val - y.val)
-Base. -(x::Gain{L}, y::Gain{L}) where {L} = Gain{L}(x.val - y.val)
-Base. -(x::Level{L,S}, y::Gain{L}) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(x) - y.val))
 Base. -(x::Gain, y::Level) = error("cannot subtract a level from a gain.")
 
-# Multiplication
-Base. *(x::Number, y::Level) = *(y,x)
-Base. *(x::Bool, y::Level) = *(y,x)                                    # for method ambiguity
-Base. *(x::Quantity, y::Level) = *(y,x)                                # for method ambiguity
+# Multiplication and division
+leveltype(x::Level{L,S}) where {L,S} = Level{L,S}
 Base. *(x::Level, y::Number) = (leveltype(x))(x.val * y)
 Base. *(x::Level, y::Bool) = (leveltype(x))(x.val * y)    # for method ambiguity
 Base. *(x::Level, y::Quantity) = *(x.val, y)
 Base. *(x::Level, y::Level) = *(x.val, y.val)
 Base. *(x::Level, y::Gain) = *(promote(x,y)...)
-Base. *(x::Level{L,S}, y::Gain{L}) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(x)+y.val))
 
-Base. *(x::Number, y::Gain) = *(y,x)
-Base. *(x::Bool, y::Gain) = *(y,x)                                     # for method ambiguity
+Base. *(x::Number, y::Level) = *(y,x)
+Base. *(x::Bool, y::Level) = *(y,x)                       # for method ambiguity
+Base. *(x::Quantity, y::Level) = *(y,x)                   # for method ambiguity
+
+gaintype(::Gain{L,S}) where {L,S} = Gain{L,S}
 Base. *(x::Gain, y::Number) = (gaintype(x))(x.val * y)
-Base. *(x::Gain, y::Bool) = (gaintype(x))(x.val * y)                   # for method ambiguity
+Base. *(x::Gain, y::Bool) = (gaintype(x))(x.val * y)      # for method ambiguity
+Base. *(x::Gain, y::Quantity) = *(y,x)
 Base. *(x::Gain, y::Level) = *(promote(x,y)...)
 Base. *(x::Gain, y::Gain) = *(promote(x,y)...)
-Base. *(x::Gain{L}, y::Level{L,S}) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(x)+y.val))
-Base. *(x::Gain{L}, y::Gain{L}) where {L} = Gain{L}(x.val + y.val)     # contentious?
 
+Base. *(x::Number, y::Gain) = *(y,x)
+Base. *(x::Bool, y::Gain) = *(y,x)                        # for method ambiguity
 Base. *(x::Quantity, y::Gain) =
     isrootpower(x) ? uconvertrp(NoUnits, y) * x : uconvertp(NoUnits, y) * x
-Base. *(x::Gain, y::Quantity) = *(y,x)
 
-# Division
+for (op1,op2) in ((:*, :+), (:/, :-))
+    @eval Base. $op1(x::Gain{L,S}, y::Gain{L,S}) where {L,S} = Gain{L,S}(($op2)(x.val, y.val))
+    @eval function Base. $op1(x::Gain{L,S1}, y::Gain{L,S2}) where {L,S1,S2}
+        if S1 == :?
+            return Gain{L,S2}(($op2)(x.val, y.val))
+        elseif S2 == :?
+            return Gain{L,S1}(($op2)(x.val, y.val))
+        else
+            return Gain{L,:?}(($op2)(x.val, y.val))
+        end
+    end
+    @eval Base. $op1(x::Level{L,S}, y::Gain{L}) where {L,S} =
+        Level{L,S}(fromlog(L, S, ($op2)(ustrip(x), y.val)))
+end
+
+Base. *(x::Gain{L}, y::Level{L,S}) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(y)+x.val))
+Base. /(x::Gain, y::Level) = error("cannot divide a gain by a level.")
+
 Base. /(x::Level, y::Number) = (leveltype(x))(linear(x) / y)
-Base. /(x::Level, y::Quantity) = linear(x) / y
-Base. /(x::Quantity, y::Level) = x / linear(y)
-Base. /(x::Level, y::Level) = linear(x) / linear(y)
-Base. /(x::Level{L,S}, y::Gain{L}) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(x) - y.val))
 Base. //(x::Level, y::Number) = (leveltype(x))(linear(x) // y)
-Base. //(x::Quantity, y::Level) = x // linear(y)
+Base. /(x::Level, y::Quantity) = linear(x) / y
 Base. //(x::Level, y::Quantity) = linear(x) // y
+Base. /(x::Level, y::Level) = linear(x) / linear(y)
 Base. //(x::Level, y::Level) = linear(x) // linear(y)
 Base. //(x::Level, y::Complex) = linear(x) // y     # ambiguity resolution
-Base. //(x::Number, y::Level) = x//linear(y)
-Base. //(x::Level, y::Units) = x/y
-Base. //(x::Units, y::Level) = x//linear(y)
 
-Base. /(x::Gain{L}, y::Gain{L}) where {L} = Gain{L}(x.val - y.val)
+Base. //(x::Number, y::Level) = x // linear(y)
+Base. /(x::Quantity, y::Level) = x / linear(y)
+Base. //(x::Quantity, y::Level) = x // linear(y)
 Base. /(x::Quantity, y::Gain) =
     isrootpower(x) ? x / uconvertrp(NoUnits, y) : x / uconvertp(NoUnits, y)
+Base. //(x::Quantity, y::Gain) =
+    isrootpower(x) ? x // uconvertrp(NoUnits, y) : x // uconvertp(NoUnits, y)
+
+Base. //(x::Level, y::Units) = x/y
+Base. //(x::Units, y::Level) = x//linear(y)
 Base. //(x::Gain, y::Units) = x/y
 Base. //(x::Units, y::Gain) = x//linear(y)
 
@@ -240,10 +296,10 @@ function Base.promote_rule(::Type{T}, ::Type{Level{L,R,S}}) where {L,R,S,T<:Real
     return promote_type(S,T)
 end
 
-Base.promote_rule(::Type{G1}, ::Type{G2}) where {L,T1,T2, G1<:Gain{L,T1}, G2<:Gain{L,T2}} =
-    Gain{L,promote_type(T1,T2)}
-Base.promote_rule(A::Type{G}, B::Type{N}) where {L,T1, G<:Gain{L,T1}, N<:Number} =
-    error("no automatic promotion of $A and $B.")
+Base.promote_rule(::Type{G1}, ::Type{G2}) where {L,S,T1,T2, G1<:Gain{L,S,T1}, G2<:Gain{L,S,T2}} =
+    Gain{L,S,promote_type(T1,T2)}
+Base.promote_rule(A::Type{G}, B::Type{N}) where {L,S,T1, G<:Gain{L,S,T1}, N<:Number} =
+    error("no automatic promotion of $A and $B. ")
 Base.promote_rule(A::Type{G}, B::Type{L}) where {G<:Gain, L2, L<:Level{L2}} = LogScaled{L2}
 
 function Base.show(io::IO, x::Gain)
@@ -293,7 +349,7 @@ function uconvertp end
 uconvertp(u, x) = uconvert(u, x)    # fallback
 uconvertp(::Units{()}, x::Gain{L}) where {L} =
     fromlog(L, ifelse(isrootpower(L), 2, 1)*x.val)
-uconvertp(u::T, x::Real) where {L, T <: MixedUnits{Gain{L}, <:Units{()}}} =
+uconvertp(u::T, x::Real) where {L, T <: MixedUnits{<:Gain{L}, <:Units{()}}} =
     ifelse(isrootpower(L), 0.5, 1) * tolog(L, x) * u
 # function uconvertp(a::MixedUnits{Gain{L}}, x::Number) where {L}
 #     dimension(a) != dimension(x) && throw(DimensionError(a,x))
@@ -317,7 +373,7 @@ function uconvertrp end
 uconvertrp(u, x) = uconvert(u, x)
 uconvertrp(::Units{()}, x::Gain{L}) where {L} =
     fromlog(L, ifelse(isrootpower(L), 1.0, 0.5)*x.val)
-uconvertrp(u::T, x::Real) where {L, T <: MixedUnits{Gain{L}, <:Units{()}}} =
+uconvertrp(u::T, x::Real) where {L, T <: MixedUnits{<:Gain{L}, <:Units{()}}} =
     ifelse(isrootpower(L), 1, 2) * tolog(L, x) * u
 
 """
@@ -334,9 +390,15 @@ is for two reasons:
   different than `-20dB/m`. `0.01/m` cannot be used to calculate exponential attenuation.
 """
 linear(x::Quantity{<:Level}) = (x.val.val)*unit(x)
-linear(x::Quantity{<:Gain}) = error("use uconvertp or uconvertrp instead.")
+linear(x::Quantity{<:Gain{L,:?}}) where {L} = error("ambiguous how to linearize. Cannot determine ",
+    "whether to use `uconvertrp` or `uconvertp` from the type of $x: `$(typeof(x))`.")
+linear(x::Quantity{<:Gain{L,:rp}}) where {L} = uconvertrp(NoUnits, x.val)*unit(x)
+linear(x::Quantity{<:Gain{L,:p}}) where {L} = uconvertp(NoUnits, x.val)*unit(x)
 linear(x::Level) = x.val
-linear(x::Gain) = error("use uconvertp or uconvertrp instead.")
+linear(x::Gain{L,:rp}) where {L} = uconvertrp(NoUnits, x)
+linear(x::Gain{L,:p}) where {L} = uconvertp(NoUnits, x)
+linear(x::Gain{L,:?}) where {L} = error("ambiguous how to linearize. Cannot determine ",
+    "whether to use `uconvertrp` or `uconvertp` from the type of $x: `$(typeof(x))`.")
 linear(x::Number) = x
 
 """
@@ -365,7 +427,7 @@ expfn(x::LogInfo{N,B})  where {N,B} = x->B^x
 
 Base.rtoldefault(::Type{Level{L,S,T}}) where {L,S,T} =
     Base.rtoldefault(typeof(tolog(L,S,oneunit(T)/unwrap(S))))
-Base.rtoldefault(::Type{Gain{L,T}}) where {L,T} = Base.rtoldefault(T)
+Base.rtoldefault(::Type{Gain{L,S,T}}) where {L,S,T} = Base.rtoldefault(T)
 
 Base.isapprox(x::Level, y::Level; kwargs...) = isapprox(promote(x,y)...; kwargs...)
 Base.isapprox(x::T, y::T; kwargs...) where {T <: Level} = _isapprox(x, y; kwargs...)
@@ -375,8 +437,11 @@ _isapprox(x::Level{L,S,T}, y::Level{L,S,T}; atol = Level{L,S}(reflevel(x)), kwar
 
 Base.isapprox(x::Gain, y::Gain; kwargs...) = isapprox(promote(x,y)...; kwargs...)
 Base.isapprox(x::T, y::T; kwargs...) where {T <: Gain} = _isapprox(x, y; kwargs...)
-_isapprox(x::Gain{L,T}, y::Gain{L,T}; atol = Gain{L}(oneunit(T)), kwargs...) where {L,T} =
-    isapprox(ustrip(x), ustrip(y); atol = ustrip(convert(Gain{L,T}, atol)), kwargs...)
+_isapprox(x::Gain{L,S,T}, y::Gain{L,S,T}; atol = Gain{L}(oneunit(T)), kwargs...) where {L,S,T} =  #TODO
+    isapprox(ustrip(x), ustrip(y); atol = ustrip(convert(Gain{L,S,T}, atol)), kwargs...)
+
+*(A::MixedUnits, B::AbstractArray) = broadcast(*, A, B)
+*(A::AbstractArray, B::MixedUnits) = broadcast(*, A, B)
 
 # For documentation generation...
 struct InvalidOp end

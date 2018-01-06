@@ -321,7 +321,11 @@ bases are possible, and computationally appropriate `log` and `exp` functions ar
 in calculations when available (e.g. `log2`, `log10` for base 2 and base 10, respectively).
 
 This macro defines a `MixedUnits` object identified by symbol `symb`. This can be used
-to
+to construct `Gain` types, e.g. `3*dB`. Additionally, two other `MixedUnits` objects are
+defined, with symbols `Symbol(symb,"_rp")` and `Symbol(symb,"_p")`, e.g. `dB_rp` and `dB_p`,
+respectively. These objects serve nearly the same purpose, but have extra information in
+their type that indicates whether they should be considered as root-power ratios or power
+ratios upon conversion to pure numbers.
 
 This macro also defines another macro available as `@symb`. For example, `@dB` in the case
 of decibels. This can be used to construct `Level` objects at parse time. Usage is like
@@ -362,7 +366,9 @@ macro logscale(symb,abbr,name,base,prefactor,irp)
         const global $(esc(name)) = Unitful.LogInfo{$(QuoteNode(name)), $base, $prefactor}
         Unitful.isrootpower(::Type{$(esc(name))}) = $irp
 
-        const global $(esc(symb)) = Unitful.MixedUnits{Unitful.Gain{$(esc(name))}}()
+        const global $(esc(symb)) = Unitful.MixedUnits{Unitful.Gain{$(esc(name)), :?}}()
+        const global $(esc(Symbol(symb,"_rp"))) = Unitful.MixedUnits{Unitful.Gain{$(esc(name)), :rp}}()
+        const global $(esc(Symbol(symb,"_p"))) = Unitful.MixedUnits{Unitful.Gain{$(esc(name)), :p}}()
 
         macro $(esc(symb))(::Union{Real,Symbol})
             throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))

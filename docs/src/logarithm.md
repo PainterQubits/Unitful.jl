@@ -133,12 +133,12 @@ logarithmic quantity is:
     Unitful.Gain
 ```
 
-One might expect that any dimensionless quantity should be convertible to a pure number,
-that is, to `x` if you had `10*log10(x)` dB. However, it turns out that in dB, a ratio of
-powers is defined as `10*log10(x)`, but a ratio of voltages or other root-power quantities
-is defined as `20*log10(x)`. Clearly, converting back from decibels to a real number is
-ambiguous, and so we have not implemented automatic promotion to avoid incorrect results.
-You can use [`Unitful.uconvertp`](@ref) to interpret a `Gain` as a ratio of power
+One might expect that any gain / attenuation factor should be convertible to a pure number,
+that is, to `x == y/z` if you had `10*log10(x)` dB. However, it turns out that in dB, a ratio
+of powers is defined as `10*log10(y/z)`, but a ratio of voltages or other root-power
+quantities is defined as `20*log10(y/z)`. Clearly, converting back from decibels to a real
+number is ambiguous, and so we have not implemented automatic promotion to avoid incorrect
+results. You can use [`Unitful.uconvertp`](@ref) to interpret a `Gain` as a ratio of power
 quantities (hence the `p` in `uconvertp`), or [`Unitful.uconvertrp`](@ref) to interpret as
 a ratio of root-power (field) quantities.
 

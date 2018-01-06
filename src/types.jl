@@ -141,6 +141,7 @@ Describes a logarithmic unit. Type parameters include:
 - `P`: A prefactor to multiply the logarithm when the log is of a power ratio.
 """
 struct LogInfo{N,B,P} end
+
 """
     abstract type LogScaled{L<:LogInfo} <: Number end
 Abstract supertype of [`Unitful.Level`](@ref) and [`Unitful.Gain`](@ref). It is only
@@ -168,12 +169,12 @@ function Level{L,S}(val::Number) where {L,S}
 end
 
 """
-    struct Gain{L, T<:Real} <: LogScaled{L}
+    struct Gain{L, S, T<:Real} <: LogScaled{L}
 A logarithmic scale-based gain or attenuation factor. This type has one field, `val::T`.
 For example, given a gain of `20dB`, we have `val===20`. This type differs from
 [`Unitful.Level`](@ref) in that `val` is stored after computing the logarithm.
 """
-struct Gain{L, T<:Real} <: LogScaled{L}
+struct Gain{L, S, T<:Real} <: LogScaled{L}
     val::T
 end
 
