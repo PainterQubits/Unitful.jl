@@ -113,7 +113,7 @@ const q = 1.6021766208e-19*C        # CODATA 2014; `e` means 2.718...
 @unit Torr   "Torr"     Torr        101325Pa//760           true
 
 # Constants (2014 CODATA values)        (uncertainties in final digits)
-const c0 = 299_792_458*m/s              # exact
+const c0 = Int64(299_792_458)*m/s              # exact
 @unit c      "c"        SpeedOfLight 1c0                    false
 const μ0 = 4π*(1//10)^7*H/m         # exact (but gets promoted to Float64...)
 const µ0 = μ0                       # magnetic constant
@@ -156,7 +156,7 @@ const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
 @unit mi        "mi"       Mile                 1760yd                  false
 
 # Area
-@unit ac        "ac"       Acre                 (316160658//78125)*m^2  false
+@unit ac        "ac"       Acre                 (Int64(316160658)//78125)*m^2  false
 
 # Temperatures
 @unit °Ra       "°Ra"      Rankine              (5//9)*K                false
