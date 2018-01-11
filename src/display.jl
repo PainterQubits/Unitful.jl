@@ -58,6 +58,12 @@ function show(io::IO, x::Quantity)
     nothing
 end
 
+function show(io::IO, x::Quantity{S, Dimensions{()}, <:Units{
+    (Unitful.Unit{:Degree,Unitful.Dimensions{()}}(0, 1//1),),
+        Unitful.Dimensions{()}}}) where S
+    show(io, x.val); show(io, unit(x)); nothing
+end
+
 """
     show(io::IO, x::Unitlike)
 Call [`Unitful.showrep`](@ref) on each object in the tuple that is the type

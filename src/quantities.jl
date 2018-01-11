@@ -80,6 +80,11 @@ for f in (:mod, :rem)
     end
 end
 
+Base.mod2pi(x::DimensionlessQuantity) = mod2pi(uconvert(NoUnits, x))
+Base.mod2pi(x::Quantity{S, Dimensions{()}, <:Units{
+    (Unitful.Unit{:Degree,Unitful.Dimensions{()}}(0, 1//1),),
+    Unitful.Dimensions{()}}}) where S = mod(x, 360°)
+
 # Addition / subtraction
 for op in [:+, :-]
     @eval ($op)(x::Quantity{S,D,U}, y::Quantity{T,D,U}) where {S,T,D,U} =

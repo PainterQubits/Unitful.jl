@@ -462,6 +462,8 @@ end
         @test rem(10m, -3cm) == 1.0cm
         @test mod(10m, -3cm) == -2.0cm
         @test mod(1hr+3minute+5s, 24s) == 17s
+        @test mod2pi(360°) === 0°           # 2pi is 360°
+        @test mod2pi(0.5pi*u"m/dm") ≈ pi    # just testing the dimensionless fallback
         @test @inferred(inv(s)) === s^-1
         @test inv(ContextUnits(m,km)) === ContextUnits(m^-1,km^-1)
         @test inv(FixedUnits(m)) === FixedUnits(m^-1)
@@ -1263,6 +1265,7 @@ end
     @testset "> Display" begin
         @test Unitful.abbr(3u"dBm") == "dBm"
         @test Unitful.abbr(@dB 3V/1.241V) == "dB (1.241 V)"
+        @test string(360°) == "360°"
     end
 
     @testset "> Thanks for signing up for Log Facts!" begin
