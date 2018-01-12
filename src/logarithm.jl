@@ -12,7 +12,10 @@ unwrap(x) = x
 
 base(::LogInfo{N,B}) where {N,B} = B
 prefactor(::LogInfo{N,B,P}) where {N,B,P} = P
-
+zero(x::T) where {T<:Level} = T(zero(x.val))
+zero(::Type{X}) where {L,S,T,X<:Level{L,S,T}} = X(zero(T))
+one(x::T) where {T<:Level} = one(x.val)
+one(::Type{X}) where {L,S,T,X<:Level{L,S,T}} = one(T)
 dimension(x::Level) = dimension(reflevel(x))
 dimension(x::Type{T}) where {T<:Level} = dimension(reflevel(T))
 function Base.float(x::Level{L,S}) where {L,S}
@@ -56,9 +59,11 @@ function Base.float(x::Gain{L,S}) where {L,S}
 end
 logunit(x::Gain{L,S}) where {L,S} = MixedUnits{Gain{L,S}}()
 logunit(x::Type{T}) where {L,S, T<:Gain{L,S}} = MixedUnits{Gain{L,S}}()
-
 abbr(x::Gain{L}) where {L} = abbr(L())
-
+zero(x::T) where {T<:Gain} = T(zero(x.val))
+zero(::Type{X}) where {L,S,T, X<:Gain{L,S,T}} = X(zero(T))
+one(x::T) where {T<:Gain} = T(zero(x.val))
+one(::Type{X}) where {L,S,T, X<:Gain{L,S,T}} = X(zero(T))
 function Gain{L}(val::Real) where {L <: LogInfo}
     dimension(val) != NoDims && throw(DimensionError(val,1))
     return Gain{L, :?, typeof(val)}(val)
@@ -298,8 +303,10 @@ end
 
 Base.promote_rule(::Type{G1}, ::Type{G2}) where {L,S,T1,T2, G1<:Gain{L,S,T1}, G2<:Gain{L,S,T2}} =
     Gain{L,S,promote_type(T1,T2)}
-Base.promote_rule(A::Type{G}, B::Type{N}) where {L,S,T1, G<:Gain{L,S,T1}, N<:Number} =
-    error("no automatic promotion of $A and $B. ")
+# Base.promote_rule(A::Type{G}, B::Type{N}) where {L, T1, G<:Gain{L,:?,T1}, N<:Number} =
+    # error("no automatic promotion of $A and $B. ")
+Base.promote_rule(A::Type{G}, B::Type{N}) where {L, S, T1, G<:Gain{L,S,T1}, N<:Number} =
+    promote_type(typeof(uconvert(NoUnits, zero(G))), N)
 Base.promote_rule(A::Type{G}, B::Type{L}) where {G<:Gain, L2, L<:Level{L2}} = LogScaled{L2}
 
 function Base.show(io::IO, x::Gain)

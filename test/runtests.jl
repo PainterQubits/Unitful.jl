@@ -1325,6 +1325,21 @@ end
         end
     end
 
+    @testset "> zero, one" begin
+        @test zero(3dB) === 0dB
+        @test zero(3dB_rp) === 0dB_rp
+        @test zero(typeof(3dB)) === 0dB
+        @test one(3dB) === 0dB
+        @test one(3dB_rp) === 0dB_rp
+        @test one(typeof(3dB)) === 0dB
+
+        @test zero(3dBm) === (-Inf)*dBm
+        @test zero(typeof(3dBm)) === (-Inf)*dBm
+        @test one(3dBm) === 1.0
+        @test one(typeof(3dBm)) === 1.0
+        @test one(@dB 3mW/1mW) === 1
+    end
+
     @testset "> Unit stripping" begin
         @test ustrip(500.0Np) === 500.0
         @test ustrip(20dB/Hz) === 20
