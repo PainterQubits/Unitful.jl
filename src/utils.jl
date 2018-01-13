@@ -181,11 +181,7 @@ Unitful.Dimensions{()}
 
 """
     struct DimensionError <: Exception
-      x
-      y
-    end
-Thrown when dimensions don't match in an operation that demands they do.
-Display `x` and `y` in error message.
+Physical dimensions are inconsistent for the attempted operation.
 """
 struct DimensionError <: Exception
     x

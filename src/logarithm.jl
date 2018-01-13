@@ -93,6 +93,13 @@ Base.convert(::Type{Gain{L1,S1,T}}, x::Gain{L2,S2}) where {L1,L2,S1,S2,T} =
 Base.convert(::Type{LogScaled{L1}}, x::Gain{L2}) where {L1,L2} = Gain{L1}(_gconv(L1,L2,x))
 Base.convert(::Type{T}, y::Gain) where {T<:Real} = convert(T, uconvert(NoUnits, y))
 
+Base.convert(::Type{G}, x::Real) where {L, G <: Gain{L,:p}} =
+    G(ifelse(isrootpower(L), 0.5, 1) * tolog(L, x))
+Base.convert(::Type{G}, x::Real) where {L, G <: Gain{L,:rp}} =
+    G(ifelse(isrootpower(L), 1, 2) * tolog(L, x))
+Base.convert(::Type{<:Gain}, x::Real) = error("$x is not obviously a ratio of power or ",
+    "root-power quantities; use `uconvertrp` or `uconvertp` instead.")
+
 function _gconv(L1,L2,x)
     if isrootpower(L1) == isrootpower(L2)
         gain = tolog(L1,fromlog(L2,x.val))
@@ -125,20 +132,24 @@ unit(a::MixedUnits{L,U}) where {L,U} = U()
 logunit(a::MixedUnits{L}) where {L} = MixedUnits{L}()
 isunitless(::MixedUnits) = false
 
-Base. *(::MixedUnits, ::MixedUnits) = error("cannot multiply logarithmic units together.")
+Base. *(::MixedUnits, ::MixedUnits) =
+    throw(ArgumentError("cannot multiply logarithmic units together."))
 Base. /(::MixedUnits{T}, ::MixedUnits{S}) where {T,S} =
-    error("cannot divide logarithmic units except to cancel.")
+    throw(ArgumentError("cannot divide logarithmic units except to cancel."))
 Base. /(x::MixedUnits{T}, y::MixedUnits{T}) where {T} = x.units / y.units
 
 Base. *(x::MixedUnits{T}, y::Units) where {T} = MixedUnits{T}(x.units * y)
 Base. *(x::Units, y::MixedUnits) = y * x
 Base. /(x::MixedUnits{T}, y::Units) where {T} = MixedUnits{T}(x.units / y)
-Base. /(x::Units, y::MixedUnits) = error("cannot divide logarithmic units except to cancel.")
+Base. /(x::Units, y::MixedUnits) =
+    throw(ArgumentError("cannot divide logarithmic units except to cancel."))
 
-Base. *(x::Real, y::MixedUnits{Level{L,S}}) where {L,S} = (Level{L,S}(fromlog(L,S,x)))*y.units
+Base. *(x::Real, y::MixedUnits{Level{L,S}}) where {L,S} =
+    (Level{L,S}(fromlog(L,S,x)))*y.units
 Base. *(x::Real, y::MixedUnits{Gain{L,S}}) where {L,S} = (Gain{L,S}(x))*y.units
 Base. *(x::MixedUnits, y::Number) = y * x
-Base. /(x::Number, y::MixedUnits) = error("cannot divide $x by logarithmic units.")
+Base. /(x::Number, y::MixedUnits) =
+    throw(ArgumentError("cannot divide $x by logarithmic units."))
 Base. /(x::MixedUnits, y::Number) = inv(y) * x
 
 function uconvert(a::Units, x::Level)
@@ -209,7 +220,7 @@ for op in (:+, :-)
         Level{L,S}(fromlog(L, S, ($op)(ustrip(x), y.val)))
 end
 Base. +(x::Gain, y::Level) = +(y,x)
-Base. -(x::Gain, y::Level) = error("cannot subtract a level from a gain.")
+Base. -(x::Gain, y::Level) = throw(ArgumentError("cannot subtract a level from a gain."))
 
 # Multiplication and division
 leveltype(x::Level{L,S}) where {L,S} = Level{L,S}
@@ -251,7 +262,7 @@ for (op1,op2) in ((:*, :+), (:/, :-))
 end
 
 Base. *(x::Gain{L}, y::Level{L,S}) where {L,S} = Level{L,S}(fromlog(L, S, ustrip(y)+x.val))
-Base. /(x::Gain, y::Level) = error("cannot divide a gain by a level.")
+Base. /(x::Gain, y::Level) = throw(ArgumentError("cannot divide a gain by a level."))
 
 Base. /(x::Level, y::Number) = (leveltype(x))(linear(x) / y)
 Base. //(x::Level, y::Number) = (leveltype(x))(linear(x) // y)
@@ -275,7 +286,7 @@ Base. //(x::Gain, y::Units) = x/y
 Base. //(x::Units, y::Gain) = x//linear(y)
 
 function (Base.promote_rule(::Type{Level{L1,S1,T1}}, ::Type{Level{L2,S2,T2}})
-        where {L1,L2,S1,S2,T1<:Number,T2<:Number})
+        where {L1,L2,S1,S2,T1,T2})
     if L1 == L2
         if S1 == S2
             # Use convert(promote_type(typeof(S1), typeof(S2)), S1) instead of S1?
@@ -300,13 +311,27 @@ end
 function Base.promote_rule(::Type{T}, ::Type{Level{L,R,S}}) where {L,R,S,T<:Real}
     return promote_type(S,T)
 end
-
-Base.promote_rule(::Type{G1}, ::Type{G2}) where {L,S,T1,T2, G1<:Gain{L,S,T1}, G2<:Gain{L,S,T2}} =
-    Gain{L,S,promote_type(T1,T2)}
-# Base.promote_rule(A::Type{G}, B::Type{N}) where {L, T1, G<:Gain{L,:?,T1}, N<:Number} =
-    # error("no automatic promotion of $A and $B. ")
-Base.promote_rule(A::Type{G}, B::Type{N}) where {L, S, T1, G<:Gain{L,S,T1}, N<:Number} =
-    promote_type(typeof(uconvert(NoUnits, zero(G))), N)
+function (Base.promote_rule(::Type{Gain{L1,S1,T1}}, ::Type{Gain{L2,S2,T2}})
+        where {L1,L2,S1,S2,T1,T2})
+    if L1 == L2
+        if S1 == :?
+            return Gain{L1,S2,promote_type(T1,T2)}
+        elseif S2 == :?
+            return Gain{L1,S1,promote_type(T1,T2)}
+        else
+            return Gain{L1,:?,promote_type(T1,T2)}
+        end
+    else
+        return promote_type(float(T1), float(T2))
+    end
+end
+function Base.promote_rule(::Type{G}, ::Type{N}) where {L,S,T1, G<:Gain{L,S,T1}, N<:Number}
+    if S == :?
+        error("no automatic promotion of $G and $N.")
+    else
+        return Gain{L,S,promote_type(float(T1), N)}
+    end
+end
 Base.promote_rule(A::Type{G}, B::Type{L}) where {G<:Gain, L2, L<:Level{L2}} = LogScaled{L2}
 
 function Base.show(io::IO, x::Gain)
@@ -356,8 +381,8 @@ function uconvertp end
 uconvertp(u, x) = uconvert(u, x)    # fallback
 uconvertp(::Units{()}, x::Gain{L}) where {L} =
     fromlog(L, ifelse(isrootpower(L), 2, 1)*x.val)
-uconvertp(u::T, x::Real) where {L, T <: MixedUnits{<:Gain{L}, <:Units{()}}} =
-    ifelse(isrootpower(L), 0.5, 1) * tolog(L, x) * u
+uconvertp(u::T, x::Real) where {L, G <: Gain{L}, T <: MixedUnits{G, <:Units{()}}} =
+    convert(Gain{L,:p}, x)
 # function uconvertp(a::MixedUnits{Gain{L}}, x::Number) where {L}
 #     dimension(a) != dimension(x) && throw(DimensionError(a,x))
 #
@@ -380,8 +405,8 @@ function uconvertrp end
 uconvertrp(u, x) = uconvert(u, x)
 uconvertrp(::Units{()}, x::Gain{L}) where {L} =
     fromlog(L, ifelse(isrootpower(L), 1.0, 0.5)*x.val)
-uconvertrp(u::T, x::Real) where {L, T <: MixedUnits{<:Gain{L}, <:Units{()}}} =
-    ifelse(isrootpower(L), 1, 2) * tolog(L, x) * u
+uconvertrp(u::T, x::Real) where {L, G <: Gain{L}, T <: MixedUnits{G, <:Units{()}}} =
+    convert(Gain{L,:rp}, x)
 
 """
     linear(x::Quantity)

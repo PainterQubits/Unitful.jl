@@ -1191,9 +1191,9 @@ end
         @test linear(@dB(1.4V/2.8V)/s) === 1.4V/s
 
         @test convert(Gain{Decibel}, 0dB_rp) === 0dB_rp
-        @test convert(Gain{Neper}, 10dB) === 1.151292546497023Np
+        @test convert(Gain{Neper}, 10dB) ≈ 1.151292546Np
         @test convert(Gain{Decibel,:?}, 0dB_rp) === 0dB
-        @test convert(Gain{Neper,:?}, 10dB) === 1.151292546497023Np
+        @test convert(Gain{Neper,:?}, 10dB) ≈ 1.151292546Np
         @test convert(Gain{Decibel,:?,Float32}, 0dB_rp) === 0.0f0*dB
         @test convert(Gain{Neper,:rp,Float32}, 10dB) === 1.1512926f0*Np_rp
     end
@@ -1230,7 +1230,7 @@ end
                 @test @eval ($op)(20dB, 10dB_p)    === 30dB_p
                 @test @eval ($op)(20dB_rp, 10dB_p) === 30dB
                 @test @eval ($op)(20dB_p, 10dB_rp) === 30dB
-                @test_throws ErrorException @eval ($op)(1dB, 1Np)
+                @test_throws ErrorException @eval ($op)(1dB, 1Np) # no promotion
                 @test_throws ErrorException @eval ($op)(1dB_rp, 1Np)
             end
             for op in (:-, :/)
@@ -1241,7 +1241,7 @@ end
                 @test @eval ($op)(20dB, 10dB_p)    === 10dB_p
                 @test @eval ($op)(20dB_rp, 10dB_p) === 10dB
                 @test @eval ($op)(20dB_p, 10dB_rp) === 10dB
-                @test_throws ErrorException @eval ($op)(1dB, 1Np)
+                @test_throws ErrorException @eval ($op)(1dB, 1Np) # no promotion
                 @test_throws ErrorException @eval ($op)(1dB_rp, 1Np)
             end
         end
@@ -1265,12 +1265,12 @@ end
                 @test @eval isapprox(($op)(10dBm, 1Np_p), 1.314dBm; atol=0.001dBm)
 
                 # cannot subtract Levels from Gains
-                @test_throws ErrorException @eval ($op)(10dB, 30dBm)
-                @test_throws ErrorException @eval ($op)(10dB_rp, 30dBm)
-                @test_throws ErrorException @eval ($op)(10dB_p, 30dBm)
-                @test_throws ErrorException @eval ($op)(1Np, 10dBm)
-                @test_throws ErrorException @eval ($op)(1Np_rp, 10dBm)
-                @test_throws ErrorException @eval ($op)(1Np_p, 10dBm)
+                @test_throws ArgumentError @eval ($op)(10dB, 30dBm)
+                @test_throws ArgumentError @eval ($op)(10dB_rp, 30dBm)
+                @test_throws ArgumentError @eval ($op)(10dB_p, 30dBm)
+                @test_throws ArgumentError @eval ($op)(1Np, 10dBm)
+                @test_throws ArgumentError @eval ($op)(1Np_rp, 10dBm)
+                @test_throws ArgumentError @eval ($op)(1Np_p, 10dBm)
             end
         end
     end
@@ -1316,8 +1316,8 @@ end
         end
 
         @testset ">> MixedUnits" begin
-            @test_throws ErrorException dB*dB
-            @test_throws ErrorException dB/Np
+            @test_throws ArgumentError dB*dB
+            @test_throws ArgumentError dB/Np
             @test dB/dB === NoUnits
             @test (dB*m)/(dB*s) === m/s
             @test m*dB === dB*m
