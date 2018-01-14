@@ -2,6 +2,7 @@
   - Implement `mod2pi` for degrees, cleanup display of degree units.
   - Tweak implementation of `Gain` types for usability.
   - Implement `zero` and `one` for `Level` and `Gain`.
+  - Add a few more cgs units.
 - v0.6.1
   - Permit symbols that are bound to `Number`s to be used in `u_str` macro, such that
     π and other non-literal numbers can be used.
