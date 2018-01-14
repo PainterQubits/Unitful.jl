@@ -120,7 +120,7 @@ end
         @testset ">> Numeric conversion" begin
             @test @inferred(float(3m)) === 3.0m
             @test @inferred(Integer(3.0A)) === 3A
-            @test Rational(3.0m) === (3//1)*m
+            @test Rational(3.0m) === (Int64(3)//1)*m
             @test typeof(convert(typeof(0.0°), 90°)) == typeof(0.0°)
             @test (3.0+4.0im)*V == (3+4im)*V
             @test im*V == Complex(0,1)*V
