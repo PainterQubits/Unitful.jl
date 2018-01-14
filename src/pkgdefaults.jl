@@ -140,7 +140,10 @@ const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
 
 
 # CGS units
+@unit Gal    "Gal"      Gal         1cm/s^2                 true
 @unit dyn    "dyn"      Dyne        1g*cm/s^2               true
+@unit erg    "erg"      Erg         1g*cm^2/s^2             true
+@unit Ba     "Ba"       Barye       1g/cm/s^2               true
 @unit P      "P"        Poise       1g/cm/s                 true
 @unit St     "St"       Stokes      1cm^2/s                 true
 
