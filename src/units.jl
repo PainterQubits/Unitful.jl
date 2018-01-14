@@ -239,12 +239,13 @@ end
 function basefactor(x::Units{U}) where {U}
     fact1 = map(basefactor, U)
     inex1 = mapreduce(x->getfield(x,1), *, 1.0, fact1)
-    float_ex1 = mapreduce(x->float(getfield(x,2)), *, 1, fact1)
-    can_exact = (float_ex1 < typemax(Int))
-    can_exact &= (1/float_ex1 < typemax(Int))
+    float_num = mapreduce(x->float(numerator(getfield(x,2))), *, 1.0, fact1)
+    float_den = mapreduce(x->float(denominator(getfield(x,2))), *, 1.0, fact1)
+    can_exact = (float_num < typemax(Int))
+    can_exact &= (float_den < typemax(Int))
     if can_exact
-        inex1, mapreduce(x->getfield(x,2), *, 1, fact1)
+        return inex1, mapreduce(x->getfield(x,2), *, 1, fact1)
     else
-        inex1*float_ex1, 1
+        return inex1*float_num/float_den, 1
     end
 end
