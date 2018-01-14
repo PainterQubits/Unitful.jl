@@ -3,6 +3,7 @@
   - Tweak implementation of `Gain` types for usability.
   - Implement `zero` and `one` for `Level` and `Gain`.
   - Add a few more cgs units.
+  - Tests pass on 32-bit systems, for the first time in a long time (ever?).
 - v0.6.1
   - Permit symbols that are bound to `Number`s to be used in `u_str` macro, such that
     π and other non-literal numbers can be used.
