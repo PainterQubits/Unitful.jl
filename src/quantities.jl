@@ -348,7 +348,7 @@ end
 ^(x::Quantity, y::Real) = Quantity((x.val)^y, unit(x)^y)
 
 @static if VERSION >= v"0.7.0-DEV.2708" #julia PR 23964
-    Base.rand(r::AbstractRNG, ::Base.Random.SamplerType{Quantity{T,D,U}}) where {T,D,U} =
+    Base.rand(r::Random.AbstractRNG, ::Random.SamplerType{Quantity{T,D,U}}) where {T,D,U} =
         rand(r, T) * U()
 else
     Base.rand(r::AbstractRNG, ::Type{Quantity{T,D,U}}) where {T,D,U} = rand(r,T) * U()
