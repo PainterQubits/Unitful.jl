@@ -23,6 +23,10 @@
       
         <meta name="lang:search.language" content="en">
       
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
         <meta name="lang:search.result.none" content="No matching documents">
       
         <meta name="lang:search.result.one" content="1 matching document">
@@ -32,7 +36,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-0.17.2, mkdocs-material-2.5.0">
+      <meta name="generator" content="mkdocs-0.17.2, mkdocs-material-2.6.2">
     
     
       
@@ -40,7 +44,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/application.2a88008a.css">
+      <link rel="stylesheet" href="../assets/stylesheets/application.9b572555.css">
       
     
     
@@ -59,20 +63,41 @@
     
   </head>
   
-  
     <body dir="ltr">
   
     <svg class="md-svg">
       <defs>
         
         
-          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448"
+    viewBox="0 0 416 448" id="github">
+  <path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19-18.125
+        8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19 18.125-8.5
+        18.125 8.5 10.75 19 3.125 20.5zM320 304q0 10-3.125 20.5t-10.75
+        19-18.125 8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19
+        18.125-8.5 18.125 8.5 10.75 19 3.125 20.5zM360
+        304q0-30-17.25-51t-46.75-21q-10.25 0-48.75 5.25-17.75 2.75-39.25
+        2.75t-39.25-2.75q-38-5.25-48.75-5.25-29.5 0-46.75 21t-17.25 51q0 22 8
+        38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0
+        37.25-1.75t35-7.375 30.5-15 20.25-25.75 8-38.375zM416 260q0 51.75-15.25
+        82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5-41.75
+        1.125q-19.5 0-35.5-0.75t-36.875-3.125-38.125-7.5-34.25-12.875-30.25-20.25-21.5-28.75q-15.5-30.75-15.5-82.75
+        0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25
+        30.875q36.75-8.75 77.25-8.75 37 0 70 8 26.25-20.5
+        46.75-30.25t47.25-9.75q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34
+        99.5z" />
+</svg>
         
       </defs>
     </svg>
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
     <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <a href="#unitful-string-macro" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
     
       <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid">
@@ -324,6 +349,8 @@
       
       
       
+      
+      
     </ul>
   
 </nav>
@@ -439,6 +466,8 @@
       
       
       
+      
+      
     </ul>
   
 </nav>
@@ -485,7 +514,7 @@ julia&gt; u&quot;ħ&quot;
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/user.jl#L435-L465' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/user.jl#L435-L465' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.register' href='#Unitful.register'>#</a>
 <strong><code>Unitful.register</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>register(unit_module::Module)
@@ -506,7 +535,7 @@ julia&gt; u&quot;ħ&quot;
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/user.jl#L1-L19' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/user.jl#L1-L19' class='documenter-source'>source</a><br></p>
 <p><a id='Dimension-and-unit-inspection-1'></a></p>
 <h2 id="dimension-and-unit-inspection">Dimension and unit inspection</h2>
 <p>We define a function <a href="./#Unitful.dimension-Tuple{Number}"><code>dimension</code></a> that turns, for example, <code>acre^2</code> or <code>1*acre^2</code> into <code>𝐋^4</code>. We can usually add quantities with the same dimension, regardless of specific units (<code>FixedUnits</code> cannot be automatically converted, however). Note that dimensions cannot be determined by powers of the units: <code>ft^2</code> is an area, but so is <code>ac^1</code> (an acre).</p>
@@ -528,7 +557,7 @@ true
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/utils.jl#L76-L90' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/utils.jl#L76-L90' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>unit(x::Number)
 </pre></div>
 
@@ -546,7 +575,7 @@ true
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/utils.jl#L95-L113' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/utils.jl#L95-L113' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Tuple{Number}' href='#Unitful.dimension-Tuple{Number}'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>dimension(x::Number)
@@ -565,7 +594,7 @@ true
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/utils.jl#L117-L134' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/utils.jl#L117-L134' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Union{Tuple{D}, Tuple{Unitful.Units{U,D}}, Tuple{U}} where D where U' href='#Unitful.dimension-Union{Tuple{D}, Tuple{Unitful.Units{U,D}}, Tuple{U}} where D where U'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>dimension(u::Units{U,D}) where {U,D}
@@ -585,7 +614,7 @@ Unitful.Dimensions{()}
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/utils.jl#L138-L156' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/utils.jl#L138-L156' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>dimension(x::Quantity{T,D}) where {T,D}
 dimension(::Type{Quantity{T,D,U}}) where {T,D,U}
 </pre></div>
@@ -601,7 +630,7 @@ Unitful.Dimensions{()}
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/utils.jl#L159-L175' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/utils.jl#L159-L175' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Union{Tuple{D}, Tuple{T}, Tuple{Unitful.Quantity{T,D,U}}, Tuple{U}} where U where D where T' href='#Unitful.dimension-Union{Tuple{D}, Tuple{T}, Tuple{Unitful.Quantity{T,D,U}}, Tuple{U}} where U where D where T'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>dimension(u::Units{U,D}) where {U,D}
@@ -621,7 +650,7 @@ Unitful.Dimensions{()}
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/utils.jl#L138-L156' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/utils.jl#L138-L156' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>dimension(x::Quantity{T,D}) where {T,D}
 dimension(::Type{Quantity{T,D,U}}) where {T,D,U}
 </pre></div>
@@ -637,7 +666,7 @@ Unitful.Dimensions{()}
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/utils.jl#L159-L175' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/utils.jl#L159-L175' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Union{Tuple{AbstractArray{T,N} where N}, Tuple{T}} where T<:Unitful.Units' href='#Unitful.dimension-Union{Tuple{AbstractArray{T,N} where N}, Tuple{T}} where T<:Unitful.Units'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>dimension(u::Units{U,D}) where {U,D}
@@ -657,7 +686,7 @@ Unitful.Dimensions{()}
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/utils.jl#L138-L156' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/utils.jl#L138-L156' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>dimension(x::Quantity{T,D}) where {T,D}
 dimension(::Type{Quantity{T,D,U}}) where {T,D,U}
 </pre></div>
@@ -673,7 +702,7 @@ Unitful.Dimensions{()}
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/utils.jl#L159-L175' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/utils.jl#L159-L175' class='documenter-source'>source</a><br></p>
 <p><a id='Unit-stripping-1'></a></p>
 <h2 id="unit-stripping">Unit stripping</h2>
 <p><a id='Unitful.ustrip' href='#Unitful.ustrip'>#</a>
@@ -693,7 +722,7 @@ true
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/utils.jl#L8-L26' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/utils.jl#L8-L26' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>ustrip(x::Array{Q}) where {Q &lt;: Quantity}
 </pre></div>
 
@@ -717,7 +746,7 @@ julia&gt; a[1] = 3u&quot;m&quot;; b
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/utils.jl#L30-L55' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/utils.jl#L30-L55' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>ustrip(A::Diagonal)
 ustrip(A::Bidiagonal)
 ustrip(A::Tridiagonal)
@@ -726,7 +755,7 @@ ustrip(A::SymTridiagonal)
 
 
 <p>Strip units from various kinds of matrices by calling <code>ustrip</code> on the underlying vectors.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/utils.jl#L60-L66' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/utils.jl#L60-L66' class='documenter-source'>source</a><br></p>
 <p><a id='Unit-multiplication-1'></a></p>
 <h2 id="unit-multiplication">Unit multiplication</h2>
 <p><a id='Base.:*-Tuple{Unitful.Units,Vararg{Unitful.Units,N} where N}' href='#Base.:*-Tuple{Unitful.Units,Vararg{Unitful.Units,N} where N}'>#</a>
@@ -749,7 +778,7 @@ true
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/units.jl#L60-L85' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/units.jl#L60-L85' class='documenter-source'>source</a><br></p>
 <p><a id='Base.:*-Tuple{Unitful.Dimensions,Vararg{Unitful.Dimensions,N} where N}' href='#Base.:*-Tuple{Unitful.Dimensions,Vararg{Unitful.Dimensions,N} where N}'>#</a>
 <strong><code>Base.:*</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>*(a0::Dimensions, a::Dimensions...)
@@ -770,7 +799,7 @@ true
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2981c37cada5eec02e1a224e7e526a3d6dbcd319/src/dimensions.jl#L1-L24' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a76397c75dcfa59d8328ab60effb55a9ad4d0c6a/src/dimensions.jl#L1-L24' class='documenter-source'>source</a><br></p>
                 
                   
                 
@@ -840,7 +869,7 @@ true
       
     </div>
     
-      <script src="../assets/javascripts/application.ce2ab4bf.js"></script>
+      <script src="../assets/javascripts/application.abd7b172.js"></script>
       
       <script>app.initialize({version:"0.17.2",url:{base:".."}})</script>
       
