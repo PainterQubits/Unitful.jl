@@ -84,7 +84,7 @@ true
 ```
 
 In the next examples we assume we have brought some units into our namespace,
-e.g. using `m = u"m"`, etc.
+e.g. const `m = u"m"`, etc.
 
 ```jldoctest
 julia> uconvert(°C, 212°F)
