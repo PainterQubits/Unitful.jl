@@ -270,7 +270,7 @@ isinf(x::Quantity) = isinf(x.val)
 isnan(x::Quantity) = isnan(x.val)
 
 eps(x::T) where {T<:Quantity} = T(eps(x.val))
-eps(x::Type{T}) where {T<:Quantity} = T(eps(Unitful.numtype(T)))
+eps(x::Type{T}) where {T<:Quantity} = eps(Unitful.numtype(T))
 
 unsigned(x::Quantity) = Quantity(unsigned(x.val), unit(x))
 

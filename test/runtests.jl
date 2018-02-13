@@ -556,7 +556,7 @@ end
 
         # Test eps
         @test eps(1.0u"s") == eps(1.0)u"s"
-        @test eps(typeof(1.0u"s")) == eps(Float64)u"s"
+        @test eps(typeof(1.0u"s")) == eps(Float64)
 
         # Test promotion behavior
         @test !isapprox(1.0u"m", 1.0u"s")
