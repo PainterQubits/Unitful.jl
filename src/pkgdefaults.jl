@@ -134,6 +134,8 @@ const Na = 6.022_140_857e23/mol     # (74) Avogadro constant
 const R  = 8.314_459_8*J/(mol*K)    # (48) molar gass constant
 const k  = 1.380_648_52e-23*(J/K)   # (79) Boltzmann constant
 const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
+const R∞ = 10_973_731.568_508/m     # (65) Rydberg constant
+@unit u      "u" UnifiedAtomicMassUnit 1.660_539_040e-27*kg false # (20)
 
 # Acceleration
 @unit ge     "ge"       EarthGravity gn                     false
