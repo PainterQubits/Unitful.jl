@@ -60,9 +60,12 @@ end
 # SI and related units
 @unit Hz     "Hz"       Hertz       1/s                     true
 @unit N      "N"        Newton      1kg*m/s^2               true
+@unit Nm     "Nm"       NewtonMeter 1N*m                    true
 @unit Pa     "Pa"       Pascal      1N/m^2                  true
 @unit J      "J"        Joule       1N*m                    true
 @unit W      "W"        Watt        1J/s                    true
+@unit VA     "VA"       VoltAmpere  1J/s                    true
+# @unit var     "var"     VoltAmpereReactive  1J/s            true
 @unit C      "C"        Coulomb     1A*s                    true
 @unit V      "V"        Volt        1W/A                    true
 @unit Ω      "Ω"        Ohm         1V/A                    true
@@ -77,12 +80,16 @@ end
 @unit Gy     "Gy"       Gray        1J/kg                   true
 @unit Sv     "Sv"       Sievert     1J/kg                   true
 @unit kat    "kat"      Katal       1mol/s                  true
+@unit percent "%"       Percent     1//100                  false
+@unit permille "‰"      Percent     1//1000                 false
 
 # Temperature
 @unit °C     "°C"       Celsius     1K                      true
 Unitful.offsettemp(::Unitful.Unit{:Celsius}) = 27315//100
 
 # Common units of time
+@unit rpm    "rpm"      RevolutionsPerMinute 1*u"minute^-1" false
+@unit rps    "rps"      RevolutionsPerSecond 1/s            false
 @unit minute "minute"   Minute      60s                     false
 @unit hr     "hr"       Hour        3600s                   false
 @unit d      "dy"       Day         86400s                  false
