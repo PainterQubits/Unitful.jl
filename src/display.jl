@@ -71,12 +71,21 @@ variable of a [`Unitful.Units`](@ref) or [`Unitful.Dimensions`](@ref) object.
 """
 function show(io::IO, x::Unitlike)
     first = ""
-    foreach(typeof(x).parameters[1]) do y
+    foreach(sortexp(typeof(x).parameters[1])) do y
         print(io,first)
         showrep(io,y)
         first = " "
     end
     nothing
+end
+
+"""
+    sort_exp(xs)
+Sort units to show positive exponents first.
+"""
+function sortexp(xs)
+    vcat([x for x in xs if power(x) >= 0], 
+         [x for x in xs if power(x) < 0])
 end
 
 """
