@@ -7,18 +7,20 @@ import Base: show, convert
 import Base: abs, abs2, angle, float, fma, muladd, inv, sqrt, cbrt
 import Base: min, max, floor, ceil, real, imag, conj
 import Base: exp, exp10, exp2, expm1, log, log10, log1p, log2
-import Base: sin, cos, tan, cot, sec, csc, atan2, cis, vecnorm
+import Base: sin, cos, tan, cot, sec, csc, atan2, cis
 
 import Base: eps, mod, rem, div, fld, cld, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isinf, isfinite, isnan
 import Base: copysign, flipsign
 import Base: prevfloat, nextfloat, maxintfloat, rat, step
-import Base: length, float, start, done, next, last, one, zero, colon, range
+import Base: length, float, start, done, next, last, one, zero, range
 import Base: getindex, eltype, step, last, first, frexp
 import Base: Integer, Rational, typemin, typemax
 import Base: steprange_last, unsigned
 
-import Base.LinAlg: istril, istriu
+import Compat.LinearAlgebra: Diagonal, Bidiagonal, Tridiagonal, SymTridiagonal
+import Compat.LinearAlgebra: istril, istriu, vecnorm
+import Compat: Random
 
 export logunit, unit, dimension, uconvert, ustrip, upreferred
 export @dimension, @derived_dimension, @refunit, @unit, @u_str

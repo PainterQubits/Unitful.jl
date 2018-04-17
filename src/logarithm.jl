@@ -400,7 +400,6 @@ Consider `Quantity{<:Gain}` types: it is tempting to use this to transform `-20d
 `0.01/m`, however this means something fundamentally different than `-20dB/m`. Consider what
 happens when you try to compute exponential attenuation by multiplying `0.01/m` by a length.
 """
-
 function uconvertrp end
 uconvertrp(u, x) = uconvert(u, x)
 uconvertrp(::Units{()}, x::Gain{L}) where {L} =

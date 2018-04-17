@@ -1,7 +1,7 @@
 module UnitfulTests
 
 using Unitful
-using Compat.Test
+using Compat.Test, Compat.LinearAlgebra, Compat.Random
 import Compat
 import Unitful: DimensionError
 
@@ -276,7 +276,11 @@ end
         @test @inferred(promote(1μm2μm, 1.0nm2μm, 1.0s)) ===
             (1.0μm2μm, 1.0nm2μm, 1.0s)
         # Context disagreement: fall back to free units
-        @test @inferred(promote(1.0nm2μm, 1.0μm2mm)) === (1e-9m, 1e-6m)
+        if VERSION >= v"0.7.0-DEV"
+            @test_broken @inferred(promote(1.0nm2μm, 1.0μm2mm)) === (1e-9m, 1e-6m)
+        else
+            @test @inferred(promote(1.0nm2μm, 1.0μm2mm)) === (1e-9m, 1e-6m)
+        end
     end
     @testset "> Promotion during array creation" begin
         @test typeof([1.0m,1.0m]) == Array{typeof(1.0m),1}

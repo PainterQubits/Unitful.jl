@@ -496,7 +496,7 @@ end
 
 function replace_value(sym::Symbol)
     f = m->(isdefined(m,sym) && ustrcheck_bool(getfield(m, sym)))
-    inds = find(f, unitmodules)
+    inds = @compat findall(f, unitmodules)
     isempty(inds) &&
         error("Symbol $sym could not be found in registered unit modules.")
 

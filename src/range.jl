@@ -1,5 +1,22 @@
 using Compat: AbstractRange
 
+@static if VERSION < v"0.7.0-DEV.4003"
+    import Base.colon
+else
+    const colon = Base.:(:)
+end
+
+import Base: ArithmeticRounds
+@static if VERSION < v"0.7.0-DEV.3410"
+    import Base: TypeOrder, HasOrder, TypeArithmetic, ArithmeticOverflows
+    const OrderStyle = TypeOrder
+    const Ordered = HasOrder
+    const ArithmeticStyle = TypeArithmetic
+    const ArithmeticWraps = ArithmeticOverflows
+else
+    import Base: OrderStyle, Ordered, ArithmeticStyle, ArithmeticWraps
+end
+
 *(y::Units, r::AbstractRange) = *(r,y)
 *(r::AbstractRange, y::Units) = range(first(r)*y, step(r)*y, length(r))
 *(r::AbstractRange, y::Units, z::Units...) = *(x, *(y,z...))
@@ -37,19 +54,14 @@ function colon(start::A, step::B, stop::A) where A<:Quantity{<:Real} where B<:Qu
     colon(promote(start, step, stop)...)
 end
 
-# Traits for quantities using triangular dispatch
-import Base: TypeOrder, TypeArithmetic, HasOrder,
-    ArithmeticRounds, ArithmeticOverflows
-(::Type{TypeOrder})(::Type{<:Quantity{<:Real}}) = HasOrder()
-(::Type{TypeArithmetic})(::Type{<:Quantity{<:AbstractFloat}}) =
-    ArithmeticRounds()
-(::Type{TypeArithmetic})(::Type{<:Quantity{<:Integer}}) =
-    ArithmeticOverflows()
+OrderStyle(::Type{<:Quantity{<:Real}}) = Ordered()
+ArithmeticStyle(::Type{<:Quantity{<:AbstractFloat}}) = ArithmeticRounds()
+ArithmeticStyle(::Type{<:Quantity{<:Integer}}) = ArithmeticWraps()
 
 (colon(start::T, step::T, stop::T) where T <: Quantity{<:Real}) =
-    _colon(TypeOrder(T), TypeArithmetic(T), start, step, stop)
-_colon(::HasOrder, ::Any, start::T, step, stop::T) where {T} = StepRange(start, step, stop)
-_colon(::HasOrder, ::ArithmeticRounds, start::T, step, stop::T) where {T} =
+    _colon(OrderStyle(T), ArithmeticStyle(T), start, step, stop)
+_colon(::Ordered, ::Any, start::T, step, stop::T) where {T} = StepRange(start, step, stop)
+_colon(::Ordered, ::ArithmeticRounds, start::T, step, stop::T) where {T} =
     StepRangeLen(start, step, floor(Int, (stop-start)/step)+1)
 _colon(::Any, ::Any, start::T, step, stop::T) where {T} =
     StepRangeLen(start, step, floor(Int, (stop-start)/step)+1)
@@ -70,7 +82,7 @@ end
 # No need to confuse things by changing the type once units are on there,
 # if we can help it.
 *(r::StepRangeLen, y::Units) = StepRangeLen(r.ref*y, r.step*y, length(r), r.offset)
-*(r::LinSpace, y::Units) = LinSpace(r.start*y, r.stop*y, length(r))
+*(r::Compat.LinRange, y::Units) = Compat.LinRange(r.start*y, r.stop*y, length(r))
 *(r::StepRange, y::Units) = StepRange(r.start*y, r.step*y, r.stop*y)
 
 function range(a::T, st::T, len::Integer) where (T<:Quantity{S}
@@ -91,5 +103,5 @@ range(a::Real, st::Quantity, len::Integer) = range(promote(a, st)..., len)
 # the following is needed to give sane error messages when doing e.g. range(1°, 2V, 5)
 function range(a::T, step, len::Integer) where {T<:Quantity}
     dimension(a) != dimension(step) && throw(DimensionError(a,step))
-    return Base._range(TypeOrder(T), TypeArithmetic(T), a, step, len)
+    return Base._range(OrderStyle(T), ArithmeticStyle(T), a, step, len)
 end
