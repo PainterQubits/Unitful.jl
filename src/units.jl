@@ -249,3 +249,7 @@ function basefactor(x::Units{U}) where {U}
         return inex1*float_num/float_den, 1
     end
 end
+
+@static if VERSION >= v"0.7.0-DEV.4659"
+    Base.broadcastable(x::Units) = Ref(x)
+end

@@ -972,7 +972,7 @@ end
             @static if VERSION >= v"0.7.0-DEV.3981"
                 r = @inferred(range(0.1, step=0.1, length=3) * 1.0s)
             else
-                r = @inferred(range(0.1, step=0.1, length=3) * 1.0s)
+                r = @inferred(range(0.1, 0.1, 3) * 1.0s)
             end
             @test r[3] === 0.3s
         end
