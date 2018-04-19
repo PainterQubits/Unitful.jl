@@ -1036,7 +1036,9 @@ end
             b = [0.0, 0.0m]
             @test b + b == b
             @test b .+ b == b
-
+            @static if VERSION >= v"0.7.0-DEV.3591"
+                @test eltype(b+b) === Quantity{Float64}
+            end
             # Dimensionless quantities
             @test @inferred([1mm/m] + [1.0cm/m])     == [0.011]
             @test typeof([1mm/m] + [1.0cm/m])        == Array{Float64,1}
