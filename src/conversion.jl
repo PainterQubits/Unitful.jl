@@ -125,7 +125,7 @@ If `x` is already dimensionless, this is a no-op; if it is not, an
 """
 function convert(::Type{DimensionlessQuantity{T,U}}, x::Quantity) where {T,U}
     if dimension(x) == NoDims
-        Quantity(T(x.val), U())
+        _Quantity(T(x.val), U())
     else
         throw(DimensionError(NoDims,x))
     end

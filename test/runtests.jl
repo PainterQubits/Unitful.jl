@@ -1032,6 +1032,11 @@ end
             @test @inferred([1m, 2m] + [1m, 1cm])    == [2m, 201m//100]
             @test @inferred([1m] + [1cm])            == [(101//100)*m]
 
+            # issue 127
+            b = [0.0, 0.0m]
+            @test b + b == b
+            @test b .+ b == b
+
             # Dimensionless quantities
             @test @inferred([1mm/m] + [1.0cm/m])     == [0.011]
             @test typeof([1mm/m] + [1.0cm/m])        == Array{Float64,1}

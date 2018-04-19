@@ -5,13 +5,14 @@ Outer constructor for `Quantity`s. This is a generated function to avoid
 determining the dimensions of a given set of units each time a new quantity is
 made.
 """
-@generated function Quantity(x::Number, y::Units)
+@generated function _Quantity(x::Number, y::Units)
     u = y()
     du = dimension(u)
     dx = dimension(x)
     d = du*dx
     :(Quantity{typeof(x), typeof($d), typeof($u)}(x))
 end
+Quantity(x::Number, y::Units) = _Quantity(x, y)
 Quantity(x::Number, y::Units{()}) = x
 
 *(x::Number, y::Units, z::Units...) = Quantity(x,*(y,z...))
@@ -74,7 +75,7 @@ Base.mod2pi(x::Quantity{S, Dimensions{()}, <:Units{
 # Addition / subtraction
 for op in [:+, :-]
     @eval ($op)(x::Quantity{S,D,U}, y::Quantity{T,D,U}) where {S,T,D,U} =
-        Quantity(($op)(x.val,y.val), U())
+        Quantity(($op)(x.val, y.val), U())
 
     # If not generated, there are run-time allocations
     @eval function ($op)(x::Quantity{S,D,SU}, y::Quantity{T,D,TU}) where {S,T,D,SU,TU}
@@ -82,7 +83,7 @@ for op in [:+, :-]
     end
 
     @eval ($op)(x::Quantity, y::Quantity) = throw(DimensionError(x,y))
-    @eval ($op)(x::Quantity) = Quantity(($op)(x.val),unit(x))
+    @eval ($op)(x::Quantity) = Quantity(($op)(x.val), unit(x))
 end
 
 # Needed until LU factorization is made to work with unitful numbers
