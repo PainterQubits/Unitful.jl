@@ -353,8 +353,10 @@ end
 else
     Base.rand(r::AbstractRNG, ::Type{Quantity{T,D,U}}) where {T,D,U} = rand(r,T) * U()
 end
-@static if VERSION >= v"0.7.0-DEV.2581" #julia PR 24652
-    Base.ones(Q::Type{<:Quantity}, dims::Tuple) = fill!(Array{Q}(uninitialized, dims), oneunit(Q))
+@static if VERSION >= v"0.7.0-DEV.4873" #julia PR 24652
+    Base.ones(Q::Type{<:Quantity}, dims::NTuple{N,Integer}) where {N} =
+        fill!(Array{Q,N}(undef, map(Base.to_dim, dims)), oneunit(Q))
+    Base.ones(Q::Type{<:Quantity}, dims::Tuple{}) = fill!(Array{Q}(undef), oneunit(Q))
 else
     Base.ones(Q::Type{<:Quantity}, dims::Tuple) = fill!(Array{Q}(dims), oneunit(Q))
 end

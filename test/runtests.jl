@@ -35,6 +35,12 @@ import Unitful:
 
 import Unitful: LengthUnits, AreaUnits, MassUnits
 
+@static if VERSION < v"0.7.0-DEV.4003"
+    import Base.colon
+else
+    const colon = Base.:(:)
+end
+
 @testset "Construction" begin
     @test isa(NoUnits, FreeUnits)
     @test typeof(𝐋) === Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
@@ -847,8 +853,8 @@ end
             @test length(2.0m:.2m:1.0m) == 0
 
             @test length(1m:2m:0m) == 0
-            L32 = linspace(Int32(1)*m, Int32(4)*m, 4)
-            L64 = linspace(Int64(1)*m, Int64(4)*m, 4)
+            L32 = Compat.range(Int32(1)*m, stop=Int32(4)*m, length=4)
+            L64 = Compat.range(Int64(1)*m, stop=Int64(4)*m, length=4)
             @test L32[1] == 1m && L64[1] == 1m
             @test L32[2] == 2m && L64[2] == 2m
             @test L32[3] == 3m && L64[3] == 3m
@@ -877,18 +883,30 @@ end
             @test @inferred(length(r)) === 5
             @test @inferred(step(r)) === 1m
 
-            @test @inferred(first(range(1mm, 2m, 4))) === 1mm
-            @test @inferred(step(range(1mm, 2m, 4))) === 2m
-            @test @inferred(last(range(1mm, 2m, 4))) === 6001mm
-            @test_throws ArgumentError 1m:0m:5m
-
-            @test_throws DimensionError range(1m, 2V, 5)
-            try
-                range(1m, 2V, 5)
-            catch e
-                @test e.x == 1m
-                @test e.y == 2V
+            @static if VERSION < v"0.7.0-DEV.3981"
+                @test @inferred(first(range(1mm, 2m, 4))) === 1mm
+                @test @inferred(step(range(1mm, 2m, 4))) === 2m
+                @test @inferred(last(range(1mm, 2m, 4))) === 6001mm
+                @test_throws DimensionError range(1m, 2V, 5)
+                try
+                    range(1m, 2V, 5)
+                catch e
+                    @test e.x == 1m
+                    @test e.y == 2V
+                end
+            else
+                @test @inferred(first(range(1mm, step=2m, length=4))) === 1mm
+                @test @inferred(step(range(1mm, step=2m, length=4))) === 2m
+                @test @inferred(last(range(1mm, step=2m, length=4))) === 6001mm
+                @test_throws DimensionError range(1m, step=2V, length=5)
+                try
+                    range(1m, step=2V, length=5)
+                catch e
+                    @test e.x == 1m
+                    @test e.y == 2V
+                end
             end
+            @test_throws ArgumentError 1m:0m:5m
         end
         @testset ">> StepRangeLen" begin
             @test isa(@inferred(colon(1.0m, 1m, 5m)), StepRangeLen{typeof(1.0m)})
@@ -898,37 +916,64 @@ end
             @test @inferred(length(0.0:10°:2pi)) == 37 # issue 111 fallout
             @test @inferred(last(0°:0.1:360°)) === 6.2 # issue 111 fallout
 
-            @test @inferred(first(range(1mm, 0.1mm, 50))) === 1.0mm # issue 111
-            @test @inferred(step(range(1mm, 0.1mm, 50))) === 0.1mm # issue 111
-            @test @inferred(last(range(0,10°,37))) == 2pi
-            @test @inferred(last(range(0°,2pi/36,37))) == 2pi
+            @static if VERSION < v"0.7.0-DEV.3981"
+                @test @inferred(first(range(1mm, 0.1mm, 50))) === 1.0mm # issue 111
+                @test @inferred(step(range(1mm, 0.1mm, 50))) === 0.1mm # issue 111
+                @test @inferred(last(range(0,10°,37))) == 2pi
+                @test @inferred(last(range(0°,2pi/36,37))) == 2pi
+                @test step(range(1.0m, 1m, 5)) === 1.0m
+            else
+                @test @inferred(first(range(1mm, step=0.1mm, length=50))) === 1.0mm # issue 111
+                @test @inferred(step(range(1mm, step=0.1mm, length=50))) === 0.1mm # issue 111
+                @test @inferred(last(range(0, step=10°, length=37))) == 2pi
+                @test @inferred(last(range(0°, step=2pi/36, length=37))) == 2pi
+                @test step(range(1.0m, step=1m, length=5)) === 1.0m
+            end
+            @test_throws DimensionError Compat.range(1.0m, step=1.0V, length=5)
             @test_throws ArgumentError 1.0m:0.0m:5.0m
-            @test_throws DimensionError range(1.0m, 1.0V, 5)
-            @test step(range(1.0m, 1m, 5)) === 1.0m
         end
         @testset ">> LinSpace" begin
-            @test isa(@inferred(linspace(1.0m, 3.0m, 5)),
-                StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-            @test isa(@inferred(linspace(1.0m, 10m, 5)),
-                StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-            @test isa(@inferred(linspace(1m, 10.0m, 5)),
-                StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-            @test isa(@inferred(linspace(1m, 10m, 5)),
-                StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-            @test_throws Unitful.DimensionError linspace(1m, 10, 5)
-            @test_throws Unitful.DimensionError linspace(1, 10m, 5)
+            # Not using Compat.range for these because kw args don't infer in julia 0.6.2
+            @static if VERSION >= v"0.7.0-DEV.3981"
+                @test isa(@inferred(range(1.0m, stop=3.0m, length=5)),
+                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+                @test isa(@inferred(range(1.0m, stop=10m, length=5)),
+                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+                @test isa(@inferred(range(1m, stop=10.0m, length=5)),
+                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+                @test isa(@inferred(range(1m, stop=10m, length=5)),
+                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+                @test_throws Unitful.DimensionError range(1m, stop=10, length=5)
+                @test_throws Unitful.DimensionError range(1, stop=10m, length=5)
+            else
+                @test isa(@inferred(linspace(1.0m, 3.0m, 5)),
+                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+                @test isa(@inferred(linspace(1.0m, 10m, 5)),
+                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+                @test isa(@inferred(linspace(1m, 10.0m, 5)),
+                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+                @test isa(@inferred(linspace(1m, 10m, 5)),
+                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+                @test_throws Unitful.DimensionError linspace(1m, 10, 5)
+                @test_throws Unitful.DimensionError linspace(1, 10m, 5)
+            end
         end
         @testset ">> Range → Array" begin
             @test isa(collect(1m:1m:5m), Array{typeof(1m),1})
             @test isa(collect(1m:2m:10m), Array{typeof(1m),1})
             @test isa(collect(1.0m:2m:10m), Array{typeof(1.0m),1})
-            @test isa(collect(linspace(1.0m,10.0m,5)), Array{typeof(1.0m),1})
+            @test isa(collect(Compat.range(1.0m, stop=10.0m, length=5)),
+                Array{typeof(1.0m),1})
         end
         @testset ">> unit multiplication" begin
             @test @inferred((1:5)*mm) === 1mm:1mm:5mm
             @test @inferred((1:2:5)*mm) === 1mm:2mm:5mm
             @test @inferred((1.0:2.0:5.01)*mm) === 1.0mm:2.0mm:5.0mm
-            r = @inferred(range(0.1, 0.1, 3) * 1.0s)
+            @static if VERSION >= v"0.7.0-DEV.3981"
+                r = @inferred(range(0.1, step=0.1, length=3) * 1.0s)
+            else
+                r = @inferred(range(0.1, step=0.1, length=3) * 1.0s)
+            end
             @test r[3] === 0.3s
         end
     end
