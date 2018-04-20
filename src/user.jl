@@ -444,6 +444,9 @@ will be used.
 Note that what goes inside must be parsable as a valid Julia expression.
 In other words, u"N m" will fail if you intended to write u"N*m".
 
+Since `@u_str` dynamically looks through registered modules, it does not play well with
+precompilation. You shouldn't use this macro in a precompiled module.
+
 Examples:
 
 ```jldoctest
