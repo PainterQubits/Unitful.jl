@@ -158,6 +158,7 @@ const R∞ = 10_973_731.568_508/m     # (65) Rydberg constant
 # Length
 #key: Symbol    Display    Name                 Equivalent to           10^n prefixes?
 @unit inch      "inch"     Inch                 (254//10000)*m          false
+@unit mil       "mil"      Mil                  (1//1000)*inch          false
 @unit ft        "ft"       Foot                 12inch                  false
 @unit yd        "yd"       Yard                 3ft                     false
 @unit mi        "mi"       Mile                 1760yd                  false
