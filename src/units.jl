@@ -22,23 +22,42 @@
     # Collect powers of a given unit into `c`
     c = Vector{Unit}()
     if !isempty(linunits)
-        i = start(linunits)
-        oldstate = linunits[i]
-        p = 0//1
-        while !done(linunits, i)
-            (state, i) = next(linunits, i)
-            if tens(state) == tens(oldstate) && name(state) == name(oldstate)
-                p += power(state)
-            else
-                if p != 0
-                    push!(c, Unit{name(oldstate),dimtype(oldstate)}(tens(oldstate), p))
+        @static if VERSION >= v"0.7.0-DEV.5124"
+            next = iterate(linunits)
+            p = 0//1
+            oldvalue = next[1]
+            while next !== nothing
+                (value, state) = next
+                if tens(value) == tens(oldvalue) && name(value) == name(oldvalue)
+                    p += power(value)
+                else
+                    if p != 0
+                        push!(c, Unit{name(oldvalue), dimtype(oldvalue)}(tens(oldvalue), p))
+                    end
+                    p = power(value)
                 end
-                p = power(state)
+                oldvalue = value
+                next = iterate(linunits, state)
             end
-            oldstate = state
+        else
+            state = start(linunits)
+            oldvalue = linunits[state]
+            p = 0//1
+            while !done(linunits, state)
+                (value, state) = next(linunits, state)
+                if tens(value) == tens(oldvalue) && name(value) == name(oldvalue)
+                    p += power(value)
+                else
+                    if p != 0
+                        push!(c, Unit{name(oldvalue),dimtype(oldvalue)}(tens(oldvalue), p))
+                    end
+                    p = power(value)
+                end
+                oldvalue = value
+            end
         end
         if p != 0
-            push!(c, Unit{name(oldstate),dimtype(oldstate)}(tens(oldstate), p))
+            push!(c, Unit{name(oldvalue),dimtype(oldvalue)}(tens(oldvalue), p))
         end
     end
     # results in:

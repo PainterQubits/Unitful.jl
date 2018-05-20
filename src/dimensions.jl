@@ -37,23 +37,43 @@ true
 
     c = Vector{Dimension}()
     if !isempty(b)
-        i = start(b)
-        oldstate = b[i]
-        p=0//1
-        while !done(b, i)
-            (state, i) = next(b, i)
-            if name(state) == name(oldstate)
-                p += power(state)
-            else
-                if p != 0
-                    push!(c, Dimension{name(oldstate)}(p))
+        @static if VERSION >= v"0.7.0-DEV.5124"
+            next = iterate(b)
+            p = 0//1
+            oldvalue = next[1]
+            while next !== nothing
+                (value, state) = next
+                if name(value) == name(oldvalue)
+                    p += power(value)
+                else
+                    if p != 0
+                        push!(c, Dimension{name(oldvalue)}(p))
+                    end
+                    p = power(value)
                 end
-                p = power(state)
+                oldvalue = value
+                next = iterate(b, state)
             end
-            oldstate = state
+        else
+            state = start(b)
+            oldvalue = b[state]
+            p = 0//1
+            while !done(b, state)
+                (value, state) = next(b, state)
+                if name(value) == name(oldvalue)
+                    p += power(value)
+                else
+                    if p != 0
+                        push!(c, Dimension{name(oldvalue)}(p))
+                    end
+                    p = power(value)
+                end
+                oldvalue = value
+            end
         end
+
         if p != 0
-            push!(c, Dimension{name(oldstate)}(p))
+            push!(c, Dimension{name(oldvalue)}(p))
         end
     end
 
