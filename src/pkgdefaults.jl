@@ -33,6 +33,8 @@ include("temperature.jl")
 @derived_dimension DynamicViscosity     𝐌*𝐋^-1*𝐓^-1
 @derived_dimension KinematicViscosity   𝐋^2*𝐓^-1
 @derived_dimension Wavenumber           inv(𝐋)
+@derived_dimension Conductivity         𝐈^2*𝐋^-3*𝐌^-1*𝐓^3
+@derived_dimension Resistivity          𝐈^-2*𝐋^3*𝐌*𝐓^-3
 
 # Define base units. This is not to imply g is the base SI unit instead of kg.
 # See the documentation for further details.

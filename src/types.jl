@@ -134,6 +134,17 @@ true
 const DimensionlessQuantity{T,U} = Quantity{T, Dimensions{()}, U}
 
 """
+    DimensionlessUnits{U}
+Useful for dispatching on [`Unitful.Units`](@ref) types that have no dimensions.
+
+Example:
+```jldoctest
+julia> isa(Unitful.rad, DimensionlessUnits)
+true
+"""
+const DimensionlessUnits{U} = Units{U, Dimensions{()}}
+
+"""
     struct LogInfo{N,B,P}
 Describes a logarithmic unit. Type parameters include:
 - `N`: The name of the logarithmic unit, e.g. `:Decibel`, `:Neper`.
