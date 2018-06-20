@@ -1,8 +1,7 @@
 module UnitfulTests
 
 using Unitful
-using Test, Compat.LinearAlgebra, Compat.Random
-import Compat
+using Test, LinearAlgebra, Random
 import Unitful: DimensionError
 
 import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
@@ -307,17 +306,17 @@ end
 end
 
 @testset "Unit string macro" begin
-    @test macroexpand(Compat.@__MODULE__, :(u"m")) == m
-    @test macroexpand(Compat.@__MODULE__, :(u"m,s")) == (m,s)
-    @test macroexpand(Compat.@__MODULE__, :(u"1.0")) == 1.0
-    @test macroexpand(Compat.@__MODULE__, :(u"m/s")) == m/s
-    @test macroexpand(Compat.@__MODULE__, :(u"1.0m/s")) == 1.0m/s
-    @test macroexpand(Compat.@__MODULE__, :(u"m^-1")) == m^-1
-    @test macroexpand(Compat.@__MODULE__, :(u"dB/Hz")) == dB/Hz
-    @test macroexpand(Compat.@__MODULE__, :(u"3.0dB/Hz")) == 3.0dB/Hz
+    @test macroexpand(@__MODULE__, :(u"m")) == m
+    @test macroexpand(@__MODULE__, :(u"m,s")) == (m,s)
+    @test macroexpand(@__MODULE__, :(u"1.0")) == 1.0
+    @test macroexpand(@__MODULE__, :(u"m/s")) == m/s
+    @test macroexpand(@__MODULE__, :(u"1.0m/s")) == 1.0m/s
+    @test macroexpand(@__MODULE__, :(u"m^-1")) == m^-1
+    @test macroexpand(@__MODULE__, :(u"dB/Hz")) == dB/Hz
+    @test macroexpand(@__MODULE__, :(u"3.0dB/Hz")) == 3.0dB/Hz
     @static if VERSION >= v"0.7.0-DEV.1729" # PR 23533
-        @test_throws LoadError macroexpand(Compat.@__MODULE__, :(u"N m"))
-        @test_throws LoadError macroexpand(Compat.@__MODULE__, :(u"abs(2)"))
+        @test_throws LoadError macroexpand(@__MODULE__, :(u"N m"))
+        @test_throws LoadError macroexpand(@__MODULE__, :(u"abs(2)"))
         @test_throws LoadError @eval u"basefactor"
     else
         @test isa(macroexpand(:(u"N m")).args[1], ParseError)
@@ -524,7 +523,7 @@ end
         @test @inferred(csc(90°)) == 1
         @test @inferred(sec(0°)) == 1
         @test @inferred(cot(45°)) == 1
-        @test @inferred(atan2(m*sqrt(3),1m)) ≈ 60°
+        @test @inferred(atan(m*sqrt(3),1m)) ≈ 60°
         @test @inferred(angle((3im)*V)) ≈ 90°
     end
     @testset "> Exponentials and logarithms" begin
@@ -709,7 +708,7 @@ end
                 @test isapprox((@eval @fastmath $f($third)), (@eval $f($third)))
             end
             for f in (:+, :-, :*, :/, :%, :(==), :!=, :<, :<=, :>, :>=,
-                      :atan2, :hypot, :max, :min)
+                      :atan, :hypot, :max, :min)
                 @test isapprox((@eval @fastmath $f($half, $third)),
                                (@eval $f($half, $third)))
                 @test isapprox((@eval @fastmath $f($third, $half)),
@@ -850,8 +849,8 @@ end
             @test length(2.0m:.2m:1.0m) == 0
 
             @test length(1m:2m:0m) == 0
-            L32 = Compat.range(Int32(1)*m, stop=Int32(4)*m, length=4)
-            L64 = Compat.range(Int64(1)*m, stop=Int64(4)*m, length=4)
+            L32 = range(Int32(1)*m, stop=Int32(4)*m, length=4)
+            L64 = range(Int64(1)*m, stop=Int64(4)*m, length=4)
             @test L32[1] == 1m && L64[1] == 1m
             @test L32[2] == 2m && L64[2] == 2m
             @test L32[3] == 3m && L64[3] == 3m
@@ -926,7 +925,7 @@ end
                 @test @inferred(last(range(0°, step=2pi/36, length=37))) == 2pi
                 @test step(range(1.0m, step=1m, length=5)) === 1.0m
             end
-            @test_throws DimensionError Compat.range(1.0m, step=1.0V, length=5)
+            @test_throws DimensionError range(1.0m, step=1.0V, length=5)
             @test_throws ArgumentError 1.0m:0.0m:5.0m
         end
         @testset ">> LinSpace" begin
@@ -954,14 +953,14 @@ end
                 @test_throws Unitful.DimensionError linspace(1m, 10, 5)
                 @test_throws Unitful.DimensionError linspace(1, 10m, 5)
             end
-            r = linspace(1m, 3m, 3)
-            @test r[1:2:end] == linspace(1m, 3m, 2)
+            r = range(1m, stop=3m, length=3)
+            @test r[1:2:end] == range(1m, stop=3m, length=2)
         end
         @testset ">> Range → Array" begin
             @test isa(collect(1m:1m:5m), Array{typeof(1m),1})
             @test isa(collect(1m:2m:10m), Array{typeof(1m),1})
             @test isa(collect(1.0m:2m:10m), Array{typeof(1.0m),1})
-            @test isa(collect(Compat.range(1.0m, stop=10.0m, length=5)),
+            @test isa(collect(range(1.0m, stop=10.0m, length=5)),
                 Array{typeof(1.0m),1})
         end
         @testset ">> unit multiplication" begin
@@ -1230,14 +1229,14 @@ end
         @test convert(Float64, u"20dB_rp") === 10.0
 
         @test isapprox(uconvertrp(NoUnits, 6.02dB), 2.0, atol=0.001)
-        @test uconvertrp(NoUnits, 1Np) ≈ Compat.MathConstants.e
-        @test uconvertrp(Np, Compat.MathConstants.e) == 1Np
+        @test uconvertrp(NoUnits, 1Np) ≈ MathConstants.e
+        @test uconvertrp(Np, MathConstants.e) == 1Np
         @test uconvertrp(NoUnits, 1) == 1
         @test uconvertrp(NoUnits, 20dB) == 10
         @test uconvertrp(dB, 10) == 20dB
         @test isapprox(uconvertp(NoUnits, 3.01dB), 2.0, atol=0.001)
-        @test uconvertp(NoUnits, 1Np) == (Compat.MathConstants.e)^2
-        @test uconvertp(Np, (Compat.MathConstants.e)^2) == 1Np
+        @test uconvertp(NoUnits, 1Np) == (MathConstants.e)^2
+        @test uconvertp(Np, (MathConstants.e)^2) == 1Np
         @test uconvertp(NoUnits, 1) == 1
         @test uconvertp(NoUnits, 20dB) == 100
         @test uconvertp(dB, 100) == 20dB
@@ -1458,7 +1457,6 @@ end
 @test_logs (:warn, r"found in multiple") eval(:(u"m"))
 
 # Test to make sure user macros are working properly
-# (and incidentally, for Compat macro hygiene in @dimension, @derived_dimension)
 module TUM
     using Unitful
     using Test

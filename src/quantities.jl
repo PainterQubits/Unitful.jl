@@ -132,9 +132,9 @@ for _y in (:sin, :cos, :tan, :cot, :sec, :csc, :cis)
     @eval ($_y)(x::DimensionlessQuantity) = ($_y)(uconvert(NoUnits, x))
 end
 
-atan2(y::Quantity, x::Quantity) = atan2(promote(y,x)...)
-atan2(y::Quantity{T,D,U}, x::Quantity{T,D,U}) where {T,D,U} = atan2(y.val,x.val)
-atan2(y::Quantity{T,D1,U1}, x::Quantity{T,D2,U2}) where {T,D1,U1,D2,U2} =
+atan(y::Quantity, x::Quantity) = atan(promote(y,x)...)
+atan(y::Quantity{T,D,U}, x::Quantity{T,D,U}) where {T,D,U} = atan(y.val,x.val)
+atan(y::Quantity{T,D1,U1}, x::Quantity{T,D2,U2}) where {T,D1,U1,D2,U2} =
     throw(DimensionError(x,y))
 
 for (f, F) in [(:min, :<), (:max, :>)]
@@ -203,7 +203,7 @@ isapprox(x::Number, y::Quantity; kwargs...) = isapprox(y, x; kwargs...)
 
 function isapprox(x::AbstractArray{Quantity{T1,D,U1}},
         y::AbstractArray{Quantity{T2,D,U2}}; rtol::Real=Base.rtoldefault(T1,T2,0),
-        atol=zero(Quantity{T1,D,U1}), norm::Function=vecnorm) where {T1,D,U1,T2,U2}
+        atol=zero(Quantity{T1,D,U1}), norm::Function=norm) where {T1,D,U1,T2,U2}
 
     d = norm(x - y)
     if isfinite(d)
@@ -274,7 +274,7 @@ real(x::Quantity) = Quantity(real(x.val), unit(x))
 imag(x::Quantity) = Quantity(imag(x.val), unit(x))
 conj(x::Quantity) = Quantity(conj(x.val), unit(x))
 
-@inline vecnorm(x::Quantity, p::Real=2) =
+@inline norm(x::Quantity, p::Real=2) =
     p == 0 ? (x==zero(x) ? typeof(abs(x))(0) : typeof(abs(x))(1)) : abs(x)
 
 """

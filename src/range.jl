@@ -1,5 +1,3 @@
-using Compat: AbstractRange
-
 const colon = Base.:(:)
 
 import Base: ArithmeticRounds
@@ -91,5 +89,5 @@ end
 # No need to confuse things by changing the type once units are on there,
 # if we can help it.
 *(r::StepRangeLen, y::Units) = StepRangeLen(r.ref*y, r.step*y, length(r), r.offset)
-*(r::Compat.LinRange, y::Units) = Compat.LinRange(r.start*y, r.stop*y, length(r))
+*(r::LinRange, y::Units) = LinRange(r.start*y, r.stop*y, length(r))
 *(r::StepRange, y::Units) = StepRange(r.start*y, r.step*y, r.stop*y)

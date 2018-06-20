@@ -28,7 +28,7 @@ import Base.FastMath: @fastmath,
     le_fast,
     pow_fast,
     sqrt_fast,
-    atan2_fast,
+    atan_fast,
     hypot_fast,
     max_fast,
     min_fast,
@@ -173,10 +173,8 @@ for f in (:cos, :sin, :tan)
     end
 end
 
-atan2_fast(x::Quantity{Float32,D,U}, y::Quantity{Float32,D,U}) where {D,U} =
-    ccall(("atan2f",libm), Float32, (Float32,Float32), x.val, y.val)
-atan2_fast(x::Quantity{Float64,D,U}, y::Quantity{Float64,D,U}) where {D,U} =
-    ccall(("atan2",libm), Float64, (Float64,Float64), x.val, y.val)
+atan_fast(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} =
+    atan_fast(x.val, y.val)
 
 @fastmath begin
     hypot_fast(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T <: FloatTypes,D,U} =
@@ -196,5 +194,5 @@ atan2_fast(x::Quantity{Float64,D,U}, y::Quantity{Float64,D,U}) where {D,U} =
     cis_fast(x::DimensionlessQuantity{T,U}) where {T <: FloatTypes,U} =
         Complex{T}(cos(x), sin(x))
 
-    angle_fast(x::Quantity{T}) where {T <: ComplexTypes} = atan2(imag(x), real(x))
+    angle_fast(x::Quantity{T}) where {T <: ComplexTypes} = atan(imag(x), real(x))
 end
