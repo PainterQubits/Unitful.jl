@@ -957,6 +957,8 @@ end
                 @test_throws Unitful.DimensionError linspace(1m, 10, 5)
                 @test_throws Unitful.DimensionError linspace(1, 10m, 5)
             end
+            r = linspace(1m, 3m, 3)
+            @test r[1:2:end] == linspace(1m, 3m, 2)
         end
         @testset ">> Range → Array" begin
             @test isa(collect(1m:1m:5m), Array{typeof(1m),1})
