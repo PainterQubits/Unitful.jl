@@ -258,3 +258,21 @@ Base.broadcastable(x::Units) = Ref(x)
 
 Base.nbitslen(::Type{Q}, len, offset) where Q<:Quantity =
     Base.nbitslen(numtype(Q), len, offset)
+
+ustrip(x::Base.TwicePrecision{Q}) where Q<:Quantity =
+    Base.TwicePrecision(ustrip(x.hi), ustrip(x.lo))
+unit(x::Base.TwicePrecision{Q}) where Q<:Quantity = unit(x.hi)
+
+function Base.twiceprecision(x::Union{Q,Base.TwicePrecision{Q}}, nb::Integer) where Q<:Quantity
+    xt = Base.twiceprecision(ustrip(x), nb)
+    return Base.TwicePrecision(xt.hi*unit(x), xt.lo*unit(x))
+end
+
+function *(x::Base.TwicePrecision{Q}, v::Real) where Q<:Quantity
+    v == 0 && return Base.TwicePrecision(x.hi*v, x.lo*v)
+    x * Base.TwicePrecision(oftype(ustrip(x.hi)*v, v))
+end
+
+Base.mul12(x::Quantity, y::Quantity) = Base.mul12(ustrip(x), ustrip(y)) .* (unit(x) * unit(y))
+Base.mul12(x::Quantity, y::Real)     = Base.mul12(ustrip(x), y) .* unit(x)
+Base.mul12(x::Real, y::Quantity)     = Base.mul12(x, ustrip(y)) .* unit(y)
