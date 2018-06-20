@@ -487,6 +487,4 @@ macro _doctables(x)
     end)
 end
 
-@static if VERSION >= v"0.7.0-DEV.4659"
-    Base.broadcastable(x::MixedUnits) = Ref(x)
-end
+Base.broadcastable(x::MixedUnits) = Ref(x)

@@ -499,7 +499,7 @@ end
 
 function replace_value(sym::Symbol)
     f = m->(isdefined(m,sym) && ustrcheck_bool(getfield(m, sym)))
-    inds = @compat findall(f, unitmodules)
+    inds = findall(f, unitmodules)
     isempty(inds) &&
         error("Symbol $sym could not be found in registered unit modules.")
 
@@ -507,13 +507,8 @@ function replace_value(sym::Symbol)
     u = getfield(m, sym)
 
     any(u != u1 for u1 in getfield.(unitmodules[inds[1:(end-1)]], sym)) &&
-        @static if VERSION >= v"0.7.0-DEV.2988"
-            @warn(string("Symbol $sym was found in multiple registered unit modules. ",
-             "We will use the one from $m."))
-        else
-            warn("Symbol $sym was found in multiple registered unit modules. ",
-             "We will use the one from $m.")
-        end
+        @warn(string("Symbol $sym was found in multiple registered unit modules. ",
+         "We will use the one from $m."))
     return u
 end
 

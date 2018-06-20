@@ -324,32 +324,18 @@ typemin(x::Quantity{T}) where {T} = typemin(T)*unit(x)
 typemax(::Type{Quantity{T,D,U}}) where {T,D,U} = typemax(T)*U()
 typemax(x::Quantity{T}) where {T} = typemax(T)*unit(x)
 
-@static if VERSION < v"0.7.0-DEV.843"
-    Base.literal_pow(::typeof(^), x::Quantity, ::Type{Val{v}}) where {v} =
-        Quantity(Base.literal_pow(^, x.val, Val{v}),
-                 Base.literal_pow(^, unit(x), Val{v}))
-else
-    Base.literal_pow(::typeof(^), x::Quantity, ::Val{v}) where {v} =
-        Quantity(Base.literal_pow(^, x.val, Val(v)),
-                 Base.literal_pow(^, unit(x), Val(v)))
-end
+Base.literal_pow(::typeof(^), x::Quantity, ::Val{v}) where {v} =
+    Quantity(Base.literal_pow(^, x.val, Val(v)),
+             Base.literal_pow(^, unit(x), Val(v)))
 
 # All of these are needed for ambiguity resolution
 ^(x::Quantity, y::Integer) = Quantity((x.val)^y, unit(x)^y)
 ^(x::Quantity, y::Rational) = Quantity((x.val)^y, unit(x)^y)
 ^(x::Quantity, y::Real) = Quantity((x.val)^y, unit(x)^y)
 
-@static if VERSION >= v"0.7.0-DEV.2708" #julia PR 23964
-    Base.rand(r::Random.AbstractRNG, ::Random.SamplerType{Quantity{T,D,U}}) where {T,D,U} =
-        rand(r, T) * U()
-else
-    Base.rand(r::AbstractRNG, ::Type{Quantity{T,D,U}}) where {T,D,U} = rand(r,T) * U()
-end
-@static if VERSION >= v"0.7.0-DEV.4873" #julia PR 24652
-    Base.ones(Q::Type{<:Quantity}, dims::NTuple{N,Integer}) where {N} =
-        fill!(Array{Q,N}(undef, map(Base.to_dim, dims)), oneunit(Q))
-    Base.ones(Q::Type{<:Quantity}, dims::Tuple{}) = fill!(Array{Q}(undef), oneunit(Q))
-else
-    Base.ones(Q::Type{<:Quantity}, dims::Tuple) = fill!(Array{Q}(dims), oneunit(Q))
-end
+Base.rand(r::Random.AbstractRNG, ::Random.SamplerType{Quantity{T,D,U}}) where {T,D,U} =
+    rand(r, T) * U()
+Base.ones(Q::Type{<:Quantity}, dims::NTuple{N,Integer}) where {N} =
+    fill!(Array{Q,N}(undef, map(Base.to_dim, dims)), oneunit(Q))
+Base.ones(Q::Type{<:Quantity}, dims::Tuple{}) = fill!(Array{Q}(undef), oneunit(Q))
 Base.ones(a::AbstractArray, Q::Type{<:Quantity}) = fill!(similar(a,Q), oneunit(Q))

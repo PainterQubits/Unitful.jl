@@ -92,12 +92,12 @@ themselves. Here's an example.
 ```jldoctest
 julia> using Unitful
 
-julia> Unitful.promote_unit{S<:Unitful.EnergyUnits, T<:Unitful.EnergyUnits}(::S, ::T) = u"g*cm^2/s^2"
+julia> Unitful.promote_unit(::S, ::T) where {S<:Unitful.EnergyUnits, T<:Unitful.EnergyUnits} = u"g*cm^2/s^2"
 
 julia> promote(2.0u"J", 1.0u"kg*m^2/s^2")
 (2.0e7 g cm^2 s^-2, 1.0e7 g cm^2 s^-2)
 
-julia> Unitful.promote_unit{S<:Unitful.EnergyUnits, T<:Unitful.EnergyUnits}(::S, ::T) = u"J"
+julia> Unitful.promote_unit(::S, ::T) where {S<:Unitful.EnergyUnits, T<:Unitful.EnergyUnits} = u"J"
 
 julia> promote(2.0u"J", 1.0u"kg*m^2/s^2")
 (2.0 J, 1.0 J)
@@ -170,7 +170,7 @@ An additional benefit of having a concrete type is that we can dispatch on the
 dimensions of the array's elements:
 
 ```jldoctest
-julia> f{T<:Unitful.Length}(x::AbstractArray{T}) = sum(x)
+julia> f(x::AbstractArray{T}) where {T<:Unitful.Length} = sum(x)
 f (generic function with 1 method)
 
 julia> f([1.0u"m", 2.0u"cm"])

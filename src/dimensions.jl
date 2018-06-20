@@ -93,16 +93,9 @@ end
 ^(x::Dimensions{T}, y::Integer) where {T} = *(Dimensions{map(a->a^y, T)}())
 ^(x::Dimensions{T}, y::Number) where {T} = *(Dimensions{map(a->a^y, T)}())
 
-@static if VERSION < v"0.7.0-DEV.843"
-    @generated function Base.literal_pow(::typeof(^), x::Dimensions{T}, ::Type{Val{p}}) where {T,p}
-        z = *(Dimensions{map(a->a^p, T)}())
-        :($z)
-    end
-else
-    @generated function Base.literal_pow(::typeof(^), x::Dimensions{T}, ::Val{p}) where {T,p}
-        z = *(Dimensions{map(a->a^p, T)}())
-        :($z)
-    end
+@generated function Base.literal_pow(::typeof(^), x::Dimensions{T}, ::Val{p}) where {T,p}
+    z = *(Dimensions{map(a->a^p, T)}())
+    :($z)
 end
 
 # Since exponentiation is not type stable, we define a special `inv` method to enable fast

@@ -1,7 +1,7 @@
 module UnitfulTests
 
 using Unitful
-using Compat.Test, Compat.LinearAlgebra, Compat.Random
+using Test, Compat.LinearAlgebra, Compat.Random
 import Compat
 import Unitful: DimensionError
 
@@ -35,11 +35,7 @@ import Unitful:
 
 import Unitful: LengthUnits, AreaUnits, MassUnits
 
-@static if VERSION < v"0.7.0-DEV.4003"
-    import Base.colon
-else
-    const colon = Base.:(:)
-end
+const colon = Base.:(:)
 
 @testset "Construction" begin
     @test isa(NoUnits, FreeUnits)
@@ -1459,17 +1455,13 @@ let fname = tempname()
     end
 end
 
-@static if VERSION > v"0.7.0-DEV.2988"
-    @test_logs (:warn, r"found in multiple") eval(:(u"m"))
-else
-    @test_warn "ShadowUnits" eval(:(u"m"))
-end
+@test_logs (:warn, r"found in multiple") eval(:(u"m"))
 
 # Test to make sure user macros are working properly
 # (and incidentally, for Compat macro hygiene in @dimension, @derived_dimension)
 module TUM
     using Unitful
-    using Compat.Test
+    using Test
 
     @dimension f "f" FakeDim12345
     @derived_dimension FakeDim212345 f^2
