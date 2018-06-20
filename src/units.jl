@@ -272,3 +272,6 @@ end
 @static if VERSION >= v"0.7.0-DEV.4659"
     Base.broadcastable(x::Units) = Ref(x)
 end
+
+Base.nbitslen(::Type{Q}, len, offset) where Q<:Quantity =
+    Base.nbitslen(numtype(Q), len, offset)
