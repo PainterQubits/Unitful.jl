@@ -106,22 +106,13 @@ end
 # performant method.
 
 for (_x,_y) in [(:fma, :_fma), (:muladd, :_muladd)]
-    @static if VERSION >= v"0.6.0-" # work-around Julia issue 20103
-        # Catch some signatures pre-promotion
-        @eval @inline ($_x)(x::Number, y::Quantity, z::Quantity) = ($_y)(x,y,z)
-        @eval @inline ($_x)(x::Quantity, y::Number, z::Quantity) = ($_y)(x,y,z)
+    # Catch some signatures pre-promotion
+    @eval @inline ($_x)(x::Number, y::Quantity, z::Quantity) = ($_y)(x,y,z)
+    @eval @inline ($_x)(x::Quantity, y::Number, z::Quantity) = ($_y)(x,y,z)
 
-        # Post-promotion
-        @eval @inline ($_x)(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}) where {T <: Number} = ($_y)(x,y,z)
-    else
-        @eval @inline ($_x)(x::Quantity{T}, y::T, z::T) where {T <: Number} = ($_y)(x,y,z)
-        @eval @inline ($_x)(x::T, y::Quantity{T}, z::T) where {T <: Number} = ($_y)(x,y,z)
-        @eval @inline ($_x)(x::T, y::T, z::Quantity{T}) where {T <: Number} = ($_y)(x,y,z)
-        @eval @inline ($_x)(x::Quantity{T}, y::Quantity{T}, z::T) where {T <: Number} = ($_y)(x,y,z)
-        @eval @inline ($_x)(x::T, y::Quantity{T}, z::Quantity{T}) where {T <: Number} = ($_y)(x,y,z)
-        @eval @inline ($_x)(x::Quantity{T}, y::T, z::Quantity{T}) where {T <: Number} = ($_y)(x,y,z)
-        @eval @inline ($_x)(x::Quantity{T}, y::Quantity{T}, z::Quantity{T}) where {T <: Number} = ($_y)(x,y,z)
-    end
+    # Post-promotion
+    @eval @inline ($_x)(x::Quantity{A}, y::Quantity{B}, z::Quantity{C}) where {
+        A <: Number, B <: Number, C <: Number} = ($_y)(x,y,z)
 
     # It seems like most of this is optimized out by the compiler, including the
     # apparent runtime check of dimensions, which does not appear in @code_llvm.

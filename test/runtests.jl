@@ -615,6 +615,7 @@ end
         @test @inferred(muladd(2, 1μm/m, 1mm/m)) === 501//500000
         @test_throws DimensionError fma(2m, 1/m, 1m)
         @test_throws DimensionError fma(2, 1m, 1V)
+        @test muladd(1s, 1.0mol/s, 2.0mol) === 3.0mol               # issue 138
     end
     @testset "> @fastmath" begin
         one32 = one(Float32)*m
