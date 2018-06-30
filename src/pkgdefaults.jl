@@ -60,12 +60,9 @@ end
 # SI and related units
 @unit Hz     "Hz"       Hertz       1/s                     true
 @unit N      "N"        Newton      1kg*m/s^2               true
-@unit Nm     "Nm"       NewtonMeter 1N*m                    true
 @unit Pa     "Pa"       Pascal      1N/m^2                  true
 @unit J      "J"        Joule       1N*m                    true
 @unit W      "W"        Watt        1J/s                    true
-@unit VA     "VA"       VoltAmpere  1J/s                    true
-# @unit var     "var"     VoltAmpereReactive  1J/s            true
 @unit C      "C"        Coulomb     1A*s                    true
 @unit V      "V"        Volt        1W/A                    true
 @unit Ω      "Ω"        Ohm         1V/A                    true
