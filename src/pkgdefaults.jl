@@ -243,19 +243,19 @@ baremodule DefaultSymbols
     import Unitful
 
     for u in (:𝐋,:𝐌,:𝐓,:𝐈,:𝚯,:𝐉,:𝐍)
-        eval(DefaultSymbols, Expr(:import, :Unitful, u))
-        eval(DefaultSymbols, Expr(:export, u))
+        Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, u)))
+        Core.eval(DefaultSymbols, Expr(:export, u))
     end
 
     for p in Unitful.si_prefixes
         for u in Unitful.si_no_prefix
-            eval(DefaultSymbols, Expr(:import, :Unitful, Symbol(p,u)))
-            eval(DefaultSymbols, Expr(:export, Symbol(p,u)))
+            Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, Symbol(p,u))))
+            Core.eval(DefaultSymbols, Expr(:export, Symbol(p,u)))
         end
     end
 
-    eval(DefaultSymbols, Expr(:import, :Unitful, :°))
-    eval(DefaultSymbols, Expr(:export, :°))
+    Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, :°)))
+    Core.eval(DefaultSymbols, Expr(:export, :°))
 end
 
 #########

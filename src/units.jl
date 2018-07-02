@@ -22,39 +22,21 @@
     # Collect powers of a given unit into `c`
     c = Vector{Unit}()
     if !isempty(linunits)
-        @static if VERSION >= v"0.7.0-DEV.5124"
-            next = iterate(linunits)
-            p = 0//1
-            oldvalue = next[1]
-            while next !== nothing
-                (value, state) = next
-                if tens(value) == tens(oldvalue) && name(value) == name(oldvalue)
-                    p += power(value)
-                else
-                    if p != 0
-                        push!(c, Unit{name(oldvalue), dimtype(oldvalue)}(tens(oldvalue), p))
-                    end
-                    p = power(value)
+        next = iterate(linunits)
+        p = 0//1
+        oldvalue = next[1]
+        while next !== nothing
+            (value, state) = next
+            if tens(value) == tens(oldvalue) && name(value) == name(oldvalue)
+                p += power(value)
+            else
+                if p != 0
+                    push!(c, Unit{name(oldvalue), dimtype(oldvalue)}(tens(oldvalue), p))
                 end
-                oldvalue = value
-                next = iterate(linunits, state)
+                p = power(value)
             end
-        else
-            state = start(linunits)
-            oldvalue = linunits[state]
-            p = 0//1
-            while !done(linunits, state)
-                (value, state) = next(linunits, state)
-                if tens(value) == tens(oldvalue) && name(value) == name(oldvalue)
-                    p += power(value)
-                else
-                    if p != 0
-                        push!(c, Unit{name(oldvalue),dimtype(oldvalue)}(tens(oldvalue), p))
-                    end
-                    p = power(value)
-                end
-                oldvalue = value
-            end
+            oldvalue = value
+            next = iterate(linunits, state)
         end
         if p != 0
             push!(c, Unit{name(oldvalue),dimtype(oldvalue)}(tens(oldvalue), p))
