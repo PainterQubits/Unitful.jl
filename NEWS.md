@@ -1,3 +1,11 @@
+- v0.8.0
+  - Add Rydberg constant, unified atomic mass unit, mils, rpm, rps, percent, permille.
+  - Introduce/rename derived dimensions: ElectricalConductivity, ElectricalResistivity,
+    ElectricalConductance, ElectricalResistance.
+  - Fix some Julia 0.7 deprecations.
+  - This will probably be the last release that supports Julia 0.6.
+- v0.7.1
+  - Bug fixes, mainly.
 - v0.7.0
   - Implement `mod2pi` for degrees, cleanup display of degree units.
   - Tweak implementation of `Gain` types for usability.
