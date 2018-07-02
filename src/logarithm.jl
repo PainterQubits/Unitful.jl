@@ -371,10 +371,10 @@ Examples:
 julia> using Unitful
 
 julia> uconvertp(u"dB", 10)
-20 dB
+10.0 dB
 
 julia> uconvertp(NoUnits, 20u"dB")
-10
+100.0
 ```
 """
 function uconvertp end

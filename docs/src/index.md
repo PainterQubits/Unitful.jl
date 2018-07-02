@@ -91,7 +91,7 @@ julia> uconvert(°C, 212°F)
 100//1 °C
 
 julia> uconvert(μm/(m*°F), 9μm/(m*°C))
-5//1 °F^-1 μm m^-1
+5//1 μm °F^-1 m^-1
 
 julia> mod(1hr+3minute+5s, 24s)
 17//1 s

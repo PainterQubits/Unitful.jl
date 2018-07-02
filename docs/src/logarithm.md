@@ -796,7 +796,7 @@ julia> linear(@dB 10u"mW"/u"mW")
 10 mW
 
 julia> linear(20u"dBm/Hz")
-100.0 Hz^-1 mW
+100.0 mW Hz^-1
 
 julia> linear(30u"W")
 30 W
@@ -813,10 +813,7 @@ assumes you are converting to a unitless number. These functions can take either
 or a `Real` so that they may be used somewhat generically.
 
 ```jldoctest
-julia> uconvertrp(NoUnits, 20u"dB")    # the first argument is optional when it is `NoUnits`
-10.0
-
-julia> uconvertrp(20u"dB")
+julia> uconvertrp(NoUnits, 20u"dB")
 10.0
 
 julia> uconvertp(NoUnits, 20u"dB")  

@@ -36,20 +36,19 @@ square (generic function with 1 method)
 
 julia> @code_warntype square(1.0u"m")
 Variables:
-  #self#::#square
+  #self# <optimized out>
   x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}
-  p::Int64
+  p <optimized out>
 
 Body:
   begin
       return $(Expr(:invoke, MethodInstance for ^(::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, ::Int64), :(^), :(x), 2))
-  end::Any
+  end::ANY
 ```
 
 In Julia 0.6, constant literal integers are lowered specially for exponentiation.
 (See Julia PR [#20530](https://github.com/JuliaLang/julia/pull/20530) for details.)
 In this case, type stability can be maintained:
-
 
 ```jldoctest
 julia> square(x) = x^2
@@ -57,13 +56,13 @@ square (generic function with 1 method)
 
 julia> @code_warntype square(1.0u"m")
 Variables:
-  #self#::#square
+  #self# <optimized out>
   x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}
 
 Body:
   begin
       $(Expr(:inbounds, false))
-      # meta: location /Users/ajkeller/.julia/v0.6/Unitful/src/Unitful.jl literal_pow 1080
+      # meta: location /Users/ajkeller/.julia/v0.6/Unitful/src/quantities.jl literal_pow 336
       SSAValue(0) = (Core.getfield)(x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, :val)::Float64
       # meta: pop location
       $(Expr(:inbounds, :pop))

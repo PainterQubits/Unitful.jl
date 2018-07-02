@@ -1424,6 +1424,18 @@ end
     end
 end
 
+@testset "Output ordered by unit exponent" begin
+    ordered = Unitful.sortexp(typeof(u"J*mol^-1*K^-1").parameters[1])
+    @test typeof(ordered[1]) <: Unitful.Unit{:Joule,<:Any}
+    @test typeof(ordered[2]) <: Unitful.Unit{:Kelvin,<:Any}
+    @test typeof(ordered[3]) <: Unitful.Unit{:Mole,<:Any}
+
+    ordered = Unitful.sortexp(typeof(u"mol*J^-1*K^-1").parameters[1])
+    @test typeof(ordered[1]) <: Unitful.Unit{:Mole,<:Any}
+    @test typeof(ordered[2]) <: Unitful.Unit{:Joule,<:Any}
+    @test typeof(ordered[3]) <: Unitful.Unit{:Kelvin,<:Any}
+end
+
 # Test that the @u_str macro will find units in other modules.
 module ShadowUnits
     using Unitful

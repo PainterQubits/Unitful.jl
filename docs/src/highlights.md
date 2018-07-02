@@ -10,10 +10,10 @@ Consider the following toy example, converting from voltage or power ratios to d
 
 ```jldoctest
 julia> whatsit(x::Unitful.Voltage) = "voltage!"
- whatsit (generic function with 1 method)
+whatsit (generic function with 1 method)
 
 julia> whatsit(x::Unitful.Length) = "length!"
- whatsit (generic function with 2 methods)
+whatsit (generic function with 2 methods)
 
 julia> whatsit(1u"mm")
 "length!"
@@ -90,7 +90,7 @@ julia> uconvert(u"mW*s", 20u"dBm/Hz")
 
 ```jldoctest
 julia> 1.0u"V/sqrt(Hz)"
-1.0 Hz^-1/2 V
+1.0 V Hz^-1/2
 ```
 
 ## Exact conversions respected

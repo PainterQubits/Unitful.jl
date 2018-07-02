@@ -84,11 +84,10 @@ or subtracted, then the result units will be specified by promotion.
 ### Promotion rules for specific dimensions
 
 You can specify the result units for promoting quantities of a specific dimension
-once at the start of a Julia session, specifically *before* `upreferred` *has been
-called or quantities have been promoted*. For example, you can specify that when promoting
-two quantities with different energy units, the resulting quantities
-should be in `g*cm^2/s^2`. This is accomplished by defining a `Unitful.promote_unit` method
-for the units themselves. Here's an example.
+once at the start of a Julia session. For example, you can specify that when promoting
+two quantities with different energy units, the resulting quantities should be in
+`g*cm^2/s^2`. This is accomplished by defining a `Unitful.promote_unit` method for the units
+themselves. Here's an example.
 
 ```jldoctest
 julia> using Unitful
@@ -101,12 +100,8 @@ julia> promote(2.0u"J", 1.0u"kg*m^2/s^2")
 julia> Unitful.promote_unit{S<:Unitful.EnergyUnits, T<:Unitful.EnergyUnits}(::S, ::T) = u"J"
 
 julia> promote(2.0u"J", 1.0u"kg*m^2/s^2")
-(2.0e7 g cm^2 s^-2, 1.0e7 g cm^2 s^-2)
+(2.0 J, 1.0 J)
 ```
-
-Notice how the first definition of `Base.promote_rule` had a permanent effect.
-This is true of promotion rules for types defined in Base too; try defining a
-new promotion rule for `Int` and `Float64` and you'll see it has no effect.
 
 If you're wondering where `Unitful.EnergyUnit` comes from, it is defined in
 `src/pkgdefaults.jl` by the [`@derived_dimension`](@ref) macro. Similarly,
@@ -133,15 +128,16 @@ a quantity of dimension `𝐌*𝐋^2/(𝐓^2*𝚯)` would be converted to `kg*m^
 
 ```jldoctest
 julia> promote(1.0u"J/K", 1.0u"g*cm^2/s^2/K")
-(1.0 kg K^-1 m^2 s^-2, 1.0e-7 kg K^-1 m^2 s^-2)
+(1.0 kg m^2 K^-1 s^-2, 1.0e-7 kg m^2 K^-1 s^-2)
 ```
 
 You can however override this behavior by calling [`Unitful.preferunits`](@ref)
-at the start of a Julia session, specifically *before* `upreferred` *has been
-called or quantities have been promoted*.
+at the start of a Julia session, specifically *before* [`Unitful.upreferred`](@ref)
+*has been called or quantities have been promoted*.
 
 ```@docs
 Unitful.preferunits
+Unitful.upreferred
 ```
 
 ### Array promotion
@@ -234,7 +230,7 @@ julia> 1.0μm + 1.0nm
 
 Multiplying a `ContextUnits` by a `FreeUnits` yields a
 `ContextUnits` object, with the preferred units for the additional dimensions being
-determined by calling [`upreferred`](@ref) on the `FreeUnits` object:
+determined by calling [`Unitful.upreferred`](@ref) on the `FreeUnits` object:
 
 ```jldoctest
 julia> mm = Unitful.ContextUnits(u"mm", u"μm")
