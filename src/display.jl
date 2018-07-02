@@ -44,6 +44,13 @@ function prefix(x::Unit)
     end
 end
 
+function show(io::IO, ::Type{Quantity{T,D,U}}) where {T,D,U}
+    print(io, "Quantity{", string(T),
+            ", Dimensions:{", string(D()),
+            "}, Units:{", string(U()), "}}")
+    nothing
+end
+
 """
     show(io::IO, x::Quantity)
 Show a unitful quantity by calling `show` on the numeric value, appending a
@@ -80,11 +87,11 @@ function show(io::IO, x::Unitlike)
 end
 
 """
-    sort_exp(xs)
+    sortexp(xs)
 Sort units to show positive exponents first.
 """
 function sortexp(xs)
-    vcat([x for x in xs if power(x) >= 0], 
+    vcat([x for x in xs if power(x) >= 0],
          [x for x in xs if power(x) < 0])
 end
 
