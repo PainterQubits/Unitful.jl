@@ -122,5 +122,5 @@ end
 Prints exponents.
 """
 function superscript(i::Rational)
-    i.den == 1 ? "^"*string(i.num) : "^"*replace(string(i),"//","/")
+    i.den == 1 ? "^" * string(i.num) : "^" * replace(string(i), "//" => "/")
 end
