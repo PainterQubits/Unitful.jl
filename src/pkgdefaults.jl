@@ -106,7 +106,7 @@ const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, Unitful.Dimensions{
 @unit L      "L"        Liter       m^3//1000                true
 for p in (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
     Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
-    eval(Unitful, :(const $(Symbol(p,:l)) = $(Symbol(p,:L))))
+    Core.eval(Unitful, :(const $(Symbol(p,:l)) = $(Symbol(p,:L))))
 end
 
 # Energy
