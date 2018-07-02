@@ -542,14 +542,14 @@ square (generic function with 1 method)
 
 julia&gt; @code_warntype square(1.0u&quot;m&quot;)
 Variables:
-  #self#::#square
+  #self# &lt;optimized out&gt;
   x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}
-  p::Int64
+  p &lt;optimized out&gt;
 
 Body:
   begin
       return $(Expr(:invoke, MethodInstance for ^(::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, ::Int64), :(^), :(x), 2))
-  end::Any
+  end::ANY
 </pre></div>
 
 
@@ -559,13 +559,13 @@ square (generic function with 1 method)
 
 julia&gt; @code_warntype square(1.0u&quot;m&quot;)
 Variables:
-  #self#::#square
+  #self# &lt;optimized out&gt;
   x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}
 
 Body:
   begin
       $(Expr(:inbounds, false))
-      # meta: location /Users/ajkeller/.julia/v0.6/Unitful/src/Unitful.jl literal_pow 1080
+      # meta: location /Users/ajkeller/.julia/v0.6/Unitful/src/quantities.jl literal_pow 336
       SSAValue(0) = (Core.getfield)(x::Quantity{Float64, Dimensions:{𝐋}, Units:{m}}, :val)::Float64
       # meta: pop location
       $(Expr(:inbounds, :pop))

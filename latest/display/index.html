@@ -385,15 +385,58 @@
                 
                   <h1>How units are displayed</h1>
                 
-                <div class="codehilite"><pre><span></span>Unitful.abbr
-Unitful.prefix
-Unitful.show(::IO, ::Quantity)
-Unitful.show{T,D,U}(::IO, ::Type{Quantity{T,D,U}})
-Unitful.show(::IO,::Unitful.Unitlike)
-Unitful.showrep(::IO,::Unitful.Unit)
-Unitful.showrep(::IO,::Unitful.Dimension)
-Unitful.superscript
+                <p><a id='Unitful.abbr' href='#Unitful.abbr'>#</a>
+<strong><code>Unitful.abbr</code></strong> &mdash; <em>Function</em>.</p>
+<p><code>abbr(x)</code> provides abbreviations for units or dimensions. Since a method should always be defined for each unit and dimension type, absence of a method for a specific unit or dimension type is likely an error. Consequently, we return ❓ for generic arguments to flag unexpected behavior.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2cc03c18696aaf77e4153451a7ab05db9c3d57e8/src/display.jl#L26-L31' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.prefix' href='#Unitful.prefix'>#</a>
+<strong><code>Unitful.prefix</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>prefix(x::Unit)
 </pre></div>
+
+
+<p>Returns a string representing the SI prefix for the power-of-ten held by this particular unit.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2cc03c18696aaf77e4153451a7ab05db9c3d57e8/src/display.jl#L34-L38' class='documenter-source'>source</a><br></p>
+<p><a id='Base.show-Tuple{IO,Unitful.Quantity}' href='#Base.show-Tuple{IO,Unitful.Quantity}'>#</a>
+<strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
+<div class="codehilite"><pre><span></span>show(io::IO, x::Quantity)
+</pre></div>
+
+
+<p>Show a unitful quantity by calling <code>show</code> on the numeric value, appending a space, and then calling <code>show</code> on a units object <code>U()</code>.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2cc03c18696aaf77e4153451a7ab05db9c3d57e8/src/display.jl#L54-L58' class='documenter-source'>source</a><br></p>
+<p><a id='Base.show-Tuple{IO,Unitful.Unitlike}' href='#Base.show-Tuple{IO,Unitful.Unitlike}'>#</a>
+<strong><code>Base.show</code></strong> &mdash; <em>Method</em>.</p>
+<div class="codehilite"><pre><span></span>show(io::IO, x::Unitlike)
+</pre></div>
+
+
+<p>Call <a href="./#Unitful.showrep-Tuple{IO,Unitful.Unit}"><code>Unitful.showrep</code></a> on each object in the tuple that is the type variable of a <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> or <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2cc03c18696aaf77e4153451a7ab05db9c3d57e8/src/display.jl#L74-L78' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.showrep-Tuple{IO,Unitful.Unit}' href='#Unitful.showrep-Tuple{IO,Unitful.Unit}'>#</a>
+<strong><code>Unitful.showrep</code></strong> &mdash; <em>Method</em>.</p>
+<div class="codehilite"><pre><span></span>showrep(io::IO, x::Unit)
+</pre></div>
+
+
+<p>Show the unit, prefixing with any decimal prefix and appending the exponent as formatted by <a href="./#Unitful.superscript"><code>Unitful.superscript</code></a>.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2cc03c18696aaf77e4153451a7ab05db9c3d57e8/src/display.jl#L98-L102' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.showrep-Tuple{IO,Unitful.Dimension}' href='#Unitful.showrep-Tuple{IO,Unitful.Dimension}'>#</a>
+<strong><code>Unitful.showrep</code></strong> &mdash; <em>Method</em>.</p>
+<div class="codehilite"><pre><span></span>showrep(io::IO, x::Dimension)
+</pre></div>
+
+
+<p>Show the dimension, appending any exponent as formatted by <a href="./#Unitful.superscript"><code>Unitful.superscript</code></a>.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2cc03c18696aaf77e4153451a7ab05db9c3d57e8/src/display.jl#L110-L114' class='documenter-source'>source</a><br></p>
+<p><a id='Unitful.superscript' href='#Unitful.superscript'>#</a>
+<strong><code>Unitful.superscript</code></strong> &mdash; <em>Function</em>.</p>
+<div class="codehilite"><pre><span></span>superscript(i::Rational)
+</pre></div>
+
+
+<p>Prints exponents.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/2cc03c18696aaf77e4153451a7ab05db9c3d57e8/src/display.jl#L120-L123' class='documenter-source'>source</a><br></p>
                 
                   
                 

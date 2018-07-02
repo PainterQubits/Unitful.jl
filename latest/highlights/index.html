@@ -545,10 +545,10 @@
 <h2 id="dispatch-on-dimensions">Dispatch on dimensions</h2>
 <p>Consider the following toy example, converting from voltage or power ratios to decibels:</p>
 <div class="codehilite"><pre><span></span>julia&gt; whatsit(x::Unitful.Voltage) = &quot;voltage!&quot;
- whatsit (generic function with 1 method)
+whatsit (generic function with 1 method)
 
 julia&gt; whatsit(x::Unitful.Length) = &quot;length!&quot;
- whatsit (generic function with 2 methods)
+whatsit (generic function with 2 methods)
 
 julia&gt; whatsit(1u&quot;mm&quot;)
 &quot;length!&quot;
@@ -610,7 +610,7 @@ yd5
 <p><a id='Units-with-rational-exponents-1'></a></p>
 <h2 id="units-with-rational-exponents">Units with rational exponents</h2>
 <div class="codehilite"><pre><span></span>julia&gt; 1.0u&quot;V/sqrt(Hz)&quot;
-1.0 Hz^-1/2 V
+1.0 V Hz^-1/2
 </pre></div>
 
 
