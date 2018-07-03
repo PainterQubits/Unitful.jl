@@ -46,7 +46,7 @@
     # [nm,cm^6,m^6,µs^3,s]
 
     d = (c...,)
-    f = typeof(mapreduce(dimension, *, NoDims, d))
+    f = typeof(mapreduce(dimension, *, d; init=NoDims))
     :(FreeUnits{$d,$f}())
 end
 *(a0::ContextUnits, a::ContextUnits...) =
@@ -156,7 +156,7 @@ end
 
 @generated function tensfactor(x::Units)
     tunits = x.parameters[1]
-    a = mapreduce(tensfactor, +, 0, tunits)
+    a = mapreduce(tensfactor, +, tunits; init=0)
     :($a)
 end
 
