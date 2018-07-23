@@ -277,11 +277,7 @@ end
         @test @inferred(promote(1μm2μm, 1.0nm2μm, 1.0s)) ===
             (1.0μm2μm, 1.0nm2μm, 1.0s)
         # Context disagreement: fall back to free units
-        if VERSION >= v"0.7.0-DEV"
-            @test_broken @inferred(promote(1.0nm2μm, 1.0μm2mm)) === (1e-9m, 1e-6m)
-        else
-            @test @inferred(promote(1.0nm2μm, 1.0μm2mm)) === (1e-9m, 1e-6m)
-        end
+        @test @inferred(promote(1.0nm2μm, 1.0μm2mm)) === (1e-9m, 1e-6m)
     end
     @testset "> Promotion during array creation" begin
         @test typeof([1.0m,1.0m]) == Array{typeof(1.0m),1}
