@@ -94,6 +94,9 @@ function convert(::Type{Quantity{T,D,U}}, x::Number) where {T,D,U}
     end
 end
 
+# needed ever since julialang/julia#28216
+convert(::Type{Quantity{T,D,U}}, x::Quantity{T,D,U}) where {T,D,U} = x
+
 """
     convert{T}(::Type{Quantity{T}}, x::Number)
 Convert the numeric backing type of `x` to `T`. If `x <: Real`, for example,

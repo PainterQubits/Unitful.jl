@@ -44,13 +44,6 @@ function prefix(x::Unit)
     end
 end
 
-function show(io::IO, ::Type{Quantity{T,D,U}}) where {T,D,U}
-    print(io, "Quantity{", string(T),
-            ", Dimensions:{", string(D()),
-            "}, Units:{", string(U()), "}}")
-    nothing
-end
-
 """
     show(io::IO, x::Quantity)
 Show a unitful quantity by calling `show` on the numeric value, appending a
