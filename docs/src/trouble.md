@@ -94,6 +94,12 @@ julia> π/2*u"rad"+90u"°"
 3.141592653589793
 ```
 
+## Broken display of dimension characters in the REPL
+
+On some terminals with some fonts dimenstion characters such as 𝐌 are displayed as an empty box.
+Setting a wider font spacing in your terminal settings can solve this problem.
+
+
 ## Other random problems
 
 If using units with some of the unsigned types... well, I'm not sure what
