@@ -11,7 +11,7 @@ import Base: eps, mod, rem, div, fld, cld, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isinf, isfinite, isnan
 import Base: copysign, flipsign
 import Base: prevfloat, nextfloat, maxintfloat, rat, step
-import Base: length, float, start, done, next, last, one, zero, range
+import Base: length, float, last, one, zero, range
 import Base: getindex, eltype, step, last, first, frexp
 import Base: Integer, Rational, typemin, typemax
 import Base: steprange_last, unsigned
