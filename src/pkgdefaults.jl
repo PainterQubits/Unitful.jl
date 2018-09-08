@@ -13,29 +13,34 @@
 include("temperature.jl")
 
 # Define derived dimensions.
-@derived_dimension Area                   𝐋^2
-@derived_dimension Volume                 𝐋^3
-@derived_dimension Frequency              inv(𝐓)
-@derived_dimension Force                  𝐌*𝐋/𝐓^2
-@derived_dimension Pressure               𝐌*𝐋^-1*𝐓^-2
-@derived_dimension Energy                 𝐌*𝐋^2/𝐓^2
-@derived_dimension Momentum               𝐌*𝐋/𝐓
-@derived_dimension Power                  𝐋^2*𝐌*𝐓^-3
-@derived_dimension Charge                 𝐈*𝐓
-@derived_dimension Voltage                𝐈^-1*𝐋^2*𝐌*𝐓^-3
-@derived_dimension ElectricalResistance   𝐈^-2*𝐋^2*𝐌*𝐓^-3
-@derived_dimension ElectricalResistivity  𝐈^-2*𝐋^3*𝐌*𝐓^-3
-@derived_dimension ElectricalConductance  𝐈^2*𝐋^-2*𝐌^-1*𝐓^3
-@derived_dimension ElectricalConductivity 𝐈^2*𝐋^-3*𝐌^-1*𝐓^3
-@derived_dimension Capacitance            𝐈^2*𝐋^-2*𝐌^-1*𝐓^4
-@derived_dimension Inductance             𝐈^-2*𝐋^2*𝐌*𝐓^-2
-@derived_dimension MagneticFlux           𝐈^-1*𝐋^2*𝐌*𝐓^-2
-@derived_dimension HField                 𝐈/𝐋
-@derived_dimension BField                 𝐈^-1*𝐌*𝐓^-2
-@derived_dimension Action                 𝐋^2*𝐌*𝐓^-1
-@derived_dimension DynamicViscosity       𝐌*𝐋^-1*𝐓^-1
-@derived_dimension KinematicViscosity     𝐋^2*𝐓^-1
-@derived_dimension Wavenumber             inv(𝐋)
+@derived_dimension Area                     𝐋^2
+@derived_dimension Volume                   𝐋^3
+@derived_dimension Frequency                inv(𝐓)
+@derived_dimension Force                    𝐌*𝐋/𝐓^2
+@derived_dimension Pressure                 𝐌*𝐋^-1*𝐓^-2
+@derived_dimension Energy                   𝐌*𝐋^2/𝐓^2
+@derived_dimension Momentum                 𝐌*𝐋/𝐓
+@derived_dimension Power                    𝐋^2*𝐌*𝐓^-3
+@derived_dimension Charge                   𝐈*𝐓
+@derived_dimension Voltage                  𝐈^-1*𝐋^2*𝐌*𝐓^-3
+@derived_dimension ElectricalResistance     𝐈^-2*𝐋^2*𝐌*𝐓^-3
+@derived_dimension ElectricalResistivity    𝐈^-2*𝐋^3*𝐌*𝐓^-3
+@derived_dimension ElectricalConductance    𝐈^2*𝐋^-2*𝐌^-1*𝐓^3
+@derived_dimension ElectricalConductivity   𝐈^2*𝐋^-3*𝐌^-1*𝐓^3
+@derived_dimension Capacitance              𝐈^2*𝐋^-2*𝐌^-1*𝐓^4
+@derived_dimension Inductance               𝐈^-2*𝐋^2*𝐌*𝐓^-2
+@derived_dimension MagneticFlux             𝐈^-1*𝐋^2*𝐌*𝐓^-2
+@derived_dimension DField                   𝐈*𝐓/𝐋^2
+@derived_dimension EField                   𝐋*𝐌*𝐓^-3*𝐈^-1
+@derived_dimension HField                   𝐈/𝐋
+@derived_dimension BField                   𝐈^-1*𝐌*𝐓^-2
+@derived_dimension Action                   𝐋^2*𝐌*𝐓^-1
+@derived_dimension DynamicViscosity         𝐌*𝐋^-1*𝐓^-1
+@derived_dimension KinematicViscosity       𝐋^2*𝐓^-1
+@derived_dimension Wavenumber               inv(𝐋)
+@derived_dimension ElectricDipoleMoment     𝐋*𝐓*𝐈
+@derived_dimension ElectricQuadrupoleMoment 𝐋^2*𝐓*𝐈
+@derived_dimension MagneticDipoleMoment     𝐋^2*𝐈
 
 # Define base units. This is not to imply g is the base SI unit instead of kg.
 # See the documentation for further details.
@@ -100,6 +105,7 @@ Unitful.offsettemp(::Unitful.Unit{:Celsius}) = 27315//100
 @unit a      "a"        Are         100m^2                  false
 const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, Unitful.Dimensions{
     (Unitful.Dimension{:Length}(2//1),)}}(2,1//1),), typeof(𝐋^2)}()
+@unit b      "b"        Barn        100fm^2                 true
 
 # Volume
 # `l` is also an acceptable symbol for liters
