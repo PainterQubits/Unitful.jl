@@ -208,6 +208,7 @@ Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
 @logscale Np    "Np"       Neper        ℯ       1//2    true
 @logscale cNp   "cNp"      Centineper   ℯ       50      true
 
+@logunit  dBHz  "dB-Hz"    Decibel      1Hz
 @logunit  dBm   "dBm"      Decibel      1mW
 @logunit  dBV   "dBV"      Decibel      1V
 @logunit  dBu   "dBu"      Decibel      sqrt(0.6)V
@@ -229,6 +230,7 @@ isrootpower_dim(::typeof(dimension(W/m^2)))     = false     # intensity
 isrootpower_dim(::typeof(𝐋^3))                  = false     # reflectivity
 isrootpower_dim(::typeof(dimension(Ω)))         = true
 isrootpower_dim(::typeof(dimension(S)))         = true
+isrootpower_dim(::typeof(dimension(Hz)))        = false
 
 #########
 
