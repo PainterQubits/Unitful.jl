@@ -30,7 +30,7 @@ julia> whatsit(1u"A" * 2.5u"Ω")
 It may be tempting to specify the dimensions of a quantity in a type definition, e.g.
 
 ```
-type Person
+struct Person
     height::Unitful.Length
     mass::Unitful.Mass
 end
@@ -40,7 +40,7 @@ However, these are abstract types. If performance is important, it may be better
 just to pick a concrete `Quantity` type:
 
 ```
-type Person
+struct Person
     height::typeof(1.0u"m")
     mass::typeof(1.0u"kg")
 end
