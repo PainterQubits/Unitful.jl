@@ -232,18 +232,10 @@ end
     end
     @testset "> Simple promotion" begin
         # promotion should do nothing to units alone
-        @static if VERSION < v"0.7.0-DEV.1579" # PR 23491
-            @test @inferred(promote(m, km)) === (m, km)
-            @test @inferred(promote(ContextUnits(m, km), ContextUnits(mm, km))) ===
-                (ContextUnits(m, km), ContextUnits(mm, km))
-            @test @inferred(promote(FixedUnits(m), FixedUnits(km))) ===
-                (FixedUnits(m), FixedUnits(km))
-        else
-            # promote throws an error if no types are be changed
-            @test_throws ErrorException promote(m, km)
-            @test_throws ErrorException promote(ContextUnits(m, km), ContextUnits(mm, km))
-            @test_throws ErrorException promote(FixedUnits(m), FixedUnits(km))
-        end
+        # promote throws an error if no types are be changed
+        @test_throws ErrorException promote(m, km)
+        @test_throws ErrorException promote(ContextUnits(m, km), ContextUnits(mm, km))
+        @test_throws ErrorException promote(FixedUnits(m), FixedUnits(km))
 
         # promote the numeric type
         @test @inferred(promote(1.0m, 1m)) === (1.0m, 1.0m)
@@ -291,13 +283,9 @@ end
     @testset "> Issue 52" begin
         x,y = 10m, 1
         px,py = promote(x,y)
-        @static if VERSION < v"0.7.0-DEV.1579" # PR 23491
-            ppx,ppy = promote(px,py)
-            @test typeof(py) == typeof(ppy)
-        else
-            # promoting the second time should not change the types
-            @test_throws ErrorException promote(px, py)
-        end
+
+        # promoting the second time should not change the types
+        @test_throws ErrorException promote(px, py)
     end
 end
 
@@ -310,17 +298,9 @@ end
     @test macroexpand(@__MODULE__, :(u"m^-1")) == m^-1
     @test macroexpand(@__MODULE__, :(u"dB/Hz")) == dB/Hz
     @test macroexpand(@__MODULE__, :(u"3.0dB/Hz")) == 3.0dB/Hz
-    @static if VERSION >= v"0.7.0-DEV.1729" # PR 23533
-        @test_throws LoadError macroexpand(@__MODULE__, :(u"N m"))
-        @test_throws LoadError macroexpand(@__MODULE__, :(u"abs(2)"))
-        @test_throws LoadError @eval u"basefactor"
-    else
-        @test isa(macroexpand(:(u"N m")).args[1], ParseError)
-        @test isa(macroexpand(:(u"abs(2)")).args[1], ErrorException)
-
-        # test ustrcheck(x) fallback to catch non-units / quantities
-        @test_throws ErrorException @eval u"basefactor"
-    end
+    @test_throws LoadError macroexpand(@__MODULE__, :(u"N m"))
+    @test_throws LoadError macroexpand(@__MODULE__, :(u"abs(2)"))
+    @test_throws LoadError @eval u"basefactor"
 
     # test ustrcheck(::Quantity)
     @test u"h" == Unitful.h
@@ -875,29 +855,15 @@ end
             @test isa(r, StepRange{typeof(1m)})
             @test @inferred(length(r)) === 5
             @test @inferred(step(r)) === 1m
-
-            @static if VERSION < v"0.7.0-DEV.3981"
-                @test @inferred(first(range(1mm, 2m, 4))) === 1mm
-                @test @inferred(step(range(1mm, 2m, 4))) === 2m
-                @test @inferred(last(range(1mm, 2m, 4))) === 6001mm
-                @test_throws DimensionError range(1m, 2V, 5)
-                try
-                    range(1m, 2V, 5)
-                catch e
-                    @test e.x == 1m
-                    @test e.y == 2V
-                end
-            else
-                @test @inferred(first(range(1mm, step=2m, length=4))) === 1mm
-                @test @inferred(step(range(1mm, step=2m, length=4))) === 2m
-                @test @inferred(last(range(1mm, step=2m, length=4))) === 6001mm
-                @test_throws DimensionError range(1m, step=2V, length=5)
-                try
-                    range(1m, step=2V, length=5)
-                catch e
-                    @test e.x == 1m
-                    @test e.y == 2V
-                end
+            @test @inferred(first(range(1mm, step=2m, length=4))) === 1mm
+            @test @inferred(step(range(1mm, step=2m, length=4))) === 2m
+            @test @inferred(last(range(1mm, step=2m, length=4))) === 6001mm
+            @test_throws DimensionError range(1m, step=2V, length=5)
+            try
+                range(1m, step=2V, length=5)
+            catch e
+                @test e.x == 1m
+                @test e.y == 2V
             end
             @test_throws ArgumentError 1m:0m:5m
         end
@@ -908,49 +874,27 @@ end
             @test @inferred(length(0:10°:360°)) == 37 # issue 111
             @test @inferred(length(0.0:10°:2pi)) == 37 # issue 111 fallout
             @test @inferred(last(0°:0.1:360°)) === 6.2 # issue 111 fallout
-
-            @static if VERSION < v"0.7.0-DEV.3981"
-                @test @inferred(first(range(1mm, 0.1mm, 50))) === 1.0mm # issue 111
-                @test @inferred(step(range(1mm, 0.1mm, 50))) === 0.1mm # issue 111
-                @test @inferred(last(range(0,10°,37))) == 2pi
-                @test @inferred(last(range(0°,2pi/36,37))) == 2pi
-                @test step(range(1.0m, 1m, 5)) === 1.0m
-            else
-                @test @inferred(first(range(1mm, step=0.1mm, length=50))) === 1.0mm # issue 111
-                @test @inferred(step(range(1mm, step=0.1mm, length=50))) === 0.1mm # issue 111
-                @test @inferred(last(range(0, step=10°, length=37))) == 2pi
-                @test @inferred(last(range(0°, step=2pi/36, length=37))) == 2pi
-                @test step(range(1.0m, step=1m, length=5)) === 1.0m
-            end
+            @test @inferred(first(range(1mm, step=0.1mm, length=50))) === 1.0mm # issue 111
+            @test @inferred(step(range(1mm, step=0.1mm, length=50))) === 0.1mm # issue 111
+            @test @inferred(last(range(0, step=10°, length=37))) == 2pi
+            @test @inferred(last(range(0°, step=2pi/36, length=37))) == 2pi
+            @test step(range(1.0m, step=1m, length=5)) === 1.0m
             @test_throws DimensionError range(1.0m, step=1.0V, length=5)
             @test_throws ArgumentError 1.0m:0.0m:5.0m
             @test (-2.0Hz:1.0Hz:2.0Hz)/1.0Hz == -2.0:1.0:2.0  # issue 160
         end
         @testset ">> LinSpace" begin
             # Not using Compat.range for these because kw args don't infer in julia 0.6.2
-            @static if VERSION >= v"0.7.0-DEV.3981"
-                @test isa(@inferred(range(1.0m, stop=3.0m, length=5)),
-                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-                @test isa(@inferred(range(1.0m, stop=10m, length=5)),
-                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-                @test isa(@inferred(range(1m, stop=10.0m, length=5)),
-                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-                @test isa(@inferred(range(1m, stop=10m, length=5)),
-                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-                @test_throws Unitful.DimensionError range(1m, stop=10, length=5)
-                @test_throws Unitful.DimensionError range(1, stop=10m, length=5)
-            else
-                @test isa(@inferred(linspace(1.0m, 3.0m, 5)),
-                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-                @test isa(@inferred(linspace(1.0m, 10m, 5)),
-                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-                @test isa(@inferred(linspace(1m, 10.0m, 5)),
-                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-                @test isa(@inferred(linspace(1m, 10m, 5)),
-                    StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-                @test_throws Unitful.DimensionError linspace(1m, 10, 5)
-                @test_throws Unitful.DimensionError linspace(1, 10m, 5)
-            end
+            @test isa(@inferred(range(1.0m, stop=3.0m, length=5)),
+                StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+            @test isa(@inferred(range(1.0m, stop=10m, length=5)),
+                StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+            @test isa(@inferred(range(1m, stop=10.0m, length=5)),
+                StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+            @test isa(@inferred(range(1m, stop=10m, length=5)),
+                StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
+            @test_throws Unitful.DimensionError range(1m, stop=10, length=5)
+            @test_throws Unitful.DimensionError range(1, stop=10m, length=5)
             r = range(1m, stop=3m, length=3)
             @test r[1:2:end] == range(1m, stop=3m, length=2)
         end
@@ -965,11 +909,7 @@ end
             @test @inferred((1:5)*mm) === 1mm:1mm:5mm
             @test @inferred((1:2:5)*mm) === 1mm:2mm:5mm
             @test @inferred((1.0:2.0:5.01)*mm) === 1.0mm:2.0mm:5.0mm
-            @static if VERSION >= v"0.7.0-DEV.3981"
-                r = @inferred(range(0.1, step=0.1, length=3) * 1.0s)
-            else
-                r = @inferred(range(0.1, 0.1, 3) * 1.0s)
-            end
+            r = @inferred(range(0.1, step=0.1, length=3) * 1.0s)
             @test r[3] === 0.3s
         end
     end
@@ -1032,9 +972,8 @@ end
             b = [0.0, 0.0m]
             @test b + b == b
             @test b .+ b == b
-            @static if VERSION >= v"0.7.0-DEV.3591"
-                @test eltype(b+b) === Quantity{Float64}
-            end
+            @test eltype(b+b) === Quantity{Float64}
+
             # Dimensionless quantities
             @test @inferred([1mm/m] + [1.0cm/m])     == [0.011]
             @test typeof([1mm/m] + [1.0cm/m])        == Array{Float64,1}
@@ -1069,25 +1008,12 @@ end
         end
         @testset ">> Unit stripping" begin
             @test @inferred(ustrip([1u"m", 2u"m"])) == [1,2]
-            @static if VERSION >= v"0.7.0-DEV.2988"
-                @test_deprecated ustrip([1,2])
-            else
-                @test_warn "deprecated" ustrip([1,2])
-            end
+            @test_deprecated ustrip([1,2])
             @test ustrip.([1,2]) == [1,2]
-            @static if VERSION >= v"0.7.0-DEV.2083" # PR 23750
-                @test typeof(ustrip([1u"m", 2u"m"])) <: Base.ReinterpretArray{Int,1}
-            else
-                @test typeof(ustrip([1u"m", 2u"m"])) <: Array{Int,1}
-            end
+            @test typeof(ustrip([1u"m", 2u"m"])) <: Base.ReinterpretArray{Int,1}
             @test typeof(ustrip(Diagonal([1,2]u"m"))) <: Diagonal{Int}
-            @static if VERSION >= v"0.7.0-DEV.884" # PR 22703
-                @test typeof(ustrip(Bidiagonal([1,2,3]u"m", [1,2]u"m", :U))) <:
-                    Bidiagonal{Int}
-            else
-                @test typeof(ustrip(Bidiagonal([1,2,3]u"m", [1,2]u"m", true))) <:
-                    Bidiagonal{Int}
-            end
+            @test typeof(ustrip(Bidiagonal([1,2,3]u"m", [1,2]u"m", :U))) <:
+                Bidiagonal{Int}
             @test typeof(ustrip(Tridiagonal([1,2]u"m", [3,4,5]u"m", [6,7]u"m"))) <:
                 Tridiagonal{Int}
             @test typeof(ustrip(SymTridiagonal([1,2,3]u"m", [4,5]u"m"))) <:
@@ -1157,11 +1083,7 @@ end
         end
 
         @testset ">> Gain" begin
-            @static if VERSION >= v"0.7.0-DEV.1729" # PR 23533
-                @test_throws LoadError @eval @dB 10
-            else
-                @test_throws ArgumentError @eval @dB 10
-            end
+            @test_throws LoadError @eval @dB 10
             @test 20*dB === dB*20
         end
 
