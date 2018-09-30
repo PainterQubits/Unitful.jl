@@ -91,3 +91,6 @@ end
 *(r::StepRangeLen, y::Units) = StepRangeLen(r.ref*y, r.step*y, length(r), r.offset)
 *(r::LinRange, y::Units) = LinRange(r.start*y, r.stop*y, length(r))
 *(r::StepRange, y::Units) = StepRange(r.start*y, r.step*y, r.stop*y)
+function /(x::Base.TwicePrecision, v::Quantity)
+    x / Base.TwicePrecision(oftype(ustrip(x.hi)/ustrip(v)*unit(v), v))
+end
