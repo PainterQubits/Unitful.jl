@@ -447,6 +447,7 @@ end
         @test @inferred((3m)*m) === 3*(m*m)               # Associative multiplication
         @test @inferred(true*1kg) === 1kg                 # Boolean multiplication (T)
         @test @inferred(false*1kg) === 0kg                # Boolean multiplication (F)
+        @test typeof(one(eltype([1.0s, 1kg]))) <: Float64 # issue 159, multiplicative identity
     end
     @testset "> Division" begin
         @test 360° / 2 === 180.0°            # Issue 110
