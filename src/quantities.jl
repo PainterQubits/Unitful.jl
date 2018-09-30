@@ -254,7 +254,10 @@ zero(x::Quantity) = Quantity(zero(x.val), unit(x))
 zero(x::Type{Quantity{T,D,U}}) where {T,D,U} = zero(T)*U()
 
 one(x::Quantity) = one(x.val)
-one(x::Type{Quantity{T,D,U}}) where {T,D,U} = one(T)
+get_T(::Type{Quantity{T}}) where T = T
+get_T(::Type{Quantity{T,D}}) where {T,D} = T
+get_T(::Type{Quantity{T,D,U}}) where {T,D,U} = T
+one(x::Type{<:Quantity}) = one(get_T(x))
 
 isreal(x::Quantity) = isreal(x.val)
 isfinite(x::Quantity) = isfinite(x.val)
