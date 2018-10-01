@@ -1,3 +1,12 @@
+- v0.12.0
+  - Bug fixes.
+  - Support carrier-to-noise-density ratio (C/N0) in dB-Hz.
+  - Added dimensions: `DField`, `EField`, `ElectricDipoleMoment`, `ElectricQuadrupoleMoment`, `MagneticDipoleMoment`.
+  - Added unit: `barn`.
+  - Some documentation improvements.
+- v0.11.0--v0.9.0
+  - Fixes for Julia 0.7 update, primarily.
+  - Some new TwicePrecision functionality for quantities.
 - v0.8.0
   - Add Rydberg constant, unified atomic mass unit, mils, rpm, rps, percent, permille.
   - Introduce/rename derived dimensions: ElectricalConductivity, ElectricalResistivity,
