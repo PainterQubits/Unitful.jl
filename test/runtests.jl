@@ -245,6 +245,8 @@ end
         @test @inferred(promote(1.0m, 1kg)) === (1.0m, 1.0kg)
         @test @inferred(promote(1kg, 1.0m)) === (1.0kg, 1.0m)
         @test_broken @inferred(promote(1.0m, 1)) === (1.0m, 1.0)         # issue 52
+        @test @inferred(promote(π, 180°)) === (float(π), float(π))       # issue 168
+        @test @inferred(promote(180°, π)) === (float(π), float(π))       # issue 168
 
         # prefer no units for dimensionless numbers
         @test @inferred(promote(1.0mm/m, 1.0km/m)) === (0.001,1000.0)
