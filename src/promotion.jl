@@ -96,6 +96,9 @@ function Base.promote_rule(::Type{Quantity{S,D,U}}, ::Type{T}) where {S,T <: Num
     end
 end
 
+Base.promote_rule(::Type{S}, ::Type{T}) where {S<:AbstractIrrational,S2,T<:Quantity{S2}} =
+    promote_type(promote_type(S, real(S2)), T)
+
 Base.promote_rule(::Type{Quantity{S}}, ::Type{T}) where {S,T <: Number} =
     Quantity{promote_type(S,T)}
 
