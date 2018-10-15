@@ -482,7 +482,7 @@ function replace_value(ex::Expr)
                 ex.args[i]=replace_value(ex.args[i])
             end
         end
-        return Core.eval(@__MODULE__, ex)
+        return ex 
     elseif ex.head == :tuple
         for i=1:length(ex.args)
             if typeof(ex.args[i])==Symbol
@@ -491,7 +491,7 @@ function replace_value(ex::Expr)
                 error("only use symbols inside the tuple.")
             end
         end
-        return Core.eval(@__MODULE__, ex)
+        return ex
     else
         error("Expr head $(ex.head) must equal :call or :tuple")
     end
@@ -505,7 +505,7 @@ function replace_value(sym::Symbol)
 
     m = unitmodules[inds[end]]
     u = getfield(m, sym)
-
+    
     any(u != u1 for u1 in getfield.(unitmodules[inds[1:(end-1)]], sym)) &&
         @warn(string("Symbol $sym was found in multiple registered unit modules. ",
          "We will use the one from $m."))

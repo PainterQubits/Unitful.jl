@@ -292,14 +292,14 @@ end
 end
 
 @testset "Unit string macro" begin
-    @test macroexpand(@__MODULE__, :(u"m")) == m
-    @test macroexpand(@__MODULE__, :(u"m,s")) == (m,s)
-    @test macroexpand(@__MODULE__, :(u"1.0")) == 1.0
-    @test macroexpand(@__MODULE__, :(u"m/s")) == m/s
-    @test macroexpand(@__MODULE__, :(u"1.0m/s")) == 1.0m/s
-    @test macroexpand(@__MODULE__, :(u"m^-1")) == m^-1
-    @test macroexpand(@__MODULE__, :(u"dB/Hz")) == dB/Hz
-    @test macroexpand(@__MODULE__, :(u"3.0dB/Hz")) == 3.0dB/Hz
+    @test u"m" == m
+    @test u"m,s" == (m,s)
+    @test u"1.0" == 1.0
+    @test u"m/s" == m/s
+    @test u"1.0m/s" == 1.0m/s
+    @test u"m^-1" == m^-1
+    @test u"dB/Hz" == dB/Hz
+    @test u"3.0dB/Hz" == 3.0dB/Hz
     @test_throws LoadError macroexpand(@__MODULE__, :(u"N m"))
     @test_throws LoadError macroexpand(@__MODULE__, :(u"abs(2)"))
     @test_throws LoadError @eval u"basefactor"
