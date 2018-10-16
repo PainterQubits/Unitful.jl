@@ -531,6 +531,10 @@ end
         @test unit(nextfloat(0.0m)) == m
         @test unit(prevfloat(0.0m)) == m
 
+        # NaN behavior
+        @test NaN*m != NaN*m
+        @test isequal(NaN*m, NaN*m)
+
         @test isapprox(1.0u"m", 1.1u"m"; atol=0.2u"m")
         @test !isapprox(1.0u"m", 1.1u"m"; atol=0.05u"m")
         @test isapprox(1.0u"m", 1.1u"m"; atol=200u"mm")
