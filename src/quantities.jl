@@ -226,16 +226,18 @@ end
 isapprox(y::AbstractArray{N}, x::AbstractArray{S};
     kwargs...) where {S <: Quantity,N <: Number} = isapprox(x,y; kwargs...)
 
-==(x::Quantity{S,D,U}, y::Quantity{T,D,U}) where {S,T,D,U} = (x.val == y.val)
-function ==(x::Quantity, y::Quantity)
-    dimension(x) != dimension(y) && return false
-    ==(promote(x,y)...)
-end
+for cmp in [:(==), :isequal]
+    @eval $cmp(x::Quantity{S,D,U}, y::Quantity{T,D,U}) where {S,T,D,U} = $cmp(x.val, y.val)
+    @eval function $cmp(x::Quantity, y::Quantity)
+        dimension(x) != dimension(y) && return false
+        $cmp(promote(x,y)...)
+    end
 
-function ==(x::Quantity, y::Number)
-    ==(promote(x,y)...)
+    @eval function $cmp(x::Quantity, y::Number)
+        $cmp(promote(x,y)...)
+    end
+    @eval $cmp(x::Number, y::Quantity) = $cmp(y,x)
 end
-==(x::Number, y::Quantity) = ==(y,x)
 <=(x::Quantity, y::Quantity) = <(x,y) || x==y
 
 _dimerr(f) = error("$f can only be well-defined for dimensionless ",
