@@ -20,7 +20,7 @@ import Unitful:
 
 import Unitful: dB, dB_rp, dB_p, dBm, dBV, dBSPL, Np, Np_rp, Np_p, Decibel, Neper
 
-import Unitful: 𝐋, 𝐓, 𝐍
+import Unitful: 𝐋, 𝐌, 𝐓, 𝐍
 
 import Unitful:
     Length, Area, Volume,
@@ -557,6 +557,20 @@ end
         @test !isapprox(1.0u"m", 1.0u"s")
         @test isapprox(1.0u"m", 1000.0u"mm")
         @test_throws ErrorException isapprox(1.0*FixedUnits(u"m"), 1000.0*FixedUnits(u"mm"))
+    end
+    @testset "> Type mathematics" begin
+        @test @inferred(typeof(1kg)*typeof(1s)) <: typeof(1kg*s)
+        @test @inferred(typeof(1kg)/typeof(1s)) <: typeof(1.0kg/s)
+        let QFloat64 = Unitful.Quantity{Float64,D,U} where U where D,
+            QMFloat64 = Unitful.Quantity{Float64,typeof(𝐌),U} where U,
+            QMTFloat64 = Unitful.Quantity{Float64,typeof(𝐌*𝐓),U} where U,
+            QMbyTFloat64 = Unitful.Quantity{Float64,typeof(𝐌/𝐓),U} where U
+            @test @inferred(QFloat64  * typeof(1s)) <: QFloat64
+            @test @inferred(QFloat64  / typeof(1s)) <: QFloat64
+            @test @inferred(QMFloat64 * typeof(1s)) <: QMTFloat64
+            @test @inferred(QMFloat64 / typeof(1s)) <: QMbyTFloat64
+        end
+
     end
 end
 
