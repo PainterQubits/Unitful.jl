@@ -2,7 +2,8 @@
 @inline isunitless(::Units{()}) = true
 
 @inline numtype(::Quantity{T}) where {T} = T
-@inline numtype(::Type{Quantity{T,D,U}}) where {T,D,U} = T
+@inline numtype(::Type{Q}) where {T, Q<:Quantity{T}} = T
+
 @inline dimtype(u::Unit{U,D}) where {U,D} = D
 
 """

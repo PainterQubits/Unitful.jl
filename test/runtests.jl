@@ -289,6 +289,13 @@ end
         # promoting the second time should not change the types
         @test_throws ErrorException promote(px, py)
     end
+    @testset "> Some internal behaviors" begin
+        # quantities
+        @test Unitful.numtype(Quantity{Float64}) <: Float64
+        @test Unitful.numtype(Quantity{Float64,typeof(𝐋)}) <: Float64
+        @test Unitful.numtype(typeof(1.0kg)) <: Float64
+        @test Unitful.numtype(1.0kg) <: Float64
+    end
 end
 
 @testset "Unit string macro" begin
