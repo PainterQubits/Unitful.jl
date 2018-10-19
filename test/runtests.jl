@@ -12,7 +12,7 @@ import Unitful:
     nm, μm, mm, cm, m, km, inch, ft, mi,
     ac,
     mg, g, kg, A,
-    °Ra, °F, °C, K, abs°C, abs°F,
+    °Ra, °F, °C, K, abs°C, abs°F, absK,
     rad, °,
     ms, s, minute, hr,
     J, A, N, mol, cd, V,
@@ -29,6 +29,7 @@ import Unitful:
     Mass,
     Current,
     Temperature,
+    AbsTemperature,
     Action,
     Power
 
@@ -231,6 +232,11 @@ end
         @test Unitful.promote_unit(m,km,cm) === m
         @test Unitful.promote_unit(ContextUnits(m,mm), ContextUnits(km,cm)) ===
             FreeUnits(m)
+
+        # Absolute temperature special cases
+        @test_throws DimensionError 1abs°C + 1abs°C
+        @test_throws DimensionError 1abs°C + 1abs°F
+        @test_throws DimensionError 1abs°C * 1abs°F
     end
     @testset "> Simple promotion" begin
         # promotion should do nothing to units alone
@@ -358,6 +364,7 @@ end
     @test isa(1s, Time)
     @test isa(1A, Current)
     @test isa(1K, Temperature)
+    @test isa(1absK, AbsTemperature)
     @test isa(1cd, Luminosity)
     @test isa(2π*rad*1.0m, Length)
     @test isa(u"h", Action)
