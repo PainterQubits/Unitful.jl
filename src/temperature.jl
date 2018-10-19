@@ -50,6 +50,11 @@ for op in [:+, :-]
         Quantity($op(ustrip(x),ustrip(uconvert(relative_unit(unit(x)), y))), unit(x))
 end
 
+(-)(x::Quantity{S,typeof(abs𝚯),U1},
+    y::Quantity{T,typeof(abs𝚯),U2}) where {S,T,D,U1,U2} =
+    Quantity(ustrip(x) - ustrip(uconvert(unit(x), y)), relative_unit(unit(x)))
+
+
 Base.promote_rule(::Type{Quantity{S1,typeof(abs𝚯),U1}},
                   ::Type{Quantity{S2,typeof(abs𝚯),U2}}) where {S1,U1,S2,U2} =
     # Not sure when this will be called, but it's safer to disallow

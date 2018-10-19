@@ -185,6 +185,7 @@ end
             @test uconvert(°C, 45°F) == 25°C
             @test 1.0abs°C + 45°F == 26.0abs°C
             @test 1abs°C - 1K == 0abs°C
+            @test 40abs°C - 95abs°F == 5°C
 
             # When appearing w/ other units, we calculate
             # by converting between temperature intervals (no offsets).
