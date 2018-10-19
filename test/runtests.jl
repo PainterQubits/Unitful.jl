@@ -183,6 +183,8 @@ end
             @test uconvert(abs°C, 212abs°F) == 100abs°C
             @test uconvert(°F, 0°C) == 0°F
             @test uconvert(°C, 45°F) == 25°C
+            @test 1.0abs°C + 45°F == 26.0abs°C
+            @test 1abs°C - 1K == 0abs°C
 
             # When appearing w/ other units, we calculate
             # by converting between temperature intervals (no offsets).

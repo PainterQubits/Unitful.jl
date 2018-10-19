@@ -11,8 +11,6 @@
 @dimension 𝐉 "𝐉" Luminosity
 @dimension 𝐍 "𝐍" Amount
 
-include("temperature.jl")
-
 # Define derived dimensions.
 @derived_dimension Area                     𝐋^2
 @derived_dimension Volume                   𝐋^3
@@ -93,7 +91,7 @@ end
 # Temperature
 @unit °C     "°C"       Celsius             1K                      true
 @unit abs°C  "abs°C"    AbsCelsius          1absK                   true
-Unitful.offsettemp(::Unitful.Unit{:AbsCelsius}) = 27315//100
+offsettemp(::Unitful.Unit{:AbsCelsius}) = 27315//100
 
 # Common units of time
 @unit minute "minute"   Minute                60s           false
@@ -184,7 +182,7 @@ const R∞ = 10_973_731.568_508/m     # (65) Rydberg constant
 @unit °Ra       "°Ra"      Rankine              (5//9)*K                false
 @unit °F        "°F"       Fahrenheit           (5//9)*K                false
 @unit abs°F     "abs°F"    AbsFahrenheit        (5//9)*absK             false
-Unitful.offsettemp(::Unitful.Unit{:AbsFahrenheit}) = 45967//100
+offsettemp(::Unitful.Unit{:AbsFahrenheit}) = 45967//100
 
 # Masses
 @unit lb        "lb"       Pound                0.45359237kg            false # is exact
@@ -325,3 +323,5 @@ function promote_to_derived()
         end)
     nothing
 end
+
+include("temperature.jl")

@@ -31,15 +31,27 @@ offsets, if they do not appear in combination with other dimensions.
     end
 end
 
+for t in [:°C, :°F, :K]
+    @eval relative_unit(::typeof($(Symbol(:abs, t)))) = $t
+end
 
-# Disallow binary arithmetic on absolute temperatures
+
 for op in [:+, :*, :/]
+    # Disallow binary arithmetic on absolute temperatures
     @eval ($op)(x::Quantity{S,typeof(abs𝚯),U1},
         y::Quantity{T,typeof(abs𝚯),U2}) where {S,T,U1,U2} =
         throw(DimensionError(x, y))   # TODO: custom error?
 end
 
+for op in [:+, :-]
+    # absolute +/- relative = absolute
+    @eval ($op)(x::Quantity{S,typeof(abs𝚯),U1},
+                y::Quantity{T,typeof(𝚯),U2}) where {S,T,D,U1,U2} =
+        Quantity($op(ustrip(x),ustrip(uconvert(relative_unit(unit(x)), y))), unit(x))
+end
+
 Base.promote_rule(::Type{Quantity{S1,typeof(abs𝚯),U1}},
                   ::Type{Quantity{S2,typeof(abs𝚯),U2}}) where {S1,U1,S2,U2} =
-    # Not sure when this will be called, but it shouldn't be. 
+    # Not sure when this will be called, but it's safer to disallow
+    # promotion between absolute temperatures.
     throw(DimensionError(U1(), U2()))  
