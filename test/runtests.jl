@@ -12,7 +12,7 @@ import Unitful:
     nm, μm, mm, cm, m, km, inch, ft, mi,
     ac,
     mg, g, kg, A,
-    °Ra, °F, °C, K,
+    °Ra, °F, °C, K, abs°C, abs°F,
     rad, °,
     ms, s, minute, hr,
     J, A, N, mol, cd, V,
@@ -178,8 +178,10 @@ end
             @test @inferred(unit(uconvert(ContextUnits(°Ra), 4.2K))) ===
                 ContextUnits(°Ra)
 
-            @test uconvert(°F, 0°C) == 32°F
-            @test uconvert(°C, 212°F) == 100°C
+            @test uconvert(abs°F, 0abs°C) == 32abs°F
+            @test uconvert(abs°C, 212abs°F) == 100abs°C
+            @test uconvert(°F, 0°C) == 0°F
+            @test uconvert(°C, 45°F) == 25°C
 
             # When appearing w/ other units, we calculate
             # by converting between temperature intervals (no offsets).

@@ -7,6 +7,7 @@
 @dimension 𝐓 "𝐓" Time
 @dimension 𝐈 "𝐈" Current
 @dimension 𝚯 "𝚯" Temperature    # This one is \mbfTheta
+@dimension abs𝚯 "abs𝚯" AbsTemperature
 @dimension 𝐉 "𝐉" Luminosity
 @dimension 𝐍 "𝐍" Amount
 
@@ -49,6 +50,7 @@ include("temperature.jl")
 @refunit  s       "s"      Second    𝐓           true
 @refunit  A       "A"      Ampere    𝐈            true
 @refunit  K       "K"      Kelvin    𝚯           true
+@refunit  absK    "absK"   AbsKelvin abs𝚯        true
 @refunit  cd      "cd"     Candela   𝐉            true
 @refunit  g       "g"      Gram      𝐌           true
 @refunit  mol     "mol"    Mole      𝐍           true
@@ -89,8 +91,9 @@ end
 @unit permille "‰"      Permille    1//1000                 false
 
 # Temperature
-@unit °C     "°C"       Celsius     1K                      true
-Unitful.offsettemp(::Unitful.Unit{:Celsius}) = 27315//100
+@unit °C     "°C"       Celsius             1K                      true
+@unit abs°C  "abs°C"    AbsCelsius          1absK                   true
+Unitful.offsettemp(::Unitful.Unit{:AbsCelsius}) = 27315//100
 
 # Common units of time
 @unit minute "minute"   Minute                60s           false
@@ -180,7 +183,8 @@ const R∞ = 10_973_731.568_508/m     # (65) Rydberg constant
 # Temperatures
 @unit °Ra       "°Ra"      Rankine              (5//9)*K                false
 @unit °F        "°F"       Fahrenheit           (5//9)*K                false
-Unitful.offsettemp(::Unitful.Unit{:Fahrenheit}) = 45967//100
+@unit abs°F     "abs°F"    AbsFahrenheit        (5//9)*absK             false
+Unitful.offsettemp(::Unitful.Unit{:AbsFahrenheit}) = 45967//100
 
 # Masses
 @unit lb        "lb"       Pound                0.45359237kg            false # is exact
