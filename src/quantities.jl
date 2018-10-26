@@ -27,7 +27,11 @@ Quantity(x::Number, y::Units{()}) = x
 *(x::Quantity, y::Bool) = Quantity(x.val*y, unit(x))
 
 *(y::Number, x::Quantity) = *(x,y)
-*(x::Quantity, y::Number) = Quantity(x.val*y, unit(x))
+function *(x::Quantity, y::Number)
+    x isa AffineQuantity &&
+        throw(AffineError("an invalid operation was attempted with affine quantities: $x*$y"))
+    return Quantity(x.val*y, unit(x))
+end
 
 *(A::Units, B::AbstractArray) = broadcast(*, A, B)
 *(A::AbstractArray, B::Units) = broadcast(*, A, B)
@@ -77,14 +81,32 @@ for op in [:+, :-]
     @eval ($op)(x::Quantity{S,D,U}, y::Quantity{T,D,U}) where {S,T,D,U} =
         Quantity(($op)(x.val, y.val), U())
 
-    # If not generated, there are run-time allocations
     @eval function ($op)(x::Quantity{S,D,SU}, y::Quantity{T,D,TU}) where {S,T,D,SU,TU}
         ($op)(promote(x,y)...)
     end
 
     @eval ($op)(x::Quantity, y::Quantity) = throw(DimensionError(x,y))
     @eval ($op)(x::Quantity) = Quantity(($op)(x.val), unit(x))
+
+    # absolute +/- relative = absolute
+    @eval function ($op)(x::AffineQuantity{S,D}, y::Quantity{T,D}) where {S,T,D}
+        samescale = uconvert(relativeunit(unit(x)), y)
+        return Quantity(($op)(x.val, samescale.val), unit(x))
+    end
 end
+
+# Disallow addition of affine quantities
++(x::AffineQuantity, y::AffineQuantity) = throw(AffineError(
+   "an invalid operation was attempted with affine quantities: $x + $y"))
+# Specialize substraction of affine quantities
+function -(x::AffineQuantity, y::AffineQuantity)
+    x′, y′ = promote(x,y)
+    return Quantity(x′.val - y′.val, relativeunit(unit(x′)))
+end
+
+# Disallow subtracting an affine quantity from a relative quantity
+-(x::Quantity, y::AffineQuantity) =
+    throw(AffineError("an invalid operation was attempted with affine quantities: $x-$y"))
 
 # Needed until LU factorization is made to work with unitful numbers
 function inv(x::StridedMatrix{T}) where {T <: Quantity}

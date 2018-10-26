@@ -64,6 +64,8 @@ DocTestSetup = quote
     using Unitful
     °C = Unitful.°C
     °F = Unitful.°F
+    abs°C = Unitful.abs°C
+    abs°F = Unitful.abs°F
     μm = Unitful.μm
     m = Unitful.m
     hr = Unitful.hr
@@ -87,8 +89,8 @@ In the next examples we assume we have brought some units into our namespace,
 e.g. `const m = u"m"`, etc.
 
 ```jldoctest
-julia> uconvert(°C, 212°F)
-100//1 °C
+julia> uconvert(abs°C, 212abs°F)
+100//1 °C (affine)
 
 julia> uconvert(μm/(m*°F), 9μm/(m*°C))
 5//1 μm °F^-1 m^-1

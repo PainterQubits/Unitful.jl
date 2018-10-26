@@ -2,25 +2,23 @@ module UnitfulTests
 
 using Unitful
 using Test, LinearAlgebra, Random
-import Unitful: DimensionError
-
+import Unitful: DimensionError, AffineError
 import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
-
-import Unitful: FreeUnits, ContextUnits, FixedUnits
+import Unitful: FreeUnits, ContextUnits, FixedUnits, AffineUnits, AffineQuantity
 
 import Unitful:
     nm, μm, mm, cm, m, km, inch, ft, mi,
     ac,
-    mg, g, kg, A,
-    °Ra, °F, °C, K,
+    mg, g, kg,
+    °Ra, °F, °C, K, abs°C, abs°F, absK,
     rad, °,
-    ms, s, minute, hr,
+    ms, s, minute, hr, Hz,
     J, A, N, mol, cd, V,
-    mW, W, Hz
+    mW, W,
+    dB, dB_rp, dB_p, dBm, dBV, dBSPL, Decibel,
+    Np, Np_rp, Np_p, Neper
 
-import Unitful: dB, dB_rp, dB_p, dBm, dBV, dBSPL, Np, Np_rp, Np_p, Decibel, Neper
-
-import Unitful: 𝐋, 𝐓, 𝐍
+import Unitful: 𝐋, 𝐓, 𝐍, 𝚯
 
 import Unitful:
     Length, Area, Volume,
@@ -28,11 +26,11 @@ import Unitful:
     Time, Frequency,
     Mass,
     Current,
-    Temperature,
+    Temperature, AbsoluteTemperature, RelativeTemperature,
     Action,
     Power
 
-import Unitful: LengthUnits, AreaUnits, MassUnits
+import Unitful: LengthUnits, AreaUnits, MassUnits, TemperatureUnits
 
 const colon = Base.:(:)
 
@@ -44,32 +42,30 @@ const colon = Base.:(:)
         Unitful.Quantity{Float64,
             typeof(𝐋),
             Unitful.FreeUnits{(Unitful.Unit{:Meter, typeof(𝐋)}(0,1),),
-                typeof(𝐋)}}
+                typeof(𝐋), nothing}}
     @test typeof(1m^2) ===
         Unitful.Quantity{Int,
             typeof(𝐋^2),
             Unitful.FreeUnits{(Unitful.Unit{:Meter, typeof(𝐋)}(0,2),),
-                typeof(𝐋^2)}}
+                typeof(𝐋^2), nothing}}
     @test typeof(1ac) ===
         Unitful.Quantity{Int,
             typeof(𝐋^2),
             Unitful.FreeUnits{(Unitful.Unit{:Acre, typeof(𝐋^2)}(0,1),),
-                typeof(𝐋^2)}}
+                typeof(𝐋^2), nothing}}
     @test typeof(ContextUnits(m,μm)) ===
         ContextUnits{(Unitful.Unit{:Meter, typeof(𝐋)}(0,1),),
-            typeof(𝐋),
-            typeof(μm)}
+            typeof(𝐋), typeof(μm), nothing}
     @test typeof(1.0*ContextUnits(m,μm)) ===
         Unitful.Quantity{Float64,
             typeof(𝐋),
             ContextUnits{(Unitful.Unit{:Meter, typeof(𝐋)}(0,1),),
-                typeof(𝐋),
-                typeof(μm)}}
+                typeof(𝐋), typeof(μm), nothing}}
     @test typeof(1.0*FixedUnits(m)) ===
         Unitful.Quantity{Float64,
             typeof(𝐋),
             FixedUnits{(Unitful.Unit{:Meter, typeof(𝐋)}(0,1),),
-                typeof(𝐋)}}
+                typeof(𝐋), nothing}}
     @test 3mm != 3*(m*m)                        # mm not interpreted as m*m
     @test (3+4im)*V === V*(3+4im) === (3V+4V*im)  # Complex quantity construction
     @test 3*NoUnits === 3
@@ -92,6 +88,7 @@ end
 @testset "Conversion" begin
     @testset "> Unitless ↔ unitful conversion" begin
         @test_throws DimensionError convert(typeof(3m), 1)
+        @test_throws DimensionError convert(Quantity{Float64, typeof(𝐋)}, 1)
         @test_throws DimensionError convert(Float64, 3m)
         @test @inferred(3m/unit(3m)) === 3
         @test @inferred(3.0g/unit(3.0g)) === 3.0
@@ -130,9 +127,7 @@ end
             # an essentially no-op uconvert should not disturb numeric type
             @test @inferred(uconvert(g,1g)) === 1g
             @test @inferred(uconvert(m,0x01*m)) === 0x01*m
-
-            # test special case of temperature
-            @test uconvert(°C, 0x01*°C) === 0x01*°C
+            @test @inferred(convert(Quantity{Float64, typeof(𝐋)}, 1m)) === 1.0m
             @test 1kg === 1kg
             @test typeof(1m)(1m) === 1m
 
@@ -167,24 +162,89 @@ end
             # Issue 79:
             @test isapprox(upreferred(Unitful.ɛ0), 8.85e-12u"F/m", atol=0.01e-12u"F/m")
         end
-        @testset ">> Temperature conversion" begin
-            # When converting a pure temperature, offsets in temperature are
-            # taken into account. If you like °Ra seek help
-            @test @inferred(uconvert(FreeUnits(°Ra), 4.2K)) ≈ 7.56°Ra
-            @test @inferred(unit(uconvert(FreeUnits(°Ra), 4.2K))) === FreeUnits(°Ra)
-            @test @inferred(uconvert(FreeUnits(°Ra), 4.2*ContextUnits(K))) ≈ 7.56°Ra
-            @test @inferred(unit(uconvert(FreeUnits(°Ra), 4.2*ContextUnits(K)))) ===
-                FreeUnits(°Ra)
-            @test @inferred(unit(uconvert(ContextUnits(°Ra), 4.2K))) ===
-                ContextUnits(°Ra)
+    end
+end
 
-            @test uconvert(°F, 0°C) == 32°F
-            @test uconvert(°C, 212°F) == 100°C
+@testset "Temperature and affine quantities" begin
+    @testset "Affine transforms and quantities" begin
+        @test 1abs°C isa AbsoluteTemperature
+        @test !isa(1abs°C, RelativeTemperature)
+        @test 1°C isa RelativeTemperature
+        @test !isa(1°C, AbsoluteTemperature)
 
-            # When appearing w/ other units, we calculate
-            # by converting between temperature intervals (no offsets).
-            # e.g. the linear thermal expansion coefficient of glass
-            @test uconvert(μm/(m*°F), 9μm/(m*°C)) == 5μm/(m*°F)
+        @test_throws AffineError abs°C*abs°C
+        @test_throws AffineError abs°C*°C
+        @test_throws AffineError (0abs°C)*(0abs°C)
+        @test_throws AffineError abs°C^2
+        let x = 2
+            @test_throws AffineError abs°C^x
+        end
+        @test_throws AffineError inv(abs°C)
+        @test_throws AffineError inv(0abs°C)
+        @test_throws AffineError sqrt(abs°C)
+        @test_throws AffineError sqrt(0abs°C)
+        @test_throws AffineError cbrt(abs°C)
+        @test_throws AffineError cbrt(0abs°C)
+        @test_throws AffineError 32abs°F + 1abs°F
+        @test_throws AffineError (32abs°F) * 2
+        @test_throws AffineError 2 * (32abs°F)
+        @test_throws AffineError (32abs°F) / 2
+        @test_throws AffineError 2 / (32abs°F)
+
+        @test 0abs°C isa AffineQuantity{T, typeof(𝚯)} where T    # is "absolute temperature"
+        @test 0abs°C isa Temperature                             # dimensional correctness
+        @test abs°C isa AffineUnits{N, typeof(𝚯)} where N
+        @test abs°C isa TemperatureUnits
+
+        @test @inferred(uconvert(abs°F, 0abs°C))  === (32//1)abs°F   # Some known conversions...
+        @test @inferred(uconvert(abs°C, 32abs°F)) === (0//1)abs°C    #  ⋮
+        @test @inferred(uconvert(abs°C, 212abs°F)) === (100//1)abs°C #  ⋮
+        @test @inferred(uconvert(abs°C, 0x01*abs°C)) === 0x01*abs°C  # Preserve numeric type
+
+        # The next test is a little funky but checks the `affineunit` functionality
+        @test @inferred(uconvert(abs°F,
+            0*Unitful.affineunit(-27315°C//100 - 5°C//9))) === (33//1)abs°F
+    end
+    @testset "Temperature differences" begin
+        @test @inferred(uconvert(°F, 0°C)) === 0°F//1
+        @test @inferred(uconvert(°C, 1°F)) === 5°C//9
+        @test @inferred(uconvert(μm/(m*°F), 9μm/(m*°C))) === 5μm/(m*°F)//1
+
+        @test @inferred(uconvert(FreeUnits(°Ra), 4.2K)) ≈ 7.56°Ra
+        @test @inferred(unit(uconvert(FreeUnits(°Ra), 4.2K))) === FreeUnits(°Ra)
+        @test @inferred(uconvert(FreeUnits(°Ra), 4.2*ContextUnits(K))) ≈ 7.56°Ra
+        @test @inferred(unit(uconvert(FreeUnits(°Ra), 4.2*ContextUnits(K)))) === FreeUnits(°Ra)
+        @test @inferred(unit(uconvert(ContextUnits(°Ra), 4.2K))) === ContextUnits(°Ra)
+
+        @test 100abs°C + 1°F === (905//9)abs°C
+        @test 100abs°C - 1°F === (895//9)abs°C
+        @test 100abs°C + 1°C === 101abs°C
+        @test 100abs°C - 1°C === 99abs°C
+        @test 100abs°C - 32abs°F === (100//1)K
+    end
+    @testset "Promotion" begin
+        # Can't promote types beyond just identifying that they have the same dimension.
+        @test @inferred(eltype([1abs°C, 1°C])) <: Quantity{Int,typeof(𝚯)}
+        @test @inferred(eltype([1.0abs°C, 1°C])) <: Quantity{Float64,typeof(𝚯)}
+
+        # Can promote absolute temperatures
+        @test @inferred(eltype([1abs°C, 1abs°F])) <:
+            Quantity{Rational{Int}, typeof(𝚯), typeof(absK)}
+        @test @inferred(eltype([1.0abs°C, 1abs°F])) <:
+            Quantity{Float64, typeof(𝚯), typeof(absK)}
+
+        # promote throws an error if it is unable to change any arguments (expected).
+        @test_throws ErrorException promote(1abs°C, 1°C)
+
+        # context units should distinguish relative / absolute temperatures
+        @test_throws AffineError ContextUnits(abs°C, °C)
+        @test_throws AffineError ContextUnits(°C, abs°C)
+
+        # context units should be identifiable as affine
+        @test ContextUnits(abs°C, abs°F) isa AffineUnits
+        let fc = ContextUnits(abs°F, abs°C), cc = ContextUnits(abs°C, abs°C)
+            @inferred(promote(1fc, 1cc)) === ((-155//9)cc, (1//1)cc)
+            @test @inferred(eltype([1cc, 1°C])) <: Quantity{Int, typeof(𝚯)}
         end
     end
 end
@@ -1379,7 +1439,7 @@ let fname = tempname()
                 @test eval(:(typeof(u"m"))) == Unitful.FreeUnits{
                     (Unitful.Unit{:MyMeter,Unitful.Dimensions{
                     (Unitful.Dimension{:Length}(1//1),)}}(0,1//1),),
-                    Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}}
+                    Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}, nothing}
             end
         end
     finally

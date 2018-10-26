@@ -187,3 +187,13 @@ end
 
 Base.showerror(io::IO, e::DimensionError) =
     print(io, "DimensionError: $(e.x) and $(e.y) are not dimensionally compatible.");
+
+"""
+    struct AffineError <: Exception
+An invalid operation was attempted with affine units / quantities.
+"""
+struct AffineError <: Exception
+    x
+end
+
+Base.showerror(io::IO, e::AffineError) = print(io, "AffineError: $(e.x)")

@@ -55,13 +55,21 @@ function show(io::IO, x::Quantity)
         print(io," ")
         show(io, unit(x))
     end
+    if x isa AffineQuantity
+        print(io, " (affine)")
+    end
     nothing
 end
 
 function show(io::IO, x::Quantity{S, Dimensions{()}, <:Units{
     (Unitful.Unit{:Degree,Unitful.Dimensions{()}}(0, 1//1),),
         Unitful.Dimensions{()}}}) where S
-    show(io, x.val); show(io, unit(x)); nothing
+    show(io, x.val)
+    show(io, unit(x))
+    if x isa AffineQuantity
+        print(io, " (affine)")
+    end
+    nothing
 end
 
 """

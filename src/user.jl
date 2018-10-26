@@ -206,7 +206,7 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
         u = :(Unitful.Unit{$n, typeof($dimension)}($k,1//1))
         ea = quote
             Unitful.basefactors[$n] = $basefactor
-            const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+            const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u)),nothing}()
         end
         push!(expr.args, ea)
     end
@@ -216,7 +216,7 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
     u = :(Unitful.Unit{$n, typeof($dimension)}(-6,1//1))
     push!(expr.args, quote
         Unitful.basefactors[$n] = $basefactor
-        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u)),nothing}()
     end)
 
     esc(expr)
@@ -235,7 +235,7 @@ macro unit_symbols(symb,name,dimension,basefactor)
     u = :(Unitful.Unit{$n,typeof($dimension)}(0,1//1))
     esc(quote
         Unitful.basefactors[$n] = $basefactor
-        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u)),nothing}()
     end)
 end
 
@@ -433,6 +433,25 @@ macro logunit(symb, abbr, logscale, reflevel)
 end
 
 """
+    affineunit(x::Quantity)
+Returns a [`Unitful.Units`](@ref) object that can be used to construct affine quantities.
+Primarily, this is for absolute temperatures (as opposed to differences in temperature,
+which transform as usual under unit conversion). To use this function, pass the difference
+between the scale offset and zero, e.g. `affineunit(-273.15°C)` yields an absolute Celsius
+unit.
+"""
+affineunit(x::Quantity{T,D,FreeUnits{N,D,nothing}}) where {N,D,T} =
+    FreeUnits{N,D,Affine{ustrip(x)}}()
+
+"""
+    affinedefaults(::Units)
+Returns an affine unit corresponding to the given relative unit. For example, in
+`pkgdefaults.jl` we have `affinedefaults(::typeof(°F)) = abs°F`. This is used in the
+promotion of affine quantities.
+"""
+affinedefaults(u::Units) = error("no default affine unit provided for $u.")
+
+"""
     @u_str(unit)
 String macro to easily recall units, dimensions, or quantities defined in
 unit modules that have been registered with [`Unitful.register`](@ref).
@@ -482,7 +501,7 @@ function replace_value(ex::Expr)
                 ex.args[i]=replace_value(ex.args[i])
             end
         end
-        return ex 
+        return ex
     elseif ex.head == :tuple
         for i=1:length(ex.args)
             if typeof(ex.args[i])==Symbol
@@ -505,7 +524,7 @@ function replace_value(sym::Symbol)
 
     m = unitmodules[inds[end]]
     u = getfield(m, sym)
-    
+
     any(u != u1 for u1 in getfield.(unitmodules[inds[1:(end-1)]], sym)) &&
         @warn(string("Symbol $sym was found in multiple registered unit modules. ",
          "We will use the one from $m."))

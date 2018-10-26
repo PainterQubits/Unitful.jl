@@ -59,18 +59,6 @@ julia> Float64(1.0u"μm/m")
 1.0e-6
 ```
 
-### Temperature conversion
-
-If the dimension of a `Quantity` is purely temperature, then conversion
-respects scale offsets. For instance, converting 0°C to °F returns the expected
-result, 32°F. If instead temperature appears in combination with other units,
-scale offsets don't make sense and we consider temperature *intervals*.
-
-```jldoctest
-julia> uconvert(u"K", 21.0u"°C")
-294.15 K
-```
-
 ## Basic promotion mechanisms
 
 We decide the result units for addition and subtraction operations based on looking at the

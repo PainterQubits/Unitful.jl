@@ -42,7 +42,7 @@ Note that the dimension information refers to the unit, not powers of the unit.
 
 `Unit{U,D}` objects are almost never explicitly manipulated by the user. They
 are collected in a tuple, which is used for the type parameter `N` of a
-[`Units{N,D}`](@ref) object.
+[`Units{N,D,A}`](@ref) object.
 """
 struct Unit{U,D}
     tens::Int
@@ -53,14 +53,24 @@ end
 @inline power(x::Unit) = x.power
 @inline dimension(u::Unit{U,D}) where {U,D} = D()^u.power
 
-"""
-    abstract type Units{N,D} <: Unitlike end
-Abstract supertype of all units objects, which can differ in their implementation details.
-"""
-abstract type Units{N,D} <: Unitlike end
+struct Affine{T} end
 
 """
-    struct FreeUnits{N,D} <: Units{N,D}
+    abstract type Units{N,D,A} <: Unitlike end
+Abstract supertype of all units objects, which can differ in their implementation details.
+`A` is a translation for affine quantities; for non-affine quantities it is `nothing`.
+"""
+abstract type Units{N,D,A} <: Unitlike end
+
+"""
+    relativeunit(::Units)
+Given a unit, which may or may not be for constructing affine quantities (e.g. `abs°F`),
+return the corresponding unit for differences between the affine quantities (e.g. `°F`).
+"""
+function relativeunit end
+
+"""
+    struct FreeUnits{N,D,A} <: Units{N,D,A}
 Instances of this object represent units, possibly combinations thereof. These behave like
 units have behaved in previous versions of Unitful, and provide a basic level of
 functionality that should be acceptable to most users. See
@@ -72,34 +82,46 @@ After dividing by `s`, a singleton of type
 `Unitful.FreeUnits{(Unitful.Unit{:Meter,typeof(𝐋)}(0,1//1,1.0,1//1),
 Unitful.Unit{:Second,typeof(𝐓)}(0,-1//1,1.0,1//1)),typeof(𝐋/𝐓)}` is returned.
 """
-struct FreeUnits{N,D} <: Units{N,D} end
-FreeUnits(::Units{N,D}) where {N,D} = FreeUnits{N,D}()
+struct FreeUnits{N,D,A} <: Units{N,D,A} end
+FreeUnits{N,D}() where {N,D} = FreeUnits{N,D,nothing}()
+FreeUnits(::Units{N,D,A}) where {N,D,A} = FreeUnits{N,D,A}()
+
 const NoUnits = FreeUnits{(), Dimensions{()}}()
 (y::FreeUnits)(x::Number) = uconvert(y,x)
+relativeunit(::FreeUnits{N,D,A}) where {N,D,A} = FreeUnits{N,D}()
 
 """
-    struct ContextUnits{N,D,P} <: Units{N,D}
+    struct ContextUnits{N,D,P,A} <: Units{N,D,A}
 Instances of this object represent units, possibly combinations thereof.
-It is in most respects like `FreeUnits{N,D}`, except that the type parameter `P` is
+It is in most respects like `FreeUnits{N,D,A}`, except that the type parameter `P` is
 again a `FreeUnits{M,D}` type that specifies a preferred unit for promotion.
 See [Advanced promotion mechanisms](@ref) in the docs for details.
 """
-struct ContextUnits{N,D,P} <: Units{N,D} end
-function ContextUnits(x::Units{N,D}, y::Units) where {N,D}
+struct ContextUnits{N,D,P,A} <: Units{N,D,A} end
+function ContextUnits(x::Units{N,D,A}, y::Units) where {N,D,A}
     D() !== dimension(y) && throw(DimensionError(x,y))
-    ContextUnits{N,D,typeof(FreeUnits(y))}()
+    ((x isa AffineUnits) ⊻ (y isa AffineUnits)) && throw(
+        AffineError("affine units must be used with other affine units in ContextUnits."))
+    ContextUnits{N,D,typeof(FreeUnits(y)),A}()
 end
-ContextUnits(u::Units{N,D}) where {N,D} = ContextUnits{N,D,typeof(FreeUnits(upreferred(u)))}()
+ContextUnits{N,D,P}() where {N,D,P} = ContextUnits{N,D,P,nothing}()
+ContextUnits(u::Units{N,D,A}) where {N,D,A} =
+    ContextUnits{N,D,typeof(FreeUnits(upreferred(u))),A}()
+
 (y::ContextUnits)(x::Number) = uconvert(y,x)
+relativeunit(::ContextUnits{N,D,P,A}) where {N,D,P,A} = ContextUnits{N,D,P}()
 
 """
-    struct FixedUnits{N,D} <: Units{N,D} end
+    struct FixedUnits{N,D,A} <: Units{N,D,A} end
 Instances of this object represent units, possibly combinations thereof.
 These are primarily intended for use when you would like to disable automatic unit
 conversions. See [Advanced promotion mechanisms](@ref) in the docs for details.
 """
-struct FixedUnits{N,D} <: Units{N,D} end
-FixedUnits(::Units{N,D}) where {N,D} = FixedUnits{N,D}()
+struct FixedUnits{N,D,A} <: Units{N,D,A} end
+FixedUnits{N,D}() where {N,D} = FixedUnits{N,D,nothing}()
+FixedUnits(::Units{N,D,A}) where {N,D,A} = FixedUnits{N,D,A}()
+
+relativeunit(::FixedUnits{N,D,A}) where {N,D,A} = FixedUnits{N,D}()
 
 """"
     struct Quantity{T,D,U} <: Number
@@ -111,13 +133,37 @@ The type parameter `T` represents the numeric backing type. The type parameters
 `D <: ` [`Unitful.Dimensions`](@ref) and `U <: ` [`Unitful.Units`](@ref).
 Of course, the dimensions follow from the units, but the type parameters are
 kept separate to permit convenient dispatch on dimensions.
-
 """
 struct Quantity{T,D,U} <: Number
     val::T
     Quantity{T,D,U}(v::Number) where {T,D,U} = new{T,D,U}(v)
     Quantity{T,D,U}(v::Quantity) where {T,D,U} = convert(Quantity{T,D,U}, v)
 end
+
+"""
+    DimensionlessUnits{U}
+Useful for dispatching on [`Unitful.Units`](@ref) types that have no dimensions.
+
+Example:
+```jldoctest
+julia> isa(Unitful.rad, DimensionlessUnits)
+true
+"""
+const DimensionlessUnits{U} = Units{U, Dimensions{()}}
+
+"""
+    AffineUnits{N,D,A} = Units{N,D,A} where A<:Affine
+Useful for dispatching on unit objects that indicate a quantity should affine-transform
+under unit conversion, like absolute temperatures.
+"""
+const AffineUnits{N,D,A} = Units{N,D,A} where A<:Affine
+
+"""
+    ScalarUnits{N,D} = Units{N,D,nothing}
+Useful for dispatching on unit objects that indicate a quantity should transform in the
+usual scalar way under unit conversion.
+"""
+const ScalarUnits{N,D} = Units{N,D,nothing}
 
 """
     DimensionlessQuantity{T,U} = Quantity{T, Dimensions{()}, U}
@@ -134,15 +180,18 @@ true
 const DimensionlessQuantity{T,U} = Quantity{T, Dimensions{()}, U}
 
 """
-    DimensionlessUnits{U}
-Useful for dispatching on [`Unitful.Units`](@ref) types that have no dimensions.
-
-Example:
-```jldoctest
-julia> isa(Unitful.rad, DimensionlessUnits)
-true
+    AffineQuantity{T,D,U} = Quantity{T,D,U} where U<:AffineUnits
+Useful for dispatching on quantities that affine-transform under unit conversion, like
+absolute temperatures.
 """
-const DimensionlessUnits{U} = Units{U, Dimensions{()}}
+const AffineQuantity{T,D,U} = Quantity{T,D,U} where U<:AffineUnits
+
+"""
+    ScalarQuantity{T,D,U} = Quantity{T,D,U} where U<:ScalarUnits
+Useful for dispatching on quantities that transform in the usual scalar way under unit
+conversion.
+"""
+const ScalarQuantity{T,D,U} = Quantity{T,D,U} where U<:ScalarUnits
 
 """
     struct LogInfo{N,B,P}
