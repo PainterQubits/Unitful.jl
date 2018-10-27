@@ -46,7 +46,7 @@ julia> @dB 10V/V
 julia> @dB 3V/4V
 -2.498774732165999 dB (4 V)
 
-julia> @Np e*V/V    # e = 2.71828...
+julia> @Np ℯ*V/V    # ℯ = 2.71828...
 1.0 Np (1 V)
 ```
 
@@ -822,10 +822,10 @@ julia> uconvertp(NoUnits, 20u"dB")
 julia> uconvertp(u"dB", 100)
 20.0 dB
 
-julia> uconvertp(u"Np", e^2)
+julia> uconvertp(u"Np", ℯ^2)
 1.0 Np
 
-julia> uconvertrp(u"Np", e)
+julia> uconvertrp(u"Np", ℯ)
 1//1 Np
 ```
 
