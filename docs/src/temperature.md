@@ -78,26 +78,22 @@ nothing in the implementation limits it as such. Accordingly, relative temperatu
 considered to be [`Unitful.AffineQuantity`](@ref) objects with dimensions of temperature.
 The units on "affine quantities" are [`Unitful.AffineUnits`](@ref) objects.
 
-Making your own affine units typically requires four steps. First, define the absolute unit
-using the [`Unitful.@unit`](@ref) macro. Second, use [`Unitful.affineunit`](@ref) to make a
-corresponding affine unit. Third, define a method of [`Unitful.affinedefaults`](@ref) to
-aid in the promotion of affine quantities. Finally, define a method of `show` so that the
-unit symbol displays properly. As an example, this is how `Ra` and `°F` are implemented:
+Making your own affine units typically requires two steps. First, define the absolute unit
+using the [`Unitful.@unit`](@ref) macro. Second, use the [`Unitful.@affineunit`](@ref) macro
+to make a corresponding affine unit. As an example, this is how `Ra` and `°F` are
+implemented:
 
 ```jl
 @unit Ra "Ra" Rankine (5//9)*K false
-const °F = affineunit(-45967Ra//100)
-affinedefaults(::typeof(Ra)) = °F
-show(io::IO, x::typeof(°F)) = print(io, "°F")
+@affineunit °F "°F" (45967//100)Ra
 ```
 
-The preferred unit for promoting temperatures is usually `K` (when using
-[`Unitful.FreeUnits`](@ref)).
+The preferred unit for promoting temperatures is usually `K` when using
+[`Unitful.FreeUnits`](@ref).
 
 ```@docs
 Unitful.AffineUnits
 Unitful.AffineQuantity
-Unitful.affineunit
-Unitful.affinedefaults
+Unitful.@affineunit
 Unitful.absoluteunit
 ```

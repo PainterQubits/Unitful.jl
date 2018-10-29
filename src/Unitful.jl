@@ -21,7 +21,7 @@ import LinearAlgebra: istril, istriu, norm
 import Random
 
 export logunit, unit, dimension, uconvert, ustrip, upreferred
-export @dimension, @derived_dimension, @refunit, @unit, @u_str
+export @dimension, @derived_dimension, @refunit, @unit, @affineunit, @u_str
 export Quantity, DimensionlessQuantity, NoUnits, NoDims
 
 export uconvertp, uconvertrp, convertr, convertrp, reflevel, linear

@@ -190,6 +190,20 @@ macro unit(symb,abbr,name,equals,tf)
 end
 
 """
+    @affineunit(symb, abbr, offset)
+Macro for easily defining affine units. `offset` gives the zero of the relative scale
+in terms of an absolute scale; the scaling is the same as the absolute scale. Example:
+`@affineunit °C "°C" (27315//100)K` is used internally to define degrees Celsius.
+"""
+macro affineunit(symb, abbr, offset)
+    s = Symbol(symb)
+    return esc(quote
+        const global $s = Unitful.affineunit($offset)
+        Base.show(io::IO, ::Unitful.genericunit($s)) = print(io, $abbr)
+    end)
+end
+
+"""
     @prefixed_unit_symbols(symb,name,dimension,basefactor)
 Not called directly by the user. Given a unit symbol and a unit's name,
 will define units for each possible SI power-of-ten prefix on that unit.
@@ -435,21 +449,12 @@ end
 """
     affineunit(x::Quantity)
 Returns a [`Unitful.Units`](@ref) object that can be used to construct affine quantities.
-Primarily, this is for absolute temperatures (as opposed to differences in temperature,
-which transform as usual under unit conversion). To use this function, pass the difference
-between the scale offset and zero, e.g. `affineunit(-273.15°C)` yields an absolute Celsius
-unit.
+Primarily, this is for relative temperatures (as opposed to absolute temperatures,
+which transform as usual under unit conversion). To use this function, pass the scale offset,
+e.g. `affineunit(273.15K)` yields a Celsius unit.
 """
 affineunit(x::Quantity{T,D,FreeUnits{N,D,nothing}}) where {N,D,T} =
-    FreeUnits{N,D,Affine{ustrip(x)}}()
-
-"""
-    affinedefaults(::Units)
-Returns an affine unit corresponding to the given relative unit. For example, in
-`pkgdefaults.jl` we have `affinedefaults(::typeof(°F)) = abs°F`. This is used in the
-promotion of affine quantities.
-"""
-affinedefaults(u::Units) = error("no default affine unit provided for $u.")
+    FreeUnits{N,D,Affine{-ustrip(x)}}()
 
 """
     @u_str(unit)

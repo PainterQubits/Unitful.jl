@@ -203,7 +203,7 @@ end
 
         # The next test is a little funky but checks the `affineunit` functionality
         @test @inferred(uconvert(°F,
-            0*Unitful.affineunit(-27315K//100 - 5K//9))) === (33//1)°F
+            0*Unitful.affineunit(27315K//100 + 5K//9))) === (33//1)°F
     end
     @testset "Temperature differences" begin
         @test @inferred(uconvert(Ra, 0K)) === 0Ra//1

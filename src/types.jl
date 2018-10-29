@@ -73,6 +73,13 @@ return the corresponding unit on the absolute temperature scale (e.g. `K`).
 function absoluteunit end
 
 """
+    genericunit(::Units)
+Given e.g. a `FreeUnits{N,D,A}`, `ContextUnits{N,D,P,A}`, or `FixedUnits{N,D,A}` object,
+return the type `Units{N,D,A}`.
+"""
+genericunit(::Units{N,D,A}) where {N,D,A} = Units{N,D,A}
+
+"""
     struct FreeUnits{N,D,A} <: Units{N,D,A}
 Instances of this object represent units, possibly combinations thereof. These behave like
 units have behaved in previous versions of Unitful, and provide a basic level of

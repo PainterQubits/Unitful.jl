@@ -89,9 +89,7 @@ end
 @unit permille "‰"      Permille    1//1000                 false
 
 # Temperature
-const °C = affineunit(-27315K//100)
-affinedefaults(::typeof(K)) = °C
-show(io::IO, x::Units{(Unit{:Kelvin, typeof(𝚯)}(0, 1//1),), typeof(𝚯), Affine{-27315//100}}) = print(io, "°C")
+@affineunit °C "°C"     (27315//100)K
 
 # Common units of time
 @unit minute "minute"   Minute                60s           false
@@ -180,9 +178,7 @@ const R∞ = 10_973_731.568_508/m     # (65) Rydberg constant
 
 # Temperatures
 @unit Ra        "Ra"      Rankine               (5//9)*K                false
-const °F  = affineunit(-45967Ra//100)
-affinedefaults(::typeof(Ra)) = °F
-show(io::IO, x::Units{(Unit{:Rankine, typeof(𝚯)}(0, 1//1),), typeof(𝚯), Affine{-45967//100}}) = print(io, "°F")
+@affineunit °F  "°F"      (45967//100)Ra
 
 # Masses
 @unit lb        "lb"       Pound                0.45359237kg            false # is exact
