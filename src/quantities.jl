@@ -88,11 +88,10 @@ for op in [:+, :-]
     @eval ($op)(x::Quantity, y::Quantity) = throw(DimensionError(x,y))
     @eval ($op)(x::Quantity) = Quantity(($op)(x.val), unit(x))
 
-    # absolute +/- relative = absolute
-    @eval function ($op)(x::AffineQuantity{S,D}, y::Quantity{T,D}) where {S,T,D}
-        samescale = uconvert(relativeunit(unit(x)), y)
-        return Quantity(($op)(x.val, samescale.val), unit(x))
-    end
+    # @eval function ($op)(x::AffineQuantity{S,D}, y::Quantity{T,D}) where {S,T,D}
+    #     samescale = uconvert(absoluteunit(unit(x)), y)
+    #     return Quantity(($op)(x.val, samescale.val), unit(x))
+    # end
 end
 
 # Disallow addition of affine quantities
@@ -101,12 +100,12 @@ end
 # Specialize substraction of affine quantities
 function -(x::AffineQuantity, y::AffineQuantity)
     x′, y′ = promote(x,y)
-    return Quantity(x′.val - y′.val, relativeunit(unit(x′)))
+    return Quantity(x′.val - y′.val, absoluteunit(unit(x′)))
 end
 
-# Disallow subtracting an affine quantity from a relative quantity
+# Disallow subtracting an affine quantity from a quantity
 -(x::Quantity, y::AffineQuantity) =
-    throw(AffineError("an invalid operation was attempted with affine quantities: $x-$y"))
+    throw(AffineError("an invalid operation was attempted with affine quantities: $x - $y"))
 
 # Needed until LU factorization is made to work with unitful numbers
 function inv(x::StridedMatrix{T}) where {T <: Quantity}

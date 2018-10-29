@@ -20,21 +20,15 @@ function promote_unit end
 promote_unit(x::Units, y::Units, z::Units, t::Units...) =
     promote_unit(_promote_unit(x,y), z, t...)
 
-# Use configurable fall-back mechanism for FreeUnits
 @inline _promote_unit(x::T, y::T) where {T <: FreeUnits} = T()
-function _promote_unit(x::FreeUnits{N1,D,A1}, y::FreeUnits{N2,D,A2}) where {N1,N2,D,A1,A2}
-    u = upreferred(dimension(x))
-    if A1 === A2 === nothing
-        return u
-    else
-        return affinedefaults(u)
-    end
-end
+# Use configurable fall-back mechanism for FreeUnits
+@inline _promote_unit(x::FreeUnits{N1,D}, y::FreeUnits{N2,D}) where {N1,N2,D} =
+    upreferred(dimension(x))
 
-# same units, but promotion context disagrees
 @inline _promote_unit(x::T, y::T) where {T <: ContextUnits} = T()  #ambiguity reasons
-@inline _promote_unit(x::ContextUnits{N,D,P1}, y::ContextUnits{N,D,P2}) where {N,D,P1,P2} =
-    ContextUnits{N,D,promote_unit(P1(), P2())}()
+# same units, but promotion context disagrees
+@inline _promote_unit(x::ContextUnits{N,D,P1,A}, y::ContextUnits{N,D,P2,A}) where {N,D,P1,P2,A} =
+    ContextUnits{N,D,promote_unit(P1(), P2()),A}()
 # different units, but promotion context agrees
 @inline _promote_unit(x::ContextUnits{N1,D,P}, y::ContextUnits{N2,D,P}) where {N1,N2,D,P} =
     ContextUnits(P(), P())
@@ -72,14 +66,13 @@ Base.promote_rule(::Type{Quantity{S1,D1,U1}},
 function Base.promote_rule(::Type{Quantity{S1,D,U1}},
         ::Type{Quantity{S2,D,U2}}) where {S1,S2,D,U1,U2}
 
-    if (U1 <: AffineUnits) ⊻ (U2 <: AffineUnits)
-        # If only one is affine, we cannot resolve that
-        return Quantity{promote_type(S1,S2),D}
-    end
-
     p = promote_unit(U1(), U2())
-    numtype = promote_type(S1,S2,
-        promote_type(typeof(convfact(p,U1())), typeof(convfact(p,U2()))))
+    c1 = convfact(p, U1())
+    c1′ = affinetranslation(U1())
+    c2 = convfact(p, U2())
+    c2′ = affinetranslation(U2())
+    numtype = promote_type(S1, S2,
+        promote_type(typeof(c1), typeof(c2), typeof(c1′), typeof(c2′)))
     if !isunitless(p)
         if U1 <: ContextUnits && U2 <: ContextUnits
             up1 = upreferred(U1())

@@ -1,5 +1,5 @@
 """
-    uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
+    uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
 Convert a [`Unitful.Quantity`](@ref) to different units. The conversion will
 fail if the target units `a` have a different dimension than the dimension of
 the quantity `x`. You can use this method to switch between equivalent
@@ -16,9 +16,11 @@ julia> uconvert(u"J",1.0u"N*m")
 """
 function uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
     if typeof(a) == U
-        Quantity(x.val, a)    # preserves numeric type if convfact is 1
+        return Quantity(x.val, a)    # preserves numeric type if convfact is 1
+    elseif (a isa AffineUnits) || (x isa AffineQuantity)
+        return uconvert_affine(a, x)
     else
-        Quantity(x.val * convfact(a, U()), a)
+        return Quantity(x.val * convfact(a, U()), a)
     end
 end
 
@@ -30,29 +32,19 @@ function uconvert(a::Units, x::Number)
     end
 end
 
-"""
-    uconvert(a::AffineUnits, x::AffineQuantity)
-Unit conversion with affine transformations, typically for temperature units.
-"""
-@generated function uconvert(a::AffineUnits, x::AffineQuantity) where {N,T}
+@generated function uconvert_affine(a::Units, x::Quantity)
     # TODO: test, may be able to get bad things to happen here when T<:LogScaled
+    auobj = a()
+    xuobj = x.parameters[3]()
+    conv = convfact(auobj, xuobj)
 
-    if a == typeof(unit(x))
-        quote
-            dimension(a) != dimension(x) && return throw(DimensionError(a, x))
-            return Quantity(x.val, a)
-        end
-    else
-        auobj = a()
-        xuobj = x.parameters[3]()
-        conv = convfact(auobj, xuobj)
-
-        t0 = x.parameters[3].parameters[end].parameters[end]
-        t1 = a.parameters[end].parameters[end]
-        quote
-            dimension(a) != dimension(x) && return throw(DimensionError(a, x))
-            return Quantity(((x.val - $t0) * $conv) + $t1, a)
-        end
+    t0 = x <: AffineQuantity ? x.parameters[3].parameters[end].parameters[end] :
+        zero(x.parameters[1])
+    t1 = a <: AffineUnits ? a.parameters[end].parameters[end] :
+        zero(x.parameters[1])
+    quote
+        dimension(a) != dimension(x) && return throw(DimensionError(a, x))
+        return Quantity(((x.val - $t0) * $conv) + $t1, a)
     end
 end
 

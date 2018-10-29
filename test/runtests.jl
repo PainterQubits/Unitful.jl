@@ -10,7 +10,7 @@ import Unitful:
     nm, μm, mm, cm, m, km, inch, ft, mi,
     ac,
     mg, g, kg,
-    °Ra, °F, °C, K, abs°C, abs°F, absK,
+    Ra, °F, °C, K,
     rad, °,
     ms, s, minute, hr, Hz,
     J, A, N, mol, cd, V,
@@ -167,84 +167,74 @@ end
 
 @testset "Temperature and affine quantities" begin
     @testset "Affine transforms and quantities" begin
-        @test 1abs°C isa AbsoluteTemperature
-        @test !isa(1abs°C, RelativeTemperature)
         @test 1°C isa RelativeTemperature
         @test !isa(1°C, AbsoluteTemperature)
+        @test 1K isa AbsoluteTemperature
+        @test !isa(1K, RelativeTemperature)
 
-        @test_throws AffineError abs°C*abs°C
-        @test_throws AffineError abs°C*°C
-        @test_throws AffineError (0abs°C)*(0abs°C)
-        @test_throws AffineError abs°C^2
+        @test_throws AffineError °C*°C
+        @test_throws AffineError °C*K
+        @test_throws AffineError (0°C)*(0°C)
+        @test_throws AffineError °C^2
         let x = 2
-            @test_throws AffineError abs°C^x
+            @test_throws AffineError °C^x
         end
-        @test_throws AffineError inv(abs°C)
-        @test_throws AffineError inv(0abs°C)
-        @test_throws AffineError sqrt(abs°C)
-        @test_throws AffineError sqrt(0abs°C)
-        @test_throws AffineError cbrt(abs°C)
-        @test_throws AffineError cbrt(0abs°C)
-        @test_throws AffineError 32abs°F + 1abs°F
-        @test_throws AffineError (32abs°F) * 2
-        @test_throws AffineError 2 * (32abs°F)
-        @test_throws AffineError (32abs°F) / 2
-        @test_throws AffineError 2 / (32abs°F)
+        @test_throws AffineError inv(°C)
+        @test_throws AffineError inv(0°C)
+        @test_throws AffineError sqrt(°C)
+        @test_throws AffineError sqrt(0°C)
+        @test_throws AffineError cbrt(°C)
+        @test_throws AffineError cbrt(0°C)
+        @test_throws AffineError 32°F + 1°F
+        @test_throws AffineError (32°F) * 2
+        @test_throws AffineError 2 * (32°F)
+        @test_throws AffineError (32°F) / 2
+        @test_throws AffineError 2 / (32°F)
 
-        @test 0abs°C isa AffineQuantity{T, typeof(𝚯)} where T    # is "absolute temperature"
-        @test 0abs°C isa Temperature                             # dimensional correctness
-        @test abs°C isa AffineUnits{N, typeof(𝚯)} where N
-        @test abs°C isa TemperatureUnits
+        @test 0°C isa AffineQuantity{T, typeof(𝚯)} where T    # is "relative temperature"
+        @test 0°C isa Temperature                             # dimensional correctness
+        @test °C isa AffineUnits{N, typeof(𝚯)} where N
+        @test °C isa TemperatureUnits
 
-        @test @inferred(uconvert(abs°F, 0abs°C))  === (32//1)abs°F   # Some known conversions...
-        @test @inferred(uconvert(abs°C, 32abs°F)) === (0//1)abs°C    #  ⋮
-        @test @inferred(uconvert(abs°C, 212abs°F)) === (100//1)abs°C #  ⋮
-        @test @inferred(uconvert(abs°C, 0x01*abs°C)) === 0x01*abs°C  # Preserve numeric type
+        @test @inferred(uconvert(°F, 0°C))  === (32//1)°F   # Some known conversions...
+        @test @inferred(uconvert(°C, 32°F)) === (0//1)°C    #  ⋮
+        @test @inferred(uconvert(°C, 212°F)) === (100//1)°C #  ⋮
+        @test @inferred(uconvert(°C, 0x01*°C)) === 0x01*°C  # Preserve numeric type
 
         # The next test is a little funky but checks the `affineunit` functionality
-        @test @inferred(uconvert(abs°F,
-            0*Unitful.affineunit(-27315°C//100 - 5°C//9))) === (33//1)abs°F
+        @test @inferred(uconvert(°F,
+            0*Unitful.affineunit(-27315K//100 - 5K//9))) === (33//1)°F
     end
     @testset "Temperature differences" begin
-        @test @inferred(uconvert(°F, 0°C)) === 0°F//1
-        @test @inferred(uconvert(°C, 1°F)) === 5°C//9
-        @test @inferred(uconvert(μm/(m*°F), 9μm/(m*°C))) === 5μm/(m*°F)//1
+        @test @inferred(uconvert(Ra, 0K)) === 0Ra//1
+        @test @inferred(uconvert(K, 1Ra)) === 5K//9
+        @test @inferred(uconvert(μm/(m*Ra), 9μm/(m*K))) === 5μm/(m*Ra)//1
 
-        @test @inferred(uconvert(FreeUnits(°Ra), 4.2K)) ≈ 7.56°Ra
-        @test @inferred(unit(uconvert(FreeUnits(°Ra), 4.2K))) === FreeUnits(°Ra)
-        @test @inferred(uconvert(FreeUnits(°Ra), 4.2*ContextUnits(K))) ≈ 7.56°Ra
-        @test @inferred(unit(uconvert(FreeUnits(°Ra), 4.2*ContextUnits(K)))) === FreeUnits(°Ra)
-        @test @inferred(unit(uconvert(ContextUnits(°Ra), 4.2K))) === ContextUnits(°Ra)
+        @test @inferred(uconvert(FreeUnits(Ra), 4.2K)) ≈ 7.56Ra
+        @test @inferred(unit(uconvert(FreeUnits(Ra), 4.2K))) === FreeUnits(Ra)
+        @test @inferred(uconvert(FreeUnits(Ra), 4.2*ContextUnits(K))) ≈ 7.56Ra
+        @test @inferred(unit(uconvert(FreeUnits(Ra), 4.2*ContextUnits(K)))) === FreeUnits(Ra)
+        @test @inferred(unit(uconvert(ContextUnits(Ra), 4.2K))) === ContextUnits(Ra)
 
-        @test 100abs°C + 1°F === (905//9)abs°C
-        @test 100abs°C - 1°F === (895//9)abs°C
-        @test 100abs°C + 1°C === 101abs°C
-        @test 100abs°C - 1°C === 99abs°C
-        @test 100abs°C - 32abs°F === (100//1)K
+        @test 100°C + 1K === (7483//20)K
+        @test 100°C + 1Ra === (67267//180)K
+        @test 100°C - 212°F === (0//1)K
+        @test 100°C - 211°F === (5//9)K
+        @test 100°C - 1°C === 99K
+        @test 100°C - 32°F === (100//1)K
     end
     @testset "Promotion" begin
-        # Can't promote types beyond just identifying that they have the same dimension.
-        @test @inferred(eltype([1abs°C, 1°C])) <: Quantity{Int,typeof(𝚯)}
-        @test @inferred(eltype([1.0abs°C, 1°C])) <: Quantity{Float64,typeof(𝚯)}
-
-        # Can promote absolute temperatures
-        @test @inferred(eltype([1abs°C, 1abs°F])) <:
-            Quantity{Rational{Int}, typeof(𝚯), typeof(absK)}
-        @test @inferred(eltype([1.0abs°C, 1abs°F])) <:
-            Quantity{Float64, typeof(𝚯), typeof(absK)}
-
-        # promote throws an error if it is unable to change any arguments (expected).
-        @test_throws ErrorException promote(1abs°C, 1°C)
-
-        # context units should distinguish relative / absolute temperatures
-        @test_throws AffineError ContextUnits(abs°C, °C)
-        @test_throws AffineError ContextUnits(°C, abs°C)
+        @test @inferred(eltype([1°C, 1K])) <: Quantity{Rational{Int},typeof(𝚯),typeof(K)}
+        @test @inferred(eltype([1.0°C, 1K])) <: Quantity{Float64,typeof(𝚯),typeof(K)}
+        @test @inferred(eltype([1°C, 1°F])) <: Quantity{Rational{Int}, typeof(𝚯), typeof(K)}
+        @test @inferred(eltype([1.0°C, 1°F])) <: Quantity{Float64, typeof(𝚯), typeof(K)}
 
         # context units should be identifiable as affine
-        @test ContextUnits(abs°C, abs°F) isa AffineUnits
-        let fc = ContextUnits(abs°F, abs°C), cc = ContextUnits(abs°C, abs°C)
-            @inferred(promote(1fc, 1cc)) === ((-155//9)cc, (1//1)cc)
-            @test @inferred(eltype([1cc, 1°C])) <: Quantity{Int, typeof(𝚯)}
+        @test ContextUnits(°C, °F) isa AffineUnits
+
+        let fc = ContextUnits(°F, °C), cc = ContextUnits(°C, °C)
+            @test @inferred(promote(1fc, 1cc)) === ((-155//9)cc, (1//1)cc)
+            @test @inferred(eltype([1cc, 1°C])) <: Quantity{Rational{Int}, typeof(𝚯), typeof(cc)}
         end
     end
 end

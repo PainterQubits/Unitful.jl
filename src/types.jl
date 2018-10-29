@@ -62,12 +62,15 @@ Abstract supertype of all units objects, which can differ in their implementatio
 """
 abstract type Units{N,D,A} <: Unitlike end
 
+affinetranslation(::Units{N,D,Affine{T}}) where {N,D,T} = T
+affinetranslation(::Units{N,D,nothing}) where {N,D} = false
+
 """
-    relativeunit(::Units)
-Given a unit, which may or may not be for constructing affine quantities (e.g. `abs°F`),
-return the corresponding unit for differences between the affine quantities (e.g. `°F`).
+    absoluteunit(::Units)
+Given a unit, which may or may not be for constructing affine quantities (e.g. `°C`),
+return the corresponding unit on the absolute temperature scale (e.g. `K`).
 """
-function relativeunit end
+function absoluteunit end
 
 """
     struct FreeUnits{N,D,A} <: Units{N,D,A}
@@ -88,7 +91,7 @@ FreeUnits(::Units{N,D,A}) where {N,D,A} = FreeUnits{N,D,A}()
 
 const NoUnits = FreeUnits{(), Dimensions{()}}()
 (y::FreeUnits)(x::Number) = uconvert(y,x)
-relativeunit(::FreeUnits{N,D,A}) where {N,D,A} = FreeUnits{N,D}()
+absoluteunit(::FreeUnits{N,D,A}) where {N,D,A} = FreeUnits{N,D}()
 
 """
     struct ContextUnits{N,D,P,A} <: Units{N,D,A}
@@ -100,8 +103,6 @@ See [Advanced promotion mechanisms](@ref) in the docs for details.
 struct ContextUnits{N,D,P,A} <: Units{N,D,A} end
 function ContextUnits(x::Units{N,D,A}, y::Units) where {N,D,A}
     D() !== dimension(y) && throw(DimensionError(x,y))
-    ((x isa AffineUnits) ⊻ (y isa AffineUnits)) && throw(
-        AffineError("affine units must be used with other affine units in ContextUnits."))
     ContextUnits{N,D,typeof(FreeUnits(y)),A}()
 end
 ContextUnits{N,D,P}() where {N,D,P} = ContextUnits{N,D,P,nothing}()
@@ -109,7 +110,7 @@ ContextUnits(u::Units{N,D,A}) where {N,D,A} =
     ContextUnits{N,D,typeof(FreeUnits(upreferred(u))),A}()
 
 (y::ContextUnits)(x::Number) = uconvert(y,x)
-relativeunit(::ContextUnits{N,D,P,A}) where {N,D,P,A} = ContextUnits{N,D,P}()
+absoluteunit(::ContextUnits{N,D,P,A}) where {N,D,P,A} = ContextUnits{N,D,P}()
 
 """
     struct FixedUnits{N,D,A} <: Units{N,D,A} end
@@ -121,7 +122,7 @@ struct FixedUnits{N,D,A} <: Units{N,D,A} end
 FixedUnits{N,D}() where {N,D} = FixedUnits{N,D,nothing}()
 FixedUnits(::Units{N,D,A}) where {N,D,A} = FixedUnits{N,D,A}()
 
-relativeunit(::FixedUnits{N,D,A}) where {N,D,A} = FixedUnits{N,D}()
+absoluteunit(::FixedUnits{N,D,A}) where {N,D,A} = FixedUnits{N,D}()
 
 """"
     struct Quantity{T,D,U} <: Number

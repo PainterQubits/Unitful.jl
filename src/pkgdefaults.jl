@@ -9,8 +9,8 @@
 @dimension 𝚯 "𝚯" Temperature    # This one is \bfTheta
 @dimension 𝐉 "𝐉" Luminosity
 @dimension 𝐍 "𝐍" Amount
-const AbsoluteTemperature = Quantity{T, typeof(𝚯), <:AffineUnits} where T
-const RelativeTemperature = Quantity{T, typeof(𝚯), <:ScalarUnits} where T
+const RelativeTemperature = Quantity{T, typeof(𝚯), <:AffineUnits} where T
+const AbsoluteTemperature = Quantity{T, typeof(𝚯), <:ScalarUnits} where T
 
 # Define derived dimensions.
 @derived_dimension Area                     𝐋^2
@@ -52,8 +52,6 @@ const RelativeTemperature = Quantity{T, typeof(𝚯), <:ScalarUnits} where T
 @refunit  cd      "cd"     Candela   𝐉            true
 @refunit  g       "g"      Gram      𝐌           true
 @refunit  mol     "mol"    Mole      𝐍           true
-const absK = affineunit(0K)
-affinedefaults(::typeof(K)) = absK
 
 # Angles and solid angles
 @unit sr      "sr"      Steradian   1                       true
@@ -91,9 +89,9 @@ end
 @unit permille "‰"      Permille    1//1000                 false
 
 # Temperature
-@unit °C     "°C"       Celsius     1K                      true
-const abs°C = affineunit(-27315°C//100)
-affinedefaults(::typeof(°C)) = abs°C
+const °C = affineunit(-27315K//100)
+affinedefaults(::typeof(K)) = °C
+show(io::IO, x::Units{(Unit{:Kelvin, typeof(𝚯)}(0, 1//1),), typeof(𝚯), Affine{-27315//100}}) = print(io, "°C")
 
 # Common units of time
 @unit minute "minute"   Minute                60s           false
@@ -181,12 +179,10 @@ const R∞ = 10_973_731.568_508/m     # (65) Rydberg constant
 @unit ac        "ac"       Acre                 (316160658//78125)*m^2  false
 
 # Temperatures
-@unit °Ra       "°Ra"      Rankine              (5//9)*K                false
-@unit °F        "°F"       Fahrenheit           (5//9)*K                false
-const abs°Ra = affineunit(0°Ra)
-const abs°F  = affineunit(-45967°F//100)
-affinedefaults(::typeof(°Ra)) = abs°Ra
-affinedefaults(::typeof(°F)) = abs°F
+@unit Ra        "Ra"      Rankine               (5//9)*K                false
+const °F  = affineunit(-45967Ra//100)
+affinedefaults(::typeof(Ra)) = °F
+show(io::IO, x::Units{(Unit{:Rankine, typeof(𝚯)}(0, 1//1),), typeof(𝚯), Affine{-45967//100}}) = print(io, "°F")
 
 # Masses
 @unit lb        "lb"       Pound                0.45359237kg            false # is exact
@@ -251,7 +247,7 @@ const si_prefixes = (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
     Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
 
 const si_no_prefix = (:m, :s, :A, :K, :g, :mol, :rad, :sr, :Hz, :N, :Pa, #:cd,
-    :J, :W, :C, :V, :F, :Ω, :S, :Wb, :T, :H, :°C, :lm, :lx, :Bq, :Gy, :Sv, :kat)
+    :J, :W, :C, :V, :F, :Ω, :S, :Wb, :T, :H, :lm, :lx, :Bq, :Gy, :Sv, :kat)
 
 baremodule DefaultSymbols
     import Unitful
@@ -267,6 +263,9 @@ baremodule DefaultSymbols
             Core.eval(DefaultSymbols, Expr(:export, Symbol(p,u)))
         end
     end
+
+    Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, :°C)))
+    Core.eval(DefaultSymbols, Expr(:export, :°C))
 
     Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, :°)))
     Core.eval(DefaultSymbols, Expr(:export, :°))
