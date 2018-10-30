@@ -191,6 +191,13 @@ end
         @test_throws AffineError (32°F) / 2
         @test_throws AffineError 2 / (32°F)
 
+        @test_throws AffineError zero(100°C)
+        @test_throws AffineError zero(typeof(100°C))
+        @test_throws AffineError one(100°C)
+        @test_throws AffineError one(typeof(100°C))
+        @test_throws AffineError oneunit(100°C)
+        @test_throws AffineError oneunit(typeof(100°C))
+
         @test 0°C isa AffineQuantity{T, typeof(𝚯)} where T    # is "relative temperature"
         @test 0°C isa Temperature                             # dimensional correctness
         @test °C isa AffineUnits{N, typeof(𝚯)} where N

@@ -277,13 +277,21 @@ for f in (:floor, :ceil, :trunc, :round)
 end
 
 zero(x::Quantity) = Quantity(zero(x.val), unit(x))
-zero(x::Type{Quantity{T,D,U}}) where {T,D,U} = zero(T)*U()
+zero(x::AffineQuantity) =
+    throw(AffineError("no additive identity element of type $(typeof(x))."))
+zero(x::Type{Quantity{T,D,U}}) where {T,D,U<:ScalarUnits} = zero(T)*U()
+zero(x::Type{Quantity{T,D,U}}) where {T,D,U<:AffineUnits} =
+    throw(AffineError("no additive identity element of type $(typeof(x))."))
 
 one(x::Quantity) = one(x.val)
+one(x::AffineQuantity) =
+    throw(AffineError("no multiplicative identity for affine quantity $x."))
 get_T(::Type{Quantity{T}}) where T = T
 get_T(::Type{Quantity{T,D}}) where {T,D} = T
 get_T(::Type{Quantity{T,D,U}}) where {T,D,U} = T
 one(x::Type{<:Quantity}) = one(get_T(x))
+one(x::Type{<:AffineQuantity}) =
+    throw(AffineError("no multiplicative identity for affine quantity type $x."))
 
 isreal(x::Quantity) = isreal(x.val)
 isfinite(x::Quantity) = isfinite(x.val)

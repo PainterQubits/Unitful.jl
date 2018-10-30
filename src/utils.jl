@@ -112,6 +112,19 @@ true
 @inline unit(x::Type{T}) where {T <: Number} = NoUnits
 
 """
+    absoluteunit(::Units)
+    absoluteunit(::Quantity)
+Given a unit or quantity, which may or may not be affine (e.g. `°C`),
+return the corresponding unit on the absolute temperature scale (e.g. `K`).
+"""
+function absoluteunit end
+
+absoluteunit(x::Quantity{T,D,U}) where {T,D,U} = absoluteunit(U())
+absoluteunit(::FreeUnits{N,D,A}) where {N,D,A} = FreeUnits{N,D}()
+absoluteunit(::ContextUnits{N,D,P,A}) where {N,D,P,A} = ContextUnits{N,D,P}()
+absoluteunit(::FixedUnits{N,D,A}) where {N,D,A} = FixedUnits{N,D}()
+
+"""
     dimension(x::Number)
     dimension(x::Type{T}) where {T<:Number}
 Returns a `Unitful.Dimensions{()}` object to indicate that ordinary

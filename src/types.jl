@@ -66,13 +66,6 @@ affinetranslation(::Units{N,D,Affine{T}}) where {N,D,T} = T
 affinetranslation(::Units{N,D,nothing}) where {N,D} = false
 
 """
-    absoluteunit(::Units)
-Given a unit, which may or may not be for constructing affine quantities (e.g. `°C`),
-return the corresponding unit on the absolute temperature scale (e.g. `K`).
-"""
-function absoluteunit end
-
-"""
     genericunit(::Units)
 Given e.g. a `FreeUnits{N,D,A}`, `ContextUnits{N,D,P,A}`, or `FixedUnits{N,D,A}` object,
 return the type `Units{N,D,A}`.
@@ -98,7 +91,6 @@ FreeUnits(::Units{N,D,A}) where {N,D,A} = FreeUnits{N,D,A}()
 
 const NoUnits = FreeUnits{(), Dimensions{()}}()
 (y::FreeUnits)(x::Number) = uconvert(y,x)
-absoluteunit(::FreeUnits{N,D,A}) where {N,D,A} = FreeUnits{N,D}()
 
 """
     struct ContextUnits{N,D,P,A} <: Units{N,D,A}
@@ -115,9 +107,7 @@ end
 ContextUnits{N,D,P}() where {N,D,P} = ContextUnits{N,D,P,nothing}()
 ContextUnits(u::Units{N,D,A}) where {N,D,A} =
     ContextUnits{N,D,typeof(FreeUnits(upreferred(u))),A}()
-
 (y::ContextUnits)(x::Number) = uconvert(y,x)
-absoluteunit(::ContextUnits{N,D,P,A}) where {N,D,P,A} = ContextUnits{N,D,P}()
 
 """
     struct FixedUnits{N,D,A} <: Units{N,D,A} end
@@ -128,8 +118,6 @@ conversions. See [Advanced promotion mechanisms](@ref) in the docs for details.
 struct FixedUnits{N,D,A} <: Units{N,D,A} end
 FixedUnits{N,D}() where {N,D} = FixedUnits{N,D,nothing}()
 FixedUnits(::Units{N,D,A}) where {N,D,A} = FixedUnits{N,D,A}()
-
-absoluteunit(::FixedUnits{N,D,A}) where {N,D,A} = FixedUnits{N,D}()
 
 """"
     struct Quantity{T,D,U} <: Number
