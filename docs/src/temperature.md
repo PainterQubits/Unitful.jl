@@ -94,6 +94,8 @@ The preferred unit for promoting temperatures is usually `K` when using
 ```@docs
 Unitful.AffineUnits
 Unitful.AffineQuantity
+Unitful.ScalarUnits
+Unitful.ScalarQuantity
 Unitful.@affineunit
 Unitful.absoluteunit
 ```

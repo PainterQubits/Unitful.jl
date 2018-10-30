@@ -162,14 +162,14 @@ const DimensionlessUnits{U} = Units{U, Dimensions{()}}
 """
     AffineUnits{N,D,A} = Units{N,D,A} where A<:Affine
 Useful for dispatching on unit objects that indicate a quantity should affine-transform
-under unit conversion, like absolute temperatures.
+under unit conversion, like absolute temperatures. Not exported.
 """
 const AffineUnits{N,D,A} = Units{N,D,A} where A<:Affine
 
 """
     ScalarUnits{N,D} = Units{N,D,nothing}
 Useful for dispatching on unit objects that indicate a quantity should transform in the
-usual scalar way under unit conversion.
+usual scalar way under unit conversion. Not exported.
 """
 const ScalarUnits{N,D} = Units{N,D,nothing}
 
@@ -190,14 +190,14 @@ const DimensionlessQuantity{T,U} = Quantity{T, Dimensions{()}, U}
 """
     AffineQuantity{T,D,U} = Quantity{T,D,U} where U<:AffineUnits
 Useful for dispatching on quantities that affine-transform under unit conversion, like
-absolute temperatures.
+absolute temperatures. Not exported.
 """
 const AffineQuantity{T,D,U} = Quantity{T,D,U} where U<:AffineUnits
 
 """
     ScalarQuantity{T,D,U} = Quantity{T,D,U} where U<:ScalarUnits
 Useful for dispatching on quantities that transform in the usual scalar way under unit
-conversion.
+conversion. Not exported.
 """
 const ScalarQuantity{T,D,U} = Quantity{T,D,U} where U<:ScalarUnits
 

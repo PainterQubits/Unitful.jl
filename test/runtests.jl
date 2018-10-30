@@ -217,6 +217,10 @@ end
         @test @inferred(unit(uconvert(ContextUnits(Ra), 4.2K))) === ContextUnits(Ra)
 
         @test 100°C + 1K === (7483//20)K
+        @test 100ContextUnits(°C, °C) + 1K === (101//1)ContextUnits(°C, °C)
+        @test 100ContextUnits(°C, °C) + 1K == (101//1)°C
+        @test 1K + 100ContextUnits(°C, °C) === (101//1)ContextUnits(°C, °C)
+        @test 1K + 100ContextUnits(°C, °C) == (101//1)°C
         @test 100°C + 1Ra === (67267//180)K
         @test 100°C - 212°F === (0//1)K
         @test 100°C - 211°F === (5//9)K
@@ -224,6 +228,7 @@ end
         @test 100°C - 32°F === (100//1)K
     end
     @testset "Promotion" begin
+        @test_throws ErrorException Unitful.preferunits(°C)
         @test @inferred(eltype([1°C, 1K])) <: Quantity{Rational{Int},typeof(𝚯),typeof(K)}
         @test @inferred(eltype([1.0°C, 1K])) <: Quantity{Float64,typeof(𝚯),typeof(K)}
         @test @inferred(eltype([1°C, 1°F])) <: Quantity{Rational{Int}, typeof(𝚯), typeof(K)}

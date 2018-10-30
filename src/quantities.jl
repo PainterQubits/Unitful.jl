@@ -87,16 +87,19 @@ for op in [:+, :-]
 
     @eval ($op)(x::Quantity, y::Quantity) = throw(DimensionError(x,y))
     @eval ($op)(x::Quantity) = Quantity(($op)(x.val), unit(x))
-
-    # @eval function ($op)(x::AffineQuantity{S,D}, y::Quantity{T,D}) where {S,T,D}
-    #     samescale = uconvert(absoluteunit(unit(x)), y)
-    #     return Quantity(($op)(x.val, samescale.val), unit(x))
-    # end
 end
+
+function +(x::AffineQuantity{S,D}, y::Quantity{T,D}) where {S,T,D}
+    pu = promote_unit(unit(x), unit(y))
+    x′ = x - 0*absoluteunit(unit(x)) # absolute zero
+    return uconvert(pu, x′+y)
+end
++(x::Quantity, y::AffineQuantity) = +(y,x)
 
 # Disallow addition of affine quantities
 +(x::AffineQuantity, y::AffineQuantity) = throw(AffineError(
    "an invalid operation was attempted with affine quantities: $x + $y"))
+
 # Specialize substraction of affine quantities
 function -(x::AffineQuantity, y::AffineQuantity)
     x′, y′ = promote(x,y)
