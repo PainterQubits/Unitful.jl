@@ -37,7 +37,9 @@ promote_unit(x::Units, y::Units, z::Units, t::Units...) =
     promote_unit(FreeUnits(x), FreeUnits(y))
 
 # ContextUnits beat FreeUnits
-@inline _promote_unit(x::ContextUnits{N,D}, y::FreeUnits{N,D}) where {N,D} = x
+@inline _promote_unit(x::ContextUnits{N,D,P,A}, y::FreeUnits{N,D,A}) where {N,D,P,A} = x
+@inline _promote_unit(x::ContextUnits{N,D,P,A1}, y::FreeUnits{N,D,A2}) where {N,D,P,A1,A2} =
+    ContextUnits(P(), P())
 @inline _promote_unit(x::ContextUnits{N1,D,P}, y::FreeUnits{N2,D}) where {N1,N2,D,P} =
     ContextUnits(P(), P())
 @inline _promote_unit(x::FreeUnits, y::ContextUnits) = promote_unit(y,x)

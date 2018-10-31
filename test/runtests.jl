@@ -223,16 +223,22 @@ end
         @test @inferred(unit(uconvert(FreeUnits(Ra), 4.2*ContextUnits(K)))) === FreeUnits(Ra)
         @test @inferred(unit(uconvert(ContextUnits(Ra), 4.2K))) === ContextUnits(Ra)
 
-        @test 100°C + 1K === (7483//20)K
-        @test 100ContextUnits(°C, °C) + 1K === (101//1)ContextUnits(°C, °C)
-        @test 100ContextUnits(°C, °C) + 1K == (101//1)°C
-        @test 1K + 100ContextUnits(°C, °C) === (101//1)ContextUnits(°C, °C)
-        @test 1K + 100ContextUnits(°C, °C) == (101//1)°C
-        @test 100°C + 1Ra === (67267//180)K
-        @test 100°C - 212°F === (0//1)K
-        @test 100°C - 211°F === (5//9)K
-        @test 100°C - 1°C === 99K
-        @test 100°C - 32°F === (100//1)K
+        let cc = ContextUnits(°C, °C), kc = ContextUnits(K, °C), rac = ContextUnits(Ra, °C)
+            @test 100°C + 1K === (7483//20)K
+            @test 100cc + 1K === (101//1)cc
+            @test 100cc + 1K == (101//1)°C
+            @test 1K + 100cc === (101//1)cc
+            @test 1K + 100cc == (101//1)°C
+            @test 100°C + 1Ra === (67267//180)K
+            @test 100°C - 212°F === (0//1)K
+            @test 100°C - 211°F === (5//9)K
+            @test 100°C - 1°C === 99K
+            @test 100°C - 32°F === (100//1)K
+            @test 10cc + 2.0K/hr * 60minute + 3.0K/hr * 60minute === 15.0cc
+            @test 10cc + 5kc === (15//1)cc
+            @test 10°C + 5kc === (15//1)cc
+            @test 10°C + (9//5)rac === (11//1)cc
+        end
     end
     @testset "Promotion" begin
         @test_throws ErrorException Unitful.preferunits(°C)

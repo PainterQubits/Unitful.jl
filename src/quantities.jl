@@ -90,9 +90,18 @@ for op in [:+, :-]
 end
 
 function +(x::AffineQuantity{S,D}, y::Quantity{T,D}) where {S,T,D}
-    pu = promote_unit(unit(x), unit(y))
-    x′ = x - 0*absoluteunit(unit(x)) # absolute zero
-    return uconvert(pu, x′+y)
+    pu = promote_unit(unit(x), unit(y))     # units for the final result.
+
+    # Get x on an absolute scale. FreeUnits in the line below prevents
+    # promote(x′, y) from yielding affine quantities. If x had `ContextUnits` and
+    # the promotion units were affine units, x′+y would error without this.
+    x′ = Quantity(x.val - affinetranslation(unit(x)), FreeUnits(absoluteunit(x)))
+
+    # Likewise if y were not affine but y had ContextUnits and the promotion units were
+    # affine, x′+y could also fail.
+    y′ = Quantity(y.val, FreeUnits(unit(y)))
+
+    return uconvert(pu, x′+y′)  # we get back the promotion context in the end
 end
 +(x::Quantity, y::AffineQuantity) = +(y,x)
 
@@ -101,9 +110,9 @@ end
    "an invalid operation was attempted with affine quantities: $x + $y"))
 
 # Specialize substraction of affine quantities
-function -(x::AffineQuantity, y::AffineQuantity)
-    x′, y′ = promote(x,y)
-    return Quantity(x′.val - y′.val, absoluteunit(unit(x′)))
+-(x::AffineQuantity, y::AffineQuantity) = -(promote(x,y)...)
+function -(x::T, y::T) where T <: AffineQuantity
+    return Quantity(x.val - y.val, absoluteunit(unit(x)))
 end
 
 # Disallow subtracting an affine quantity from a quantity
