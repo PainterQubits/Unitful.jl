@@ -64,8 +64,6 @@ DocTestSetup = quote
     using Unitful
     °C = Unitful.°C
     °F = Unitful.°F
-    abs°C = Unitful.abs°C
-    abs°F = Unitful.abs°F
     μm = Unitful.μm
     m = Unitful.m
     hr = Unitful.hr
@@ -89,14 +87,22 @@ In the next examples we assume we have brought some units into our namespace,
 e.g. `const m = u"m"`, etc.
 
 ```jldoctest
-julia> uconvert(abs°C, 212abs°F)
-100//1 °C (affine)
+julia> uconvert(°C, 212°F)
+100//1 °C
 
-julia> uconvert(μm/(m*°F), 9μm/(m*°C))
-5//1 μm °F^-1 m^-1
+julia> uconvert(μm/(m*Ra), 9μm/(m*K))
+5//1 μm m^-1 Ra^-1
 
 julia> mod(1hr+3minute+5s, 24s)
 17//1 s
 ```
+
+!!! note
+    Quantities in `°C` or `⁠°F` always unit-convert under an affine transformation that takes
+    their relative scales into account. To avoid ambiguities that can lead to incorrect
+    results, the units `°C` and `°F` cannot be used in Unitful to represent temperature
+    differences. Fortunately, `1°C - 0°C == 1K` and `1°F - 0°F == 1Ra`, so the absolute
+    temperature scales Kelvin (`K`) and Rankine (`Ra`) can be used easily to represent
+    temperature differences.
 
 See `test/runtests.jl` for more usage examples.
