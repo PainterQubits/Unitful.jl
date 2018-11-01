@@ -193,11 +193,11 @@ end
 
         @test zero(100°C) === 0K
         @test zero(typeof(100°C)) === 0K
+        @test oneunit(100°C) === 1K
+        @test oneunit(typeof(100°C)) === 1K
         @test_throws AffineError one(100°C)
         @test_throws AffineError one(typeof(100°C))
-        @test_throws AffineError oneunit(100°C)
-        @test_throws AffineError oneunit(typeof(100°C))
-
+        
         @test 0°C isa AffineQuantity{T, typeof(𝚯)} where T    # is "relative temperature"
         @test 0°C isa Temperature                             # dimensional correctness
         @test °C isa AffineUnits{N, typeof(𝚯)} where N
