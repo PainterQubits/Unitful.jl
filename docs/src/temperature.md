@@ -18,46 +18,48 @@ or `273.15°C`, depending on whether the operands are variously interpreted as t
 differences or as absolute temperatures. On thermodynamic temperature scales, there is no
 ambiguity.
 
-## Absolute temperatures
+## Temperatures on absolute scales
 
-Unit conversions between absolute temperatures are done in the usual way by multiplication
-of a scale factor. For example, we have:
+Unit conversions between temperatures on absolute scales like Kelvin or Rankine are done in
+the usual way by multiplication of a scale factor. For example, we have:
 
 ```jldoctest
 julia> uconvert(u"K", 1u"Ra")
 5//9 K
 ```
 
-We can identify absolute temperatures using the `Unitful.AbsoluteTemperature` type alias:
+We can identify absolute temperatures using the `Unitful.AbsoluteScaleTemperature` type
+alias:
 
 ```jldoctest
 julia> 1u"K" isa Unitful.AbsoluteTemperature
 true
 ```
 
-## Relative temperatures
+## Temperatures on relative scales
 
-Unit conversions between relative temperatures involve an affine transformation, that is,
-a scaling plus some translation (scale offset). In Unitful, relative temperatures are
-considered to have the same dimension as absolute temperatures, as expected. However,
-for a given temperature scale, relative and absolute temperatures are distinguished by the
-type of the [`Unitful.Units`](@ref) object (and therefore the type of the
-[`Unitful.Quantity`](@ref) object).
+Unit conversions between temperatures on relative scales like Celsius or Fahrenheit involve
+an affine transformation, that is, a scaling plus some translation (scale offset). In
+Unitful, relative scale temperatures are considered to have the same dimension as absolute
+scale temperatures, as expected. However, temperatures on relative and absolute scales are
+distinguished by the type of the [`Unitful.Units`](@ref) object (and therefore the type of
+the [`Unitful.Quantity`](@ref) object).
 
 ```jldoctest
 julia> uconvert(u"°C", 32u"°F")
 0//1 °C
 ```
 
-We can identify relative temperatures using the `Unitful.RelativeTemperature` type alias, e.g.:
+We can identify relative scale temperatures using the `Unitful.RelativeScaleTemperature`
+type alias, e.g.:
 
 ```jldoctest
-julia> 1u"°C" isa Unitful.RelativeTemperature
+julia> 1u"°C" isa Unitful.RelativeScaleTemperature
 true
 ```
 
-Some operations are not well defined with relative temperatures, and therefore throw an
-[`Unitful.AffineError`](@ref) (please report any unexpected behavior on the GitHub issue
+Some operations are not well defined with relative scale temperatures, and therefore throw
+an [`Unitful.AffineError`](@ref) (please report any unexpected behavior on the GitHub issue
 tracker).
 
 ```jldoctest
@@ -73,10 +75,10 @@ ERROR: AffineError: an invalid operation was attempted with affine quantities: 3
 ```
 
 There is a general mechanism for making units that indicate quantities should unit-convert
-under some affine transformation. While the usual use case is for relative temperatures,
-nothing in the implementation limits it as such. Accordingly, relative temperatures are
-considered to be [`Unitful.AffineQuantity`](@ref) objects with dimensions of temperature.
-The units on "affine quantities" are [`Unitful.AffineUnits`](@ref) objects.
+under some affine transformation. While the usual use case is for relative scale
+temperatures, nothing in the implementation limits it as such. Accordingly, relative scale
+temperatures are considered to be [`Unitful.AffineQuantity`](@ref) objects with dimensions
+of temperature. The units on "affine quantities" are [`Unitful.AffineUnits`](@ref) objects.
 
 Making your own affine units typically requires two steps. First, define the absolute unit
 using the [`Unitful.@unit`](@ref) macro. Second, use the [`Unitful.@affineunit`](@ref) macro

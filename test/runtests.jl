@@ -26,7 +26,7 @@ import Unitful:
     Time, Frequency,
     Mass,
     Current,
-    Temperature, AbsoluteTemperature, RelativeTemperature,
+    Temperature, AbsoluteScaleTemperature, RelativeScaleTemperature,
     Action,
     Power
 
@@ -167,10 +167,10 @@ end
 
 @testset "Temperature and affine quantities" begin
     @testset "Affine transforms and quantities" begin
-        @test 1°C isa RelativeTemperature
-        @test !isa(1°C, AbsoluteTemperature)
-        @test 1K isa AbsoluteTemperature
-        @test !isa(1K, RelativeTemperature)
+        @test 1°C isa RelativeScaleTemperature
+        @test !isa(1°C, AbsoluteScaleTemperature)
+        @test 1K isa AbsoluteScaleTemperature
+        @test !isa(1K, RelativeScaleTemperature)
 
         @test_throws AffineError °C*°C
         @test_throws AffineError °C*K

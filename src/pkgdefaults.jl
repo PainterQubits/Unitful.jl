@@ -9,8 +9,8 @@
 @dimension 𝚯 "𝚯" Temperature    # This one is \bfTheta
 @dimension 𝐉 "𝐉" Luminosity
 @dimension 𝐍 "𝐍" Amount
-const RelativeTemperature = Quantity{T, typeof(𝚯), <:AffineUnits} where T
-const AbsoluteTemperature = Quantity{T, typeof(𝚯), <:ScalarUnits} where T
+const RelativeScaleTemperature = Quantity{T, typeof(𝚯), <:AffineUnits} where T
+const AbsoluteScaleTemperature = Quantity{T, typeof(𝚯), <:ScalarUnits} where T
 
 # Define derived dimensions.
 @derived_dimension Area                     𝐋^2
