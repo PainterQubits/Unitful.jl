@@ -112,6 +112,21 @@ true
 @inline unit(x::Type{T}) where {T <: Number} = NoUnits
 
 """
+    absoluteunit(::Units)
+    absoluteunit(::Quantity)
+Given a unit or quantity, which may or may not be affine (e.g. `°C`), return the
+corresponding unit on the absolute temperature scale (e.g. `K`). Passing a
+[`Unitful.ContextUnits`](@ref) object will return another `ContextUnits` object with
+the same promotion unit, which may be an affine unit, so take care. 
+"""
+function absoluteunit end
+
+absoluteunit(x::Quantity{T,D,U}) where {T,D,U} = absoluteunit(U())
+absoluteunit(::FreeUnits{N,D,A}) where {N,D,A} = FreeUnits{N,D}()
+absoluteunit(::ContextUnits{N,D,P,A}) where {N,D,P,A} = ContextUnits{N,D,P}()
+absoluteunit(::FixedUnits{N,D,A}) where {N,D,A} = FixedUnits{N,D}()
+
+"""
     dimension(x::Number)
     dimension(x::Type{T}) where {T<:Number}
 Returns a `Unitful.Dimensions{()}` object to indicate that ordinary
@@ -187,3 +202,13 @@ end
 
 Base.showerror(io::IO, e::DimensionError) =
     print(io, "DimensionError: $(e.x) and $(e.y) are not dimensionally compatible.");
+
+"""
+    struct AffineError <: Exception
+An invalid operation was attempted with affine units / quantities.
+"""
+struct AffineError <: Exception
+    x
+end
+
+Base.showerror(io::IO, e::AffineError) = print(io, "AffineError: $(e.x)")

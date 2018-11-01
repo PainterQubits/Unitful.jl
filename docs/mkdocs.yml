@@ -34,6 +34,7 @@ pages:
 - Manipulating units: manipulations.md
 - How units are displayed: display.md
 - Logarithmic scales: logarithm.md
+- Temperature scales: temperature.md
 - Extending Unitful: extending.md
 - Troubleshooting: trouble.md
 - License: LICENSE.md

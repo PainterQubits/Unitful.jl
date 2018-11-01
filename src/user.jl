@@ -190,6 +190,20 @@ macro unit(symb,abbr,name,equals,tf)
 end
 
 """
+    @affineunit(symb, abbr, offset)
+Macro for easily defining affine units. `offset` gives the zero of the relative scale
+in terms of an absolute scale; the scaling is the same as the absolute scale. Example:
+`@affineunit °C "°C" (27315//100)K` is used internally to define degrees Celsius.
+"""
+macro affineunit(symb, abbr, offset)
+    s = Symbol(symb)
+    return esc(quote
+        const global $s = Unitful.affineunit($offset)
+        Base.show(io::IO, ::Unitful.genericunit($s)) = print(io, $abbr)
+    end)
+end
+
+"""
     @prefixed_unit_symbols(symb,name,dimension,basefactor)
 Not called directly by the user. Given a unit symbol and a unit's name,
 will define units for each possible SI power-of-ten prefix on that unit.
@@ -206,7 +220,7 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
         u = :(Unitful.Unit{$n, typeof($dimension)}($k,1//1))
         ea = quote
             Unitful.basefactors[$n] = $basefactor
-            const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+            const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u)),nothing}()
         end
         push!(expr.args, ea)
     end
@@ -216,7 +230,7 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
     u = :(Unitful.Unit{$n, typeof($dimension)}(-6,1//1))
     push!(expr.args, quote
         Unitful.basefactors[$n] = $basefactor
-        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u)),nothing}()
     end)
 
     esc(expr)
@@ -235,7 +249,7 @@ macro unit_symbols(symb,name,dimension,basefactor)
     u = :(Unitful.Unit{$n,typeof($dimension)}(0,1//1))
     esc(quote
         Unitful.basefactors[$n] = $basefactor
-        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u)),nothing}()
     end)
 end
 
@@ -245,7 +259,7 @@ This function specifies the default fallback units for promotion.
 Units provided to this function must have a pure dimension of power 1, like 𝐋 or 𝐓
 but not 𝐋/𝐓 or 𝐋^2. The function will complain if this is not the case. Additionally,
 the function will complain if you provide two units with the same dimension, as a
-courtesy to the user.
+courtesy to the user. Finally, you cannot use affine units such as °C with this function.
 
 Once [`Unitful.upreferred`](@ref) has been called or quantities have been promoted,
 this function will appear to have no effect.
@@ -255,6 +269,9 @@ Usage example: `preferunits(u"m,s,A,K,cd,kg,mol"...)`
 function preferunits(u0::Units, u::Units...)
 
     units = (u0, u...)
+    any(x->x isa AffineUnits, units) &&
+        error("cannot use `Unitful.preferunits` with affine units; try `Unitful.ContextUnits`.")
+
     dims = map(dimension, units)
     if length(union(dims)) != length(dims)
         error("preferunits received more than one unit of a given ",
@@ -433,6 +450,16 @@ macro logunit(symb, abbr, logscale, reflevel)
 end
 
 """
+    affineunit(x::Quantity)
+Returns a [`Unitful.Units`](@ref) object that can be used to construct affine quantities.
+Primarily, this is for relative temperatures (as opposed to absolute temperatures,
+which transform as usual under unit conversion). To use this function, pass the scale offset,
+e.g. `affineunit(273.15K)` yields a Celsius unit.
+"""
+affineunit(x::Quantity{T,D,FreeUnits{N,D,nothing}}) where {N,D,T} =
+    FreeUnits{N,D,Affine{-ustrip(x)}}()
+
+"""
     @u_str(unit)
 String macro to easily recall units, dimensions, or quantities defined in
 unit modules that have been registered with [`Unitful.register`](@ref).
@@ -482,7 +509,7 @@ function replace_value(ex::Expr)
                 ex.args[i]=replace_value(ex.args[i])
             end
         end
-        return ex 
+        return ex
     elseif ex.head == :tuple
         for i=1:length(ex.args)
             if typeof(ex.args[i])==Symbol
@@ -505,7 +532,7 @@ function replace_value(sym::Symbol)
 
     m = unitmodules[inds[end]]
     u = getfield(m, sym)
-    
+
     any(u != u1 for u1 in getfield.(unitmodules[inds[1:(end-1)]], sym)) &&
         @warn(string("Symbol $sym was found in multiple registered unit modules. ",
          "We will use the one from $m."))

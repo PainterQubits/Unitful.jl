@@ -1,3 +1,6 @@
+- v0.13.0
+  - Implement affine quantities for better temperature handling.
+  - Rename `°Ra` to `Ra` to emphasize that it is an absolute scale.
 - v0.12.0
   - Bug fixes.
   - Support carrier-to-noise-density ratio (C/N0) in dB-Hz.

@@ -61,7 +61,9 @@ end
 function show(io::IO, x::Quantity{S, Dimensions{()}, <:Units{
     (Unitful.Unit{:Degree,Unitful.Dimensions{()}}(0, 1//1),),
         Unitful.Dimensions{()}}}) where S
-    show(io, x.val); show(io, unit(x)); nothing
+    show(io, x.val)
+    show(io, unit(x))
+    nothing
 end
 
 """

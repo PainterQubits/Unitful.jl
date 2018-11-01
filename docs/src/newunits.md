@@ -73,7 +73,6 @@ Unitful.@dimension
 Unitful.@derived_dimension
 Unitful.@refunit
 Unitful.@unit
-Unitful.offsettemp
 ```
 
 ## Internals

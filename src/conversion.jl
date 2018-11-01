@@ -1,5 +1,5 @@
 """
-    uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
+    uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
 Convert a [`Unitful.Quantity`](@ref) to different units. The conversion will
 fail if the target units `a` have a different dimension than the dimension of
 the quantity `x`. You can use this method to switch between equivalent
@@ -16,9 +16,11 @@ julia> uconvert(u"J",1.0u"N*m")
 """
 function uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
     if typeof(a) == U
-        Quantity(x.val, a)    # preserves numeric type if convfact is 1
+        return Quantity(x.val, a)    # preserves numeric type if convfact is 1
+    elseif (a isa AffineUnits) || (x isa AffineQuantity)
+        return uconvert_affine(a, x)
     else
-        Quantity(x.val * convfact(a, U()), a)
+        return Quantity(x.val * convfact(a, U()), a)
     end
 end
 
@@ -27,6 +29,22 @@ function uconvert(a::Units, x::Number)
         Quantity(x * convfact(a, NoUnits), a)
     else
         throw(DimensionError(a,x))
+    end
+end
+
+@generated function uconvert_affine(a::Units, x::Quantity)
+    # TODO: test, may be able to get bad things to happen here when T<:LogScaled
+    auobj = a()
+    xuobj = x.parameters[3]()
+    conv = convfact(auobj, xuobj)
+
+    t0 = x <: AffineQuantity ? x.parameters[3].parameters[end].parameters[end] :
+        zero(x.parameters[1])
+    t1 = a <: AffineUnits ? a.parameters[end].parameters[end] :
+        zero(x.parameters[1])
+    quote
+        dimension(a) != dimension(x) && return throw(DimensionError(a, x))
+        return Quantity(((x.val - $t0) * $conv) + $t1, a)
     end
 end
 
@@ -81,11 +99,6 @@ Returns 1. (Avoids effort when unnecessary.)
 """
 convfact(s::Units{S}, t::Units{S}) where {S} = 1
 
-"""
-    convert{T,D,U}(::Type{Quantity{T,D,U}}, x::Number)
-Direct type conversion using `convert` is permissible provided conversion
-is between two quantities of the same dimension.
-"""
 function convert(::Type{Quantity{T,D,U}}, x::Number) where {T,D,U}
     if dimension(x) == D()
         Quantity(T(uconvert(U(),x).val), U())
@@ -97,35 +110,23 @@ end
 # needed ever since julialang/julia#28216
 convert(::Type{Quantity{T,D,U}}, x::Quantity{T,D,U}) where {T,D,U} = x
 
-"""
-    convert{T}(::Type{Quantity{T}}, x::Number)
-Convert the numeric backing type of `x` to `T`. If `x <: Real`, for example,
-this method yields the same result as `convert(T, x)`. If `x <: Quantity{S,D,U}`,
-this method returns a `Quantity{T,D,U}` object.
-
-This method is used in promotion when trying to promote two quantities of
-different dimension.
-"""
-function convert(::Type{Quantity{T}}, x::Number) where {T}
+function convert(::Type{Quantity{T,D}}, x::Quantity) where {T,D}
+    (dimension(x) !== D()) && throw(DimensionError(D(), x))
+    return Quantity{T,D,typeof(unit(x))}(convert(T, x.val))
+end
+function convert(::Type{Quantity{T,D}}, x::Number) where {T,D}
+    (D() !== NoDims) && throw(DimensionError(D(), NoDims))
     Quantity{T,typeof(NoDims),typeof(NoUnits)}(x)
 end
 function convert(::Type{Quantity{T}}, x::Quantity) where {T}
     Quantity{T,typeof(dimension(x)),typeof(unit(x))}(convert(T, x.val))
 end
+function convert(::Type{Quantity{T}}, x::Number) where {T}
+    Quantity{T,typeof(NoDims),typeof(NoUnits)}(x)
+end
 
-"""
-    convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Number)
-Convert `x` to a [`Unitful.DimensionlessQuantity`](@ref) type.
-"""
 convert(::Type{DimensionlessQuantity{T,U}}, x::Number) where {T,U} =
     uconvert(U(), convert(T,x))
-
-"""
-    convert{T,U}(::Type{DimensionlessQuantity{T,U}}, x::Quantity)
-Convert `x` to a [`Unitful.DimensionlessQuantity`](@ref) type.
-If `x` is already dimensionless, this is a no-op; if it is not, an
-`ErrorException` is thrown.
-"""
 function convert(::Type{DimensionlessQuantity{T,U}}, x::Quantity) where {T,U}
     if dimension(x) == NoDims
         _Quantity(T(x.val), U())
