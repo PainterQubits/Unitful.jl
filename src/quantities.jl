@@ -293,6 +293,8 @@ zero(x::Type{Quantity{T,D,U}}) where {T,D,U<:AffineUnits} = zero(T)*absoluteunit
 one(x::Quantity) = one(x.val)
 one(x::AffineQuantity) =
     throw(AffineError("no multiplicative identity for affine quantity $x."))
+oneunit(x::AffineQuantity) = Quantity(one(x.val), absoluteunit(x))
+oneunit(x::Type{Quantity{T,D,U}}) where {T,D,U<:AffineUnits} = Quantity(one(T), absoluteunit(U()))
 get_T(::Type{Quantity{T}}) where T = T
 get_T(::Type{Quantity{T,D}}) where {T,D} = T
 get_T(::Type{Quantity{T,D,U}}) where {T,D,U} = T
