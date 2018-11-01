@@ -324,13 +324,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#temperature-conversion" title="Temperature conversion" class="md-nav__link">
-    Temperature conversion
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -457,6 +450,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../temperature/" title="Temperature scales" class="md-nav__link">
+      Temperature scales
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
     <a href="../extending/" title="Extending Unitful" class="md-nav__link">
       Extending Unitful
     </a>
@@ -516,13 +521,6 @@
           <li class="md-nav__item">
   <a href="#dimensionless-quantities" title="Dimensionless quantities" class="md-nav__link">
     Dimensionless quantities
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#temperature-conversion" title="Temperature conversion" class="md-nav__link">
-    Temperature conversion
   </a>
   
 </li>
@@ -627,7 +625,7 @@
 <p>Exact conversions between units are respected where possible. If rational arithmetic would result in an overflow, then floating-point conversion should proceed. Use of floating-point numbers inhibits exact conversion.</p>
 <p><a id='Unitful.uconvert' href='#Unitful.uconvert'>#</a>
 <strong><code>Unitful.uconvert</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>uconvert{T,D,U}(a::Units, x::Quantity{T,D,U})
+<div class="codehilite"><pre><span></span>uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
 </pre></div>
 
 
@@ -640,13 +638,7 @@ julia&gt; uconvert(u&quot;J&quot;,1.0u&quot;N*m&quot;)
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/0f52452c92c5ce72bff36e40766a4603ecf17eee/src/conversion.jl#L1-L16' class='documenter-source'>source</a><br></p>
-<div class="codehilite"><pre><span></span>uconvert{T,D,U}(a::Units, x::Quantity{T,typeof(𝚯),&lt;:TemperatureUnits})
-</pre></div>
-
-
-<p>In this method, we are special-casing temperature conversion to respect scale offsets, if they do not appear in combination with other dimensions.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/0f52452c92c5ce72bff36e40766a4603ecf17eee/src/temperature.jl#L7-L11' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a7cf8a8b4d4b9054a3ce7cfa12359d2fbbf89f4a/src/conversion.jl#L1-L16' class='documenter-source'>source</a><br></p>
 <p>Since objects are callable, we can also make <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> callable with a <code>Number</code> as an argument, for a unit conversion shorthand:</p>
 <div class="codehilite"><pre><span></span>julia&gt; u&quot;cm&quot;(1u&quot;m&quot;)
 100//1 cm
@@ -674,14 +666,6 @@ ERROR: DimensionError:  and m are not dimensionally compatible.
 <p>You can also directly convert to a subtype of <code>Real</code> or <code>Complex</code>:</p>
 <div class="codehilite"><pre><span></span>julia&gt; Float64(1.0u&quot;μm/m&quot;)
 1.0e-6
-</pre></div>
-
-
-<p><a id='Temperature-conversion-1'></a></p>
-<h3 id="temperature-conversion">Temperature conversion</h3>
-<p>If the dimension of a <code>Quantity</code> is purely temperature, then conversion respects scale offsets. For instance, converting 0°C to °F returns the expected result, 32°F. If instead temperature appears in combination with other units, scale offsets don't make sense and we consider temperature <em>intervals</em>.</p>
-<div class="codehilite"><pre><span></span>julia&gt; uconvert(u&quot;K&quot;, 21.0u&quot;°C&quot;)
-294.15 K
 </pre></div>
 
 
@@ -730,7 +714,7 @@ julia&gt; promote(2.0u&quot;J&quot;, 1.0u&quot;kg*m^2/s^2&quot;)
 <li><code>J*s</code> (joule-second) for action</li>
 </ul>
 <p>If you want this as default behavior (it was for versions of Unitful prior to 0.1.0), consider invoking this function in your <code>.juliarc.jl</code> file which is loaded when you open Julia. This function is not exported.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/0f52452c92c5ce72bff36e40766a4603ecf17eee/src/pkgdefaults.jl#L273-L294' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a7cf8a8b4d4b9054a3ce7cfa12359d2fbbf89f4a/src/pkgdefaults.jl#L274-L295' class='documenter-source'>source</a><br></p>
 <p><a id='Fallback-promotion-rules-1'></a></p>
 <h3 id="fallback-promotion-rules">Fallback promotion rules</h3>
 <p>The <a href="./#Unitful.preferunits"><code>Unitful.preferunits</code></a> function is used to designate fallback preferred units for each pure dimension for promotion. Such a fallback is required because you need some generic logic to take over when manipulating quantities with arbitrary dimensions.</p>
@@ -747,10 +731,10 @@ julia&gt; promote(2.0u&quot;J&quot;, 1.0u&quot;kg*m^2/s^2&quot;)
 </pre></div>
 
 
-<p>This function specifies the default fallback units for promotion. Units provided to this function must have a pure dimension of power 1, like 𝐋 or 𝐓 but not 𝐋/𝐓 or 𝐋^2. The function will complain if this is not the case. Additionally, the function will complain if you provide two units with the same dimension, as a courtesy to the user.</p>
+<p>This function specifies the default fallback units for promotion. Units provided to this function must have a pure dimension of power 1, like 𝐋 or 𝐓 but not 𝐋/𝐓 or 𝐋^2. The function will complain if this is not the case. Additionally, the function will complain if you provide two units with the same dimension, as a courtesy to the user. Finally, you cannot use affine units such as °C with this function.</p>
 <p>Once <a href="./#Unitful.upreferred"><code>Unitful.upreferred</code></a> has been called or quantities have been promoted, this function will appear to have no effect.</p>
 <p>Usage example: <code>preferunits(u"m,s,A,K,cd,kg,mol"...)</code></p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/0f52452c92c5ce72bff36e40766a4603ecf17eee/src/user.jl#L242-L254' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a7cf8a8b4d4b9054a3ce7cfa12359d2fbbf89f4a/src/user.jl#L256-L268' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.upreferred' href='#Unitful.upreferred'>#</a>
 <strong><code>Unitful.upreferred</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>upreferred(x::Dimensions)
@@ -758,20 +742,20 @@ julia&gt; promote(2.0u&quot;J&quot;, 1.0u&quot;kg*m^2/s^2&quot;)
 
 
 <p>Return units which are preferred for dimensions <code>x</code>. If you are using the factory defaults, this function will return a product of powers of base SI units (as <a href="../types/#Unitful.FreeUnits"><code>Unitful.FreeUnits</code></a>).</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/0f52452c92c5ce72bff36e40766a4603ecf17eee/src/user.jl#L282-L287' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a7cf8a8b4d4b9054a3ce7cfa12359d2fbbf89f4a/src/user.jl#L299-L304' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>upreferred(x::Number)
 upreferred(x::Quantity)
 </pre></div>
 
 
 <p>Unit-convert <code>x</code> to units which are preferred for the dimensions of <code>x</code>. If you are using the factory defaults, this function will unit-convert to a product of powers of base SI units. If quantity <code>x</code> has <a href="../types/#Unitful.ContextUnits"><code>Unitful.ContextUnits</code></a><code>(y,z)</code>, the resulting quantity will have units <code>ContextUnits(z,z)</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/0f52452c92c5ce72bff36e40766a4603ecf17eee/src/user.jl#L293-L301' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a7cf8a8b4d4b9054a3ce7cfa12359d2fbbf89f4a/src/user.jl#L310-L318' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>upreferred(x::Units)
 </pre></div>
 
 
 <p>Return units which are preferred for the dimensions of <code>x</code>, which may or may not be equal to <code>x</code>, as specified by the <a href="./#Unitful.preferunits"><code>preferunits</code></a> function. If you are using the factory defaults, this function will return a product of powers of base SI units.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/0f52452c92c5ce72bff36e40766a4603ecf17eee/src/user.jl#L305-L311' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a7cf8a8b4d4b9054a3ce7cfa12359d2fbbf89f4a/src/user.jl#L322-L328' class='documenter-source'>source</a><br></p>
 <p><a id='Array-promotion-1'></a></p>
 <h3 id="array-promotion">Array promotion</h3>
 <p>Arrays are typed with as much specificity as possible upon creation. consider the following three cases:</p>
@@ -901,7 +885,7 @@ ERROR: automatic conversion prohibited.
 
 <p>Given <code>Units</code> objects as arguments, this function returns a <code>Units</code> object appropriate for the result of promoting quantities which have these units. This function is kind of like <code>promote_rule</code>, except that it doesn't take types. It also does not return a tuple, but rather just a <a href="../types/#Unitful.Units"><code>Unitful.Units</code></a> object (or it throws an error).</p>
 <p>Although we had used <code>promote_rule</code> for <code>Units</code> objects in prior versions of Unitful, this was always kind of a hack; it doesn't make sense to promote units directly for a variety of reasons.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/0f52452c92c5ce72bff36e40766a4603ecf17eee/src/promotion.jl#L1-L11' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a7cf8a8b4d4b9054a3ce7cfa12359d2fbbf89f4a/src/promotion.jl#L1-L11' class='documenter-source'>source</a><br></p>
 <p><a id='Unit-cancellation-1'></a></p>
 <h2 id="unit-cancellation">Unit cancellation</h2>
 <p>For multiplication and division, note that powers-of-ten prefixes are significant in unit cancellation. For instance, <code>mV/V</code> is not simplified, although <code>V/V</code> is. Also, <code>N*m/J</code> is not simplified: there is currently no logic to decide whether or not units on a dimensionless quantity seem "intentional" or not.</p>

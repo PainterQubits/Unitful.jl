@@ -387,6 +387,18 @@
 
 
   <li class="md-nav__item">
+    <a href="temperature/" title="Temperature scales" class="md-nav__link">
+      Temperature scales
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
     <a href="extending/" title="Extending Unitful" class="md-nav__link">
       Extending Unitful
     </a>
@@ -543,14 +555,18 @@ true
 <div class="codehilite"><pre><span></span>julia&gt; uconvert(°C, 212°F)
 100//1 °C
 
-julia&gt; uconvert(μm/(m*°F), 9μm/(m*°C))
-5//1 μm °F^-1 m^-1
+julia&gt; uconvert(μm/(m*Ra), 9μm/(m*K))
+5//1 μm m^-1 Ra^-1
 
 julia&gt; mod(1hr+3minute+5s, 24s)
 17//1 s
 </pre></div>
 
 
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Quantities in <code>°C</code> or <code>⁠°F</code> always unit-convert under an affine transformation that takes their relative scales into account. To avoid ambiguities that can lead to incorrect results, the units <code>°C</code> and <code>°F</code> cannot be used in Unitful to represent temperature differences. Fortunately, <code>1°C - 0°C == 1K</code> and <code>1°F - 0°F == 1Ra</code>, so the absolute temperature scales Kelvin (<code>K</code>) and Rankine (<code>Ra</code>) can be used easily to represent temperature differences.</p>
+</div>
 <p>See <code>test/runtests.jl</code> for more usage examples.</p>
                 
                   
