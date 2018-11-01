@@ -528,7 +528,7 @@ ERROR: AffineError: an invalid operation was attempted with affine quantities: 3
 
 
 <p>Useful for dispatching on unit objects that indicate a quantity should affine-transform under unit conversion, like absolute temperatures. Not exported.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a7cf8a8b4d4b9054a3ce7cfa12359d2fbbf89f4a/src/types.jl#L150-L154' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/types.jl#L150-L154' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.AffineQuantity' href='#Unitful.AffineQuantity'>#</a>
 <strong><code>Unitful.AffineQuantity</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>AffineQuantity{T,D,U} = Quantity{T,D,U} where U&lt;:AffineUnits
@@ -536,7 +536,7 @@ ERROR: AffineError: an invalid operation was attempted with affine quantities: 3
 
 
 <p>Useful for dispatching on quantities that affine-transform under unit conversion, like absolute temperatures. Not exported.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a7cf8a8b4d4b9054a3ce7cfa12359d2fbbf89f4a/src/types.jl#L178-L182' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/types.jl#L178-L182' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.ScalarUnits' href='#Unitful.ScalarUnits'>#</a>
 <strong><code>Unitful.ScalarUnits</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>ScalarUnits{N,D} = Units{N,D,nothing}
@@ -544,7 +544,7 @@ ERROR: AffineError: an invalid operation was attempted with affine quantities: 3
 
 
 <p>Useful for dispatching on unit objects that indicate a quantity should transform in the usual scalar way under unit conversion. Not exported.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a7cf8a8b4d4b9054a3ce7cfa12359d2fbbf89f4a/src/types.jl#L157-L161' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/types.jl#L157-L161' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.ScalarQuantity' href='#Unitful.ScalarQuantity'>#</a>
 <strong><code>Unitful.ScalarQuantity</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>ScalarQuantity{T,D,U} = Quantity{T,D,U} where U&lt;:ScalarUnits
@@ -552,7 +552,7 @@ ERROR: AffineError: an invalid operation was attempted with affine quantities: 3
 
 
 <p>Useful for dispatching on quantities that transform in the usual scalar way under unit conversion. Not exported.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a7cf8a8b4d4b9054a3ce7cfa12359d2fbbf89f4a/src/types.jl#L185-L189' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/types.jl#L185-L189' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.@affineunit' href='#Unitful.@affineunit'>#</a>
 <strong><code>Unitful.@affineunit</code></strong> &mdash; <em>Macro</em>.</p>
 <div class="codehilite"><pre><span></span>@affineunit(symb, abbr, offset)
@@ -560,7 +560,7 @@ ERROR: AffineError: an invalid operation was attempted with affine quantities: 3
 
 
 <p>Macro for easily defining affine units. <code>offset</code> gives the zero of the relative scale in terms of an absolute scale; the scaling is the same as the absolute scale. Example: <code>@affineunit °C "°C" (27315//100)K</code> is used internally to define degrees Celsius.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a7cf8a8b4d4b9054a3ce7cfa12359d2fbbf89f4a/src/user.jl#L192-L197' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/user.jl#L192-L197' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.absoluteunit' href='#Unitful.absoluteunit'>#</a>
 <strong><code>Unitful.absoluteunit</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>absoluteunit(::Units)
@@ -569,7 +569,7 @@ absoluteunit(::Quantity)
 
 
 <p>Given a unit or quantity, which may or may not be affine (e.g. <code>°C</code>), return the corresponding unit on the absolute temperature scale (e.g. <code>K</code>). Passing a <a href="../types/#Unitful.ContextUnits"><code>Unitful.ContextUnits</code></a> object will return another <code>ContextUnits</code> object with the same promotion unit, which may be an affine unit, so take care. </p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/a7cf8a8b4d4b9054a3ce7cfa12359d2fbbf89f4a/src/utils.jl#L114-L121' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/utils.jl#L114-L121' class='documenter-source'>source</a><br></p>
                 
                   
                 
