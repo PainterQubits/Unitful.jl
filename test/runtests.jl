@@ -191,8 +191,8 @@ end
         @test_throws AffineError (32°F) / 2
         @test_throws AffineError 2 / (32°F)
 
-        @test_throws AffineError zero(100°C)
-        @test_throws AffineError zero(typeof(100°C))
+        @test zero(100°C) === 0K
+        @test zero(typeof(100°C)) === 0K
         @test_throws AffineError one(100°C)
         @test_throws AffineError one(typeof(100°C))
         @test_throws AffineError oneunit(100°C)

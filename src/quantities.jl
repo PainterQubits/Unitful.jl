@@ -286,11 +286,9 @@ for f in (:floor, :ceil, :trunc, :round)
 end
 
 zero(x::Quantity) = Quantity(zero(x.val), unit(x))
-zero(x::AffineQuantity) =
-    throw(AffineError("no additive identity element of type $(typeof(x))."))
+zero(x::AffineQuantity) = Quantity(zero(x.val), absoluteunit(x))
 zero(x::Type{Quantity{T,D,U}}) where {T,D,U<:ScalarUnits} = zero(T)*U()
-zero(x::Type{Quantity{T,D,U}}) where {T,D,U<:AffineUnits} =
-    throw(AffineError("no additive identity element of type $(typeof(x))."))
+zero(x::Type{Quantity{T,D,U}}) where {T,D,U<:AffineUnits} = zero(T)*absoluteunit(U())
 
 one(x::Quantity) = one(x.val)
 one(x::AffineQuantity) =
