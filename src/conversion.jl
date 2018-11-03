@@ -100,7 +100,7 @@ Returns 1. (Avoids effort when unnecessary.)
 convfact(s::Units{S}, t::Units{S}) where {S} = 1
 
 function convert(::Type{Quantity{T,D,U}}, x::Number) where {T,D,U}
-    if dimension(x) == D()
+    if dimension(x) == D
         Quantity(T(uconvert(U(),x).val), U())
     else
         throw(DimensionError(U(),x))
@@ -111,18 +111,18 @@ end
 convert(::Type{Quantity{T,D,U}}, x::Quantity{T,D,U}) where {T,D,U} = x
 
 function convert(::Type{Quantity{T,D}}, x::Quantity) where {T,D}
-    (dimension(x) !== D()) && throw(DimensionError(D(), x))
+    (dimension(x) !== D) && throw(DimensionError(D, x))
     return Quantity{T,D,typeof(unit(x))}(convert(T, x.val))
 end
 function convert(::Type{Quantity{T,D}}, x::Number) where {T,D}
-    (D() !== NoDims) && throw(DimensionError(D(), NoDims))
-    Quantity{T,typeof(NoDims),typeof(NoUnits)}(x)
+    (D !== NoDims) && throw(DimensionError(D, NoDims))
+    Quantity{T,NoDims,typeof(NoUnits)}(x)
 end
 function convert(::Type{Quantity{T}}, x::Quantity) where {T}
-    Quantity{T,typeof(dimension(x)),typeof(unit(x))}(convert(T, x.val))
+    Quantity{T,dimension(x),typeof(unit(x))}(convert(T, x.val))
 end
 function convert(::Type{Quantity{T}}, x::Number) where {T}
-    Quantity{T,typeof(NoDims),typeof(NoUnits)}(x)
+    Quantity{T,NoDims,typeof(NoUnits)}(x)
 end
 
 convert(::Type{DimensionlessQuantity{T,U}}, x::Number) where {T,U} =

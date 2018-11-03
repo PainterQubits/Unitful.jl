@@ -44,6 +44,10 @@ function prefix(x::Unit)
     end
 end
 
+function show(io::IO, x::Unit{N,D}) where {N,D}
+    show(io, FreeUnits{(x,), D, nothing}())
+end
+
 """
     show(io::IO, x::Quantity)
 Show a unitful quantity by calling `show` on the numeric value, appending a
@@ -58,12 +62,22 @@ function show(io::IO, x::Quantity)
     nothing
 end
 
-function show(io::IO, x::Quantity{S, Dimensions{()}, <:Units{
-    (Unitful.Unit{:Degree,Unitful.Dimensions{()}}(0, 1//1),),
-        Unitful.Dimensions{()}}}) where S
+function show(io::IO, x::Quantity{S, NoDims, <:Units{
+    (Unitful.Unit{:Degree, NoDims}(0, 1//1),), NoDims}}) where S
     show(io, x.val)
     show(io, unit(x))
     nothing
+end
+
+function show(io::IO, x::Type{T}) where T<:Quantity
+    invoke(show, Tuple{IO, typeof(x)}, IOContext(io, :showoperators=>true), x)
+end
+function show(io::IO, x::Type{T}) where T<:Unitlike
+    invoke(show, Tuple{IO, typeof(x)}, IOContext(io, :showoperators=>true), x)
+end
+
+function show(io::IO, x::typeof(NoDims))
+    print(io, "NoDims")
 end
 
 """
@@ -72,11 +86,13 @@ Call [`Unitful.showrep`](@ref) on each object in the tuple that is the type
 variable of a [`Unitful.Units`](@ref) or [`Unitful.Dimensions`](@ref) object.
 """
 function show(io::IO, x::Unitlike)
+    showoperators = get(io, :showoperators, false)
     first = ""
+    sep = showoperators ? "*" : " "
     foreach(sortexp(typeof(x).parameters[1])) do y
         print(io,first)
         showrep(io,y)
-        first = " "
+        first = sep
     end
     nothing
 end

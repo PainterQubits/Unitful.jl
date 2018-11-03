@@ -42,14 +42,14 @@
             next = iterate(linunits, state)
         end
         if p != 0
-            push!(c, Unit{name(oldvalue),dimtype(oldvalue)}(tens(oldvalue), p))
+            push!(c, Unit{name(oldvalue), dimtype(oldvalue)}(tens(oldvalue), p))
         end
     end
     # results in:
     # [nm,cm^6,m^6,µs^3,s]
 
     d = (c...,)
-    f = typeof(mapreduce(dimension, *, d; init=NoDims))
+    f = mapreduce(dimension, *, d; init=NoDims)
     :(FreeUnits{$d,$f,$(a0.parameters[3])}())
 end
 *(a0::ContextUnits, a::ContextUnits...) =

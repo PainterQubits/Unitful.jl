@@ -56,10 +56,10 @@ macro dimension(symb, abbr, name)
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
         const global $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
         const global ($name){T,U} = Union{
-            Unitful.Quantity{T,typeof($s),U},
-            Unitful.Level{L,S,Unitful.Quantity{T,typeof($s),U}} where {L,S}}
-        const global ($uname){U} = Unitful.Units{U,typeof($s)}
-        const global ($funame){U} = Unitful.FreeUnits{U,typeof($s)}
+            Unitful.Quantity{T,$s,U},
+            Unitful.Level{L,S,Unitful.Quantity{T,$s,U}} where {L,S}}
+        const global ($uname){U} = Unitful.Units{U,$s}
+        const global ($funame){U} = Unitful.FreeUnits{U,$s}
         $s
     end)
 end
@@ -84,10 +84,10 @@ macro derived_dimension(name, dims)
     funame = Symbol(name,"FreeUnits")
     esc(quote
         const global ($name){T,U} = Union{
-            Unitful.Quantity{T,typeof($dims),U},
-            Unitful.Level{L,S,Unitful.Quantity{T,typeof($dims),U}} where {L,S}}
-        const global ($uname){U} = Unitful.Units{U,typeof($dims)}
-        const global ($funame){U} = Unitful.FreeUnits{U,typeof($dims)}
+            Unitful.Quantity{T,$dims,U},
+            Unitful.Level{L,S,Unitful.Quantity{T,$dims,U}} where {L,S}}
+        const global ($uname){U} = Unitful.Units{U,$dims}
+        const global ($funame){U} = Unitful.FreeUnits{U,$dims}
         nothing
     end)
 end
@@ -127,7 +127,7 @@ macro refunit(symb, abbr, name, dimension, tf)
     n = Meta.quot(Symbol(name))
 
     push!(expr.args, quote
-        Unitful.abbr(::Unitful.Unit{$n,typeof($dimension)}) = $abbr
+        Unitful.abbr(::Unitful.Unit{$n, $dimension}) = $abbr
     end)
 
     if tf
@@ -169,7 +169,7 @@ macro unit(symb,abbr,name,equals,tf)
                                  ($equals)/Unitful.unit($equals),
                                  Unitful.tensfactor(Unitful.unit($equals)), 1))
     push!(expr.args, quote
-        Unitful.abbr(::Unitful.Unit{$n,typeof($d)}) = $abbr
+        Unitful.abbr(::Unitful.Unit{$n, $d}) = $abbr
     end)
 
     if tf
@@ -217,20 +217,20 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
 
     for (k,v) in prefixdict
         s = Symbol(v,symb)
-        u = :(Unitful.Unit{$n, typeof($dimension)}($k,1//1))
+        u = :(Unitful.Unit{$n, $dimension}($k,1//1))
         ea = quote
             Unitful.basefactors[$n] = $basefactor
-            const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u)),nothing}()
+            const global $s = Unitful.FreeUnits{($u,), Unitful.dimension($u), nothing}()
         end
         push!(expr.args, ea)
     end
 
     # These lines allow for μ to be typed with option-m on a Mac.
     s = Symbol(:µ, symb)
-    u = :(Unitful.Unit{$n, typeof($dimension)}(-6,1//1))
+    u = :(Unitful.Unit{$n, $dimension}(-6,1//1))
     push!(expr.args, quote
         Unitful.basefactors[$n] = $basefactor
-        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u)),nothing}()
+        const global $s = Unitful.FreeUnits{($u,), Unitful.dimension($u), nothing}()
     end)
 
     esc(expr)
@@ -246,10 +246,10 @@ Example: `@unit_symbols ft Foot 𝐋` results in `ft` getting defined but not `k
 macro unit_symbols(symb,name,dimension,basefactor)
     s = Symbol(symb)
     n = Meta.quot(Symbol(name))
-    u = :(Unitful.Unit{$n,typeof($dimension)}(0,1//1))
+    u = :(Unitful.Unit{$n, $dimension}(0,1//1))
     esc(quote
         Unitful.basefactors[$n] = $basefactor
-        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u)),nothing}()
+        const global $s = Unitful.FreeUnits{($u,), Unitful.dimension($u), nothing}()
     end)
 end
 

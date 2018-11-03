@@ -10,7 +10,7 @@ made.
     du = dimension(u)
     dx = dimension(x)
     d = du*dx
-    :(Quantity{typeof(x), typeof($d), typeof($u)}(x))
+    :(Quantity{typeof(x), $d, typeof($u)}(x))
 end
 Quantity(x::Number, y::Units) = _Quantity(x, y)
 Quantity(x::Number, y::Units{()}) = x
@@ -72,9 +72,8 @@ for f in (:mod, :rem)
 end
 
 Base.mod2pi(x::DimensionlessQuantity) = mod2pi(uconvert(NoUnits, x))
-Base.mod2pi(x::Quantity{S, Dimensions{()}, <:Units{
-    (Unitful.Unit{:Degree,Unitful.Dimensions{()}}(0, 1//1),),
-    Unitful.Dimensions{()}}}) where S = mod(x, 360°)
+Base.mod2pi(x::Quantity{S, NoDims, <:Units{(Unitful.Unit{:Degree, NoDims}(0, 1//1),),
+    NoDims}}) where S = mod(x, 360°)
 
 # Addition / subtraction
 for op in [:+, :-]
@@ -123,7 +122,7 @@ end
 function inv(x::StridedMatrix{T}) where {T <: Quantity}
     m = inv(ustrip(x))
     iq = eltype(m)
-    reinterpret(Quantity{iq, typeof(inv(dimension(T))), typeof(inv(unit(T)))}, m)
+    reinterpret(Quantity{iq, inv(dimension(T)), typeof(inv(unit(T)))}, m)
 end
 
 for x in (:istriu, :istril)
@@ -172,8 +171,8 @@ atan(y::Quantity{T,D1,U1}, x::Quantity{T,D2,U2}) where {T,D1,U1,D2,U2} =
 
 for (f, F) in [(:min, :<), (:max, :>)]
     @eval @generated function ($f)(x::Quantity, y::Quantity)    #TODO
-        xdim = x.parameters[2]()
-        ydim = y.parameters[2]()
+        xdim = x.parameters[2]
+        ydim = y.parameters[2]
         if xdim != ydim
             return :(throw(DimensionError(x,y)))
         end

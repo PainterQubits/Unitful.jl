@@ -38,34 +38,18 @@ const colon = Base.:(:)
     @test isa(NoUnits, FreeUnits)
     @test typeof(𝐋) === Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
     @test 𝐋*𝐋 === 𝐋^2
-    @test typeof(1.0m) ===
-        Unitful.Quantity{Float64,
-            typeof(𝐋),
-            Unitful.FreeUnits{(Unitful.Unit{:Meter, typeof(𝐋)}(0,1),),
-                typeof(𝐋), nothing}}
-    @test typeof(1m^2) ===
-        Unitful.Quantity{Int,
-            typeof(𝐋^2),
-            Unitful.FreeUnits{(Unitful.Unit{:Meter, typeof(𝐋)}(0,2),),
-                typeof(𝐋^2), nothing}}
-    @test typeof(1ac) ===
-        Unitful.Quantity{Int,
-            typeof(𝐋^2),
-            Unitful.FreeUnits{(Unitful.Unit{:Acre, typeof(𝐋^2)}(0,1),),
-                typeof(𝐋^2), nothing}}
+    @test typeof(1.0m) === Unitful.Quantity{Float64, 𝐋,
+        Unitful.FreeUnits{(Unitful.Unit{:Meter, 𝐋}(0,1),), 𝐋, nothing}}
+    @test typeof(1m^2) === Unitful.Quantity{Int, 𝐋^2,
+            Unitful.FreeUnits{(Unitful.Unit{:Meter, 𝐋}(0,2),), 𝐋^2, nothing}}
+    @test typeof(1ac) === Unitful.Quantity{Int, 𝐋^2,
+            Unitful.FreeUnits{(Unitful.Unit{:Acre, 𝐋^2}(0,1),), 𝐋^2, nothing}}
     @test typeof(ContextUnits(m,μm)) ===
-        ContextUnits{(Unitful.Unit{:Meter, typeof(𝐋)}(0,1),),
-            typeof(𝐋), typeof(μm), nothing}
-    @test typeof(1.0*ContextUnits(m,μm)) ===
-        Unitful.Quantity{Float64,
-            typeof(𝐋),
-            ContextUnits{(Unitful.Unit{:Meter, typeof(𝐋)}(0,1),),
-                typeof(𝐋), typeof(μm), nothing}}
-    @test typeof(1.0*FixedUnits(m)) ===
-        Unitful.Quantity{Float64,
-            typeof(𝐋),
-            FixedUnits{(Unitful.Unit{:Meter, typeof(𝐋)}(0,1),),
-                typeof(𝐋), nothing}}
+        ContextUnits{(Unitful.Unit{:Meter, 𝐋}(0,1),), 𝐋, typeof(μm), nothing}
+    @test typeof(1.0*ContextUnits(m,μm)) === Unitful.Quantity{Float64, 𝐋,
+        ContextUnits{(Unitful.Unit{:Meter, 𝐋}(0,1),), 𝐋, typeof(μm), nothing}}
+    @test typeof(1.0*FixedUnits(m)) === Unitful.Quantity{Float64, 𝐋,
+        FixedUnits{(Unitful.Unit{:Meter, 𝐋}(0,1),), 𝐋, nothing}}
     @test 3mm != 3*(m*m)                        # mm not interpreted as m*m
     @test (3+4im)*V === V*(3+4im) === (3V+4V*im)  # Complex quantity construction
     @test 3*NoUnits === 3
@@ -127,7 +111,7 @@ end
             # an essentially no-op uconvert should not disturb numeric type
             @test @inferred(uconvert(g,1g)) === 1g
             @test @inferred(uconvert(m,0x01*m)) === 0x01*m
-            @test @inferred(convert(Quantity{Float64, typeof(𝐋)}, 1m)) === 1.0m
+            @test @inferred(convert(Quantity{Float64, 𝐋}, 1m)) === 1.0m
             @test 1kg === 1kg
             @test typeof(1m)(1m) === 1m
 
@@ -197,10 +181,10 @@ end
         @test oneunit(typeof(100°C)) === 1K
         @test_throws AffineError one(100°C)
         @test_throws AffineError one(typeof(100°C))
-        
-        @test 0°C isa AffineQuantity{T, typeof(𝚯)} where T    # is "relative temperature"
+
+        @test 0°C isa AffineQuantity{T, 𝚯} where T    # is "relative temperature"
         @test 0°C isa Temperature                             # dimensional correctness
-        @test °C isa AffineUnits{N, typeof(𝚯)} where N
+        @test °C isa AffineUnits{N, 𝚯} where N
         @test °C isa TemperatureUnits
 
         @test @inferred(uconvert(°F, 0°C))  === (32//1)°F   # Some known conversions...
@@ -242,17 +226,17 @@ end
     end
     @testset "Promotion" begin
         @test_throws ErrorException Unitful.preferunits(°C)
-        @test @inferred(eltype([1°C, 1K])) <: Quantity{Rational{Int},typeof(𝚯),typeof(K)}
-        @test @inferred(eltype([1.0°C, 1K])) <: Quantity{Float64,typeof(𝚯),typeof(K)}
-        @test @inferred(eltype([1°C, 1°F])) <: Quantity{Rational{Int}, typeof(𝚯), typeof(K)}
-        @test @inferred(eltype([1.0°C, 1°F])) <: Quantity{Float64, typeof(𝚯), typeof(K)}
+        @test @inferred(eltype([1°C, 1K])) <: Quantity{Rational{Int}, 𝚯, typeof(K)}
+        @test @inferred(eltype([1.0°C, 1K])) <: Quantity{Float64, 𝚯, typeof(K)}
+        @test @inferred(eltype([1°C, 1°F])) <: Quantity{Rational{Int}, 𝚯, typeof(K)}
+        @test @inferred(eltype([1.0°C, 1°F])) <: Quantity{Float64, 𝚯, typeof(K)}
 
         # context units should be identifiable as affine
         @test ContextUnits(°C, °F) isa AffineUnits
 
         let fc = ContextUnits(°F, °C), cc = ContextUnits(°C, °C)
             @test @inferred(promote(1fc, 1cc)) === ((-155//9)cc, (1//1)cc)
-            @test @inferred(eltype([1cc, 1°C])) <: Quantity{Rational{Int}, typeof(𝚯), typeof(cc)}
+            @test @inferred(eltype([1cc, 1°C])) <: Quantity{Rational{Int}, 𝚯, typeof(cc)}
         end
     end
 end
@@ -360,7 +344,7 @@ end
     @testset "> Some internal behaviors" begin
         # quantities
         @test Unitful.numtype(Quantity{Float64}) <: Float64
-        @test Unitful.numtype(Quantity{Float64,typeof(𝐋)}) <: Float64
+        @test Unitful.numtype(Quantity{Float64, 𝐋}) <: Float64
         @test Unitful.numtype(typeof(1.0kg)) <: Float64
         @test Unitful.numtype(1.0kg) <: Float64
     end
@@ -1122,6 +1106,15 @@ end
     end
 end
 
+@testset "Display" begin
+    @test string(typeof(1.0m/s)) ==
+        "Unitful.Quantity{Float64,𝐋*𝐓^-1,Unitful.FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}}"
+    @test string(typeof(m/s)) ==
+        "Unitful.FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}"
+    @test string(dimension(1u"m/s")) == "𝐋 𝐓^-1"
+    @test string(NoDims) == "NoDims"
+end
+
 @testset "DimensionError message" begin
     function errorstr(e)
         b = IOBuffer()
@@ -1131,7 +1124,7 @@ end
     @test errorstr(DimensionError(1u"m",2)) ==
         "DimensionError: 1 m and 2 are not dimensionally compatible."
     @test errorstr(DimensionError(1u"m",NoDims)) ==
-        "DimensionError: 1 m and  are not dimensionally compatible."
+        "DimensionError: 1 m and NoDims are not dimensionally compatible."
     @test errorstr(DimensionError(u"m",2)) ==
         "DimensionError: m and 2 are not dimensionally compatible."
 end
@@ -1445,9 +1438,7 @@ let fname = tempname()
             redirect_stderr(f) do
                 # wrap in eval to catch the STDERR output...
                 @test eval(:(typeof(u"m"))) == Unitful.FreeUnits{
-                    (Unitful.Unit{:MyMeter,Unitful.Dimensions{
-                    (Unitful.Dimension{:Length}(1//1),)}}(0,1//1),),
-                    Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}, nothing}
+                    (Unitful.Unit{:MyMeter, 𝐋}(0, 1//1),), 𝐋, nothing}
             end
         end
     finally

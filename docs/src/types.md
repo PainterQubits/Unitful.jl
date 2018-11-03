@@ -14,8 +14,8 @@ to avoid overflow issues and general ugliness.
 Usually, the user interacts only with `Units` objects, not `Unit` objects.
 This is because generically, more than one unit is needed to describe a quantity.
 An abstract type [`Unitful.Units{N,D}`](@ref) is defined, where `N` is always a tuple
-of `Unit` objects, and `D` is some type, like `typeof(Unitful.𝐋)`, where `𝐋` is the
-object representing the length dimension (see [`Unitful.Dimensions{N}`](@ref)).
+of `Unit` objects, and `D` is a [`Unitful.Dimensions{N}`](@ref) object such as `𝐋`, the
+object representing the length dimension.
 
 Subtypes of `Unitful.Units{N,D}` are used to implement different behaviors
 for how to promote dimensioned quantities. The concrete subtypes have no fields and
@@ -25,7 +25,7 @@ include [`Unitful.FreeUnits{N,D}`](@ref), [`Unitful.ContextUnits{N,D,P}`](@ref),
 `Unitful.FreeUnits{N,D}` objects.
 
 Finally, we define physical quantity types as [`Quantity{T<:Number, D, U}`](@ref), where
-`D <: Dimensions` and `U <: Units`. By putting units in the type signature of a
+`D :: Dimensions` and `U <: Units`. By putting units in the type signature of a
 quantity, staged functions can be used to offload as much of the unit
 computation to compile-time as is possible. By also having the dimensions
 explicitly in the type signature, dispatch can be done on dimensions:
