@@ -91,7 +91,7 @@ true
 
 """
     unit(x::Number)
-Returns a `Unitful.Units{(), Dimensions{()}}` object to indicate that ordinary
+Returns a `Unitful.FreeUnits{(), NoDims}` object to indicate that ordinary
 numbers have no units. This is a singleton, which we export as `NoUnits`.
 The unit is displayed as an empty string.
 
@@ -99,10 +99,10 @@ Examples:
 
 ```jldoctest
 julia> typeof(unit(1.0))
-Unitful.FreeUnits{(),Unitful.Dimensions{()}}
+Unitful.FreeUnits{(),NoDims}
 
 julia> typeof(unit(Float64))
-Unitful.FreeUnits{(),Unitful.Dimensions{()}}
+Unitful.FreeUnits{(),NoDims}
 
 julia> unit(1.0) == NoUnits
 true
@@ -117,7 +117,7 @@ true
 Given a unit or quantity, which may or may not be affine (e.g. `°C`), return the
 corresponding unit on the absolute temperature scale (e.g. `K`). Passing a
 [`Unitful.ContextUnits`](@ref) object will return another `ContextUnits` object with
-the same promotion unit, which may be an affine unit, so take care. 
+the same promotion unit, which may be an affine unit, so take care.
 """
 function absoluteunit end
 
@@ -150,8 +150,8 @@ true
 """
     dimension(u::Units{U,D}) where {U,D}
 Returns a [`Unitful.Dimensions`](@ref) object corresponding to the dimensions
-of the units, `D()`. For a dimensionless combination of units, a
-`Unitful.Dimensions{()}` object is returned.
+of the units, `D`. For a dimensionless combination of units, a
+`Unitful.Dimensions{()}` object is returned (`NoDims`).
 
 Examples:
 
@@ -162,18 +162,18 @@ julia> dimension(u"m")
 julia> typeof(dimension(u"m"))
 Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}
 
-julia> typeof(dimension(u"m/km"))
-Unitful.Dimensions{()}
+julia> dimension(u"m/km")
+NoDims
 ```
 """
-@inline dimension(u::Units{U,D}) where {U,D} = D()
+@inline dimension(u::Units{U,D}) where {U,D} = D
 
 """
     dimension(x::Quantity{T,D}) where {T,D}
     dimension(::Type{Quantity{T,D,U}}) where {T,D,U}
-Returns a [`Unitful.Dimensions`](@ref) object `D()` corresponding to the
+Returns a [`Unitful.Dimensions`](@ref) object `D` corresponding to the
 dimensions of quantity `x`. For a dimensionless [`Unitful.Quantity`](@ref), a
-`Unitful.Dimensions{()}` object is returned.
+`Unitful.Dimensions{()}` object is returned (`NoDims`).
 
 Examples:
 
@@ -185,8 +185,8 @@ julia> typeof(dimension(1.0u"m/μm"))
 Unitful.Dimensions{()}
 ```
 """
-@inline dimension(x::Quantity{T,D}) where {T,D} = D()
-@inline dimension(::Type{Quantity{T,D,U}}) where {T,D,U} = D()
+@inline dimension(x::Quantity{T,D}) where {T,D} = D
+@inline dimension(::Type{Quantity{T,D,U}}) where {T,D,U} = D
 
 @deprecate(dimension(x::AbstractArray{T}) where {T<:Number}, dimension.(x))
 @deprecate(dimension(x::AbstractArray{T}) where {T<:Units}, dimension.(x))

@@ -47,12 +47,12 @@ sub_fast(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T <: FloatTypes,D,U} =
     Quantity{T,D,U}(sub_float_fast(x.val, y.val))
 
 function mul_fast(x::Quantity{T}, y::Quantity{T}) where {T <: FloatTypes}
-    D = typeof(dimension(x) * dimension(y))
+    D = dimension(x) * dimension(y)
     U = typeof(unit(x) * unit(y))
     Quantity{T,D,U}(mul_float_fast(x.val, y.val))
 end
 function div_fast(x::Quantity{T}, y::Quantity{T}) where {T <: FloatTypes}
-    D = typeof(dimension(x) / dimension(y))
+    D = dimension(x) / dimension(y)
     U = typeof(unit(x) / unit(y))
     Quantity{T,D,U}(div_float_fast(x.val, y.val))
 end
@@ -103,35 +103,35 @@ le_fast(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T <: FloatTypes,D,U} =
         Quantity{Complex{T},D,U}(Complex{T}(a.val-real(y.val), -imag(y.val)))
 
     function mul_fast(x::Quantity{T}, y::Quantity{T}) where {T <: ComplexTypes}
-        D = typeof(dimension(x) * dimension(y))
+        D = dimension(x) * dimension(y)
         U = typeof(unit(x) * unit(y))
         Quantity{T,D,U}(T(real(x.val)*real(y.val) - imag(x.val)*imag(y.val),
           real(x.val)*imag(y.val) + imag(x.val)*real(y.val)))
     end
     function mul_fast(x::Quantity{Complex{T}}, b::Quantity{T}) where {T <: FloatTypes}
-        D = typeof(dimension(x) * dimension(b))
+        D = dimension(x) * dimension(b)
         U = typeof(unit(x) * unit(b))
         Quantity{Complex{T},D,U}(Complex{T}(real(x.val)*b.val, imag(x.val)*b.val))
     end
     function mul_fast(a::Quantity{T}, y::Quantity{Complex{T}}) where {T <: FloatTypes}
-        D = typeof(dimension(a) * dimension(y))
+        D = dimension(a) * dimension(y)
         U = typeof(unit(a) * unit(y))
         Quantity{Complex{T},D,U}(Complex{T}(a.val*real(y.val), a.val*imag(y.val)))
     end
 
     @inline function div_fast(x::Quantity{T}, y::Quantity{T}) where {T <: ComplexTypes}
-        D = typeof(dimension(x) * dimension(y))
+        D = dimension(x) * dimension(y)
         U = typeof(unit(x) * unit(y))
         Quantity{T,D,U}(T(real(x.val)*real(y.val) + imag(x.val)*imag(y.val),
           imag(x.val)*real(y.val) - real(x.val)*imag(y.val))) / abs2(y)
     end
     function div_fast(x::Quantity{Complex{T}}, b::Quantity{T}) where {T <: FloatTypes}
-        D = typeof(dimension(x) / dimension(b))
+        D = dimension(x) / dimension(b)
         U = typeof(unit(x) / unit(b))
         Quantity{Complex{T},D,U}(Complex{T}(real(x.val)/b.val, imag(x.val)/b.val))
     end
     function div_fast(a::Quantity{T}, y::Quantity{Complex{T}}) where {T <: FloatTypes}
-        D = typeof(dimension(a) * dimension(y))
+        D = dimension(a) * dimension(y)
         U = typeof(unit(a) * unit(y))
         Quantity{Complex{T},D,U}(Complex{T}(a.val*real(y.val),
             -a.val*imag(y.val))) / abs2(y)

@@ -24,9 +24,9 @@ You can then query whether the units are `FreeUnits`, `FixedUnits`, etc.
 ```@docs
 Unitful.unit
 Unitful.dimension(::Number)
-Unitful.dimension{U,D}(::Unitful.Units{U,D})
-Unitful.dimension{T,D,U}(x::Quantity{T,D,U})
-Unitful.dimension{T<:Unitful.Units}(x::AbstractArray{T})
+Unitful.dimension(::Unitful.Units{U,D}) where {U,D}
+Unitful.dimension(x::Quantity{T,D,U}) where {T,D,U}
+Unitful.dimension(x::AbstractArray{T}) where {T<:Unitful.Units}
 ```
 
 ## Unit stripping

@@ -95,7 +95,7 @@ end
 
 # number, quantity
 function Base.promote_rule(::Type{Quantity{S,D,U}}, ::Type{T}) where {S,T <: Number,D,U}
-    if D == Dimensions{()}
+    if D == NoDims
         promote_type(S,T,typeof(convfact(NoUnits,U())))
     else
         Quantity{promote_type(S,T)}

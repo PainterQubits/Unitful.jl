@@ -9,8 +9,8 @@
 @dimension 𝚯 "𝚯" Temperature    # This one is \bfTheta
 @dimension 𝐉 "𝐉" Luminosity
 @dimension 𝐍 "𝐍" Amount
-const RelativeScaleTemperature = Quantity{T, typeof(𝚯), <:AffineUnits} where T
-const AbsoluteScaleTemperature = Quantity{T, typeof(𝚯), <:ScalarUnits} where T
+const RelativeScaleTemperature = Quantity{T, 𝚯, <:AffineUnits} where T
+const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 
 # Define derived dimensions.
 @derived_dimension Area                     𝐋^2
@@ -61,8 +61,8 @@ const AbsoluteScaleTemperature = Quantity{T, typeof(𝚯), <:ScalarUnits} where 
 import Base: sind, cosd, tand, secd, cscd, cotd
 for (_x,_y) in ((:sin,:sind), (:cos,:cosd), (:tan,:tand),
         (:sec,:secd), (:csc,:cscd), (:cot,:cotd))
-    @eval ($_x)(x::Quantity{T,typeof(NoDims),typeof(°)}) where {T} = ($_y)(ustrip(x))
-    @eval ($_y)(x::Quantity{T,typeof(NoDims),typeof(°)}) where {T} = ($_y)(ustrip(x))
+    @eval ($_x)(x::Quantity{T, NoDims, typeof(°)}) where {T} = ($_y)(ustrip(x))
+    @eval ($_y)(x::Quantity{T, NoDims, typeof(°)}) where {T} = ($_y)(ustrip(x))
 end
 
 # SI and related units
@@ -102,8 +102,7 @@ end
 # Area
 # The hectare is used more frequently than any other power-of-ten of an are.
 @unit a      "a"        Are         100m^2                  false
-const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, Unitful.Dimensions{
-    (Unitful.Dimension{:Length}(2//1),)}}(2,1//1),), typeof(𝐋^2)}()
+const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, 𝐋^2}(2, 1//1),), 𝐋^2}()
 @unit b      "b"        Barn        100fm^2                 true
 
 # Volume
