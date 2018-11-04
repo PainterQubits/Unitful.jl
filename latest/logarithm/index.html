@@ -670,7 +670,7 @@ ERROR: ArgumentError: when passing a final Bool argument, this can only be used 
 
 
 <p>A logarithmic scale-based gain or attenuation factor. This type has one field, <code>val::T</code>. For example, given a gain of <code>20dB</code>, we have <code>val===20</code>. This type differs from <a href="./#Unitful.Level"><code>Unitful.Level</code></a> in that <code>val</code> is stored after computing the logarithm.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/types.jl#L227-L232' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/types.jl#L226-L231' class='documenter-source'>source</a><br></p>
 <p>One might expect that any gain / attenuation factor should be convertible to a pure number, that is, to <code>x == y/z</code> if you had <code>10*log10(x)</code> dB. However, it turns out that in dB, a ratio of powers is defined as <code>10*log10(y/z)</code>, but a ratio of voltages or other root-power quantities is defined as <code>20*log10(y/z)</code>. Clearly, converting back from decibels to a real number is ambiguous, and so we have not implemented automatic promotion to avoid incorrect results. You can use <a href="./#Unitful.uconvertp"><code>Unitful.uconvertp</code></a> to interpret a <code>Gain</code> as a ratio of power quantities (hence the <code>p</code> in <code>uconvertp</code>), or <a href="./#Unitful.uconvertrp"><code>Unitful.uconvertrp</code></a> to interpret as a ratio of root-power (field) quantities.</p>
 <p><a id='"Dimensionful"-logarithmic-quantities?-1'></a></p>
 <h3 id="dimensionful-logarithmic-quantities">"Dimensionful" logarithmic quantities?</h3>
@@ -682,7 +682,7 @@ ERROR: ArgumentError: when passing a final Bool argument, this can only be used 
 
 
 <p>A logarithmic scale-based level. Details about the logarithmic scale are encoded in <code>L &lt;: LogInfo</code>. <code>S</code> is a reference quantity for the level, not a type. This type has one field, <code>val::T</code>, and the log of the ratio <code>val/S</code> is taken. This type differs from <a href="./#Unitful.Gain"><code>Unitful.Gain</code></a> in that <code>val</code> is a linear quantity.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/types.jl#L208-L214' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/types.jl#L207-L213' class='documenter-source'>source</a><br></p>
 <p>Actually, the defining characteristic of a <code>Level</code> is that it has a reference level, which may or may not be dimensionful. It usually is, but is not in the case of e.g. <code>dBFS</code>.</p>
 <p>Finally, for completeness we note that both <code>Level</code> and <code>Gain</code> are subtypes of <code>LogScaled</code>:</p>
 <p><a id='Unitful.LogScaled' href='#Unitful.LogScaled'>#</a>
@@ -692,7 +692,7 @@ ERROR: ArgumentError: when passing a final Bool argument, this can only be used 
 
 
 <p>Abstract supertype of <a href="./#Unitful.Level"><code>Unitful.Level</code></a> and <a href="./#Unitful.Gain"><code>Unitful.Gain</code></a>. It is only used in promotion to put levels and gains onto a common log scale.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/types.jl#L201-L205' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/types.jl#L200-L204' class='documenter-source'>source</a><br></p>
 <p><a id='Multiplication-rules-1'></a></p>
 <h2 id="multiplication-rules">Multiplication rules</h2>
 <p>Multiplying a dimensionless logarithmic quantity by a pure number acts as like it does for linear quantities:</p>
@@ -1215,7 +1215,7 @@ julia&gt; @dΠ π*W/1W
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/user.jl#L333-L378' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/user.jl#L333-L378' class='documenter-source'>source</a><br></p>
 <p><a id='API-1'></a></p>
 <h2 id="api">API</h2>
 <p><a id='Unitful.linear' href='#Unitful.linear'>#</a>
@@ -1232,7 +1232,7 @@ linear(x::Number) = x
 <li><code>20dB</code> could be interpreted as either a power or root-power ratio.</li>
 <li>Even if <code>-20dB/m</code> were interpreted as, say, <code>0.01/m</code>, this means something fundamentally different than <code>-20dB/m</code>. <code>0.01/m</code> cannot be used to calculate exponential attenuation.</li>
 </ul>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/logarithm.jl#L410-L422' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/logarithm.jl#L410-L422' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.reflevel' href='#Unitful.reflevel'>#</a>
 <strong><code>Unitful.reflevel</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>reflevel(x::Level{L,S})
@@ -1247,7 +1247,7 @@ reflevel(::Type{Level{L,S,T}})
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/logarithm.jl#L38-L48' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/logarithm.jl#L38-L48' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.uconvertp' href='#Unitful.uconvertp'>#</a>
 <strong><code>Unitful.uconvertp</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>uconvertp(u::Units, x)
@@ -1268,7 +1268,7 @@ julia&gt; uconvertp(NoUnits, 20u&quot;dB&quot;)
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/logarithm.jl#L357-L379' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/logarithm.jl#L357-L379' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.uconvertrp' href='#Unitful.uconvertrp'>#</a>
 <strong><code>Unitful.uconvertrp</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>uconvertrp(u::Units, x)
@@ -1278,7 +1278,7 @@ uconvertrp(u::MixedUnits, x)
 
 <p>In most cases, this is the same as <a href="../conversion/#Unitful.uconvert"><code>Unitful.uconvert</code></a>. In cases where unit conversion would be ambiguous without further information (e.g. <code>uconvert(dB, 10)</code>), <code>uconvertp</code> presumes ratios are of power quantities.</p>
 <p>It is important to note that careless use of this function can lead to erroneous calculations. Consider <code>Quantity{&lt;:Gain}</code> types: it is tempting to use this to transform <code>-20dB/m</code> into <code>0.01/m</code>, however this means something fundamentally different than <code>-20dB/m</code>. Consider what happens when you try to compute exponential attenuation by multiplying <code>0.01/m</code> by a length.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/logarithm.jl#L391-L402' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/logarithm.jl#L391-L402' class='documenter-source'>source</a><br></p>
                 
                   
                 

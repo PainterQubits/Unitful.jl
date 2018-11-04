@@ -529,7 +529,7 @@ julia&gt; u&quot;ħ&quot;
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/user.jl#L462-L495' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/user.jl#L462-L495' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.register' href='#Unitful.register'>#</a>
 <strong><code>Unitful.register</code></strong> &mdash; <em>Function</em>.</p>
 <div class="codehilite"><pre><span></span>register(unit_module::Module)
@@ -550,7 +550,7 @@ julia&gt; u&quot;ħ&quot;
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/user.jl#L1-L19' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/user.jl#L1-L19' class='documenter-source'>source</a><br></p>
 <p><a id='Dimension-and-unit-inspection-1'></a></p>
 <h2 id="dimension-and-unit-inspection">Dimension and unit inspection</h2>
 <p>We define a function <a href="./#Unitful.dimension-Tuple{Number}"><code>dimension</code></a> that turns, for example, <code>acre^2</code> or <code>1*acre^2</code> into <code>𝐋^4</code>. We can usually add quantities with the same dimension, regardless of specific units (<code>FixedUnits</code> cannot be automatically converted, however). Note that dimensions cannot be determined by powers of the units: <code>ft^2</code> is an area, but so is <code>ac^1</code> (an acre).</p>
@@ -572,25 +572,25 @@ true
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/utils.jl#L73-L87' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/utils.jl#L73-L87' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>unit(x::Number)
 </pre></div>
 
 
-<p>Returns a <code>Unitful.Units{(), Dimensions{()}}</code> object to indicate that ordinary numbers have no units. This is a singleton, which we export as <code>NoUnits</code>. The unit is displayed as an empty string.</p>
+<p>Returns a <code>Unitful.FreeUnits{(), NoDims}</code> object to indicate that ordinary numbers have no units. This is a singleton, which we export as <code>NoUnits</code>. The unit is displayed as an empty string.</p>
 <p>Examples:</p>
 <div class="codehilite"><pre><span></span>julia&gt; typeof(unit(1.0))
-Unitful.FreeUnits{(),Unitful.Dimensions{()}}
+Unitful.FreeUnits{(),NoDims}
 
 julia&gt; typeof(unit(Float64))
-Unitful.FreeUnits{(),Unitful.Dimensions{()}}
+Unitful.FreeUnits{(),NoDims}
 
 julia&gt; unit(1.0) == NoUnits
 true
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/utils.jl#L92-L110' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/utils.jl#L92-L110' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Tuple{Number}' href='#Unitful.dimension-Tuple{Number}'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>dimension(x::Number)
@@ -609,14 +609,14 @@ true
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/utils.jl#L129-L146' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/utils.jl#L129-L146' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Union{Tuple{Units{U,D,A} where A}, Tuple{D}, Tuple{U}} where D where U' href='#Unitful.dimension-Union{Tuple{Units{U,D,A} where A}, Tuple{D}, Tuple{U}} where D where U'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>dimension(u::Units{U,D}) where {U,D}
 </pre></div>
 
 
-<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object corresponding to the dimensions of the units, <code>D()</code>. For a dimensionless combination of units, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
+<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object corresponding to the dimensions of the units, <code>D</code>. For a dimensionless combination of units, a <code>Unitful.Dimensions{()}</code> object is returned (<code>NoDims</code>).</p>
 <p>Examples:</p>
 <div class="codehilite"><pre><span></span>julia&gt; dimension(u&quot;m&quot;)
 𝐋
@@ -624,18 +624,18 @@ true
 julia&gt; typeof(dimension(u&quot;m&quot;))
 Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}
 
-julia&gt; typeof(dimension(u&quot;m/km&quot;))
-Unitful.Dimensions{()}
+julia&gt; dimension(u&quot;m/km&quot;)
+NoDims
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/utils.jl#L150-L168' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/utils.jl#L150-L168' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>dimension(x::Quantity{T,D}) where {T,D}
 dimension(::Type{Quantity{T,D,U}}) where {T,D,U}
 </pre></div>
 
 
-<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object <code>D()</code> corresponding to the dimensions of quantity <code>x</code>. For a dimensionless <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a>, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
+<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object <code>D</code> corresponding to the dimensions of quantity <code>x</code>. For a dimensionless <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a>, a <code>Unitful.Dimensions{()}</code> object is returned (<code>NoDims</code>).</p>
 <p>Examples:</p>
 <div class="codehilite"><pre><span></span>julia&gt; dimension(1.0u&quot;m&quot;)
 𝐋
@@ -645,14 +645,14 @@ Unitful.Dimensions{()}
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/utils.jl#L171-L187' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/utils.jl#L171-L187' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Union{Tuple{Quantity{T,D,U}}, Tuple{U}, Tuple{D}, Tuple{T}} where U where D where T' href='#Unitful.dimension-Union{Tuple{Quantity{T,D,U}}, Tuple{U}, Tuple{D}, Tuple{T}} where U where D where T'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>dimension(u::Units{U,D}) where {U,D}
 </pre></div>
 
 
-<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object corresponding to the dimensions of the units, <code>D()</code>. For a dimensionless combination of units, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
+<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object corresponding to the dimensions of the units, <code>D</code>. For a dimensionless combination of units, a <code>Unitful.Dimensions{()}</code> object is returned (<code>NoDims</code>).</p>
 <p>Examples:</p>
 <div class="codehilite"><pre><span></span>julia&gt; dimension(u&quot;m&quot;)
 𝐋
@@ -660,18 +660,18 @@ Unitful.Dimensions{()}
 julia&gt; typeof(dimension(u&quot;m&quot;))
 Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}
 
-julia&gt; typeof(dimension(u&quot;m/km&quot;))
-Unitful.Dimensions{()}
+julia&gt; dimension(u&quot;m/km&quot;)
+NoDims
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/utils.jl#L150-L168' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/utils.jl#L150-L168' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>dimension(x::Quantity{T,D}) where {T,D}
 dimension(::Type{Quantity{T,D,U}}) where {T,D,U}
 </pre></div>
 
 
-<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object <code>D()</code> corresponding to the dimensions of quantity <code>x</code>. For a dimensionless <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a>, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
+<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object <code>D</code> corresponding to the dimensions of quantity <code>x</code>. For a dimensionless <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a>, a <code>Unitful.Dimensions{()}</code> object is returned (<code>NoDims</code>).</p>
 <p>Examples:</p>
 <div class="codehilite"><pre><span></span>julia&gt; dimension(1.0u&quot;m&quot;)
 𝐋
@@ -681,14 +681,14 @@ Unitful.Dimensions{()}
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/utils.jl#L171-L187' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/utils.jl#L171-L187' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.dimension-Union{Tuple{AbstractArray{T,N} where N}, Tuple{T}} where T<:Unitful.Units' href='#Unitful.dimension-Union{Tuple{AbstractArray{T,N} where N}, Tuple{T}} where T<:Unitful.Units'>#</a>
 <strong><code>Unitful.dimension</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>dimension(u::Units{U,D}) where {U,D}
 </pre></div>
 
 
-<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object corresponding to the dimensions of the units, <code>D()</code>. For a dimensionless combination of units, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
+<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object corresponding to the dimensions of the units, <code>D</code>. For a dimensionless combination of units, a <code>Unitful.Dimensions{()}</code> object is returned (<code>NoDims</code>).</p>
 <p>Examples:</p>
 <div class="codehilite"><pre><span></span>julia&gt; dimension(u&quot;m&quot;)
 𝐋
@@ -696,18 +696,18 @@ Unitful.Dimensions{()}
 julia&gt; typeof(dimension(u&quot;m&quot;))
 Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}
 
-julia&gt; typeof(dimension(u&quot;m/km&quot;))
-Unitful.Dimensions{()}
+julia&gt; dimension(u&quot;m/km&quot;)
+NoDims
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/utils.jl#L150-L168' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/utils.jl#L150-L168' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>dimension(x::Quantity{T,D}) where {T,D}
 dimension(::Type{Quantity{T,D,U}}) where {T,D,U}
 </pre></div>
 
 
-<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object <code>D()</code> corresponding to the dimensions of quantity <code>x</code>. For a dimensionless <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a>, a <code>Unitful.Dimensions{()}</code> object is returned.</p>
+<p>Returns a <a href="../types/#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> object <code>D</code> corresponding to the dimensions of quantity <code>x</code>. For a dimensionless <a href="../types/#Unitful.Quantity"><code>Unitful.Quantity</code></a>, a <code>Unitful.Dimensions{()}</code> object is returned (<code>NoDims</code>).</p>
 <p>Examples:</p>
 <div class="codehilite"><pre><span></span>julia&gt; dimension(1.0u&quot;m&quot;)
 𝐋
@@ -717,7 +717,7 @@ Unitful.Dimensions{()}
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/utils.jl#L171-L187' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/utils.jl#L171-L187' class='documenter-source'>source</a><br></p>
 <p><a id='Unit-stripping-1'></a></p>
 <h2 id="unit-stripping">Unit stripping</h2>
 <p><a id='Unitful.ustrip' href='#Unitful.ustrip'>#</a>
@@ -737,7 +737,7 @@ true
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/utils.jl#L9-L27' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/utils.jl#L9-L27' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>ustrip(x::Array{Q}) where {Q &lt;: Quantity}
 </pre></div>
 
@@ -761,7 +761,7 @@ julia&gt; a[1] = 3u&quot;m&quot;; b
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/utils.jl#L31-L56' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/utils.jl#L31-L56' class='documenter-source'>source</a><br></p>
 <div class="codehilite"><pre><span></span>ustrip(A::Diagonal)
 ustrip(A::Bidiagonal)
 ustrip(A::Tridiagonal)
@@ -770,7 +770,7 @@ ustrip(A::SymTridiagonal)
 
 
 <p>Strip units from various kinds of matrices by calling <code>ustrip</code> on the underlying vectors.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/utils.jl#L61-L67' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/utils.jl#L61-L67' class='documenter-source'>source</a><br></p>
 <p><a id='Unit-multiplication-1'></a></p>
 <h2 id="unit-multiplication">Unit multiplication</h2>
 <p><a id='Base.:*-Tuple{Unitful.Units,Vararg{Unitful.Units,N} where N}' href='#Base.:*-Tuple{Unitful.Units,Vararg{Unitful.Units,N} where N}'>#</a>
@@ -793,7 +793,7 @@ true
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/units.jl#L64-L89' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/units.jl#L64-L89' class='documenter-source'>source</a><br></p>
 <p><a id='Base.:*-Tuple{Unitful.Dimensions,Vararg{Unitful.Dimensions,N} where N}' href='#Base.:*-Tuple{Unitful.Dimensions,Vararg{Unitful.Dimensions,N} where N}'>#</a>
 <strong><code>Base.:*</code></strong> &mdash; <em>Method</em>.</p>
 <div class="codehilite"><pre><span></span>*(a0::Dimensions, a::Dimensions...)
@@ -814,7 +814,7 @@ true
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/8592c878bb858a0cf7d5369d0852ef9a99a59d9e/src/dimensions.jl#L1-L24' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d24a40ec23e0ac6f5b3a940e15c183e6a8244ae7/src/dimensions.jl#L1-L24' class='documenter-source'>source</a><br></p>
                 
                   
                 
