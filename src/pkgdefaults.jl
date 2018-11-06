@@ -16,6 +16,7 @@ const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 @derived_dimension Area                     𝐋^2
 @derived_dimension Volume                   𝐋^3
 @derived_dimension Frequency                inv(𝐓)
+@derived_dimension Velocity                 𝐋/𝐓
 @derived_dimension Force                    𝐌*𝐋/𝐓^2
 @derived_dimension Pressure                 𝐌*𝐋^-1*𝐓^-2
 @derived_dimension Energy                   𝐌*𝐋^2/𝐓^2
