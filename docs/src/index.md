@@ -20,8 +20,8 @@ that are defined in Julia.
 
 ## Quick start
 
-- This package requires Julia 0.6. Older versions will not be supported.
-- `Pkg.add("Unitful")`
+- This package requires Julia 0.7. Older versions will not be supported.
+- `] add Unitful`
 - `using Unitful`
 
 Unitful aims for generality, but has some useful functionality out of the box.
@@ -64,6 +64,8 @@ DocTestSetup = quote
     using Unitful
     °C = Unitful.°C
     °F = Unitful.°F
+    Ra = Unitful.Ra
+    K = Unitful.K
     μm = Unitful.μm
     m = Unitful.m
     hr = Unitful.hr

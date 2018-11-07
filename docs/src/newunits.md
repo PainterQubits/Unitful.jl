@@ -67,12 +67,17 @@ inside a tuple matters for type comparisons. Using the unary multiplication
 operator on the `Units` object will return a "canonically sorted" `Units` object.
 Indeed, this is how we avoid ordering issues when multiplying quantities together.
 
+## Defining units in precompiled packages
+
+See [Precompilation](@ref).
+
 ## Useful functions and macros
 ```@docs
 Unitful.@dimension
 Unitful.@derived_dimension
 Unitful.@refunit
 Unitful.@unit
+Unitful.@affineunit
 ```
 
 ## Internals
