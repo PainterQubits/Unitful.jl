@@ -481,7 +481,7 @@
 
 
 <p>We can identify absolute temperatures using the <code>Unitful.AbsoluteScaleTemperature</code> type alias:</p>
-<div class="codehilite"><pre><span></span>julia&gt; 1u&quot;K&quot; isa Unitful.AbsoluteTemperature
+<div class="codehilite"><pre><span></span>julia&gt; 1u&quot;K&quot; isa Unitful.AbsoluteScaleTemperature
 true
 </pre></div>
 
@@ -500,7 +500,7 @@ true
 </pre></div>
 
 
-<p>Some operations are not well defined with relative scale temperatures, and therefore throw an <a href="../@ref"><code>Unitful.AffineError</code></a> (please report any unexpected behavior on the GitHub issue tracker).</p>
+<p>Some operations are not well defined with relative scale temperatures, and therefore throw an <code>Unitful.AffineError</code> (please report any unexpected behavior on the GitHub issue tracker).</p>
 <div class="codehilite"><pre><span></span>julia&gt; 32u&quot;°F&quot; + 1u&quot;°F&quot;
 ERROR: AffineError: an invalid operation was attempted with affine quantities: 32 °F + 1 °F
 [...]
@@ -514,62 +514,20 @@ ERROR: AffineError: an invalid operation was attempted with affine quantities: 3
 
 
 <p>There is a general mechanism for making units that indicate quantities should unit-convert under some affine transformation. While the usual use case is for relative scale temperatures, nothing in the implementation limits it as such. Accordingly, relative scale temperatures are considered to be <a href="./#Unitful.AffineQuantity"><code>Unitful.AffineQuantity</code></a> objects with dimensions of temperature. The units on "affine quantities" are <a href="./#Unitful.AffineUnits"><code>Unitful.AffineUnits</code></a> objects.</p>
-<p>Making your own affine units typically requires two steps. First, define the absolute unit using the <a href="../newunits/#Unitful.@unit"><code>Unitful.@unit</code></a> macro. Second, use the <a href="./#Unitful.@affineunit"><code>Unitful.@affineunit</code></a> macro to make a corresponding affine unit. As an example, this is how <code>Ra</code> and <code>°F</code> are implemented:</p>
+<p>Making your own affine units typically requires two steps. First, define the absolute unit using the <a href="../newunits/#Unitful.@unit"><code>Unitful.@unit</code></a> macro. Second, use the <a href="../newunits/#Unitful.@affineunit"><code>Unitful.@affineunit</code></a> macro to make a corresponding affine unit. As an example, this is how <code>Ra</code> and <code>°F</code> are implemented:</p>
 <div class="codehilite"><pre><span></span><span class="nd">@unit</span> <span class="n">Ra</span> <span class="s">&quot;Ra&quot;</span> <span class="n">Rankine</span> <span class="p">(</span><span class="mi">5</span><span class="o">//</span><span class="mi">9</span><span class="p">)</span><span class="o">*</span><span class="n">K</span> <span class="kc">false</span>
 <span class="nd">@affineunit</span> <span class="n">°F</span> <span class="s">&quot;°F&quot;</span> <span class="p">(</span><span class="mi">45967</span><span class="o">//</span><span class="mi">100</span><span class="p">)</span><span class="n">Ra</span>
 </pre></div>
 
 
 <p>The preferred unit for promoting temperatures is usually <code>K</code> when using <a href="../types/#Unitful.FreeUnits"><code>Unitful.FreeUnits</code></a>.</p>
-<p><a id='Unitful.AffineUnits' href='#Unitful.AffineUnits'>#</a>
-<strong><code>Unitful.AffineUnits</code></strong> &mdash; <em>Type</em>.</p>
-<div class="codehilite"><pre><span></span>AffineUnits{N,D,A} = Units{N,D,A} where A&lt;:Affine
+<div class="codehilite"><pre><span></span>Unitful.AffineUnits
+Unitful.AffineQuantity
+Unitful.ScalarUnits
+Unitful.ScalarQuantity
+Unitful.@affineunit
+Unitful.absoluteunit
 </pre></div>
-
-
-<p>Useful for dispatching on unit objects that indicate a quantity should affine-transform under unit conversion, like absolute temperatures. Not exported.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/20ba423b2587b6dd9772a7cf7904b4dbc6c19bf9/src/types.jl#L149-L153' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.AffineQuantity' href='#Unitful.AffineQuantity'>#</a>
-<strong><code>Unitful.AffineQuantity</code></strong> &mdash; <em>Type</em>.</p>
-<div class="codehilite"><pre><span></span>AffineQuantity{T,D,U} = Quantity{T,D,U} where U&lt;:AffineUnits
-</pre></div>
-
-
-<p>Useful for dispatching on quantities that affine-transform under unit conversion, like absolute temperatures. Not exported.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/20ba423b2587b6dd9772a7cf7904b4dbc6c19bf9/src/types.jl#L177-L181' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.ScalarUnits' href='#Unitful.ScalarUnits'>#</a>
-<strong><code>Unitful.ScalarUnits</code></strong> &mdash; <em>Type</em>.</p>
-<div class="codehilite"><pre><span></span>ScalarUnits{N,D} = Units{N,D,nothing}
-</pre></div>
-
-
-<p>Useful for dispatching on unit objects that indicate a quantity should transform in the usual scalar way under unit conversion. Not exported.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/20ba423b2587b6dd9772a7cf7904b4dbc6c19bf9/src/types.jl#L156-L160' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.ScalarQuantity' href='#Unitful.ScalarQuantity'>#</a>
-<strong><code>Unitful.ScalarQuantity</code></strong> &mdash; <em>Type</em>.</p>
-<div class="codehilite"><pre><span></span>ScalarQuantity{T,D,U} = Quantity{T,D,U} where U&lt;:ScalarUnits
-</pre></div>
-
-
-<p>Useful for dispatching on quantities that transform in the usual scalar way under unit conversion. Not exported.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/20ba423b2587b6dd9772a7cf7904b4dbc6c19bf9/src/types.jl#L184-L188' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.@affineunit' href='#Unitful.@affineunit'>#</a>
-<strong><code>Unitful.@affineunit</code></strong> &mdash; <em>Macro</em>.</p>
-<div class="codehilite"><pre><span></span>@affineunit(symb, abbr, offset)
-</pre></div>
-
-
-<p>Macro for easily defining affine units. <code>offset</code> gives the zero of the relative scale in terms of an absolute scale; the scaling is the same as the absolute scale. Example: <code>@affineunit °C "°C" (27315//100)K</code> is used internally to define degrees Celsius.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/20ba423b2587b6dd9772a7cf7904b4dbc6c19bf9/src/user.jl#L192-L197' class='documenter-source'>source</a><br></p>
-<p><a id='Unitful.absoluteunit' href='#Unitful.absoluteunit'>#</a>
-<strong><code>Unitful.absoluteunit</code></strong> &mdash; <em>Function</em>.</p>
-<div class="codehilite"><pre><span></span>absoluteunit(::Units)
-absoluteunit(::Quantity)
-</pre></div>
-
-
-<p>Given a unit or quantity, which may or may not be affine (e.g. <code>°C</code>), return the corresponding unit on the absolute temperature scale (e.g. <code>K</code>). Passing a <a href="../types/#Unitful.ContextUnits"><code>Unitful.ContextUnits</code></a> object will return another <code>ContextUnits</code> object with the same promotion unit, which may be an affine unit, so take care.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/20ba423b2587b6dd9772a7cf7904b4dbc6c19bf9/src/utils.jl#L114-L121' class='documenter-source'>source</a><br></p>
                 
                   
                 
