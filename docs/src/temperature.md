@@ -32,7 +32,7 @@ We can identify absolute temperatures using the `Unitful.AbsoluteScaleTemperatur
 alias:
 
 ```jldoctest
-julia> 1u"K" isa Unitful.AbsoluteTemperature
+julia> 1u"K" isa Unitful.AbsoluteScaleTemperature
 true
 ```
 
@@ -59,7 +59,7 @@ true
 ```
 
 Some operations are not well defined with relative scale temperatures, and therefore throw
-an [`Unitful.AffineError`](@ref) (please report any unexpected behavior on the GitHub issue
+an `Unitful.AffineError` (please report any unexpected behavior on the GitHub issue
 tracker).
 
 ```jldoctest
