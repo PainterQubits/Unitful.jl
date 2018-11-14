@@ -26,21 +26,24 @@ Base.getindex(ua::UnitfulArray{T, N}, inds::Vararg{Int, N}) where {T, N} =
 """ Scale the rows of `ua` so that it has units `row_units`, or throw a DimensionError.
 For the output, `row_units(ua) == desired_row_units` is true """
 function uconvert_rows(desired_row_units::TupleOf{Units}, uarr::UnitfulArray)
-    if all(desired_row_units.==row_units(uarr))
-        # avoid the conversion factor if possible (premature optimization?)
-        return uarr
-    end
+    # This if looks nice, but we'd have to make sure that it doesn't introduce
+    # type instability
+    # if all(desired_row_units.==row_units(uarr))
+    #     # avoid the conversion factor if possible
+    #     return uarr
+    # end
+    
     # broadcasting is equivalent to left-multiplication by a diagonal matrix
     # (which would be cleaner, but would involve allocating a vector, or
     # using a StaticArrays.SVector)
     # Float64 is because I get a segfault on my machine otherwise :( TODO: take out
     factors = Float64.((convfact.(desired_row_units, row_units(uarr))...,))
-    return UnitfulArray(factors .* uarr.arr, desired_row_units, uarr.units[2:end]...)
+    return UnitfulArray(factors .* uarr.arr, desired_row_units, Base.tail(uarr.units)...)
 end
 
 Base.:*(a::UnitfulMatrix, b::UnitfulArray) =
     UnitfulArray(a.arr * uconvert_rows(column_units(a).^-1, b).arr,
-                 row_units(a), b.units[2:end]...)
+                 row_units(a), Base.tail(b.units)...)
 Base.inv(umat::UnitfulMatrix) =
     UnitfulMatrix(inv(umat.arr), umat.units[2].^-1, umat.units[1].^-1)
 Base.adjoint(umat::UnitfulMatrix) =
