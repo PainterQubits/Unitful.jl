@@ -1468,4 +1468,12 @@ end
     @test isa(TUM.fu^2, TUM.FakeDim212345Units)
 end
 
+@testset "Unitful arrays" begin
+    v = UnitfulArray([1,2], (u"m", u"s"))
+    m = UnitfulArray([1 2; 3 4], (u"m", u"s"), (NoUnits, NoUnits))
+    m2 = UnitfulArray([1000 2000; 3 4], (u"mm", u"s"), (NoUnits, NoUnits))
+    @test inv(m) * m ≈ I 
+    @test inv(m) * m2 ≈ I
+end
+
 end
