@@ -13,6 +13,7 @@ end
 UnitfulArray(arr, units...) = UnitfulArray(arr, units)
 const UnitfulVector{T} = UnitfulArray{T, 1}
 const UnitfulMatrix{T} = UnitfulArray{T, 2}
+const UnitfulVecOrMat{T} = Union{UnitfulVector{T}, UnitfulMatrix{T}}
 UnitfulVector(arr, u1) = UnitfulArray(arr, u1)
 UnitfulMatrix(arr, u1, u2) = UnitfulArray(arr, u1, u2)
 
@@ -41,7 +42,7 @@ function uconvert_rows(desired_row_units::TupleOf{Units}, uarr::UnitfulArray)
     return UnitfulArray(factors .* uarr.arr, desired_row_units, Base.tail(uarr.units)...)
 end
 
-Base.:*(a::UnitfulMatrix, b::UnitfulArray) =
+Base.:*(a::UnitfulMatrix, b::UnitfulVecOrMat) =
     UnitfulArray(a.arr * uconvert_rows(column_units(a).^-1, b).arr,
                  row_units(a), Base.tail(b.units)...)
 Base.inv(umat::UnitfulMatrix) =
