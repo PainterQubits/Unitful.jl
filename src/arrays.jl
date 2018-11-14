@@ -41,6 +41,10 @@ end
 Base.:*(a::UnitfulMatrix, b::UnitfulMatrix) =
     UnitfulArray(a.arr * uconvert_rows(column_units(a).^-1, b).arr,
                  row_units(a), column_units(b))
-Base.inv(ua::UnitfulMatrix) = UnitfulMatrix(inv(ua.arr), ua.units[2].^-1, ua.units[1].^-1)
-Base.adjoint(ua::UnitfulMatrix) = UnitfulMatrix(adjoint(ua.arr), ua.units[2], ua.units[1])
+Base.inv(umat::UnitfulMatrix) =
+    UnitfulMatrix(inv(umat.arr), umat.units[2].^-1, umat.units[1].^-1)
+Base.adjoint(umat::UnitfulMatrix) =
+    UnitfulMatrix(adjoint(umat.arr), umat.units[2], umat.units[1])
+Base.adjoint(uvec::UnitfulVector) =
+    UnitfulMatrix(adjoint(uvec.arr), (NoUnits,), uvec.units[1])
 
