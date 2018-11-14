@@ -1,3 +1,5 @@
+using StaticArrays
+
 export UnitfulArray, UnitfulVector, UnitfulMatrix
 
 const TupleOf{T} = NTuple{N, T} where N
@@ -24,23 +26,35 @@ Base.size(ua::UnitfulArray) = size(ua.arr)
 Base.getindex(ua::UnitfulArray{T, N}, inds::Vararg{Int, N}) where {T, N} =
     ua.arr[inds...] * prod(getindex.(ua.units, inds))
 
-""" Scale the rows of `ua` so that it has units `row_units`, or throw a DimensionError.
-For the output, `row_units(ua) == desired_row_units` is true """
-function uconvert_rows(desired_row_units::TupleOf{Units}, uarr::UnitfulArray)
-    # This if looks nice, but we'd have to make sure that it doesn't introduce
-    # type instability
-    # if all(desired_row_units.==row_units(uarr))
-    #     # avoid the conversion factor if possible
-    #     return uarr
-    # end
+# Alternative StaticArrays-free implementation
+# function uconvert_rows(desired_row_units::TupleOf{Units}, uarr::UnitfulArray)
+#     # This if looks nice, but we'd have to make sure that it doesn't introduce
+#     # type instability
+#     # if all(desired_row_units.==row_units(uarr))
+#     #     # avoid the conversion factor if possible
+#     #     return uarr
+#     # end
     
-    # broadcasting is equivalent to left-multiplication by a diagonal matrix
-    # (which would be cleaner, but would involve allocating a vector, or
-    # using a StaticArrays.SVector)
-    # Float64 is because I get a segfault on my machine otherwise :( TODO: take out
-    factors = Float64.((convfact.(desired_row_units, row_units(uarr))...,))
-    return UnitfulArray(factors .* uarr.arr, desired_row_units, Base.tail(uarr.units)...)
-end
+#     # broadcasting is equivalent to left-multiplication by a diagonal matrix
+#     # (which would be cleaner, but it involves allocating a vector, or
+#     # using a StaticArrays.SVector)
+#     # Float64 is because I get a segfault on my machine otherwise :( TODO: take out
+#     factors = Float64.((convfact.(desired_row_units, row_units(uarr))...,))
+#     return UnitfulArray(factors .* uarr.arr, desired_row_units, Base.tail(uarr.units)...)
+# end
+
+""" A diagonal matrix with the from_units -> to_units conversion factors on the 
+diagonal. """
+convmat(to_units, from_units) = Diagonal(SVector(convfact.(to_units, from_units)...))
+
+""" Scale the rows of `ua` so that it has units `row_units`, or throw a DimensionError.
+"""
+uconvert_rows(row_units::TupleOf{Units}, uvec::UnitfulVector) =
+    UnitfulArray(convmat(row_units, uvec.units[1]) * uvec.arr, row_units)
+uconvert_rows(row_units::TupleOf{Units}, umat::UnitfulMatrix) =
+    UnitfulArray(convmat(row_units, umat.units[1]) * umat.arr, row_units, umat.units[2])
+uconvert_columns(col_units::TupleOf{Units}, umat::UnitfulMatrix) =
+    UnitfulArray(umat.arr * convmat(col_units, umat.units[2]), umat.units[1], col_units)
 
 Base.:*(a::UnitfulMatrix, b::UnitfulVecOrMat) =
     UnitfulArray(a.arr * uconvert_rows(column_units(a).^-1, b).arr,
@@ -52,3 +66,7 @@ Base.adjoint(umat::UnitfulMatrix) =
 Base.adjoint(uvec::UnitfulVector) =
     UnitfulMatrix(adjoint(uvec.arr), (NoUnits,), uvec.units[1])
 
+""" Convert the values in `ua` so that they match the `desired_units` specification. """
+function compatible_units(desired_units::NTuple{N, TupleOf{Units}}, ua::UnitfulArray{N}) where N
+    
+end
