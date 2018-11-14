@@ -33,8 +33,9 @@ function uconvert_rows(desired_row_units::TupleOf{Units}, umat::UnitfulMatrix)
     # broadcasting is equivalent to left-multiplication by a diagonal matrix
     # (which would be cleaner, but would involve allocating a vector, or
     # using a StaticArrays.SVector)
-    return UnitfulMatrix((convfact.(desired_row_units, row_units(umat))...,) .* umat.arr,
-                         desired_row_units, column_units(umat))
+    # Float64 is because I get a segfault on my machine otherwise :( TODO: take out
+    factors = Float64.((convfact.(desired_row_units, row_units(umat))...,))
+    return UnitfulMatrix(factors .* umat.arr, desired_row_units, column_units(umat))
 end
 Base.:*(a::UnitfulMatrix, b::UnitfulMatrix) =
     UnitfulArray(a.arr * uconvert_rows(column_units(a).^-1, b).arr,
