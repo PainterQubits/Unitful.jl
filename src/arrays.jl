@@ -7,7 +7,6 @@ const TupleOf{T} = NTuple{N, T} where N
 # O(N^2) or O(N^3) linear algebra operations. It would still be a win over a plain
 # Matrix{Any} that stores unitful quantities.
 struct UnitfulArray{T, N, A<:AbstractArray{T, N}, U<:NTuple{N, TupleOf{Units}}} <: AbstractArray{Quantity{T}, N}
-    # For matrices, equivalent to R * arr * C
     arr::A
     units::U
 end
@@ -23,6 +22,7 @@ column_units(ua::UnitfulMatrix) = ua.units[2]
 Base.size(ua::UnitfulArray) = size(ua.arr)
 Base.getindex(ua::UnitfulArray{T, N}, inds::Vararg{Int, N}) where {T, N} =
     ua.arr[inds...] * prod(getindex.(ua.units, inds))
+
 """ Scale the rows of `ua` so that it has units `row_units`, or throw a DimensionError.
 For the output, `row_units(ua) == desired_row_units` is true """
 function uconvert_rows(desired_row_units::TupleOf{Units}, umat::UnitfulMatrix)
@@ -37,8 +37,10 @@ function uconvert_rows(desired_row_units::TupleOf{Units}, umat::UnitfulMatrix)
     factors = Float64.((convfact.(desired_row_units, row_units(umat))...,))
     return UnitfulMatrix(factors .* umat.arr, desired_row_units, column_units(umat))
 end
+
 Base.:*(a::UnitfulMatrix, b::UnitfulMatrix) =
     UnitfulArray(a.arr * uconvert_rows(column_units(a).^-1, b).arr,
                  row_units(a), column_units(b))
 Base.inv(ua::UnitfulMatrix) = UnitfulMatrix(inv(ua.arr), ua.units[2].^-1, ua.units[1].^-1)
+Base.adjoint(ua::UnitfulMatrix) = UnitfulMatrix(adjoint(ua.arr), ua.units[2], ua.units[1])
 
