@@ -16,8 +16,8 @@ const UnitfulMatrix{T} = UnitfulArray{T, 2}
 UnitfulVector(arr, u1) = UnitfulArray(arr, u1)
 UnitfulMatrix(arr, u1, u2) = UnitfulArray(arr, u1, u2)
 
-row_units(ua::UnitfulMatrix) = ua.units[1]
-column_units(ua::UnitfulMatrix) = ua.units[2]
+row_units(ua::UnitfulArray) = ua.units[1]
+column_units(ua::UnitfulArray) = ua.units[2]
 
 Base.size(ua::UnitfulArray) = size(ua.arr)
 Base.getindex(ua::UnitfulArray{T, N}, inds::Vararg{Int, N}) where {T, N} =
@@ -25,22 +25,22 @@ Base.getindex(ua::UnitfulArray{T, N}, inds::Vararg{Int, N}) where {T, N} =
 
 """ Scale the rows of `ua` so that it has units `row_units`, or throw a DimensionError.
 For the output, `row_units(ua) == desired_row_units` is true """
-function uconvert_rows(desired_row_units::TupleOf{Units}, umat::UnitfulMatrix)
-    if all(desired_row_units.==row_units(umat))
+function uconvert_rows(desired_row_units::TupleOf{Units}, uarr::UnitfulArray)
+    if all(desired_row_units.==row_units(uarr))
         # avoid the conversion factor if possible (premature optimization?)
-        return umat
+        return uarr
     end
     # broadcasting is equivalent to left-multiplication by a diagonal matrix
     # (which would be cleaner, but would involve allocating a vector, or
     # using a StaticArrays.SVector)
     # Float64 is because I get a segfault on my machine otherwise :( TODO: take out
-    factors = Float64.((convfact.(desired_row_units, row_units(umat))...,))
-    return UnitfulMatrix(factors .* umat.arr, desired_row_units, column_units(umat))
+    factors = Float64.((convfact.(desired_row_units, row_units(uarr))...,))
+    return UnitfulArray(factors .* uarr.arr, desired_row_units, uarr.units[2:end]...)
 end
 
-Base.:*(a::UnitfulMatrix, b::UnitfulMatrix) =
+Base.:*(a::UnitfulMatrix, b::UnitfulArray) =
     UnitfulArray(a.arr * uconvert_rows(column_units(a).^-1, b).arr,
-                 row_units(a), column_units(b))
+                 row_units(a), b.units[2:end]...)
 Base.inv(umat::UnitfulMatrix) =
     UnitfulMatrix(inv(umat.arr), umat.units[2].^-1, umat.units[1].^-1)
 Base.adjoint(umat::UnitfulMatrix) =
