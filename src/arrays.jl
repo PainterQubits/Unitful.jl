@@ -56,7 +56,7 @@ uconvert_rows(row_units::TupleOf{Units}, umat::UnitfulMatrix) =
 uconvert_columns(col_units::TupleOf{Units}, umat::UnitfulMatrix) =
     UnitfulArray(umat.arr * convmat(col_units, umat.units[2]), umat.units[1], col_units)
 
-Base.:*(a::UnitfulMatrix, b::UnitfulVecOrMat) =
+*(a::UnitfulMatrix, b::UnitfulVecOrMat) =
     UnitfulArray(a.arr * uconvert_rows(column_units(a).^-1, b).arr,
                  row_units(a), Base.tail(b.units)...)
 Base.inv(umat::UnitfulMatrix) =
@@ -66,7 +66,17 @@ Base.adjoint(umat::UnitfulMatrix) =
 Base.adjoint(uvec::UnitfulVector) =
     UnitfulMatrix(adjoint(uvec.arr), (NoUnits,), uvec.units[1])
 
-""" Convert the values in `ua` so that they match the `desired_units` specification. """
-function compatible_units(desired_units::NTuple{N, TupleOf{Units}}, ua::UnitfulArray{N}) where N
-    
+""" Similar to promote, convert the units of `(a, b)` into `(new_a, new_b)` such that 
+the units of `new_a` and `new_b` are the same. """
+compatible_units(a::UnitfulVector, b::UnitfulVector) =
+    (a, uconvert_rows(row_units(a), b))
+compatible_units(a::UnitfulMatrix, b::UnitfulMatrix) =
+    (a, uconvert_columns(column_units(a), uconvert_rows(row_units(a), b)))
+function apply(op, a::UnitfulArray{N}, b::UnitfulArray{N}) where N
+    a2, b2 = compatible_units(a, b)
+    return UnitfulArray(op(a2.arr, b2.arr), a2.units)
 end
+
++(a::UnitfulArray, b::UnitfulArray) = apply(+, a, b)
+-(a::UnitfulArray, b::UnitfulArray) = apply(-, a, b)
+    
