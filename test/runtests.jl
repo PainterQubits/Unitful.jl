@@ -1479,6 +1479,7 @@ end
     @test @inferred(inv(m2) * v)::UnitfulArray == [0.0, 0.5]
     @test_throws MethodError m1 - v
     @test m1 - m1 == [0m 0m; 0s 0s]
+    @test @inferred(inv(m1) * m1 - I)::Array ≈ zeros(2,2) atol=1.e-10
     @test m1 + m2 == [2m 4m; 6s 8s]
     @test m1' + m2' == [2m 4m; 6s 8s]'
     @test (m1 * [2 0; 0 -1])::UnitfulArray == [2m -2m; 6s -4s]
@@ -1491,13 +1492,12 @@ end
     end
     
     @testset "Division" begin
-        A = UnitfulMatrix([1 0; 1 -2], (m, s), (kA, W))
-        B = UnitfulVector([32; -4], (m, s))
-        X = A \ B
-        @test A * X == B
+        A = UnitfulMatrix([1 0; 1 -2], (m, s), (kA, W)); B = UnitfulVector([32; -4], (m, s))
+        X = (A \ B)::UnitfulArray
+        @test (A * X)::UnitfulArray == B
         A2 = Unitful.uconvert_columns((kA, mW), A)
         X2 = A2 \ B
-        @test_broken A * X2 ≈ B rtol=0.001   # no clue why it's broken
+        @test_broken (A * X2) ≈ B rtol=0.001   # no clue why it's broken
         @test ustrip(A * X2 - B) ≈ [0.0, 0.0] atol=1.e-10
     end
 end

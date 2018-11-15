@@ -14,13 +14,19 @@ struct UnitfulArray{T, N, A<:AbstractArray{T, N}, U<:NTuple{N, TupleOf{Units}}} 
 end
 UnitfulArray(arr::AbstractArray{<:Any, N}, units::Vararg{TupleOf{Units}, N}) where N =
     UnitfulArray(arr, units)
+const UnitfulVector{T} = UnitfulArray{T, 1}
+const UnitfulMatrix{T} = UnitfulArray{T, 2}
+const UnitfulVecOrMat{T} = Union{UnitfulVector{T}, UnitfulMatrix{T}}
+
 convert(::Type{UnitfulArray}, arr::AbstractArray{<:Number, N}) where N =
     UnitfulArray(arr, ntuple(i->ntuple(_->NoUnits, size(arr, i)), N))
 convert(::Type{UnitfulArray{<:Any, N}}, arr::AbstractArray{<:Number, N}) where N =
     convert(UnitfulArray, arr)
-const UnitfulVector{T} = UnitfulArray{T, 1}
-const UnitfulMatrix{T} = UnitfulArray{T, 2}
-const UnitfulVecOrMat{T} = Union{UnitfulVector{T}, UnitfulMatrix{T}}
+no_units(uarr::UnitfulArray) = uconvert_rows(map(_->NoUnits, uarr.units[1]), uarr)
+no_units(uarr::UnitfulMatrix) =
+    uconvert_columns(map(_->NoUnits, uarr.units[2]),
+                     uconvert_rows(map(_->NoUnits, uarr.units[1]), uarr)).arr
+copy(uarr::UnitfulArray) = UnitfulArray(copy(uarr.arr), uarr.units)
 UnitfulVector(arr, u1) = UnitfulArray(arr, u1)
 UnitfulMatrix(arr, u1, u2) = UnitfulArray(arr, u1, u2)
 
@@ -76,9 +82,9 @@ for i in 1:2
     end
 end
 @noinline \(a::UnitfulMatrix, b::UnitfulVecOrMat) =
-    UnitfulVector(a.arr \ uconvert_rows(row_units(a), b).arr,
-                  column_units(a).^-1, Base.tail(b.units)...)
-Base.inv(umat::UnitfulMatrix) =
+    UnitfulArray(a.arr \ uconvert_rows(row_units(a), b).arr,
+                 column_units(a).^-1, Base.tail(b.units)...)
+Base.inv(umat::UnitfulMatrix) = # the units cancel out only if used as a left-inverse
     UnitfulMatrix(inv(umat.arr), umat.units[2].^-1, umat.units[1].^-1)
 Base.adjoint(umat::UnitfulMatrix) =
     UnitfulMatrix(adjoint(umat.arr), umat.units[2], umat.units[1])
@@ -121,6 +127,8 @@ end
 
 +(a::UnitfulArray, b::UnitfulArray) = apply(+, a, b)
 -(a::UnitfulArray, b::UnitfulArray) = apply(-, a, b)
+-(a::UnitfulMatrix, J::UniformScaling) = no_units(a) - J
+-(J::UniformScaling, b::UnitfulMatrix) = J - no_units(b)
     
 ustrip(a::UnitfulArray) = a.arr
 unit(a::UnitfulArray) = a.units   # an abuse of terminology (singular/plural). Delete?
