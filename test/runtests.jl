@@ -1469,13 +1469,13 @@ end
 end
 
 @testset "Unitful arrays" begin
-    v = UnitfulArray([1,2], (u"m", u"s"))
-    m1 = UnitfulArray([1 2; 3 4], (u"m", u"s"), (NoUnits, NoUnits))
-    m2 = UnitfulArray([1000 2000; 3 4], (u"mm", u"s"), (NoUnits, NoUnits))
+    v = UnitfulArray([1,2], (m, s))
+    m1 = UnitfulArray([1 2; 3 4], (m, s), (NoUnits, NoUnits))
+    m2 = UnitfulArray([1000 2000; 3 4], (mm, s), (NoUnits, NoUnits))
     @test inv(m1) * m1 ≈ I 
     @test @inferred(inv(m1) * m2) ≈ I rtol=0.00001
     @test m1' * inv(m2') ≈ I   # not @inferred; see julialang#30038
-    @test adjoint(v) == [1u"m" 2u"s"]
+    @test adjoint(v) == [1m 2s]
     @test @inferred(inv(m2) * v) == [0.0, 0.5]
     @test inv(m2) * v isa UnitfulArray
     @test_throws MethodError m1 - v
