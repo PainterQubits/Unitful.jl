@@ -1,7 +1,7 @@
 module Unitful
 
 import Base: ==, <, <=, +, -, *, /, //, ^, isequal
-import Base: show, convert
+import Base: show, convert, getproperty
 import Base: abs, abs2, angle, float, fma, muladd, inv, sqrt, cbrt
 import Base: min, max, floor, ceil, real, imag, conj
 import Base: exp, exp10, exp2, expm1, log, log10, log1p, log2
@@ -17,7 +17,7 @@ import Base: Integer, Rational, typemin, typemax
 import Base: steprange_last, unsigned
 
 import LinearAlgebra: Diagonal, Bidiagonal, Tridiagonal, SymTridiagonal
-import LinearAlgebra: istril, istriu, norm
+import LinearAlgebra: istril, istriu, norm, cholesky
 import Random
 
 export logunit, unit, absoluteunit, dimension, uconvert, ustrip, upreferred

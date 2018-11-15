@@ -78,17 +78,25 @@ Base.adjoint(umat::UnitfulMatrix) =
 Base.adjoint(uvec::UnitfulVector) =
     UnitfulMatrix(adjoint(uvec.arr), (NoUnits,), uvec.units[1])
 
-# struct UnitfulCholesky{T,S<:AbstractMatrix} <: Factorization{T}
-#     unitless_chol::T
-#     function Cholesky{T,S}(factors, uplo, info) where {T,S<:AbstractMatrix}
-#         @assert !has_offset_axes(factors)
-#         new(factors, uplo, info)
-#     end
-# end
-# Cholesky(A::AbstractMatrix{T}, uplo::Symbol, info::Integer) where {T} =
-#     Cholesky{T,typeof(A)}(A, char_uplo(uplo), info)
-# Cholesky(A::AbstractMatrix{T}, uplo::AbstractChar, info::Integer) where {T} =
-# Cholesky{T,typeof(A)}(A, uplo, info)
+struct UnitfulCholesky{T, U} #{T,S<:AbstractMatrix} <: Factorization{T}
+    unitless_chol::T
+    input_units::U
+end
+cholesky(uarr::UnitfulArray) = UnitfulCholesky(cholesky(uarr.arr), uarr.units)
+function getproperty(UC::UnitfulCholesky, d::Symbol)
+    res = getproperty(getfield(UC, :unitless_chol), d)
+    inp_units = getfield(UC, :input_units)
+    if d == :U
+        units = (map(_->NoUnits, inp_units[1]), inp_units[2])
+    elseif d == :L
+        units = (inp_units[1], map(_->NoUnits, inp_units[2]))
+    elseif d == :UL
+        TODO()  # UL is not documented in the docstring
+    else
+        return getfield(UC, d)
+    end
+    return UnitfulArray(res, units)
+end
 
 """ Similar to promote, convert the units of `(a, b)` into `(new_a, new_b)` such that 
 the units of `new_a` and `new_b` are the same. """
@@ -105,4 +113,4 @@ end
 -(a::UnitfulArray, b::UnitfulArray) = apply(-, a, b)
     
 ustrip(a::UnitfulArray) = a.arr
-unit(a::UnitfulArray) = a.units
+unit(a::UnitfulArray) = a.units   # an abuse of terminology (singular/plural). Delete?

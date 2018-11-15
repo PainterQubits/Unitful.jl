@@ -1482,6 +1482,8 @@ end
     @test m1 + m2 == [2m 4m; 6s 8s]
     @test m1' + m2' == [2m 4m; 6s 8s]'
     @test (m1 * [2 0; 0 -1])::UnitfulArray == [2m -2m; 6s -4s]
+    c = cholesky(m3)
+    @test (c.L * c.U)::UnitfulArray == m3
 end
 
 end
