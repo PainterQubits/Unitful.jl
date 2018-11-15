@@ -13,7 +13,7 @@ struct UnitfulArray{T, N, A<:AbstractArray{T, N}, U<:NTuple{N, TupleOf{Units}}} 
     units::U
 end
 UnitfulArray(arr, units...) = UnitfulArray(arr, units)
-Base.convert(::Type{UnitfulArray}, arr::AbstractArray{<:Real, N} where N) =
+Base.convert(::Type{UnitfulArray}, arr::AbstractArray{<:Real, N}) where N =
     UnitfulArray(arr, ntuple(i->ntuple(_->NoUnits, size(arr, i)), N))
 const UnitfulVector{T} = UnitfulArray{T, 1}
 const UnitfulMatrix{T} = UnitfulArray{T, 2}
@@ -47,7 +47,7 @@ Base.getindex(ua::UnitfulArray{T, N}, inds::Vararg{Int, N}) where {T, N} =
 
 """ A diagonal matrix with the from_units -> to_units conversion factors on the 
 diagonal. """
-convmat(to_units, from_units) = Diagonal(SVector(Float64.(convfact.(to_units, from_units)...)))
+convmat(to_units, from_units) = Diagonal(Float64.(SVector(convfact.(to_units, from_units)...)))
 
 """ Scale the rows of `ua` so that it has units `row_units`, or throw a DimensionError.
 """
@@ -58,11 +58,18 @@ uconvert_rows(row_units::TupleOf{Units}, umat::UnitfulMatrix) =
 uconvert_columns(col_units::TupleOf{Units}, umat::UnitfulMatrix) =
     UnitfulArray(umat.arr * convmat(col_units, umat.units[2]), umat.units[1], col_units)
 
-*(a::UnitfulMatrix, b::UnitfulVecOrMat) =
-    UnitfulArray(a.arr * uconvert_rows(column_units(a).^-1, b).arr,
-                 row_units(a), Base.tail(b.units)...)
-*(a::UnitfulVecOrMat, b::AbstractVecOrMat) = a * convert(UnitfulArray, b)
-*(a::AbstractVecOrMat, b::UnitfulVecOrMat) = convert(UnitfulArray, a) * b
+for i in 1:2
+    # Deal with method ambiguities by defining lots of methods
+    @eval *(a::UnitfulMatrix, b::UnitfulArray{<:Any, $i}) =
+        UnitfulArray(a.arr * uconvert_rows(column_units(a).^-1, b).arr,
+                     row_units(a), Base.tail(b.units)...)
+    for j in 1:2
+        @eval *(a::UnitfulArray{<:Any, $i}, b::AbstractArray{<:Any, $j}) =
+            a * convert(UnitfulArray, b)
+        @eval *(a::AbstractArray{<:Any, $j}, b::UnitfulArray{<:Any, $i}) =
+            convert(UnitfulArray, a) * b
+    end
+end
 Base.inv(umat::UnitfulMatrix) =
     UnitfulMatrix(inv(umat.arr), umat.units[2].^-1, umat.units[1].^-1)
 Base.adjoint(umat::UnitfulMatrix) =

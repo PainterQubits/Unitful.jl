@@ -1476,13 +1476,12 @@ end
     @test @inferred(inv(m1) * m2) ≈ I rtol=0.00001
     @test m1' * inv(m2') ≈ I   # not @inferred; see julialang#30038
     @test adjoint(v) == [1m 2s]
-    @test @inferred(inv(m2) * v) == [0.0, 0.5]
-    @test inv(m2) * v isa UnitfulArray
+    @test @inferred(inv(m2) * v)::UnitfulArray == [0.0, 0.5]
     @test_throws MethodError m1 - v
     @test m1 - m1 == [0m 0m; 0s 0s]
     @test m1 + m2 == [2m 4m; 6s 8s]
     @test m1' + m2' == [2m 4m; 6s 8s]'
-    @test m1 * [2 0; 0 -1] == [2m -2m; 6s -4s]
+    @test (m1 * [2 0; 0 -1])::UnitfulArray == [2m -2m; 6s -4s]
 end
 
 end
