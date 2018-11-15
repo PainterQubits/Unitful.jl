@@ -83,6 +83,9 @@ struct UnitfulCholesky{T, U} #{T,S<:AbstractMatrix} <: Factorization{T}
     input_units::U
 end
 cholesky(uarr::UnitfulArray) = UnitfulCholesky(cholesky(uarr.arr), uarr.units)
+Diagonal(::UnitfulVector) =
+    # because the vector only contains one set of units, and we need two
+    error("Use `UnitfulArray(Diagonal(vec), row_units, col_units)` instead.")
 function getproperty(UC::UnitfulCholesky, d::Symbol)
     res = getproperty(getfield(UC, :unitless_chol), d)
     inp_units = getfield(UC, :input_units)

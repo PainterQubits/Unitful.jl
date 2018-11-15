@@ -1484,6 +1484,7 @@ end
     @test (m1 * [2 0; 0 -1])::UnitfulArray == [2m -2m; 6s -4s]
     c = cholesky(m3)
     @test (c.L * c.U)::UnitfulArray == m3
+    @test_throws ErrorException Diagonal(v)
 end
 
 end
