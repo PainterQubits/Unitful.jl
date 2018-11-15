@@ -12,7 +12,8 @@ struct UnitfulArray{T, N, A<:AbstractArray{T, N}, U<:NTuple{N, TupleOf{Units}}} 
     arr::A
     units::U
 end
-UnitfulArray(arr, units...) = UnitfulArray(arr, units)
+UnitfulArray(arr::AbstractArray{<:Any, N}, units::Vararg{TupleOf{Units}, N}) where N =
+    UnitfulArray(arr, units)
 Base.convert(::Type{UnitfulArray}, arr::AbstractArray{<:Real, N}) where N =
     UnitfulArray(arr, ntuple(i->ntuple(_->NoUnits, size(arr, i)), N))
 const UnitfulVector{T} = UnitfulArray{T, 1}
