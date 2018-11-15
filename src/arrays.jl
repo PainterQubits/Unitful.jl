@@ -77,6 +77,18 @@ Base.adjoint(umat::UnitfulMatrix) =
 Base.adjoint(uvec::UnitfulVector) =
     UnitfulMatrix(adjoint(uvec.arr), (NoUnits,), uvec.units[1])
 
+# struct UnitfulCholesky{T,S<:AbstractMatrix} <: Factorization{T}
+#     unitless_chol::T
+#     function Cholesky{T,S}(factors, uplo, info) where {T,S<:AbstractMatrix}
+#         @assert !has_offset_axes(factors)
+#         new(factors, uplo, info)
+#     end
+# end
+# Cholesky(A::AbstractMatrix{T}, uplo::Symbol, info::Integer) where {T} =
+#     Cholesky{T,typeof(A)}(A, char_uplo(uplo), info)
+# Cholesky(A::AbstractMatrix{T}, uplo::AbstractChar, info::Integer) where {T} =
+# Cholesky{T,typeof(A)}(A, uplo, info)
+
 """ Similar to promote, convert the units of `(a, b)` into `(new_a, new_b)` such that 
 the units of `new_a` and `new_b` are the same. """
 compatible_units(a::UnitfulVector, b::UnitfulVector) =
