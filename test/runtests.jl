@@ -1482,6 +1482,7 @@ end
     @test m1 - m1 == [0m 0m; 0s 0s]
     @test m1 + m2 == [2m 4m; 6s 8s]
     @test m1' + m2' == [2m 4m; 6s 8s]'
+    @test m1 * [2 0; 0 -1] == [2m -2m; 6s -4s]
 end
 
 end

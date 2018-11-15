@@ -13,6 +13,8 @@ struct UnitfulArray{T, N, A<:AbstractArray{T, N}, U<:NTuple{N, TupleOf{Units}}} 
     units::U
 end
 UnitfulArray(arr, units...) = UnitfulArray(arr, units)
+Base.convert(::Type{UnitfulArray}, arr::AbstractArray{<:Real, N} where N) =
+    UnitfulArray(arr, ntuple(i->ntuple(_->NoUnits, size(arr, i)), N))
 const UnitfulVector{T} = UnitfulArray{T, 1}
 const UnitfulMatrix{T} = UnitfulArray{T, 2}
 const UnitfulVecOrMat{T} = Union{UnitfulVector{T}, UnitfulMatrix{T}}
@@ -45,7 +47,7 @@ Base.getindex(ua::UnitfulArray{T, N}, inds::Vararg{Int, N}) where {T, N} =
 
 """ A diagonal matrix with the from_units -> to_units conversion factors on the 
 diagonal. """
-convmat(to_units, from_units) = Diagonal(SVector(convfact.(to_units, from_units)...))
+convmat(to_units, from_units) = Diagonal(SVector(Float64.(convfact.(to_units, from_units)...)))
 
 """ Scale the rows of `ua` so that it has units `row_units`, or throw a DimensionError.
 """
@@ -59,6 +61,8 @@ uconvert_columns(col_units::TupleOf{Units}, umat::UnitfulMatrix) =
 *(a::UnitfulMatrix, b::UnitfulVecOrMat) =
     UnitfulArray(a.arr * uconvert_rows(column_units(a).^-1, b).arr,
                  row_units(a), Base.tail(b.units)...)
+*(a::UnitfulVecOrMat, b::AbstractVecOrMat) = a * convert(UnitfulArray, b)
+*(a::AbstractVecOrMat, b::UnitfulVecOrMat) = convert(UnitfulArray, a) * b
 Base.inv(umat::UnitfulMatrix) =
     UnitfulMatrix(inv(umat.arr), umat.units[2].^-1, umat.units[1].^-1)
 Base.adjoint(umat::UnitfulMatrix) =
@@ -80,3 +84,5 @@ end
 +(a::UnitfulArray, b::UnitfulArray) = apply(+, a, b)
 -(a::UnitfulArray, b::UnitfulArray) = apply(-, a, b)
     
+ustrip(a::UnitfulArray) = a.arr
+unit(a::UnitfulArray) = a.units
