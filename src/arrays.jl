@@ -50,7 +50,9 @@ Base.getindex(ua::UnitfulArray{T, N}, inds::Vararg{Int, N}) where {T, N} =
 
 """ A diagonal matrix with the from_units -> to_units conversion factors on the 
 diagonal. """
-convmat(to_units, from_units) = Diagonal(Float64.(SVector(convfact.(to_units, from_units)...)))
+convmat(to_units, from_units) =
+    # Float64 to avoid a segfault on my machine :(
+    Diagonal(Float64.(SVector(convfact.(to_units, from_units)...)))
 
 """ Scale the rows of `ua` so that it has units `row_units`, or throw a DimensionError.
 """
@@ -73,6 +75,9 @@ for i in 1:2
             convert(UnitfulArray, a) * b
     end
 end
+@noinline \(a::UnitfulMatrix, b::UnitfulVecOrMat) =
+    UnitfulVector(a.arr \ uconvert_rows(row_units(a), b).arr,
+                  column_units(a).^-1, Base.tail(b.units)...)
 Base.inv(umat::UnitfulMatrix) =
     UnitfulMatrix(inv(umat.arr), umat.units[2].^-1, umat.units[1].^-1)
 Base.adjoint(umat::UnitfulMatrix) =
@@ -109,7 +114,7 @@ compatible_units(a::UnitfulVector, b::UnitfulVector) =
     (a, uconvert_rows(row_units(a), b))
 compatible_units(a::UnitfulMatrix, b::UnitfulMatrix) =
     (a, uconvert_columns(column_units(a), uconvert_rows(row_units(a), b)))
-function apply(op, a::UnitfulArray{N}, b::UnitfulArray{N}) where N
+function apply(op, a::UnitfulArray{T, N}, b::UnitfulArray{U, N}) where {T, U, N}
     a2, b2 = compatible_units(a, b)
     return UnitfulArray(op(a2.arr, b2.arr), a2.units)
 end

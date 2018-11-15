@@ -13,7 +13,7 @@ import Unitful:
     Ra, °F, °C, K,
     rad, °,
     ms, s, minute, hr, Hz,
-    J, A, N, mol, cd, V,
+    J, A, N, mol, cd, V, kA,
     mW, W,
     dB, dB_rp, dB_p, dBm, dBV, dBSPL, Decibel,
     Np, Np_rp, Np_p, Neper
@@ -1482,10 +1482,24 @@ end
     @test m1 + m2 == [2m 4m; 6s 8s]
     @test m1' + m2' == [2m 4m; 6s 8s]'
     @test (m1 * [2 0; 0 -1])::UnitfulArray == [2m -2m; 6s -4s]
-    c = cholesky(m3)
-    @test (c.L * c.U)::UnitfulArray == m3
-    @test_throws ErrorException Diagonal(v)
-    @test convert(UnitfulMatrix, ustrip(m1))::UnitfulMatrix == ustrip(m1)
+    @testset "Cholesky" begin
+        m3 = UnitfulArray([1 0.1; 0.1 4], (m, s), (NoUnits, NoUnits))
+        c = cholesky(m3)
+        @test (c.L * c.U)::UnitfulArray == m3
+        @test_throws ErrorException Diagonal(v)
+        @test convert(UnitfulMatrix, ustrip(m1))::UnitfulMatrix == ustrip(m1)
+    end
+    
+    @testset "Division" begin
+        A = UnitfulMatrix([1 0; 1 -2], (m, s), (kA, W))
+        B = UnitfulVector([32; -4], (m, s))
+        X = A \ B
+        @test A * X == B
+        A2 = Unitful.uconvert_columns((kA, mW), A)
+        X2 = A2 \ B
+        @test_broken A * X2 ≈ B rtol=0.001   # no clue why it's broken
+        @test ustrip(A * X2 - B) ≈ [0.0, 0.0] atol=1.e-10
+    end
 end
 
 end
