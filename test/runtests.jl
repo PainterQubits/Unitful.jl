@@ -1485,6 +1485,7 @@ end
     c = cholesky(m3)
     @test (c.L * c.U)::UnitfulArray == m3
     @test_throws ErrorException Diagonal(v)
+    @test convert(UnitfulMatrix, ustrip(m1))::UnitfulMatrix == ustrip(m1)
 end
 
 end
