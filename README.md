@@ -23,11 +23,12 @@ mathematical operations and collections that are found in Julia base.
 
 ### Units packages
 
-- [UnitfulUS.jl](https://github.com/ajkeller34/UnitfulUS.jl): U.S. customary units. Serves as an example for how to implement a units 
+- [UnitfulUS.jl](https://github.com/ajkeller34/UnitfulUS.jl): U.S. customary units. Serves as an example for how to implement a units
   package.
 - [UnitfulAstro.jl](https://github.com/mweastwood/UnitfulAstro.jl): Astronomical units.
 - [UnitfulAngles.jl](https://github.com/yakir12/UnitfulAngles.jl): More angular units, additional trigonometric functionalities, and clock-angle conversion.
 - [UnitfulAtomic.jl](https://github.com/sostock/UnitfulAtomic.jl): Easy conversion from and to atomic units.
+- [PowerSystemsUnits.jl](https://github.com/invenia/PowerSystemsUnits.jl): Common units for dealing with power systems.
 
 ### Feature additions
 
