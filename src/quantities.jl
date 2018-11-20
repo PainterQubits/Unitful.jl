@@ -1,4 +1,3 @@
-
 """
     Quantity(x::Number, y::Units)
 Outer constructor for `Quantity`s. This is a generated function to avoid
@@ -278,8 +277,8 @@ _dimerr(f) = error("$f can only be well-defined for dimensionless ",
 isinteger(x::Quantity) = _dimerr(isinteger)
 isinteger(x::DimensionlessQuantity) = isinteger(uconvert(NoUnits, x))
 for f in (:floor, :ceil, :trunc, :round)
-    @eval ($f)(x::Quantity) = _dimerr($f)
-    @eval ($f)(x::DimensionlessQuantity) = ($f)(uconvert(NoUnits, x))
+    @eval ($f)(x::Quantity; digits=0) = _dimerr($f)
+    @eval ($f)(x::DimensionlessQuantity; digits=0) = ($f)(uconvert(NoUnits, x); digits=digits)
     @eval ($f)(::Type{T}, x::Quantity) where {T <: Integer} = _dimerr($f)
     @eval ($f)(::Type{T}, x::DimensionlessQuantity) where {T <: Integer} = ($f)(T, uconvert(NoUnits, x))
 end
