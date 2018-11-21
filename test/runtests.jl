@@ -839,9 +839,13 @@ end
     @test_throws ErrorException trunc(Int, 3.7m)
     @test_throws ErrorException round(Int, 3.7m)
     @test floor(1.0314m/mm) === 1031.0
+    @test floor(1.0314m/mm; digits=1) === 1031.4
     @test ceil(1.0314m/mm) === 1032.0
+    @test ceil(1.0314m/mm; digits=1) === 1031.4
     @test trunc(-1.0314m/mm) === -1031.0
+    @test trunc(-1.0314m/mm; digits=1) === -1031.4
     @test round(1.0314m/mm) === 1031.0
+    @test round(1.0314m/mm; digits=1) === 1031.4
     @test floor(Integer, 1.0314m/mm) === Integer(1031.0)
     @test ceil(Integer, 1.0314m/mm) === Integer(1032.0)
     @test trunc(Integer, -1.0314m/mm) === Integer(-1031.0)
