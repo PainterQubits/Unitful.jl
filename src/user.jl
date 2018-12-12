@@ -471,9 +471,6 @@ will be used.
 Note that what goes inside must be parsable as a valid Julia expression.
 In other words, u"N m" will fail if you intended to write u"N*m".
 
-Since `@u_str` dynamically looks through registered modules, it does not play well with
-precompilation. You shouldn't use this macro in a precompiled module.
-
 Examples:
 
 ```jldoctest
@@ -495,25 +492,25 @@ julia> u"ħ"
 """
 macro u_str(unit)
     ex = Meta.parse(unit)
-    esc(replace_value(ex))
+    esc(replace_value(__module__, ex))
 end
 
 const allowed_funcs = [:*, :/, :^, :sqrt, :√, :+, :-, ://]
-function replace_value(ex::Expr)
+function replace_value(targetmod, ex::Expr)
     if ex.head == :call
         ex.args[1] in allowed_funcs ||
             error("""$(ex.args[1]) is not a valid function call when parsing a unit.
              Only the following functions are allowed: $allowed_funcs""")
         for i=2:length(ex.args)
             if typeof(ex.args[i])==Symbol || typeof(ex.args[i])==Expr
-                ex.args[i]=replace_value(ex.args[i])
+                ex.args[i]=replace_value(targetmod, ex.args[i])
             end
         end
         return ex
     elseif ex.head == :tuple
         for i=1:length(ex.args)
             if typeof(ex.args[i])==Symbol
-                ex.args[i]=replace_value(ex.args[i])
+                ex.args[i]=replace_value(targetmod, ex.args[i])
             else
                 error("only use symbols inside the tuple.")
             end
@@ -524,11 +521,27 @@ function replace_value(ex::Expr)
     end
 end
 
-function replace_value(sym::Symbol)
-    f = m->(isdefined(m,sym) && ustrcheck_bool(getfield(m, sym)))
-    inds = findall(f, unitmodules)
-    isempty(inds) &&
-        error("Symbol $sym could not be found in registered unit modules.")
+function replace_value(targetmod, sym::Symbol)
+    f = m->()
+    inds = findall(unitmodules) do m
+        # Ensure that both the unit exists in the registered unit module, and
+        # that the target module (the one invoking `u_str`) has loaded it so
+        # that precompilation will work.
+        isdefined(m,sym)             && ustrcheck_bool(getfield(m, sym))  &&
+        isdefined(targetmod, nameof(m)) && getfield(targetmod,nameof(m)) === m
+    end
+    if isempty(inds)
+        # Check whether unit exists in the global list to give an improved
+        # error message.
+        f = m->(isdefined(m,sym) && ustrcheck_bool(getfield(m, sym)))
+        hintidx = findfirst(f, unitmodules)
+        if hintidx !== nothing
+            hintmod = unitmodules[hintidx]
+            error("Symbol `$sym` was found in unit module $hintmod, but was not loaded into $targetmod. Consider `using $hintmod` within `$targetmod`?")
+        else
+            error("Symbol $sym could not be found in registered unit modules.")
+        end
+    end
 
     m = unitmodules[inds[end]]
     u = getfield(m, sym)
@@ -539,7 +552,7 @@ function replace_value(sym::Symbol)
     return u
 end
 
-replace_value(literal::Number) = literal
+replace_value(targetmod, literal::Number) = literal
 
 ustrcheck_bool(::Number) = true
 ustrcheck_bool(::MixedUnits) = true
