@@ -1436,21 +1436,27 @@ module ShadowUnits
     Unitful.register(ShadowUnits)
 end
 
-let fname = tempname()
-    try
-        ret = open(fname, "w") do f
-            redirect_stderr(f) do
-                # wrap in eval to catch the STDERR output...
-                @test eval(:(typeof(u"m"))) == Unitful.FreeUnits{
-                    (Unitful.Unit{:MyMeter, 𝐋}(0, 1//1),), 𝐋, nothing}
-            end
-        end
-    finally
-        rm(fname, force=true)
-    end
-end
+@test (@test_logs (:warn, r"found in multiple") eval(:(typeof(u"m")))) ==
+    Unitful.FreeUnits{(Unitful.Unit{:MyMeter, 𝐋}(0, 1//1),), 𝐋, nothing}
 
-@test_logs (:warn, r"found in multiple") eval(:(u"m"))
+# Test that the @u_str macro will not find units in modules which are
+# not loaded before the u_str invocation.
+module FooUnits
+    using Unitful
+    @unit foo "foo" MyFoo 1u"m" false
+    Unitful.register(FooUnits)
+end
+# NB: The following is LoadError in 1.0 but an ErrorException in 0.7.
+@test_throws Exception eval(:(module ShouldUseFooUnits
+                                  using Unitful
+                                  foo() = 1u"foo"
+                              end))
+# Test that u_str works when FooUnits is correctly loaded.
+module DoesUseFooUnits
+    using Unitful, ..FooUnits
+    foo() = 1u"foo"
+end
+@test DoesUseFooUnits.foo() === 1u"foo"
 
 # Test to make sure user macros are working properly
 module TUM
