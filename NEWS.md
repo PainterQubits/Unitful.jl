@@ -1,3 +1,6 @@
+- v0.14.0
+  - Support for `digits` kwarg (#196).
+  - Try to support precompilation with `u_str` macro (#201).
 - v0.13.0
   - Implement affine quantities for better temperature handling (#177, #182).
   - Rename `°Ra` to `Ra` to emphasize that it is an absolute scale.
