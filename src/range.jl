@@ -4,7 +4,7 @@ import Base: ArithmeticRounds
 import Base: OrderStyle, Ordered, ArithmeticStyle, ArithmeticWraps
 
 *(y::Units, r::AbstractRange) = *(r,y)
-*(r::AbstractRange, y::Units, z::Units...) = *(x, *(y,z...))
+*(r::AbstractRange, y::Units, z::Units...) = *(r, *(y,z...))
 
 Base._range(start::Quantity{<:Real}, ::Nothing, stop, len::Integer) =
     _range(promote(start, stop)..., len)
