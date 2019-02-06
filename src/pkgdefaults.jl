@@ -44,7 +44,6 @@ const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 @derived_dimension ElectricDipoleMoment     𝐋*𝐓*𝐈
 @derived_dimension ElectricQuadrupoleMoment 𝐋^2*𝐓*𝐈
 @derived_dimension MagneticDipoleMoment     𝐋^2*𝐈
-@derived_dimension Concentration            𝐌/𝐋^3
 @derived_dimension Molarity                 𝐍/𝐋^3
 @derived_dimension Molality                 𝐍/𝐌
 
