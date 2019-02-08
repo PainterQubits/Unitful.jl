@@ -976,10 +976,13 @@ end
         end
         @testset ">> unit multiplication" begin
             @test @inferred((1:5)*mm) === 1mm:1mm:5mm
+            @test @inferred(mm*(1:5)) === 1mm:1mm:5mm
             @test @inferred((1:2:5)*mm) === 1mm:2mm:5mm
             @test @inferred((1.0:2.0:5.01)*mm) === 1.0mm:2.0mm:5.0mm
             r = @inferred(range(0.1, step=0.1, length=3) * 1.0s)
             @test r[3] === 0.3s
+            @test *(1:5, mm, s^-1) === 1mm*s^-1:1mm*s^-1:5mm*s^-1
+            @test *(1:5, mm, s^-1, mol^-1) === 1mm*s^-1*mol^-1:1mm*s^-1*mol^-1:5mm*s^-1*mol^-1
         end
     end
     @testset "> Arrays" begin
