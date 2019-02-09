@@ -90,7 +90,14 @@ true
 *(a0::Units, a::Units...) = FixedUnits(*(FreeUnits(a0), FreeUnits.(a)...))
 # Logic above is that if we're not using FreeOrContextUnits, at least one is FixedUnits.
 
+*(a0::Units, a::Missing) = missing
+*(a0::Missing, a::Units) = missing
+
 /(x::Units, y::Units) = *(x,inv(y))
+
+/(x::Units, y::Missing) = missing
+/(x::Missing, y::Units) = missing
+
 //(x::Units, y::Units)  = x/y
 
 # Both methods needed for ambiguity resolution
@@ -115,6 +122,9 @@ true
 
 ^(x::FixedUnits{N,D,nothing}, y::Integer) where {N,D} = *(FixedUnits{map(a->a^y, N), ()}())
 ^(x::FixedUnits{N,D,nothing}, y::Number) where {N,D} = *(FixedUnits{map(a->a^y, N), ()}())
+
+^(x::Units, y::Missing) = missing
+^(x::Missing, y::Units) = missing
 
 Base.literal_pow(::typeof(^), x::AffineUnits, ::Val{p}) where p =
     throw(AffineError("an invalid operation was attempted with affine units: $x"))

@@ -32,6 +32,8 @@ function uconvert(a::Units, x::Number)
     end
 end
 
+uconvert(a::Units, x::Missing) = missing
+
 @generated function uconvert_affine(a::Units, x::Quantity)
     # TODO: test, may be able to get bad things to happen here when T<:LogScaled
     auobj = a()

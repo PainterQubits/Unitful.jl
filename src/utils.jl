@@ -27,6 +27,7 @@ true
 """
 @inline ustrip(x::Number) = x / unit(x)
 @inline ustrip(x::Quantity) = ustrip(x.val)
+@inline ustrip(x::Missing) = missing
 
 """
     ustrip(x::Array{Q}) where {Q <: Quantity}
@@ -110,6 +111,9 @@ true
 """
 @inline unit(x::Number) = NoUnits
 @inline unit(x::Type{T}) where {T <: Number} = NoUnits
+@inline unit(x::Type{Union{Missing, T}}) where T = unit(T)
+@inline unit(x::Type{Missing}) = missing
+@inline unit(x::Missing) = missing
 
 """
     absoluteunit(::Units)
@@ -146,6 +150,8 @@ true
 """
 @inline dimension(x::Number) = NoDims
 @inline dimension(x::Type{T}) where {T <: Number} = NoDims
+@inline dimension(x::Missing) = missing
+@inline dimension(x::Type{Missing}) = missing
 
 """
     dimension(u::Units{U,D}) where {U,D}
