@@ -380,6 +380,10 @@ end
     @test @inferred(unit(1m^2)) === m^2
     @test @inferred(unit(typeof(1m^2))) === m^2
     @test @inferred(unit(Float64)) === NoUnits
+    @test @inferred(unit(Union{typeof(1m^2),Missing})) === m^2
+    @test @inferred(unit(Union{Float64,Missing})) === NoUnits
+    @test @inferred(unit(missing)) === missing
+    @test @inferred(unit(Missing)) === missing
     @test @inferred(dimension(1m^2)) === 𝐋^2
     @test @inferred(dimension(1*ContextUnits(m,km)^2)) === 𝐋^2
     @test @inferred(dimension(typeof(1m^2))) === 𝐋^2
@@ -389,6 +393,8 @@ end
     @test @inferred(dimension(m/s)) === 𝐋/𝐓
     @test @inferred(dimension(1u"mol")) === 𝐍
     @test @inferred(dimension(μm/m)) === NoDims
+    @test @inferred(dimension(missing)) === missing
+    @test @inferred(dimension(Missing)) === missing
     @test dimension.([1u"m", 1u"s"]) == [𝐋, 𝐓]
     @test dimension.([u"m", u"s"]) == [𝐋, 𝐓]
     @test (𝐋/𝐓)^2 === 𝐋^2 / 𝐓^2
@@ -508,6 +514,8 @@ end
         @test (m//2) === 1//2 * m            # Unit // Real
         @test (2//m) === (2//1) / m          # Real // Unit
         @test (m//s) === m/s                 # Unit // Unit
+        @test m / missing === missing        # Unit / missing
+        @test missing / m === missing        # Missing / Unit (// is not defined for Missing)
         @test @inferred(div(10m, -3cm)) === -333
         @test @inferred(fld(10m, -3cm)) === -334
         @test rem(10m, -3cm) == 1.0cm
@@ -1409,6 +1417,7 @@ end
         @test ustrip(20dB) === 20
         @test ustrip(20dB_rp) === 20
         @test ustrip(13dBm) ≈ 13
+        @test ustrip(missing) === missing
     end
 
     @testset "> Display" begin
