@@ -17,16 +17,16 @@ Quantity(x::Number, y::Units{()}) = x
 *(x::Number, y::Units, z::Units...) = Quantity(x,*(y,z...))
 *(x::Units, y::Number) = *(y,x)
 
-*(x::Quantity, y::Units, z::Units...) = Quantity(x.val, *(unit(x),y,z...))
-*(x::Quantity, y::Quantity) = Quantity(x.val*y.val, unit(x)*unit(y))
+*(x::AbstractQuantity, y::Units, z::Units...) = Quantity(x.val, *(unit(x),y,z...))
+*(x::AbstractQuantity, y::AbstractQuantity) = Quantity(x.val*y.val, unit(x)*unit(y))
 
 # Next two lines resolves some method ambiguity:
-*(x::Bool, y::T) where {T <: Quantity} =
+*(x::Bool, y::T) where {T <: AbstractQuantity} =
     ifelse(x, y, ifelse(signbit(y), -zero(y), zero(y)))
-*(x::Quantity, y::Bool) = Quantity(x.val*y, unit(x))
+*(x::AbstractQuantity, y::Bool) = Quantity(x.val*y, unit(x))
 
-*(y::Number, x::Quantity) = *(x,y)
-function *(x::Quantity, y::Number)
+*(y::Number, x::AbstractQuantity) = *(x,y)
+function *(x::AbstractQuantity, y::Number)
     x isa AffineQuantity &&
         throw(AffineError("an invalid operation was attempted with affine quantities: $x*$y"))
     return Quantity(x.val*y, unit(x))
@@ -36,58 +36,58 @@ end
 *(A::AbstractArray, B::Units) = broadcast(*, A, B)
 
 # Division (units)
-/(x::Quantity, y::Units) = Quantity(x.val, unit(x) / y)
-/(x::Units, y::Quantity) = Quantity(1/y.val, x / unit(y))
+/(x::AbstractQuantity, y::Units) = Quantity(x.val, unit(x) / y)
+/(x::Units, y::AbstractQuantity) = Quantity(1/y.val, x / unit(y))
 /(x::Number, y::Units) = Quantity(x,inv(y))
 /(x::Units, y::Number) = (1/y) * x
 
-//(x::Quantity, y::Units) = Quantity(x.val, unit(x) / y)
-//(x::Units, y::Quantity) = Quantity(1//y.val, x / unit(y))
+//(x::AbstractQuantity, y::Units) = Quantity(x.val, unit(x) / y)
+//(x::Units, y::AbstractQuantity) = Quantity(1//y.val, x / unit(y))
 //(x::Number, y::Units) = Rational(x)/y
 //(x::Units, y::Number) = (1//y) * x
 
-/(x::Quantity, y::Quantity) = Quantity(/(x.val, y.val), unit(x) / unit(y))
-/(x::Quantity, y::Number) = Quantity(/(x.val, y), unit(x) / unit(y))
-/(x::Number, y::Quantity) = Quantity(/(x, y.val), unit(x) / unit(y))
-//(x::Quantity, y::Quantity) = Quantity(//(x.val, y.val), unit(x) / unit(y))
-//(x::Quantity, y::Number) = Quantity(//(x.val, y), unit(x) // unit(y))
-//(x::Number, y::Quantity) = Quantity(//(x, y.val), unit(x) / unit(y))
+/(x::AbstractQuantity, y::AbstractQuantity) = Quantity(/(x.val, y.val), unit(x) / unit(y))
+/(x::AbstractQuantity, y::Number) = Quantity(/(x.val, y), unit(x) / unit(y))
+/(x::Number, y::AbstractQuantity) = Quantity(/(x, y.val), unit(x) / unit(y))
+//(x::AbstractQuantity, y::AbstractQuantity) = Quantity(//(x.val, y.val), unit(x) / unit(y))
+//(x::AbstractQuantity, y::Number) = Quantity(//(x.val, y), unit(x) // unit(y))
+//(x::Number, y::AbstractQuantity) = Quantity(//(x, y.val), unit(x) / unit(y))
 
 # ambiguity resolution
-//(x::Quantity, y::Complex) = Quantity(//(x.val, y), unit(x))
+//(x::AbstractQuantity, y::Complex) = Quantity(//(x.val, y), unit(x))
 
 for f in (:div, :fld, :cld)
-    @eval function ($f)(x::Quantity, y::Quantity)
+    @eval function ($f)(x::AbstractQuantity, y::AbstractQuantity)
         z = uconvert(unit(y), x)        # TODO: use promote?
         ($f)(z.val,y.val)
     end
 end
 
 for f in (:mod, :rem)
-    @eval function ($f)(x::Quantity, y::Quantity)
+    @eval function ($f)(x::AbstractQuantity, y::AbstractQuantity)
         z = uconvert(unit(y), x)        # TODO: use promote?
         Quantity(($f)(z.val,y.val), unit(y))
     end
 end
 
 Base.mod2pi(x::DimensionlessQuantity) = mod2pi(uconvert(NoUnits, x))
-Base.mod2pi(x::Quantity{S, NoDims, <:Units{(Unitful.Unit{:Degree, NoDims}(0, 1//1),),
+Base.mod2pi(x::AbstractQuantity{S, NoDims, <:Units{(Unitful.Unit{:Degree, NoDims}(0, 1//1),),
     NoDims}}) where S = mod(x, 360°)
 
 # Addition / subtraction
 for op in [:+, :-]
-    @eval ($op)(x::Quantity{S,D,U}, y::Quantity{T,D,U}) where {S,T,D,U} =
+    @eval ($op)(x::AbstractQuantity{S,D,U}, y::AbstractQuantity{T,D,U}) where {S,T,D,U} =
         Quantity(($op)(x.val, y.val), U())
 
-    @eval function ($op)(x::Quantity{S,D,SU}, y::Quantity{T,D,TU}) where {S,T,D,SU,TU}
+    @eval function ($op)(x::AbstractQuantity{S,D,SU}, y::AbstractQuantity{T,D,TU}) where {S,T,D,SU,TU}
         ($op)(promote(x,y)...)
     end
 
-    @eval ($op)(x::Quantity, y::Quantity) = throw(DimensionError(x,y))
-    @eval ($op)(x::Quantity) = Quantity(($op)(x.val), unit(x))
+    @eval ($op)(x::AbstractQuantity, y::AbstractQuantity) = throw(DimensionError(x,y))
+    @eval ($op)(x::AbstractQuantity) = Quantity(($op)(x.val), unit(x))
 end
 
-function +(x::AffineQuantity{S,D}, y::Quantity{T,D}) where {S,T,D}
+function +(x::AffineQuantity{S,D}, y::AbstractQuantity{T,D}) where {S,T,D}
     pu = promote_unit(unit(x), unit(y))     # units for the final result.
 
     # Get x on an absolute scale. FreeUnits in the line below prevents
@@ -101,7 +101,7 @@ function +(x::AffineQuantity{S,D}, y::Quantity{T,D}) where {S,T,D}
 
     return uconvert(pu, x′+y′)  # we get back the promotion context in the end
 end
-+(x::Quantity, y::AffineQuantity) = +(y,x)
++(x::AbstractQuantity, y::AffineQuantity) = +(y,x)
 
 # Disallow addition of affine quantities
 +(x::AffineQuantity, y::AffineQuantity) = throw(AffineError(
@@ -114,18 +114,18 @@ function -(x::T, y::T) where T <: AffineQuantity
 end
 
 # Disallow subtracting an affine quantity from a quantity
--(x::Quantity, y::AffineQuantity) =
+-(x::AbstractQuantity, y::AffineQuantity) =
     throw(AffineError("an invalid operation was attempted with affine quantities: $x - $y"))
 
 # Needed until LU factorization is made to work with unitful numbers
-function inv(x::StridedMatrix{T}) where {T <: Quantity}
+function inv(x::StridedMatrix{T}) where {T <: AbstractQuantity}
     m = inv(ustrip(x))
     iq = eltype(m)
     reinterpret(Quantity{iq, inv(dimension(T)), typeof(inv(unit(T)))}, m)
 end
 
 for x in (:istriu, :istril)
-    @eval ($x)(A::AbstractMatrix{T}) where {T <: Quantity} = ($x)(ustrip(A))
+    @eval ($x)(A::AbstractMatrix{T}) where {T <: AbstractQuantity} = ($x)(ustrip(A))
 end
 
 # Other mathematical functions
@@ -138,11 +138,11 @@ end
 
 for (_x,_y) in [(:fma, :_fma), (:muladd, :_muladd)]
     # Catch some signatures pre-promotion
-    @eval @inline ($_x)(x::Number, y::Quantity, z::Quantity) = ($_y)(x,y,z)
-    @eval @inline ($_x)(x::Quantity, y::Number, z::Quantity) = ($_y)(x,y,z)
+    @eval @inline ($_x)(x::Number, y::AbstractQuantity, z::AbstractQuantity) = ($_y)(x,y,z)
+    @eval @inline ($_x)(x::AbstractQuantity, y::Number, z::AbstractQuantity) = ($_y)(x,y,z)
 
     # Post-promotion
-    @eval @inline ($_x)(x::Quantity{A}, y::Quantity{B}, z::Quantity{C}) where {
+    @eval @inline ($_x)(x::AbstractQuantity{A}, y::AbstractQuantity{B}, z::AbstractQuantity{C}) where {
         A <: Number, B <: Number, C <: Number} = ($_y)(x,y,z)
 
     # It seems like most of this is optimized out by the compiler, including the
@@ -156,20 +156,20 @@ for (_x,_y) in [(:fma, :_fma), (:muladd, :_muladd)]
     end
 end
 
-sqrt(x::Quantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
-cbrt(x::Quantity) = Quantity(cbrt(x.val), cbrt(unit(x)))
+sqrt(x::AbstractQuantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
+cbrt(x::AbstractQuantity) = Quantity(cbrt(x.val), cbrt(unit(x)))
 
 for _y in (:sin, :cos, :tan, :cot, :sec, :csc, :cis)
     @eval ($_y)(x::DimensionlessQuantity) = ($_y)(uconvert(NoUnits, x))
 end
 
-atan(y::Quantity, x::Quantity) = atan(promote(y,x)...)
-atan(y::Quantity{T,D,U}, x::Quantity{T,D,U}) where {T,D,U} = atan(y.val,x.val)
-atan(y::Quantity{T,D1,U1}, x::Quantity{T,D2,U2}) where {T,D1,U1,D2,U2} =
+atan(y::AbstractQuantity, x::AbstractQuantity) = atan(promote(y,x)...)
+atan(y::AbstractQuantity{T,D,U}, x::AbstractQuantity{T,D,U}) where {T,D,U} = atan(y.val,x.val)
+atan(y::AbstractQuantity{T,D1,U1}, x::AbstractQuantity{T,D2,U2}) where {T,D1,U1,D2,U2} =
     throw(DimensionError(x,y))
 
 for (f, F) in [(:min, :<), (:max, :>)]
-    @eval @generated function ($f)(x::Quantity, y::Quantity)    #TODO
+    @eval @generated function ($f)(x::AbstractQuantity, y::AbstractQuantity)    #TODO
         xdim = x.parameters[2]
         ydim = y.parameters[2]
         if xdim != ydim
@@ -201,39 +201,39 @@ for (f, F) in [(:min, :<), (:max, :>)]
     end
 end
 
-abs(x::Quantity) = Quantity(abs(x.val), unit(x))
-abs2(x::Quantity) = Quantity(abs2(x.val), unit(x)*unit(x))
-angle(x::Quantity{<:Complex}) = angle(x.val)
+abs(x::AbstractQuantity) = Quantity(abs(x.val), unit(x))
+abs2(x::AbstractQuantity) = Quantity(abs2(x.val), unit(x)*unit(x))
+angle(x::AbstractQuantity{<:Complex}) = angle(x.val)
 
-copysign(x::Quantity, y::Number) = Quantity(copysign(x.val,y/unit(y)), unit(x))
-flipsign(x::Quantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
+copysign(x::AbstractQuantity, y::Number) = Quantity(copysign(x.val,y/unit(y)), unit(x))
+flipsign(x::AbstractQuantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
 
 for (i,j) in zip((:<, :isless), (:_lt, :_isless))
-    @eval ($i)(x::Quantity, y::Quantity) = ($j)(x,y)
-    @eval ($i)(x::Quantity, y::Number) = ($i)(promote(x,y)...)
-    @eval ($i)(x::Number, y::Quantity) = ($i)(promote(x,y)...)
+    @eval ($i)(x::AbstractQuantity, y::AbstractQuantity) = ($j)(x,y)
+    @eval ($i)(x::AbstractQuantity, y::Number) = ($i)(promote(x,y)...)
+    @eval ($i)(x::Number, y::AbstractQuantity) = ($i)(promote(x,y)...)
 
     # promotion might not yield Quantity types
-    @eval @inline ($j)(x::Quantity{T1}, y::Quantity{T2}) where {T1,T2} = ($i)(promote(x,y)...)
+    @eval @inline ($j)(x::AbstractQuantity{T1}, y::AbstractQuantity{T2}) where {T1,T2} = ($i)(promote(x,y)...)
     # If it does yield Quantity types, we'll get back here,
     # since at least the numeric part can be promoted.
-    @eval @inline ($j)(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} = ($i)(x.val,y.val)
-    @eval @inline ($j)(x::Quantity{T,D,U1}, y::Quantity{T,D,U2}) where {T,D,U1,U2} = ($i)(promote(x,y)...)
-    @eval @inline ($j)(x::Quantity{T,D1,U1}, y::Quantity{T,D2,U2}) where {T,D1,D2,U1,U2} = throw(DimensionError(x,y))
+    @eval @inline ($j)(x::AbstractQuantity{T,D,U}, y::AbstractQuantity{T,D,U}) where {T,D,U} = ($i)(x.val,y.val)
+    @eval @inline ($j)(x::AbstractQuantity{T,D,U1}, y::AbstractQuantity{T,D,U2}) where {T,D,U1,U2} = ($i)(promote(x,y)...)
+    @eval @inline ($j)(x::AbstractQuantity{T,D1,U1}, y::AbstractQuantity{T,D2,U2}) where {T,D1,D2,U1,U2} = throw(DimensionError(x,y))
 end
 
-Base.rtoldefault(::Type{Quantity{T,D,U}}) where {T,D,U} = Base.rtoldefault(T)
-isapprox(x::Quantity{T,D,U}, y::Quantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) where {T,D,U} =
+Base.rtoldefault(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = Base.rtoldefault(T)
+isapprox(x::AbstractQuantity{T,D,U}, y::AbstractQuantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) where {T,D,U} =
     isapprox(x.val, y.val; atol=uconvert(unit(y), atol).val, kwargs...)
-function isapprox(x::Quantity, y::Quantity; kwargs...)
+function isapprox(x::AbstractQuantity, y::AbstractQuantity; kwargs...)
     dimension(x) != dimension(y) && return false
     return isapprox(promote(x,y)...; kwargs...)
 end
-isapprox(x::Quantity, y::Number; kwargs...) = isapprox(promote(x,y)...; kwargs...)
-isapprox(x::Number, y::Quantity; kwargs...) = isapprox(y, x; kwargs...)
+isapprox(x::AbstractQuantity, y::Number; kwargs...) = isapprox(promote(x,y)...; kwargs...)
+isapprox(x::Number, y::AbstractQuantity; kwargs...) = isapprox(y, x; kwargs...)
 
-function isapprox(x::AbstractArray{Quantity{T1,D,U1}},
-        y::AbstractArray{Quantity{T2,D,U2}}; rtol::Real=Base.rtoldefault(T1,T2,0),
+function isapprox(x::AbstractArray{<:AbstractQuantity{T1,D,U1}},
+        y::AbstractArray{<:AbstractQuantity{T2,D,U2}}; rtol::Real=Base.rtoldefault(T1,T2,0),
         atol=zero(Quantity{T1,D,U1}), norm::Function=norm) where {T1,D,U1,T2,U2}
 
     d = norm(x - y)
@@ -245,9 +245,9 @@ function isapprox(x::AbstractArray{Quantity{T1,D,U1}},
     end
 end
 isapprox(x::AbstractArray{S}, y::AbstractArray{T};
-    kwargs...) where {S <: Quantity,T <: Quantity} = false
+    kwargs...) where {S <: AbstractQuantity,T <: AbstractQuantity} = false
 function isapprox(x::AbstractArray{S}, y::AbstractArray{N};
-    kwargs...) where {S <: Quantity,N <: Number}
+    kwargs...) where {S <: AbstractQuantity,N <: Number}
     if dimension(N) == dimension(S)
         isapprox(map(x->uconvert(NoUnits,x),x),y; kwargs...)
     else
@@ -255,131 +255,131 @@ function isapprox(x::AbstractArray{S}, y::AbstractArray{N};
     end
 end
 isapprox(y::AbstractArray{N}, x::AbstractArray{S};
-    kwargs...) where {S <: Quantity,N <: Number} = isapprox(x,y; kwargs...)
+    kwargs...) where {S <: AbstractQuantity,N <: Number} = isapprox(x,y; kwargs...)
 
 for cmp in [:(==), :isequal]
-    @eval $cmp(x::Quantity{S,D,U}, y::Quantity{T,D,U}) where {S,T,D,U} = $cmp(x.val, y.val)
-    @eval function $cmp(x::Quantity, y::Quantity)
+    @eval $cmp(x::AbstractQuantity{S,D,U}, y::AbstractQuantity{T,D,U}) where {S,T,D,U} = $cmp(x.val, y.val)
+    @eval function $cmp(x::AbstractQuantity, y::AbstractQuantity)
         dimension(x) != dimension(y) && return false
         $cmp(promote(x,y)...)
     end
 
-    @eval function $cmp(x::Quantity, y::Number)
+    @eval function $cmp(x::AbstractQuantity, y::Number)
         $cmp(promote(x,y)...)
     end
-    @eval $cmp(x::Number, y::Quantity) = $cmp(y,x)
+    @eval $cmp(x::Number, y::AbstractQuantity) = $cmp(y,x)
 end
-<=(x::Quantity, y::Quantity) = <(x,y) || x==y
+<=(x::AbstractQuantity, y::AbstractQuantity) = <(x,y) || x==y
 
 _dimerr(f) = error("$f can only be well-defined for dimensionless ",
         "numbers. For dimensionful numbers, different input units yield physically ",
         "different results.")
-isinteger(x::Quantity) = _dimerr(isinteger)
+isinteger(x::AbstractQuantity) = _dimerr(isinteger)
 isinteger(x::DimensionlessQuantity) = isinteger(uconvert(NoUnits, x))
 for f in (:floor, :ceil, :trunc, :round)
-    @eval ($f)(x::Quantity; digits=0) = _dimerr($f)
+    @eval ($f)(x::AbstractQuantity; digits=0) = _dimerr($f)
     @eval ($f)(x::DimensionlessQuantity; digits=0) = ($f)(uconvert(NoUnits, x); digits=digits)
-    @eval ($f)(::Type{T}, x::Quantity) where {T <: Integer} = _dimerr($f)
+    @eval ($f)(::Type{T}, x::AbstractQuantity) where {T <: Integer} = _dimerr($f)
     @eval ($f)(::Type{T}, x::DimensionlessQuantity) where {T <: Integer} = ($f)(T, uconvert(NoUnits, x))
 end
 
-zero(x::Quantity) = Quantity(zero(x.val), unit(x))
+zero(x::AbstractQuantity) = Quantity(zero(x.val), unit(x))
 zero(x::AffineQuantity) = Quantity(zero(x.val), absoluteunit(x))
-zero(x::Type{Quantity{T,D,U}}) where {T,D,U<:ScalarUnits} = zero(T)*U()
-zero(x::Type{Quantity{T,D,U}}) where {T,D,U<:AffineUnits} = zero(T)*absoluteunit(U())
+zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:ScalarUnits} = zero(T)*U()
+zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:AffineUnits} = zero(T)*absoluteunit(U())
 
-one(x::Quantity) = one(x.val)
+one(x::AbstractQuantity) = one(x.val)
 one(x::AffineQuantity) =
     throw(AffineError("no multiplicative identity for affine quantity $x."))
 oneunit(x::AffineQuantity) = Quantity(one(x.val), absoluteunit(x))
-oneunit(x::Type{Quantity{T,D,U}}) where {T,D,U<:AffineUnits} = Quantity(one(T), absoluteunit(U()))
-get_T(::Type{Quantity{T}}) where T = T
-get_T(::Type{Quantity{T,D}}) where {T,D} = T
-get_T(::Type{Quantity{T,D,U}}) where {T,D,U} = T
-one(x::Type{<:Quantity}) = one(get_T(x))
+oneunit(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:AffineUnits} = Quantity(one(T), absoluteunit(U()))
+get_T(::Type{<:AbstractQuantity{T}}) where T = T
+get_T(::Type{<:AbstractQuantity{T,D}}) where {T,D} = T
+get_T(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = T
+one(x::Type{<:AbstractQuantity}) = one(get_T(x))
 one(x::Type{<:AffineQuantity}) =
     throw(AffineError("no multiplicative identity for affine quantity type $x."))
 
-isreal(x::Quantity) = isreal(x.val)
-isfinite(x::Quantity) = isfinite(x.val)
-isinf(x::Quantity) = isinf(x.val)
-isnan(x::Quantity) = isnan(x.val)
+isreal(x::AbstractQuantity) = isreal(x.val)
+isfinite(x::AbstractQuantity) = isfinite(x.val)
+isinf(x::AbstractQuantity) = isinf(x.val)
+isnan(x::AbstractQuantity) = isnan(x.val)
 
-eps(x::T) where {T<:Quantity} = T(eps(x.val))
-eps(x::Type{T}) where {T<:Quantity} = eps(Unitful.numtype(T))
+eps(x::T) where {T<:AbstractQuantity} = T(eps(x.val))
+eps(x::Type{T}) where {T<:AbstractQuantity} = eps(Unitful.numtype(T))
 
-unsigned(x::Quantity) = Quantity(unsigned(x.val), unit(x))
+unsigned(x::AbstractQuantity) = Quantity(unsigned(x.val), unit(x))
 
 for f in (:exp, :exp10, :exp2, :expm1, :log, :log10, :log1p, :log2)
     @eval ($f)(x::DimensionlessQuantity) = ($f)(uconvert(NoUnits, x))
 end
 
-real(x::Quantity) = Quantity(real(x.val), unit(x))
-imag(x::Quantity) = Quantity(imag(x.val), unit(x))
-conj(x::Quantity) = Quantity(conj(x.val), unit(x))
+real(x::AbstractQuantity) = Quantity(real(x.val), unit(x))
+imag(x::AbstractQuantity) = Quantity(imag(x.val), unit(x))
+conj(x::AbstractQuantity) = Quantity(conj(x.val), unit(x))
 
-@inline norm(x::Quantity, p::Real=2) =
+@inline norm(x::AbstractQuantity, p::Real=2) =
     p == 0 ? (x==zero(x) ? typeof(abs(x))(0) : typeof(abs(x))(1)) : abs(x)
 
 """
-    sign(x::Quantity)
+    sign(x::AbstractQuantity)
 Returns the sign of `x`.
 """
-sign(x::Quantity) = sign(x.val)
+sign(x::AbstractQuantity) = sign(x.val)
 
 """
-    signbit(x::Quantity)
+    signbit(x::AbstractQuantity)
 Returns the sign bit of the underlying numeric value of `x`.
 """
-signbit(x::Quantity) = signbit(x.val)
+signbit(x::AbstractQuantity) = signbit(x.val)
 
-prevfloat(x::Quantity{T}) where {T <: AbstractFloat} = Quantity(prevfloat(x.val), unit(x))
-nextfloat(x::Quantity{T}) where {T <: AbstractFloat} = Quantity(nextfloat(x.val), unit(x))
+prevfloat(x::AbstractQuantity{T}) where {T <: AbstractFloat} = Quantity(prevfloat(x.val), unit(x))
+nextfloat(x::AbstractQuantity{T}) where {T <: AbstractFloat} = Quantity(nextfloat(x.val), unit(x))
 
-function frexp(x::Quantity{T}) where {T <: AbstractFloat}
+function frexp(x::AbstractQuantity{T}) where {T <: AbstractFloat}
     a,b = frexp(x.val)
     a*unit(x), b
 end
 
 """
-    float(x::Quantity)
+    float(x::AbstractQuantity)
 Convert the numeric backing type of `x` to a floating-point representation.
 Returns a `Quantity` with the same units.
 """
-float(x::Quantity) = Quantity(float(x.val), unit(x))
+float(x::AbstractQuantity) = Quantity(float(x.val), unit(x))
 
 """
-    Integer(x::Quantity)
+    Integer(x::AbstractQuantity)
 Convert the numeric backing type of `x` to an integer representation.
 Returns a `Quantity` with the same units.
 """
-Integer(x::Quantity) = Quantity(Integer(x.val), unit(x))
+Integer(x::AbstractQuantity) = Quantity(Integer(x.val), unit(x))
 
 """
-    Rational(x::Quantity)
+    Rational(x::AbstractQuantity)
 Convert the numeric backing type of `x` to a rational number representation.
 Returns a `Quantity` with the same units.
 """
-Rational(x::Quantity) = Quantity(Rational(x.val), unit(x))
+Rational(x::AbstractQuantity) = Quantity(Rational(x.val), unit(x))
 
-typemin(::Type{Quantity{T,D,U}}) where {T,D,U} = typemin(T)*U()
-typemin(x::Quantity{T}) where {T} = typemin(T)*unit(x)
+typemin(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = typemin(T)*U()
+typemin(x::AbstractQuantity{T}) where {T} = typemin(T)*unit(x)
 
-typemax(::Type{Quantity{T,D,U}}) where {T,D,U} = typemax(T)*U()
-typemax(x::Quantity{T}) where {T} = typemax(T)*unit(x)
+typemax(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = typemax(T)*U()
+typemax(x::AbstractQuantity{T}) where {T} = typemax(T)*unit(x)
 
-Base.literal_pow(::typeof(^), x::Quantity, ::Val{v}) where {v} =
+Base.literal_pow(::typeof(^), x::AbstractQuantity, ::Val{v}) where {v} =
     Quantity(Base.literal_pow(^, x.val, Val(v)),
              Base.literal_pow(^, unit(x), Val(v)))
 
 # All of these are needed for ambiguity resolution
-^(x::Quantity, y::Integer) = Quantity((x.val)^y, unit(x)^y)
-^(x::Quantity, y::Rational) = Quantity((x.val)^y, unit(x)^y)
-^(x::Quantity, y::Real) = Quantity((x.val)^y, unit(x)^y)
+^(x::AbstractQuantity, y::Integer) = Quantity((x.val)^y, unit(x)^y)
+^(x::AbstractQuantity, y::Rational) = Quantity((x.val)^y, unit(x)^y)
+^(x::AbstractQuantity, y::Real) = Quantity((x.val)^y, unit(x)^y)
 
-Base.rand(r::Random.AbstractRNG, ::Random.SamplerType{Quantity{T,D,U}}) where {T,D,U} =
+Base.rand(r::Random.AbstractRNG, ::Random.SamplerType{<:AbstractQuantity{T,D,U}}) where {T,D,U} =
     rand(r, T) * U()
-Base.ones(Q::Type{<:Quantity}, dims::NTuple{N,Integer}) where {N} =
+Base.ones(Q::Type{<:AbstractQuantity}, dims::NTuple{N,Integer}) where {N} =
     fill!(Array{Q,N}(undef, map(Base.to_dim, dims)), oneunit(Q))
-Base.ones(Q::Type{<:Quantity}, dims::Tuple{}) = fill!(Array{Q}(undef), oneunit(Q))
-Base.ones(a::AbstractArray, Q::Type{<:Quantity}) = fill!(similar(a,Q), oneunit(Q))
+Base.ones(Q::Type{<:AbstractQuantity}, dims::Tuple{}) = fill!(Array{Q}(undef), oneunit(Q))
+Base.ones(a::AbstractArray, Q::Type{<:AbstractQuantity}) = fill!(similar(a,Q), oneunit(Q))

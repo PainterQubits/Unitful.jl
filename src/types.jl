@@ -118,18 +118,28 @@ struct FixedUnits{N,D,A} <: Units{N,D,A} end
 FixedUnits{N,D}() where {N,D} = FixedUnits{N,D,nothing}()
 FixedUnits(::Units{N,D,A}) where {N,D,A} = FixedUnits{N,D,A}()
 
-""""
-    struct Quantity{T,D,U} <: Number
-A quantity, which has dimensions and units specified in the type signature.
-The dimensions and units are allowed to be the empty set, in which case a
-dimensionless, unitless number results.
+
+"""
+    abstract type AbstractQuantity{T,D,U} <: Number end
+Represents a generic quantity type, whose dimensions and units are specified in
+the type signature.  The dimensions and units are allowed to be the empty set,
+in which case a dimensionless, unitless number results.
 
 The type parameter `T` represents the numeric backing type. The type parameters
 `D :: ` [`Unitful.Dimensions`](@ref) and `U <: ` [`Unitful.Units`](@ref).
 Of course, the dimensions follow from the units, but the type parameters are
 kept separate to permit convenient dispatch on dimensions.
 """
-struct Quantity{T,D,U} <: Number
+abstract type AbstractQuantity{T,D,U} <: Number end
+
+"""
+    struct Quantity{T,D,U} <: AbstractQuantity{T,D,U}
+A concrete subtype of [`Unitful.AbstractQuantity`](@ref).
+
+The type parameter `T` represents the numeric backing type. The type parameters
+`D :: ` [`Unitful.Dimensions`](@ref) and `U <: ` [`Unitful.Units`](@ref).
+"""
+struct Quantity{T,D,U} <: AbstractQuantity{T,D,U}
     val::T
     Quantity{T,D,U}(v::Number) where {T,D,U} = new{T,D,U}(v)
     Quantity{T,D,U}(v::Quantity) where {T,D,U} = convert(Quantity{T,D,U}, v)
@@ -161,7 +171,7 @@ usual scalar way under unit conversion. Not exported.
 const ScalarUnits{N,D} = Units{N,D,nothing}
 
 """
-    DimensionlessQuantity{T,U} = Quantity{T, NoDims, U}
+    DimensionlessQuantity{T,U} = AbstractQuantity{T, NoDims, U}
 Useful for dispatching on [`Unitful.Quantity`](@ref) types that may have units
 but no dimensions. (Units with differing power-of-ten prefixes are not canceled
 out.)
@@ -172,21 +182,21 @@ julia> isa(1.0u"mV/V", DimensionlessQuantity)
 true
 ```
 """
-const DimensionlessQuantity{T,U} = Quantity{T, NoDims, U}
+const DimensionlessQuantity{T,U} = AbstractQuantity{T, NoDims, U}
 
 """
-    AffineQuantity{T,D,U} = Quantity{T,D,U} where U<:AffineUnits
+    AffineQuantity{T,D,U} = AbstractQuantity{T,D,U} where U<:AffineUnits
 Useful for dispatching on quantities that affine-transform under unit conversion, like
 absolute temperatures. Not exported.
 """
-const AffineQuantity{T,D,U} = Quantity{T,D,U} where U<:AffineUnits
+const AffineQuantity{T,D,U} = AbstractQuantity{T,D,U} where U<:AffineUnits
 
 """
-    ScalarQuantity{T,D,U} = Quantity{T,D,U} where U<:ScalarUnits
+    ScalarQuantity{T,D,U} = AbstractQuantity{T,D,U} where U<:ScalarUnits
 Useful for dispatching on quantities that transform in the usual scalar way under unit
 conversion. Not exported.
 """
-const ScalarQuantity{T,D,U} = Quantity{T,D,U} where U<:ScalarUnits
+const ScalarQuantity{T,D,U} = AbstractQuantity{T,D,U} where U<:ScalarUnits
 
 """
     struct LogInfo{N,B,P}
