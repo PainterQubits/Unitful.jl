@@ -76,11 +76,19 @@ end
         @test_throws DimensionError convert(Float64, 3m)
         @test @inferred(3m/unit(3m)) === 3
         @test @inferred(3.0g/unit(3.0g)) === 3.0
+        # 1-arg ustrip
         @test @inferred(ustrip(3*FreeUnits(m))) === 3
         @test @inferred(ustrip(3*ContextUnits(m,μm))) === 3
         @test @inferred(ustrip(3*FixedUnits(m))) === 3
         @test @inferred(ustrip(3)) === 3
         @test @inferred(ustrip(3.0m)) === 3.0
+        # ustrip with type and unit arguments
+        @test @inferred(ustrip(m, 3.0m)) === 3.0
+        @test @inferred(ustrip(m, 2mm)) === 1//500
+        @test @inferred(ustrip(mm, 3.0m)) === 3000.0
+        @test @inferred(ustrip(Float64, m, 2mm)) === 0.002
+        @test @inferred(ustrip(Int, mm, 2.0m)) === 2000
+        # convert
         @test convert(typeof(1mm/m), 3) == 3000mm/m
         @test convert(typeof(1mm/m), 3*NoUnits) == 3000mm/m
         @test convert(typeof(1*ContextUnits(mm/m, NoUnits)), 3) == 3000mm/m

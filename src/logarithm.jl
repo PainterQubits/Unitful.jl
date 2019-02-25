@@ -479,11 +479,12 @@ struct InvalidOp end
 Base.show(io::IO, ::InvalidOp) = print(io, "†")
 macro _doctables(x)
     return esc(quote
+        sprint(show,
         try
             $x
         catch
             Unitful.InvalidOp()
-        end
+        end)
     end)
 end
 

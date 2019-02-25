@@ -7,15 +7,35 @@
 @inline dimtype(u::Unit{U,D}) where {U,D} = D
 
 """
-    ustrip(x::Number)
-    ustrip(x::Quantity)
-Returns the number out in front of any units. The value of `x` may differ from the number
-out front of the units in the case of dimensionless quantities, e.g. `1m/mm != 1`. See
-[`uconvert`](@ref) and the example below. Because the units are removed, information may be
-lost and this should be used with some care.
+    ustrip(u::Units, x::Quantity)
+    ustrip(T::Type, u::Units, x::Quantity)
+
+Convert `x` to units `u` using [`uconvert`](@ref) and return the number out the
+front of the resulting quantity. If `T` is supplied, also `convert` the
+resulting number into type `T`.
 
 This function is mainly intended for compatibility with packages that don't know
 how to handle quantities.
+
+```jldoctest
+julia> ustrip(u"m", 1u"mm") == 1//1000
+true
+
+julia> ustrip(Float64, u"m", 2u"mm") == 0.002
+true
+```
+"""
+@inline ustrip(u::Units, x::Quantity) = ustrip(uconvert(u, x))
+@inline ustrip(T::Type, u::Units, x::Quantity) = convert(T, ustrip(u, x))
+
+"""
+    ustrip(x::Number)
+    ustrip(x::Quantity)
+
+Returns the number out in front of any units. The value of `x` may differ from the number
+out front of the units in the case of dimensionless quantities, e.g. `1m/mm != 1`. See
+[`uconvert`](@ref) and the example below. Because the units are removed, information may be
+lost and this should be used with some care — see `ustrip(u,x)` for a safer alternative.
 
 ```jldoctest
 julia> ustrip(2u"μm/m") == 2
