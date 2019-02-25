@@ -523,12 +523,16 @@
 <h3 id="quantities">Quantities</h3>
 <p><a id='Unitful.Quantity' href='#Unitful.Quantity'>#</a>
 <strong><code>Unitful.Quantity</code></strong> &mdash; <em>Type</em>.</p>
-<p>"     struct Quantity{T,D,U} &lt;: Number A quantity, which has dimensions and units specified in the type signature. The dimensions and units are allowed to be the empty set, in which case a dimensionless, unitless number results.</p>
-<p>The type parameter <code>T</code> represents the numeric backing type. The type parameters <code>D ::</code> <a href="./#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> and <code>U &lt;:</code> <a href="./#Unitful.Units"><code>Unitful.Units</code></a>. Of course, the dimensions follow from the units, but the type parameters are kept separate to permit convenient dispatch on dimensions.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/9878cb56865bf7844904183b1751ff6863cf5402/src/types.jl#L121-L132' class='documenter-source'>source</a><br></p>
+<div class="codehilite"><pre><span></span>struct Quantity{T,D,U} &lt;: AbstractQuantity{T,D,U}
+</pre></div>
+
+
+<p>A concrete subtype of <a href="../@ref"><code>Unitful.AbstractQuantity</code></a>.</p>
+<p>The type parameter <code>T</code> represents the numeric backing type. The type parameters <code>D ::</code> <a href="./#Unitful.Dimensions"><code>Unitful.Dimensions</code></a> and <code>U &lt;:</code> <a href="./#Unitful.Units"><code>Unitful.Units</code></a>.</p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d4f17abc03e9173c1b82ed8dd673a07e61922742/src/types.jl#L135-L141' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.DimensionlessQuantity' href='#Unitful.DimensionlessQuantity'>#</a>
 <strong><code>Unitful.DimensionlessQuantity</code></strong> &mdash; <em>Type</em>.</p>
-<div class="codehilite"><pre><span></span>DimensionlessQuantity{T,U} = Quantity{T, NoDims, U}
+<div class="codehilite"><pre><span></span>DimensionlessQuantity{T,U} = AbstractQuantity{T, NoDims, U}
 </pre></div>
 
 
@@ -539,7 +543,7 @@ true
 </pre></div>
 
 
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/9878cb56865bf7844904183b1751ff6863cf5402/src/types.jl#L163-L174' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d4f17abc03e9173c1b82ed8dd673a07e61922742/src/types.jl#L173-L184' class='documenter-source'>source</a><br></p>
 <p><a id='Units-and-dimensions-1'></a></p>
 <h3 id="units-and-dimensions">Units and dimensions</h3>
 <p><a id='Unitful.Unitlike' href='#Unitful.Unitlike'>#</a>
@@ -549,7 +553,7 @@ true
 
 
 <p>Represents units or dimensions. Dimensions are unit-like in the sense that they are not numbers but you can multiply or divide them and exponentiate by rationals.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/9878cb56865bf7844904183b1751ff6863cf5402/src/types.jl#L2-L6' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d4f17abc03e9173c1b82ed8dd673a07e61922742/src/types.jl#L2-L6' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.Units' href='#Unitful.Units'>#</a>
 <strong><code>Unitful.Units</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>abstract type Units{N,D,A} &lt;: Unitlike end
@@ -557,7 +561,7 @@ true
 
 
 <p>Abstract supertype of all units objects, which can differ in their implementation details. <code>A</code> is a translation for affine quantities; for non-affine quantities it is <code>nothing</code>.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/9878cb56865bf7844904183b1751ff6863cf5402/src/types.jl#L58-L62' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d4f17abc03e9173c1b82ed8dd673a07e61922742/src/types.jl#L58-L62' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.FreeUnits' href='#Unitful.FreeUnits'>#</a>
 <strong><code>Unitful.FreeUnits</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>struct FreeUnits{N,D,A} &lt;: Units{N,D,A}
@@ -566,7 +570,7 @@ true
 
 <p>Instances of this object represent units, possibly combinations thereof. These behave like units have behaved in previous versions of Unitful, and provide a basic level of functionality that should be acceptable to most users. See <a href="../conversion/#Basic-promotion-mechanisms-1">Basic promotion mechanisms</a> in the docs for details.</p>
 <p>Example: the unit <code>m</code> is actually a singleton of type <code>Unitful.FreeUnits{(Unitful.Unit{:Meter, 𝐋}(0, 1//1),), 𝐋, nothing}</code>. After dividing by <code>s</code>, a singleton of type <code>Unitful.FreeUnits{(Unitful.Unit{:Meter, 𝐋}(0, 1//1), Unitful.Unit{:Second, 𝐓}(0, -1//1)), 𝐋/𝐓, nothing}</code> is returned.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/9878cb56865bf7844904183b1751ff6863cf5402/src/types.jl#L75-L86' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d4f17abc03e9173c1b82ed8dd673a07e61922742/src/types.jl#L75-L86' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.ContextUnits' href='#Unitful.ContextUnits'>#</a>
 <strong><code>Unitful.ContextUnits</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>struct ContextUnits{N,D,P,A} &lt;: Units{N,D,A}
@@ -574,7 +578,7 @@ true
 
 
 <p>Instances of this object represent units, possibly combinations thereof. It is in most respects like <code>FreeUnits{N,D,A}</code>, except that the type parameter <code>P</code> is again a <code>FreeUnits{M,D}</code> type that specifies a preferred unit for promotion. See <a href="../conversion/#Advanced-promotion-mechanisms-1">Advanced promotion mechanisms</a> in the docs for details.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/9878cb56865bf7844904183b1751ff6863cf5402/src/types.jl#L94-L100' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d4f17abc03e9173c1b82ed8dd673a07e61922742/src/types.jl#L94-L100' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.FixedUnits' href='#Unitful.FixedUnits'>#</a>
 <strong><code>Unitful.FixedUnits</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>struct FixedUnits{N,D,A} &lt;: Units{N,D,A} end
@@ -582,7 +586,7 @@ true
 
 
 <p>Instances of this object represent units, possibly combinations thereof. These are primarily intended for use when you would like to disable automatic unit conversions. See <a href="../conversion/#Advanced-promotion-mechanisms-1">Advanced promotion mechanisms</a> in the docs for details.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/9878cb56865bf7844904183b1751ff6863cf5402/src/types.jl#L111-L116' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d4f17abc03e9173c1b82ed8dd673a07e61922742/src/types.jl#L111-L116' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.Dimensions' href='#Unitful.Dimensions'>#</a>
 <strong><code>Unitful.Dimensions</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>struct Dimensions{N} &lt;: Unitlike
@@ -590,7 +594,7 @@ true
 
 
 <p>Instances of this object represent dimensions, possibly combinations thereof.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/9878cb56865bf7844904183b1751ff6863cf5402/src/types.jl#L25-L28' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d4f17abc03e9173c1b82ed8dd673a07e61922742/src/types.jl#L25-L28' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.Unit' href='#Unitful.Unit'>#</a>
 <strong><code>Unitful.Unit</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>struct Unit{U,D}
@@ -602,7 +606,7 @@ end
 
 <p>Description of a physical unit, including powers-of-ten prefixes and powers of the unit. The name of the unit is encoded in the type parameter <code>U</code> as a symbol, e.g. <code>:Meter</code>, <code>:Second</code>, <code>:Gram</code>, etc. The type parameter <code>D</code> is a <a href="./#Unitful.Dimensions"><code>Dimensions{N}</code></a> object, for instance <code>Unit{:Meter, 𝐋}</code> or <code>Unit{:Liter, 𝐋^3}</code>. Note that the dimension information refers to the unit, not powers of the unit.</p>
 <p><code>Unit{U,D}</code> objects are almost never explicitly manipulated by the user. They are collected in a tuple, which is used for the type parameter <code>N</code> of a <a href="./#Unitful.Units"><code>Units{N,D,A}</code></a> object.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/9878cb56865bf7844904183b1751ff6863cf5402/src/types.jl#L32-L46' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d4f17abc03e9173c1b82ed8dd673a07e61922742/src/types.jl#L32-L46' class='documenter-source'>source</a><br></p>
 <p><a id='Unitful.Dimension' href='#Unitful.Dimension'>#</a>
 <strong><code>Unitful.Dimension</code></strong> &mdash; <em>Type</em>.</p>
 <div class="codehilite"><pre><span></span>struct Dimension{D}
@@ -613,7 +617,7 @@ end
 
 <p>Description of a dimension. The name of the dimension <code>D</code> is a symbol, e.g. <code>:Length</code>, <code>:Time</code>, <code>:Mass</code>, etc.</p>
 <p><code>Dimension{D}</code> objects are collected in a tuple, which is used for the type parameter <code>N</code> of a <a href="./#Unitful.Dimensions"><code>Dimensions{N}</code></a> object.</p>
-<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/9878cb56865bf7844904183b1751ff6863cf5402/src/types.jl#L9-L18' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/ajkeller34/Unitful.jl/blob/d4f17abc03e9173c1b82ed8dd673a07e61922742/src/types.jl#L9-L18' class='documenter-source'>source</a><br></p>
                 
                   
                 
