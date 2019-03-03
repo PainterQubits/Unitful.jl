@@ -1138,6 +1138,17 @@ end
     @test string(NoDims) == "NoDims"
 end
 
+struct Foo <: Number end
+Base.show(io::IO, x::Foo) = print(io, "1")
+Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
+
+@testset "Show quantities" begin
+    @test repr(1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
+    @test repr("text/plain", 1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
+    @test repr(Foo() * u"m * s * kg^-1") == "1 m s kg^-1"
+    @test repr("text/plain", Foo() * u"m * s * kg^-1") == "42.0 m s kg^-1"
+end
+
 @testset "DimensionError message" begin
     function errorstr(e)
         b = IOBuffer()
