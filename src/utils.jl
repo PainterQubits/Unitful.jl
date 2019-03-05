@@ -25,8 +25,8 @@ julia> ustrip(Float64, u"m", 2u"mm") == 0.002
 true
 ```
 """
-@inline ustrip(u::Units, x::Quantity) = ustrip(uconvert(u, x))
-@inline ustrip(T::Type, u::Units, x::Quantity) = convert(T, ustrip(u, x))
+@inline ustrip(u::Units, x) = ustrip(uconvert(u, x))
+@inline ustrip(T::Type, u::Units, x) = convert(T, ustrip(u, x))
 
 """
     ustrip(x::Number)
