@@ -233,6 +233,10 @@ isrootpower_dim(::typeof(𝐋^3))                  = false     # reflectivity
 isrootpower_dim(::typeof(dimension(Ω)))         = true
 isrootpower_dim(::typeof(dimension(S)))         = true
 isrootpower_dim(::typeof(dimension(Hz)))        = false
+isrootpower_dim(::typeof(dimension(m)))         = false
+isrootpower_dim(::typeof(dimension(s)))         = false
+isrootpower_dim(::typeof(dimension(K)))         = false
+isrootpower_dim(::typeof(dimension(g)))         = false
 
 #########
 
