@@ -1187,6 +1187,10 @@ end
         @testset ">> MixedUnits" begin
             @test dBm === MixedUnits{Level{Decibel, 1mW}}()
             @test dBm/Hz === MixedUnits{Level{Decibel, 1mW}}(Hz^-1)
+            @test (@B 10m/m) == 10m
+            @test (@B 10s/s) == 10s
+            @test (@B 10K/K) == 10K
+            @test (@B 10g/g) == 10g
         end
     end
 
