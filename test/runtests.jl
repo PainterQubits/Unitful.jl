@@ -577,7 +577,7 @@ end
         @test @inferred(csc(90°)) == 1
         @test @inferred(sec(0°)) == 1
         @test @inferred(cot(45°)) == 1
-        @test @inferred(atan_°(m*sqrt(3),1m)) ≈ 60°
+        @test @inferred(Unitful.atand(m*sqrt(3),1m)) ≈ 60°
         @test @inferred(angle((3im)*V)) ≈ 90°
     end
     @testset "> Exponentials and logarithms" begin
@@ -766,7 +766,7 @@ end
                 @test isapprox((@eval @fastmath $f($third)), (@eval $f($third)))
             end
             for f in (:+, :-, :*, :/, :%, :(==), :!=, :<, :<=, :>, :>=,
-                      :atan, :hypot, :max, :min)
+                      :(Unitful.atan), :hypot, :max, :min)
                 @test isapprox((@eval @fastmath $f($half, $third)),
                                (@eval $f($half, $third)))
                 @test isapprox((@eval @fastmath $f($third, $half)),

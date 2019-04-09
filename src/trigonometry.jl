@@ -1,10 +1,5 @@
-using Unitful: rad, °, 𝚽, AbstractQuantity
-
-export atan_°,  asin_°,  acos_°,  asinh_°,  acosh_°,
-       atan_rad,asin_rad,acos_rad,asinh_rad,acosh_rad
-
-# unable to dispatch on this now that D is not of NoDims until the unit
-# has been declared (in pkgdefaults.jl)
+# now that D is 𝚽 and not of NoDims we have to define show here 
+# because we to dispatch on typeof(°) has been declared (in pkgdefaults.jl)
 function show(io::IO, x::Quantity{T,D,typeof(°)}) where {T,D}
     show(io, x.val)
     show(io, unit(x))
@@ -13,13 +8,14 @@ end
 
 import Base.mod2pi
 mod2pi(x::DimensionlessQuantity) = mod2pi(uconvert(NoUnits, x))
-mod2pi(x::Quantity{T,𝚽,typeof(rad)}) where T = deg2rad(mod(rad2deg(x.val), 360))rad
 mod2pi(x::Quantity{T,𝚽,typeof(°)}) where T = mod(x, 360°)
+mod2pi(x::Quantity{T,𝚽,typeof(rad)}) where T = mod2pi(x.val)rad
 
 ## For numerical accuracy, specific to the degree
 # _r radian form, _d degree form
-for (_r,_d) in ((:sin,:sind),(:cos,:cosd),(:tan,:tand),(:sec,:secd),(:csc,:cscd),(:cot,:cotd))
-    @eval import Base: $_r, $_d
+for (_r,_d) in ((:sin,:sind),(:cos,:cosd),(:tan,:tand)
+               ,(:csc,:cscd),(:sec,:secd),(:cot,:cotd)
+               )
     # calling radian form with radians
     @eval $_r(x::Quantity{T, 𝚽, typeof(rad)}) where T = $_d(rad2deg(x.val))
     # calling degree form with degrees
@@ -30,22 +26,45 @@ for (_r,_d) in ((:sin,:sind),(:cos,:cosd),(:tan,:tand),(:sec,:secd),(:csc,:cscd)
     @eval $_d(x::Quantity{T, 𝚽, typeof(rad)}) where T = $_d(rad2deg(x.val))
 end
 
-import Base.cis
 cis(x::Quantity{T, 𝚽, U}) where {T,U} = cos(x) + im*sin(x)
 
-import Base: atan, asin, acos, asinh, acosh
+# these cannot be exported but can be called like
+# julia> using Unitful
+#
+# julia> u = Unitful
+#
+# julia> u.atan(0.5)
+# 0.5235987755982989 rad
+#
+# julia> u.asind(0.5)
+# 30.000000000000004°
+atan(y::Number,x::Number) = Base.atan(y,x)rad
+atan(y::AbstractQuantity{T,D,U}, x::AbstractQuantity{T,D,U}) where {T,D,U} = Base.atan(y.val,x.val)rad
 atan(y::AbstractQuantity, x::AbstractQuantity) = atan(promote(y,x)...)
-atan(y::AbstractQuantity{T,D,U}, x::AbstractQuantity{T,D,U}) where {T,D,U} = atan(y.val,x.val)
 atan(y::AbstractQuantity{T,D1,U1}, x::AbstractQuantity{T,D2,U2}) where {T,D1,U1,D2,U2} =
     throw(DimensionError(x,y))
-atan_rad(y,x) = atan(y,x)rad
-atan_°(y,x) = rad2deg(atan(y,x))°
 
-for _x in (:asin, :acos, :asinh, :acosh)
-    _r = Symbol(_x,:_rad)
-    _d = Symbol(_x,:_°)
-    @eval $_r(x) = $_x(x)rad
-    @eval $_d(x) = rad2deg($_x(x))°
+atand(y::Number,x::Number) = Base.atand(y,x)°
+atand(y::AbstractQuantity{T,D,U}, x::AbstractQuantity{T,D,U}) where {T,D,U} = Base.atand(y.val,x.val)°
+atand(y::AbstractQuantity, x::AbstractQuantity) = atand(promote(y,x)...)
+atand(y::AbstractQuantity{T,D1,U1}, x::AbstractQuantity{T,D2,U2}) where {T,D1,U1,D2,U2} =
+    throw(DimensionError(x,y))
+
+# these cannot be exported but can be called like
+# julia> using Unitful
+#
+# julia> u = Unitful
+#
+# julia> u.asin(0.5)
+# 0.5235987755982989 rad
+#
+# julia> u.asind(0.5)
+# 30.000000000000004°
+for (_r,_d) in ((:asin,:asind),(:acos,:acosd),(:atan,:atand)
+               ,(:acsc,:acscd),(:asec,:asecd),(:acot,:acotd)
+               )
+    @eval $_r(x::Number) = Base.$_r(x)rad
+    @eval $_d(x::Number) = Base.$_d(x)°
 end
 
 angle(x::AbstractQuantity{<:Complex}) = angle(x.val)rad
