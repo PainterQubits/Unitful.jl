@@ -70,10 +70,6 @@ for f in (:mod, :rem)
     end
 end
 
-Base.mod2pi(x::DimensionlessQuantity) = mod2pi(uconvert(NoUnits, x))
-Base.mod2pi(x::AbstractQuantity{S, NoDims, <:Units{(Unitful.Unit{:Degree, NoDims}(0, 1//1),),
-    NoDims}}) where S = mod(x, 360°)
-
 # Addition / subtraction
 for op in [:+, :-]
     @eval ($op)(x::AbstractQuantity{S,D,U}, y::AbstractQuantity{T,D,U}) where {S,T,D,U} =
@@ -159,15 +155,6 @@ end
 sqrt(x::AbstractQuantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
 cbrt(x::AbstractQuantity) = Quantity(cbrt(x.val), cbrt(unit(x)))
 
-for _y in (:sin, :cos, :tan, :cot, :sec, :csc, :cis)
-    @eval ($_y)(x::DimensionlessQuantity) = ($_y)(uconvert(NoUnits, x))
-end
-
-atan(y::AbstractQuantity, x::AbstractQuantity) = atan(promote(y,x)...)
-atan(y::AbstractQuantity{T,D,U}, x::AbstractQuantity{T,D,U}) where {T,D,U} = atan(y.val,x.val)
-atan(y::AbstractQuantity{T,D1,U1}, x::AbstractQuantity{T,D2,U2}) where {T,D1,U1,D2,U2} =
-    throw(DimensionError(x,y))
-
 for (f, F) in [(:min, :<), (:max, :>)]
     @eval @generated function ($f)(x::AbstractQuantity, y::AbstractQuantity)    #TODO
         xdim = x.parameters[2]
@@ -203,7 +190,6 @@ end
 
 abs(x::AbstractQuantity) = Quantity(abs(x.val), unit(x))
 abs2(x::AbstractQuantity) = Quantity(abs2(x.val), unit(x)*unit(x))
-angle(x::AbstractQuantity{<:Complex}) = angle(x.val)
 
 copysign(x::AbstractQuantity, y::Number) = Quantity(copysign(x.val,y/unit(y)), unit(x))
 flipsign(x::AbstractQuantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), unit(x))

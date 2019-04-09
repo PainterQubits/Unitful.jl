@@ -11,7 +11,7 @@ import Unitful:
     ac,
     mg, g, kg,
     Ra, °F, °C, K,
-    rad, °,
+    mrad, rad, °,
     ms, s, minute, hr, Hz,
     J, A, N, mol, cd, V,
     mW, W,
@@ -305,13 +305,13 @@ end
         @test @inferred(promote(1.0m, 1kg)) === (1.0m, 1.0kg)
         @test @inferred(promote(1kg, 1.0m)) === (1.0kg, 1.0m)
         @test_broken @inferred(promote(1.0m, 1)) === (1.0m, 1.0)         # issue 52
-        @test @inferred(promote(π, 180°)) === (float(π), float(π))       # issue 168
-        @test @inferred(promote(180°, π)) === (float(π), float(π))       # issue 168
+        @test @inferred(promote(π*rad, 180°)) === (float(π*rad), float(π*rad))
+        @test @inferred(promote(180°, π*rad)) === (float(π*rad), float(π*rad))
 
         # prefer no units for dimensionless numbers
         @test @inferred(promote(1.0mm/m, 1.0km/m)) === (0.001,1000.0)
         @test @inferred(promote(1.0cm/m, 1.0mm/m, 1.0km/m)) === (0.01,0.001,1000.0)
-        @test @inferred(promote(1.0rad,1.0°)) === (1.0,π/180.0)
+        @test @inferred(promote(1.0mrad/rad, 180.0°/(π*rad))) === (0.001,1.0)
 
         # Quantities with promotion context
         # Context overrides free units
@@ -481,8 +481,8 @@ end
         @test @inferred(zero(1m)) === 0m                # Additive identity
         @test @inferred(zero(typeof(1m))) === 0m
         @test @inferred(zero(typeof(1.0m))) === 0.0m
-        @test @inferred(π/2*u"rad" + 90u"°") ≈ π        # Dimless quantities
-        @test @inferred(π/2*u"rad" - 90u"°") ≈ 0        # Dimless quantities
+        @test @inferred(π/2*u"rad" + 90u"°") ≈ π*u"rad" # "Dimless" quantities
+        @test @inferred(π/2*u"rad" - 90u"°") ≈ 0*u"rad" # Dimless quantities
         @test_throws DimensionError 1+1m                # Dim mismatched
         @test_throws DimensionError 1-1m
     end
@@ -577,7 +577,7 @@ end
         @test @inferred(csc(90°)) == 1
         @test @inferred(sec(0°)) == 1
         @test @inferred(cot(45°)) == 1
-        @test @inferred(atan(m*sqrt(3),1m)) ≈ 60°
+        @test @inferred(atan_°(m*sqrt(3),1m)) ≈ 60°
         @test @inferred(angle((3im)*V)) ≈ 90°
     end
     @testset "> Exponentials and logarithms" begin
@@ -956,13 +956,13 @@ end
             @test isa(@inferred(colon(1.0m, 1m, 5m)), StepRangeLen{typeof(1.0m)})
             @test @inferred(length(1.0m:1m:5m)) === 5
             @test @inferred(step(1.0m:1m:5m)) === 1.0m
-            @test @inferred(length(0:10°:360°)) == 37 # issue 111
-            @test @inferred(length(0.0:10°:2pi)) == 37 # issue 111 fallout
-            @test @inferred(last(0°:0.1:360°)) === 6.2 # issue 111 fallout
+            @test @inferred(length(0°:10°:360°)) == 37 # issue 111
+            @test @inferred(length(0rad:10°:2pi*rad)) == 37 # issue 111 fallout
+            @test @inferred(last(0°:0.1rad:360°)) === 6.2rad # issue 111 fallout
             @test @inferred(first(range(1mm, step=0.1mm, length=50))) === 1.0mm # issue 111
             @test @inferred(step(range(1mm, step=0.1mm, length=50))) === 0.1mm # issue 111
-            @test @inferred(last(range(0, step=10°, length=37))) == 2pi
-            @test @inferred(last(range(0°, step=2pi/36, length=37))) == 2pi
+            @test @inferred(last(range(0°, step=10°, length=37))) == 2pi*rad
+            @test @inferred(last(range(0°, step=rad*2pi/36, length=37))) == 2pi*rad
             @test step(range(1.0m, step=1m, length=5)) === 1.0m
             @test_throws DimensionError range(1.0m, step=1.0V, length=5)
             @test_throws ArgumentError 1.0m:0.0m:5.0m

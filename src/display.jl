@@ -62,13 +62,6 @@ function show(io::IO, x::Quantity)
     nothing
 end
 
-function show(io::IO, x::Quantity{S, NoDims, <:Units{
-    (Unitful.Unit{:Degree, NoDims}(0, 1//1),), NoDims}}) where S
-    show(io, x.val)
-    show(io, unit(x))
-    nothing
-end
-
 function show(io::IO, x::Type{T}) where T<:Quantity
     invoke(show, Tuple{IO, typeof(x)}, IOContext(io, :showoperators=>true), x)
 end

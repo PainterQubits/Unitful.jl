@@ -9,6 +9,7 @@
 @dimension 𝚯 "𝚯" Temperature    # This one is \bfTheta
 @dimension 𝐉 "𝐉" Luminosity
 @dimension 𝐍 "𝐍" Amount
+@dimension 𝚽 "𝚽" Angle
 const RelativeScaleTemperature = Quantity{T, 𝚯, <:AffineUnits} where T
 const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 
@@ -46,6 +47,7 @@ const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 @derived_dimension MagneticDipoleMoment     𝐋^2*𝐈
 @derived_dimension Molarity                 𝐍/𝐋^3
 @derived_dimension Molality                 𝐍/𝐌
+@derived_dimension Steradian                𝚽^2
 
 # Define base units. This is not to imply g is the base SI unit instead of kg.
 # See the documentation for further details.
@@ -57,18 +59,11 @@ const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 @refunit  cd      "cd"     Candela   𝐉            true
 @refunit  g       "g"      Gram      𝐌           true
 @refunit  mol     "mol"    Mole      𝐍           true
+@refunit  rad     "rad"    Radian    𝚽           true
 
 # Angles and solid angles
-@unit sr      "sr"      Steradian   1                       true
-@unit rad     "rad"     Radian      1                       true
-@unit °       "°"       Degree      pi/180                  false
-# For numerical accuracy, specific to the degree
-import Base: sind, cosd, tand, secd, cscd, cotd
-for (_x,_y) in ((:sin,:sind), (:cos,:cosd), (:tan,:tand),
-        (:sec,:secd), (:csc,:cscd), (:cot,:cotd))
-    @eval ($_x)(x::Quantity{T, NoDims, typeof(°)}) where {T} = ($_y)(ustrip(x))
-    @eval ($_y)(x::Quantity{T, NoDims, typeof(°)}) where {T} = ($_y)(ustrip(x))
-end
+@unit sr      "sr"      Steradian   1rad^2                  true
+@unit °       "°"       Degree      pi*rad/180              false
 
 # SI and related units
 @unit Hz     "Hz"       Hertz       1/s                     true
@@ -256,7 +251,7 @@ const si_no_prefix = (:m, :s, :A, :K, :g, :mol, :rad, :sr, :Hz, :N, :Pa, #:cd,
 baremodule DefaultSymbols
     import Unitful
 
-    for u in (:𝐋,:𝐌,:𝐓,:𝐈,:𝚯,:𝐉,:𝐍)
+    for u in (:𝐋,:𝐌,:𝐓,:𝐈,:𝚯,:𝐉,:𝐍,:𝚽)
         Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, u)))
         Core.eval(DefaultSymbols, Expr(:export, u))
     end

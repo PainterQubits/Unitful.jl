@@ -46,6 +46,7 @@ include("range.jl")
 include("fastmath.jl")
 include("logarithm.jl")
 include("pkgdefaults.jl")
+include("trigonometry.jl")
 
 function __init__()
     # @u_str should be aware of units defined in module Unitful
