@@ -13,7 +13,7 @@ function complex(x::Quantity{T,D,U}, y = zero(x)) where {
     return Quantity{complex(T),D,U}(complex(ustrip(r), ustrip(i)))
 end
 complex(::Type{Quantity{T,D,U}}) where {T,D,U} =
-    Quantity{complex(Type{T}),D,U}
+    Quantity{complex(T),D,U}
 
 # implement Base.widen for real and complex quantities because Unitful
 # does not have an implementation for widen yet
