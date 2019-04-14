@@ -5,13 +5,15 @@
 #
 # It is currently incomplete.
 
-Base.complex(z::AbstractQuantity{T,D,U}) where {T<:Complex,D,U} = z
-function Base.complex(x::Quantity{T,D,U}, y = zero(real)) where {
+complex(z::Quantity{T,D,U}) where {T<:Complex,D,U} = z
+function complex(x::Quantity{T,D,U}, y = zero(real)) where {
     T<:Real,D,U
 }
     r, i = promote(x, y)
     return Quantity{complex(T),D,U}(complex(ustrip(r), ustrip(i)))
 end
+complex(::Type{Quantity{T,D,U}}) where {T,D,U} =
+    Quantity{complex(Type{T}),D,U}
 
 # implement Base.widen for real and complex quantities because Unitful
 # does not have an implementation for widen yet
