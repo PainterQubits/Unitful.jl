@@ -45,6 +45,7 @@ include("conversion.jl")
 include("range.jl")
 include("fastmath.jl")
 include("logarithm.jl")
+include("complex.jl")
 include("pkgdefaults.jl")
 
 function __init__()
