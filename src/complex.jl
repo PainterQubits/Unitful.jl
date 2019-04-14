@@ -6,7 +6,7 @@
 # It is currently incomplete.
 
 complex(z::Quantity{T,D,U}) where {T<:Complex,D,U} = z
-function complex(x::Quantity{T,D,U}, y = zero(real)) where {
+function complex(x::Quantity{T,D,U}, y = zero(x)) where {
     T<:Real,D,U
 }
     r, i = promote(x, y)
