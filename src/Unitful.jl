@@ -4,6 +4,7 @@ import Base: ==, <, <=, +, -, *, /, //, ^, isequal
 import Base: show, convert
 import Base: abs, abs2, angle, float, fma, muladd, inv, sqrt, cbrt
 import Base: min, max, floor, ceil, real, imag, conj
+import Base: complex, widen, reim # handled in complex.jl
 import Base: exp, exp10, exp2, expm1, log, log10, log1p, log2
 import Base: sin, cos, tan, cot, sec, csc, atan, cis
 
@@ -45,6 +46,7 @@ include("conversion.jl")
 include("range.jl")
 include("fastmath.jl")
 include("logarithm.jl")
+include("complex.jl")
 include("pkgdefaults.jl")
 
 function __init__()
