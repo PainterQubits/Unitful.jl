@@ -1,10 +1,7 @@
 The Unitful.jl package is licensed under the MIT "Expat" License:
 
-> Copyright (c) 2016: Andrew Keller and
+> Copyright (c) 2016: California Institute of Technology and
 > [other contributors](https://github.com/ajkeller34/Unitful.jl/graphs/contributors).
-> Portions borrow from [EngUnits.jl](https://github.com/dhoegh/EngUnits.jl/blob/master/LICENSE.md),
-> which is (c) 2016: Daniel Høegh. Unitful.jl's fastmath implementation and tests
-> draw heavily on those found in [Julia](https://github.com/JuliaLang/julia/blob/master/LICENSE.md).
 >
 > Permission is hereby granted, free of charge, to any person obtaining
 > a copy of this software and associated documentation files (the
@@ -24,3 +21,11 @@ The Unitful.jl package is licensed under the MIT "Expat" License:
 > CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 > TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 > SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Portions borrow from [EngUnits.jl](https://github.com/dhoegh/EngUnits.jl/blob/master/LICENSE.md),
+which is (c) 2016: Daniel Høegh. Unitful.jl's fastmath implementation and tests
+draw heavily on those found in [Julia](https://github.com/JuliaLang/julia/blob/master/LICENSE.md).
+
+Neither the name of the California Institute of Technology (“Caltech”) nor the names of its contributors (and/or sponsors) may be used to endorse or promote products derived from this software without specific prior written permission.
+
+Andrew Keller (original package author, assigning his copyright to California Institute of Technology) acknowledges the support of an IQIM Postdoctoral Scholarship (Institute for Quantum Information and Matter, an NSF Physics Frontiers Center, NSF Grant PHY-1125565).
