@@ -1498,4 +1498,18 @@ end
     @test isa(TUM.fu^2, TUM.FakeDim212345Units)
 end
 
+
+struct Num <: Real
+   x::Float64
+end
+Base.:+(a::Num, b::Num) = Num(a.x - b.x)
+Base.:-(a::Num, b::Num) = Num(a.x - b.x)
+Base.:*(a::Num, b::Num) = Num(a.x * b.x)
+Base.promote_rule(::Type{Num}, ::Type{<:Real}) = Num
+
+@testset "Custom types" begin
+    # Test that @generated functions work with Quantities + custom types (#231)
+    @test uconvert(u"°C", Num(100)u"K") == Num(373.15)u"°C"
+end
+
 end

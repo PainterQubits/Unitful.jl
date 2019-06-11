@@ -41,9 +41,9 @@ uconvert(a::Units, x::Missing) = missing
     conv = convfact(auobj, xuobj)
 
     t0 = x <: AffineQuantity ? x.parameters[3].parameters[end].parameters[end] :
-        zero(x.parameters[1])
+        :(zero($(x.parameters[1])))
     t1 = a <: AffineUnits ? a.parameters[end].parameters[end] :
-        zero(x.parameters[1])
+        :(zero($(x.parameters[1])))
     quote
         dimension(a) != dimension(x) && return throw(DimensionError(a, x))
         return Quantity(((x.val - $t0) * $conv) + $t1, a)
