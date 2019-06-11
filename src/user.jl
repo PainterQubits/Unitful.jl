@@ -318,6 +318,7 @@ units `ContextUnits(z,z)`.
 """
 @inline upreferred(x::Number) = x
 @inline upreferred(x::Quantity) = uconvert(upreferred(unit(x)), x)
+@inline upreferred(::Missing) = missing
 
 """
     upreferred(x::Units)

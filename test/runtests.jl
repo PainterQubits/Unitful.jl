@@ -273,6 +273,7 @@ end
         @test @inferred(upreferred(1g |> ContextUnits(g,mg))) == 1000mg
 
         @test @inferred(upreferred(1N)) === (1//1)*kg*m/s^2
+        @test ismissing(upreferred(missing))
     end
     @testset "> promote_unit" begin
         @test Unitful.promote_unit(FreeUnits(m)) === FreeUnits(m)
