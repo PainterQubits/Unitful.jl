@@ -62,6 +62,14 @@ function show(io::IO, x::Quantity)
     nothing
 end
 
+function show(io::IO, mime::MIME"text/plain", x::Quantity)
+    show(io, mime, x.val)
+    if !isunitless(unit(x))
+        print(io," ")
+        show(io, mime, unit(x))
+    end
+end
+
 function show(io::IO, x::Quantity{S, NoDims, <:Units{
     (Unitful.Unit{:Degree, NoDims}(0, 1//1),), NoDims}}) where S
     show(io, x.val)
