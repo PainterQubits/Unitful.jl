@@ -1,4 +1,55 @@
 """
+    convfact(s::Units, t::Units)
+Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.01`.
+"""
+@generated function convfact(s::Units, t::Units)
+    sunits = s.parameters[1]
+    tunits = t.parameters[1]
+
+    # Check if conversion is possible in principle
+    sdim = dimension(s())
+    tdim = dimension(t())
+    sdim != tdim && throw(DimensionError(s(),t()))
+
+    # first convert to base SI units.
+    # fact1 is what would need to be multiplied to get to base SI units
+    # fact2 is what would be multiplied to get from the result to base SI units
+
+    inex1, ex1 = basefactor(t())
+    inex2, ex2 = basefactor(s())
+
+    a = inex1 / inex2
+    ex = ex1 // ex2     # do overflow checking?
+
+    tens1 = mapreduce(tensfactor, +, tunits; init=0)
+    tens2 = mapreduce(tensfactor, +, sunits; init=0)
+
+    pow = tens1-tens2
+
+    fpow = 10.0^pow
+    if fpow > typemax(Int) || 1/(fpow) > typemax(Int)
+        a *= fpow
+    else
+        comp = (pow > 0 ? fpow * numerator(ex) : 1/fpow * denominator(ex))
+        if comp > typemax(Int)
+            a *= fpow
+        else
+            ex *= (10//1)^pow
+        end
+    end
+
+    a ≈ 1.0 ? (inex = 1) : (inex = a)
+    y = inex * ex
+    :($y)
+end
+
+"""
+    convfact{S}(s::Units{S}, t::Units{S})
+Returns 1. (Avoids effort when unnecessary.)
+"""
+convfact(s::Units{S}, t::Units{S}) where {S} = 1
+
+"""
     uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
 Convert a [`Unitful.Quantity`](@ref) to different units. The conversion will
 fail if the target units `a` have a different dimension than the dimension of
@@ -49,57 +100,6 @@ uconvert(a::Units, x::Missing) = missing
         return Quantity(((x.val - $t0) * $conv) + $t1, a)
     end
 end
-
-"""
-    convfact(s::Units, t::Units)
-Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.01`.
-"""
-@generated function convfact(s::Units, t::Units)
-    sunits = s.parameters[1]
-    tunits = t.parameters[1]
-
-    # Check if conversion is possible in principle
-    sdim = dimension(s())
-    tdim = dimension(t())
-    sdim != tdim && throw(DimensionError(s(),t()))
-
-    # first convert to base SI units.
-    # fact1 is what would need to be multiplied to get to base SI units
-    # fact2 is what would be multiplied to get from the result to base SI units
-
-    inex1, ex1 = basefactor(t())
-    inex2, ex2 = basefactor(s())
-
-    a = inex1 / inex2
-    ex = ex1 // ex2     # do overflow checking?
-
-    tens1 = mapreduce(tensfactor, +, tunits; init=0)
-    tens2 = mapreduce(tensfactor, +, sunits; init=0)
-
-    pow = tens1-tens2
-
-    fpow = 10.0^pow
-    if fpow > typemax(Int) || 1/(fpow) > typemax(Int)
-        a *= fpow
-    else
-        comp = (pow > 0 ? fpow * numerator(ex) : 1/fpow * denominator(ex))
-        if comp > typemax(Int)
-            a *= fpow
-        else
-            ex *= (10//1)^pow
-        end
-    end
-
-    a ≈ 1.0 ? (inex = 1) : (inex = a)
-    y = inex * ex
-    :($y)
-end
-
-"""
-    convfact{S}(s::Units{S}, t::Units{S})
-Returns 1. (Avoids effort when unnecessary.)
-"""
-convfact(s::Units{S}, t::Units{S}) where {S} = 1
 
 function convert(::Type{Quantity{T,D,U}}, x::Number) where {T,D,U}
     if dimension(x) == D

@@ -1,5 +1,3 @@
-module UnitfulTests
-
 using Unitful
 using Test, LinearAlgebra, Random
 import Unitful: DimensionError, AffineError
@@ -13,7 +11,7 @@ import Unitful:
     Ra, °F, °C, K,
     rad, °,
     ms, s, minute, hr, Hz,
-    J, A, N, mol, cd, V,
+    J, A, N, mol, V,
     mW, W,
     dB, dB_rp, dB_p, dBm, dBV, dBSPL, Decibel,
     Np, Np_rp, Np_p, Neper
@@ -430,7 +428,7 @@ end
     @test isa(1s, Time)
     @test isa(1A, Current)
     @test isa(1K, Temperature)
-    @test isa(1cd, Luminosity)
+    @test isa(1u"cd", Luminosity)
     @test isa(2π*rad*1.0m, Length)
     @test isa(u"h", Action)
     @test isa(3u"dBm", Power)
@@ -1139,9 +1137,9 @@ end
 
 @testset "Display" begin
     @test string(typeof(1.0m/s)) ==
-        "Unitful.Quantity{Float64,𝐋*𝐓^-1,Unitful.FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}}"
+        "Quantity{Float64,𝐋*𝐓^-1,FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}}"
     @test string(typeof(m/s)) ==
-        "Unitful.FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}"
+        "FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}"
     @test string(dimension(1u"m/s")) == "𝐋 𝐓^-1"
     @test string(NoDims) == "NoDims"
 end
@@ -1529,6 +1527,4 @@ Base.promote_rule(::Type{Num}, ::Type{<:Real}) = Num
 @testset "Custom types" begin
     # Test that @generated functions work with Quantities + custom types (#231)
     @test uconvert(u"°C", Num(100)u"K") == Num(373.15)u"°C"
-end
-
 end

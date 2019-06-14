@@ -1,23 +1,9 @@
-struct IsRootPowerRatio{S,T}
-    val::T
-end
-IsRootPowerRatio{S}(x) where {S} = IsRootPowerRatio{S, typeof(x)}(x)
-Base.show(io::IO, x::IsRootPowerRatio{S}) where {S} =
-    print(io, ifelse(S, "root-power ratio", "power ratio"), " with reference ", x.val)
-const PowerRatio{T} = IsRootPowerRatio{false,T}
-const RootPowerRatio{T} = IsRootPowerRatio{true,T}
-dimension(x::IsRootPowerRatio{S,T}) where {S,T} = dimension(T)
-unwrap(x::IsRootPowerRatio) = x.val
-unwrap(x) = x
-
 base(::LogInfo{N,B}) where {N,B} = B
 prefactor(::LogInfo{N,B,P}) where {N,B,P} = P
 zero(x::T) where {T<:Level} = T(zero(x.val))
 zero(::Type{X}) where {L,S,T,X<:Level{L,S,T}} = X(zero(T))
 one(x::T) where {T<:Level} = one(x.val)
 one(::Type{X}) where {L,S,T,X<:Level{L,S,T}} = one(T)
-dimension(x::Level) = dimension(reflevel(x))
-dimension(x::Type{T}) where {T<:Level} = dimension(reflevel(T))
 function Base.float(x::Level{L,S}) where {L,S}
     v = float(x.val)
     return Level{L,S,typeof(v)}(v)
@@ -35,24 +21,6 @@ Base.convert(::Type{Quantity{T}}, x::Level) where {T<:Number} = convert(Quantity
 Base.convert(::Type{T}, x::Quantity) where {L,S,T<:Level{L,S}} = T(x)
 Base.convert(::Type{T}, x::Level) where {T<:Real} = T(x.val)
 
-"""
-    reflevel(x::Level{L,S})
-    reflevel(::Type{Level{L,S}})
-    reflevel(::Type{Level{L,S,T}})
-Returns the reference level, e.g.
-
-```jldoctest
-julia> reflevel(3u"dBm")
-1 mW
-```
-"""
-function reflevel end
-reflevel(x::Level{L,S}) where {L,S} = unwrap(S)
-reflevel(::Type{Level{L,S}}) where {L,S} = unwrap(S)
-reflevel(::Type{Level{L,S,T}}) where {L,S,T} = unwrap(S)
-
-dimension(x::Gain) = NoDims
-dimension(x::Type{<:Gain}) = NoDims
 function Base.float(x::Gain{L,S}) where {L,S}
     v = float(x.val)
     return Gain{L,S,typeof(v)}(v)
@@ -127,7 +95,6 @@ end
 abbr(::MixedUnits{L}) where {L <: Level} = abbr(L(reflevel(L)))
 abbr(::MixedUnits{L}) where {L <: Gain} = abbr(L(1))
 
-dimension(a::MixedUnits{L}) where {L} = dimension(L) * dimension(a.units)
 unit(a::MixedUnits{L,U}) where {L,U} = U()
 logunit(a::MixedUnits{L}) where {L} = MixedUnits{L}()
 isunitless(::MixedUnits) = false

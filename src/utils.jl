@@ -172,6 +172,13 @@ true
 @inline dimension(x::Type{T}) where {T <: Number} = NoDims
 @inline dimension(x::Missing) = missing
 @inline dimension(x::Type{Missing}) = missing
+@inline dimension(x::IsRootPowerRatio{S,T}) where {S,T} = dimension(T)
+@inline dimension(x::Level) = dimension(reflevel(x))
+@inline dimension(x::Type{T}) where {T<:Level} = dimension(reflevel(T))
+@inline dimension(x::Gain) = NoDims
+@inline dimension(x::Type{<:Gain}) = NoDims
+
+dimension(a::MixedUnits{L}) where {L} = dimension(L) * dimension(a.units)
 
 """
     dimension(u::Units{U,D}) where {U,D}
