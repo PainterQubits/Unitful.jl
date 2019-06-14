@@ -297,17 +297,6 @@ function preferunits(u0::Units, u::Units...)
 end
 
 """
-    upreferred(x::Dimensions)
-Return units which are preferred for dimensions `x`. If you are using the
-factory defaults, this function will return a product of powers of base SI units
-(as [`Unitful.FreeUnits`](@ref)).
-"""
-@generated function upreferred(x::Dimensions{D}) where {D}
-    u = *(FreeUnits{((Unitful.promotion[name(z)]^z.power for z in D)...,),()}())
-    :($u)
-end
-
-"""
     upreferred(x::Number)
     upreferred(x::Quantity)
 Unit-convert `x` to units which are preferred for the dimensions of `x`.

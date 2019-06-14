@@ -285,3 +285,15 @@ end
 Base.mul12(x::Quantity, y::Quantity) = Base.mul12(ustrip(x), ustrip(y)) .* (unit(x) * unit(y))
 Base.mul12(x::Quantity, y::Real)     = Base.mul12(ustrip(x), y) .* unit(x)
 Base.mul12(x::Real, y::Quantity)     = Base.mul12(x, ustrip(y)) .* unit(y)
+
+# The following method must not be defined before `*(a0::FreeUnits, a::FreeUnits...)`
+"""
+    upreferred(x::Dimensions)
+Return units which are preferred for dimensions `x`. If you are using the
+factory defaults, this function will return a product of powers of base SI units
+(as [`Unitful.FreeUnits`](@ref)).
+"""
+@generated function upreferred(x::Dimensions{D}) where {D}
+    u = *(FreeUnits{((Unitful.promotion[name(z)]^z.power for z in D)...,),()}())
+    :($u)
+end

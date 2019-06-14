@@ -255,3 +255,31 @@ end
 MixedUnits{T}() where {T} = MixedUnits{T, typeof(NoUnits)}(NoUnits)
 MixedUnits{T}(u::Units) where {T} = MixedUnits{T,typeof(u)}(u)
 (y::MixedUnits)(x::Number) = uconvert(y,x)
+
+# For logarithmic quantities
+struct IsRootPowerRatio{S,T}
+    val::T
+end
+IsRootPowerRatio{S}(x) where {S} = IsRootPowerRatio{S, typeof(x)}(x)
+Base.show(io::IO, x::IsRootPowerRatio{S}) where {S} =
+    print(io, ifelse(S, "root-power ratio", "power ratio"), " with reference ", x.val)
+const PowerRatio{T} = IsRootPowerRatio{false,T}
+const RootPowerRatio{T} = IsRootPowerRatio{true,T}
+@inline unwrap(x::IsRootPowerRatio) = x.val
+@inline unwrap(x) = x
+
+"""
+    reflevel(x::Level{L,S})
+    reflevel(::Type{Level{L,S}})
+    reflevel(::Type{Level{L,S,T}})
+Returns the reference level, e.g.
+
+```jldoctest
+julia> reflevel(3u"dBm")
+1 mW
+```
+"""
+function reflevel end
+@inline reflevel(x::Level{L,S}) where {L,S} = unwrap(S)
+@inline reflevel(::Type{Level{L,S}}) where {L,S} = unwrap(S)
+@inline reflevel(::Type{Level{L,S,T}}) where {L,S,T} = unwrap(S)
