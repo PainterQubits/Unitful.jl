@@ -55,7 +55,10 @@ const colon = Base.:(:)
     @test !isreal(Base.complex(3.0/m, 4.0/m))
     @test !isreal(Base.complex((3.0+4.0im)/m))
     @test Base.reim(Base.complex((3.0+4.0im)/m)) == (3.0/m, 4.0/m)
+    @test Base.complex(1m, 1.5m) == Base.complex(1.0m, 1.5m)
     @test Base.widen(Base.complex(Float32(3.0)/m)) == Base.complex(Float64(3.0)/m)
+    @test Base.complex(1.0/m) == (1.0/m + (0.0/m)*im)
+    @test Base.complex(1.0/m + (1.5/m)*im) == (1.0/m + (1.5/m)*im)
     @test 3*NoUnits === 3
     @test 3*(FreeUnits(m)/FreeUnits(m)) === 3
     @test 3*(ContextUnits(m)/ContextUnits(m)) === 3

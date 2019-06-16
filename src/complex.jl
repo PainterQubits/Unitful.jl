@@ -6,11 +6,9 @@
 # It is currently incomplete.
 
 complex(z::Quantity{T,D,U}) where {T<:Complex,D,U} = z
-function complex(x::Quantity{T,D,U}, y = zero(x)) where {
-    T<:Real,D,U
-}
+function complex(x::Quantity{T}, y = zero(x)) where {T<:Real}
     r, i = promote(x, y)
-    return Quantity{complex(T),D,U}(complex(ustrip(r), ustrip(i)))
+    return Quantity(complex(ustrip(r), ustrip(i)), unit(r))
 end
 complex(::Type{Quantity{T,D,U}}) where {T,D,U} =
     Quantity{complex(T),D,U}
