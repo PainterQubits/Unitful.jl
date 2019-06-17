@@ -119,7 +119,7 @@ for p in (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
 end
 
 # Energy
-const q = 1.6021766208e-19*C        # CODATA 2014; `e` means 2.718...
+const q = 1.602_176_634e-19*C        # CODATA 2018; `e` means 2.718...
 @unit eV     "eV"       eV          q*V                     true
 
 # For convenience
@@ -128,7 +128,7 @@ const q = 1.6021766208e-19*C        # CODATA 2014; `e` means 2.718...
 @unit atm    "atm"      Atmosphere  101325Pa                false
 @unit Torr   "Torr"     Torr        101325Pa//760           true
 
-# Constants (2014 CODATA values)        (uncertainties in final digits)
+# Constants (2018 CODATA values)        (uncertainties in final digits)
 const c0 = 299_792_458*m/s              # exact
 @unit c      "c"        SpeedOfLight 1c0                    false
 const μ0 = 4π*(1//10)^7*H/m         # exact (but gets promoted to Float64...)
@@ -136,22 +136,22 @@ const µ0 = μ0                       # magnetic constant
 const ɛ0 = 1/(μ0*c^2)               # exact, electric constant; changes here may affect
 const ϵ0 = ɛ0                           # test of issue 79.
 const Z0 = μ0*c                     # exact, impedance of free space
-const G  = 6.674_08e-11*m^3/kg/s^2  # (31) gravitational constant
+const G  = 6.674_30e-11*m^3/kg/s^2  # (15) gravitational constant
 const gn = 9.80665*m/s^2            # exact, standard acceleration of gravity
-const h  = 6.626_070_040e-34*J*s    # (81) Planck constant
+const h  = 6.626_070_15e-34*J*s     # exact, Planck constant
 const ħ  = h/2π                     # hbar
 const Φ0 = h/(2q)                   # Superconducting magnetic flux quantum
-const me = 9.109_383_56e-31*kg      # (11) electron rest mass
-const mn = 1.674_927_471e-27*kg     # (21) neutron rest mass
-const mp = 1.672_621_898e-27*kg     # (21) proton rest mass
+const me = 9.109_383_7015e-31*kg    # (28) electron rest mass
+const mn = 1.674_927_498_04e-27*kg  # (95) neutron rest mass
+const mp = 1.672_621_923_69e-27*kg  # (51) proton rest mass
 const μB = q*ħ/(2*me)               # Bohr magneton
 const µB = μB
-const Na = 6.022_140_857e23/mol     # (74) Avogadro constant
-const R  = 8.314_459_8*J/(mol*K)    # (48) molar gass constant
-const k  = 1.380_648_52e-23*(J/K)   # (79) Boltzmann constant
+const Na = 6.022_140_76e23/mol      # exact, Avogadro constant
+const k  = 1.380_649e-23*(J/K)      # exact, Boltzmann constant
+const R  = Na*k                     # molar gas constant
 const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
-const R∞ = 10_973_731.568_508/m     # (65) Rydberg constant
-@unit u      "u" UnifiedAtomicMassUnit 1.660_539_040e-27*kg false # (20)
+const R∞ = 10_973_731.568_160/m     # (21) Rydberg constant
+@unit u      "u" UnifiedAtomicMassUnit 1.660_539_066_60e-27*kg false # (50)
 
 # Acceleration
 @unit ge     "ge"       EarthGravity gn                     false
