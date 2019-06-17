@@ -50,6 +50,13 @@ const colon = Base.:(:)
         FixedUnits{(Unitful.Unit{:Meter, 𝐋}(0,1),), 𝐋, nothing}}
     @test 3mm != 3*(m*m)                        # mm not interpreted as m*m
     @test (3+4im)*V === V*(3+4im) === (3V+4V*im)  # Complex quantity construction
+    @test !isreal(Base.complex(3.0/m, 4.0/m))
+    @test !isreal(Base.complex((3.0+4.0im)/m))
+    @test Base.reim(Base.complex((3.0+4.0im)/m)) == (3.0/m, 4.0/m)
+    @test Base.complex(1m, 1.5m) == Base.complex(1.0m, 1.5m)
+    @test Base.widen(Base.complex(Float32(3.0)/m)) == Base.complex(Float64(3.0)/m)
+    @test Base.complex(1.0/m) == (1.0/m + (0.0/m)*im)
+    @test Base.complex(1.0/m + (1.5/m)*im) == (1.0/m + (1.5/m)*im)
     @test 3*NoUnits === 3
     @test 3*(FreeUnits(m)/FreeUnits(m)) === 3
     @test 3*(ContextUnits(m)/ContextUnits(m)) === 3
@@ -65,6 +72,11 @@ const colon = Base.:(:)
     @test ContextUnits(m, FixedUnits(mm)) === ContextUnits(m, mm)
     @test ContextUnits(m, ContextUnits(mm, mm)) === ContextUnits(m, mm)
     @test_throws DimensionError ContextUnits(m,kg)
+end
+
+@testset "Types" begin
+    @test Base.complex(Quantity{Float64,NoDims,NoUnits}) ==
+        Quantity{Complex{Float64},NoDims,NoUnits}
 end
 
 @testset "Conversion" begin
