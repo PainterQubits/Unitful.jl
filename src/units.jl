@@ -279,7 +279,7 @@ end
 
 function *(x::Base.TwicePrecision{Q}, v::Real) where Q<:Quantity
     v == 0 && return Base.TwicePrecision(x.hi*v, x.lo*v)
-    x * Base.TwicePrecision(oftype(ustrip(x.hi)*v, v))
+    (ustrip(x) * Base.TwicePrecision(oftype(ustrip(x.hi)*v, v))) * unit(x)
 end
 
 Base.mul12(x::Quantity, y::Quantity) = Base.mul12(ustrip(x), ustrip(y)) .* (unit(x) * unit(y))
