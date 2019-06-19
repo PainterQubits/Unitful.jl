@@ -985,6 +985,8 @@ end
             @test_throws DimensionError range(1.0m, step=1.0V, length=5)
             @test_throws ArgumentError 1.0m:0.0m:5.0m
             @test (-2.0Hz:1.0Hz:2.0Hz)/1.0Hz == -2.0:1.0:2.0  # issue 160
+            @test (range(0, 2, length=5) * u"°")[2:end] ==
+                range(0.5, 2, length=4) * u"°"  # issue 241
         end
         @testset ">> LinSpace" begin
             # Not using Compat.range for these because kw args don't infer in julia 0.6.2
