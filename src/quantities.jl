@@ -293,9 +293,9 @@ if VERSION >= v"1"
     trunc(x::AbstractQuantity; kwargs...) = round(x, RoundToZero; kwargs...)
     floor(x::AbstractQuantity; kwargs...) = round(x, RoundDown; kwargs...)
     ceil(x::AbstractQuantity; kwargs...)  = round(x, RoundUp; kwargs...)
-    trunc(type::Type{T}, x::AbstractQuantity; kwargs...) where {T<:Integer} = round(type, x, RoundToZero)
-    floor(type::Type{T}, x::AbstractQuantity) where {T<:Integer} = round(type, x, RoundDown)
-    ceil(type::Type{T}, x::AbstractQuantity)  where {T<:Integer} = round(type, x, RoundUp)
+    trunc(t::Type{T}, x::AbstractQuantity; kwargs...) where {T<:Integer} = round(t, x, RoundToZero)
+    floor(t::Type{T}, x::AbstractQuantity) where {T<:Integer} = round(t, x, RoundDown)
+    ceil(t::Type{T}, x::AbstractQuantity)  where {T<:Integer} = round(t, x, RoundUp)
 else
     for f in (:floor, :ceil, :trunc, :round)
         @eval ($f)(x::AbstractQuantity; digits=0) = _dimerr($f)
