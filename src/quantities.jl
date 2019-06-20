@@ -287,6 +287,9 @@ for f in (:floor, :ceil, :trunc, :round)
     @eval ($f)(::Type{T}, x::DimensionlessQuantity; kwargs...) where {T <: Integer} = ($f)(T, uconvert(NoUnits, x); kwargs...)
     @eval ($f)(::Type{T}, x::Quantity; kwargs...) where {T <: Quantity} = T(($f)(uconvert(unit(T), x).val; kwargs...))
 end
+round(x::DimensionlessQuantity, r::RoundingMode=RoundNearest; kwargs...) = round(uconvert(NoUnits, x), r; kwargs...)
+round(::Type{T}, x::AbstractQuantity) where {T <: Integer} = _dimerr(round)
+round(::Type{T}, x::DimensionlessQuantity) where {T <: Integer} = round(T, uconvert(NoUnits, x))
 
 zero(x::AbstractQuantity) = Quantity(zero(x.val), unit(x))
 zero(x::AffineQuantity) = Quantity(zero(x.val), absoluteunit(x))
