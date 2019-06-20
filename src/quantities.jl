@@ -277,23 +277,33 @@ _dimerr(f) = error("$f can only be well-defined for dimensionless ",
 isinteger(x::AbstractQuantity) = _dimerr(isinteger)
 isinteger(x::DimensionlessQuantity) = isinteger(uconvert(NoUnits, x))
 
-function round(x::AbstractQuantity, r::RoundingMode=RoundNearest; kwargs...)
-    if !haskey(kwargs, :sigdigits)
-        return _dimerr(round)
+if VERSION >= v"1"
+    function round(x::AbstractQuantity, r::RoundingMode=RoundNearest; kwargs...)
+        if !haskey(kwargs, :sigdigits)
+            return _dimerr(round)
+        end
+        u = unit(x)
+        v = ustrip(x)
+        return round( v, r; kwargs... ) * u
     end
-    u = unit(x)
-    v = ustrip(x)
-    return round( v, r; kwargs... ) * u
+    round(x::DimensionlessQuantity, r::RoundingMode=RoundNearest; kwargs...) = round(uconvert(NoUnits, x), r; kwargs...)
+    round(::Type{T}, x::AbstractQuantity, r=RoundingMode=RoundNearest) where {T <: Integer} = _dimerr(round)
+    round(::Type{T}, x::DimensionlessQuantity, r::RoundingMode=RoundNearest) where {T <: Integer} = round(T, uconvert(NoUnits, x), r)
+    # that should actually be fixed in Base ↓
+    trunc(x::AbstractQuantity; kwargs...) = round(x, RoundToZero; kwargs...)
+    floor(x::AbstractQuantity; kwargs...) = round(x, RoundDown; kwargs...)
+    ceil(x::AbstractQuantity; kwargs...)  = round(x, RoundUp; kwargs...)
+    trunc(type::Type{T}, x::AbstractQuantity; kwargs...) where {T<:Integer} = round(type, x, RoundToZero)
+    floor(type::Type{T}, x::AbstractQuantity) where {T<:Integer} = round(type, x, RoundDown)
+    ceil(type::Type{T}, x::AbstractQuantity)  where {T<:Integer} = round(type, x, RoundUp)
+else
+    for f in (:floor, :ceil, :trunc, :round)
+        @eval ($f)(x::AbstractQuantity; digits=0) = _dimerr($f)
+        @eval ($f)(x::DimensionlessQuantity; digits=0) = ($f)(uconvert(NoUnits, x); digits=digits)
+        @eval ($f)(::Type{T}, x::AbstractQuantity) where {T <: Integer} = _dimerr($f)
+        @eval ($f)(::Type{T}, x::DimensionlessQuantity) where {T <: Integer} = ($f)(T, uconvert(NoUnits, x))
+    end
 end
-round(x::DimensionlessQuantity, r::RoundingMode=RoundNearest; kwargs...) = round(uconvert(NoUnits, x), r; kwargs...)
-round(::Type{T}, x::AbstractQuantity, r=RoundingMode=RoundNearest) where {T <: Integer} = _dimerr(round)
-round(::Type{T}, x::DimensionlessQuantity, r::RoundingMode=RoundNearest) where {T <: Integer} = round(T, uconvert(NoUnits, x), r)
-trunc(x::AbstractQuantity; kwargs...) = round(x, RoundToZero; kwargs...)
-floor(x::AbstractQuantity; kwargs...) = round(x, RoundDown; kwargs...)
-ceil(x::AbstractQuantity; kwargs...)  = round(x, RoundUp; kwargs...)
-trunc(type::Type{T}, x::AbstractQuantity; kwargs...) where {T<:Integer} = round(type, x, RoundToZero)
-floor(type::Type{T}, x::AbstractQuantity) where {T<:Integer} = round(type, x, RoundDown)
-ceil(type::Type{T}, x::AbstractQuantity)  where {T<:Integer} = round(type, x, RoundUp)
 
 zero(x::AbstractQuantity) = Quantity(zero(x.val), unit(x))
 zero(x::AffineQuantity) = Quantity(zero(x.val), absoluteunit(x))
