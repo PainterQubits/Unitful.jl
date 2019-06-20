@@ -888,10 +888,12 @@ end
     @test ceil(Int16, 1.0314m/mm) === Int16(1032.0)
     @test trunc(Int16, -1.0314m/mm) === Int16(-1031.0)
     @test round(Int16, 1.0314m/mm) === Int16(1031.0)
-    @test floor( 3.7m, sigdigits = 1 ) == 3.0m
-    @test ceil( 3.7m, sigdigits = 1 ) == 4.0m
-    @test trunc( 3.7m, sigdigits = 1 ) == 3.0m
-    @test round( 3.7m, sigdigits = 1 ) == 4.0m
+    if VERSION >= v"1"
+        @test floor( 3.7m, sigdigits = 1 ) == 3.0m
+        @test ceil( 3.7m, sigdigits = 1 ) == 4.0m
+        @test trunc( 3.7m, sigdigits = 1 ) == 3.0m
+        @test round( 3.7m, sigdigits = 1 ) == 4.0m
+    end
 end
 
 @testset "Sgn, abs, &c." begin
