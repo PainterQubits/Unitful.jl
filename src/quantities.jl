@@ -276,11 +276,16 @@ _dimerr(f) = error("$f can only be well-defined for dimensionless ",
         "different results.")
 isinteger(x::AbstractQuantity) = _dimerr(isinteger)
 isinteger(x::DimensionlessQuantity) = isinteger(uconvert(NoUnits, x))
+
+_rounderr(f) = error("Specify the type of the quantity to convert to with $f. ",
+                     "Example: $f(typeof(1u\"m\"), 137u\"cm\") ")
+
 for f in (:floor, :ceil, :trunc, :round)
-    @eval ($f)(x::AbstractQuantity; digits=0) = _dimerr($f)
-    @eval ($f)(x::DimensionlessQuantity; digits=0) = ($f)(uconvert(NoUnits, x); digits=digits)
-    @eval ($f)(::Type{T}, x::AbstractQuantity) where {T <: Integer} = _dimerr($f)
-    @eval ($f)(::Type{T}, x::DimensionlessQuantity) where {T <: Integer} = ($f)(T, uconvert(NoUnits, x))
+    @eval ($f)(x::AbstractQuantity; kwargs...) = _rounderr($f)
+    @eval ($f)(x::DimensionlessQuantity; kwargs...) = ($f)(uconvert(NoUnits, x); kwargs...)
+    @eval ($f)(::Type{T}, x::AbstractQuantity; kwargs...) where {T <: Integer} = _rounderr($f)
+    @eval ($f)(::Type{T}, x::DimensionlessQuantity; kwargs...) where {T <: Integer} = ($f)(T, uconvert(NoUnits, x); kwargs...)
+    @eval ($f)(::Type{T}, x::Quantity; kwargs...) where {T <: Quantity} = T(($f)(uconvert(unit(T), x).val; kwargs...))
 end
 
 zero(x::AbstractQuantity) = Quantity(zero(x.val), unit(x))
