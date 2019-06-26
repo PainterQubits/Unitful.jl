@@ -7,6 +7,7 @@ julia:
   - 0.7
   - 1.0
   - 1.1
+  - 1.2
   - nightly
 notifications:
   email: false
@@ -16,8 +17,8 @@ notifications:
 # uncomment the following lines to override the default test script
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'using Pkg; Pkg.clone(pwd()); Pkg.build("Unitful"); Pkg.test("Unitful"; coverage=true)'
-  - julia --compiled-modules=no -e 'using Pkg; Pkg.test("Unitful"; coverage=false)'
+  - julia -e 'using Pkg; Pkg.build(); Pkg.test(coverage=true)'
+  - julia --compiled-modules=no -e 'using Pkg; Pkg.build(); Pkg.test(coverage=true)'
 after_success:
   # push coverage results to Coveralls
   - julia -e 'using Pkg; cd(Pkg.dir("Unitful")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
