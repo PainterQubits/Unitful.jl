@@ -280,14 +280,31 @@ isinteger(x::DimensionlessQuantity) = isinteger(uconvert(NoUnits, x))
 _rounderr(f) = error("Specify the type of the quantity to convert to with $f. ",
                      "Example: $f(typeof(1u\"m\"), 137u\"cm\") ")
 
-for f in (:floor, :ceil, :trunc, :round)
-    @eval ($f)(x::AbstractQuantity; kwargs...) = _rounderr($f)
-    @eval ($f)(x::DimensionlessQuantity; kwargs...) = ($f)(uconvert(NoUnits, x); kwargs...)
-    @eval ($f)(::Type{T}, x::AbstractQuantity; kwargs...) where {T <: Integer} = _rounderr($f)
-    @eval ($f)(::Type{T}, x::DimensionlessQuantity; kwargs...) where {T <: Integer} = ($f)(T, uconvert(NoUnits, x); kwargs...)
-    @eval ($f)(::Type{T}, x::Quantity; kwargs...) where {T <: Quantity} = T(($f)(uconvert(unit(T), x).val; kwargs...))
+if VERSION >= v"1"
+    # convenience methods
+    round(u::Units, q::Quantity, r::RoundingMode=RoundNearest; kwargs...) = round( numtype(q), u, q, r; kwargs...)
+    round(::Type{T}, u::Units, q::Quantity, r::RoundingMode=RoundNearest; kwargs...) =  round(Quantity{T, dimension(q), typeof(u)}, q, r; kwargs...)
+    # working horse methods
+    round(x::AbstractQuantity, r::RoundingMode=RoundNearest; kwargs...) = _rounderr(:round)
+    round(x::DimensionlessQuantity, r::RoundingMode=RoundNearest; kwargs...) = round(uconvert(NoUnits, x), r; kwargs...)
+    round(::Type{T}, x::AbstractQuantity, r=RoundingMode=RoundNearest; kwargs...) where {T <: Integer} = _dimerr(:round)
+    round(::Type{T}, x::DimensionlessQuantity, r::RoundingMode=RoundNearest; kwargs...) where {T <: Integer} = round(T, uconvert(NoUnits, x), r; kwargs...)
+    round(::Type{T}, x::Quantity, r::RoundingMode=RoundNearest; kwargs...) where {T <: Integer} = T(round(uconvert(unit(T),x).val, r; kwargs...))
+    # that should actually be fixed in Base ↓
+    trunc(x::AbstractQuantity; kwargs...) = round(x, RoundToZero; kwargs...)
+    floor(x::AbstractQuantity; kwargs...) = round(x, RoundDown; kwargs...)
+    ceil(x::AbstractQuantity; kwargs...)  = round(x, RoundUp; kwargs...)
+    trunc(t::Type{T}, x::AbstractQuantity; kwargs...) where {T<:Integer} = round(t, x, RoundToZero)
+    floor(t::Type{T}, x::AbstractQuantity) where {T<:Integer} = round(t, x, RoundDown)
+    ceil(t::Type{T}, x::AbstractQuantity)  where {T<:Integer} = round(t, x, RoundUp)
+else
+    for f in (:floor, :ceil, :trunc, :round)
+        @eval ($f)(x::AbstractQuantity; digits=0) = _dimerr($f)
+        @eval ($f)(x::DimensionlessQuantity; digits=0) = ($f)(uconvert(NoUnits, x); digits=digits)
+        @eval ($f)(::Type{T}, x::AbstractQuantity) where {T <: Integer} = _dimerr($f)
+        @eval ($f)(::Type{T}, x::DimensionlessQuantity) where {T <: Integer} = ($f)(T, uconvert(NoUnits, x))
+    end
 end
-
 zero(x::AbstractQuantity) = Quantity(zero(x.val), unit(x))
 zero(x::AffineQuantity) = Quantity(zero(x.val), absoluteunit(x))
 zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:ScalarUnits} = zero(T)*U()
