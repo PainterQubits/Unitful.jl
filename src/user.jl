@@ -17,7 +17,12 @@ end
 end #module
 ```
 """
-register(unit_module::Module) = push!(Unitful.unitmodules, unit_module)
+function register(unit_module::Module)
+    push!(Unitful.unitmodules, unit_module)
+    if unit_module !== Unitful
+        merge!(Unitful.basefactors, _basefactors(unit_module))
+    end
+end
 
 """
     @dimension(symb, abbr, name)
@@ -203,6 +208,20 @@ macro affineunit(symb, abbr, offset)
     end)
 end
 
+function basefactors_expr(m::Module, n, basefactor)
+    if m === Unitful
+        :($(_basefactors(Unitful))[$n] = $basefactor)
+    else
+        # We add the base factor to dictionaries both in Unitful and the other
+        # module so that the factor is available both interactively and with
+        # precompilation.
+        quote
+            $(_basefactors(m))[$n] = $basefactor
+            $(_basefactors(Unitful))[$n] = $basefactor
+        end
+    end
+end
+
 """
     @prefixed_unit_symbols(symb,name,dimension,basefactor)
 Not called directly by the user. Given a unit symbol and a unit's name,
@@ -219,7 +238,7 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
         s = Symbol(v,symb)
         u = :(Unitful.Unit{$n, $dimension}($k,1//1))
         ea = quote
-            Unitful.basefactors[$n] = $basefactor
+            $(basefactors_expr(__module__, n, basefactor))
             const global $s = Unitful.FreeUnits{($u,), Unitful.dimension($u), nothing}()
         end
         push!(expr.args, ea)
@@ -229,7 +248,7 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
     s = Symbol(:µ, symb)
     u = :(Unitful.Unit{$n, $dimension}(-6,1//1))
     push!(expr.args, quote
-        Unitful.basefactors[$n] = $basefactor
+        $(basefactors_expr(__module__, n, basefactor))
         const global $s = Unitful.FreeUnits{($u,), Unitful.dimension($u), nothing}()
     end)
 
@@ -248,7 +267,7 @@ macro unit_symbols(symb,name,dimension,basefactor)
     n = Meta.quot(Symbol(name))
     u = :(Unitful.Unit{$n, $dimension}(0,1//1))
     esc(quote
-        Unitful.basefactors[$n] = $basefactor
+        $(basefactors_expr(__module__, n, basefactor))
         const global $s = Unitful.FreeUnits{($u,), Unitful.dimension($u), nothing}()
     end)
 end
