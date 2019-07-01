@@ -903,6 +903,8 @@ end
         @test round(typeof(1.0mm), 1.0314m; digits=1) === 1031.4mm
         @test round(u"inch", 1.0314m) === 41.0u"inch"
         @test round(Int, u"inch", 1.0314m) === 41u"inch"
+        @test round(typeof(1m), 137cm) === 1m
+        @test round(137cm/m) === 1//1
     end
 end
 
