@@ -312,7 +312,7 @@ function promote_to_derived()
          Unitful.promote_unit(::S, ::T) where
          {S<:VoltageFreeUnits, T<:VoltageFreeUnits} = Unitful.V
          Unitful.promote_unit(::S, ::T) where
-         {S<:ResistanceFreeUnits, T<:ResistanceFreeUnits} = Unitful.Ω
+         {S<:ElectricalResistanceFreeUnits, T<:ElectricalResistanceFreeUnits} = Unitful.Ω
          Unitful.promote_unit(::S, ::T) where
          {S<:CapacitanceFreeUnits, T<:CapacitanceFreeUnits} = Unitful.F
          Unitful.promote_unit(::S, ::T) where
