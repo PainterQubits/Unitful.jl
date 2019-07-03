@@ -30,7 +30,20 @@ export @logscale, @logunit, @dB, @B, @cNp, @Np
 export Level, Gain
 
 const unitmodules = Vector{Module}()
-const basefactors = Dict{Symbol,Tuple{Float64,Rational{Int}}}()
+
+function _basefactors(m::Module)
+    # A hidden symbol which will be automatically attached to any module
+    # defining units, allowing `Unitful.register()` to merge in the units from
+    # that module.
+    basefactors_name = Symbol("#Unitful_basefactors")
+    if isdefined(m, basefactors_name)
+        getproperty(m, basefactors_name)
+    else
+        m.eval(:(const $basefactors_name = Dict{Symbol,Tuple{Float64,Rational{Int}}}()))
+    end
+end
+
+const basefactors = _basefactors(Unitful)
 
 include("types.jl")
 const promotion = Dict{Symbol,Unit}()

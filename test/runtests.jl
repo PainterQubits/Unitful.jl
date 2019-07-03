@@ -1560,3 +1560,30 @@ Base.promote_rule(::Type{Num}, ::Type{<:Real}) = Num
     # Test that @generated functions work with Quantities + custom types (#231)
     @test uconvert(u"°C", Num(100)u"K") == Num(373.15)u"°C"
 end
+
+# Test precompiled Unitful extension modules
+load_path = mktempdir()
+load_cache_path = mktempdir()
+try
+    write(joinpath(load_path, "ExampleExtension.jl"),
+          """
+          module ExampleExtension
+          using Unitful
+
+          @unit yr "yr" JulianYear 365.25u"d" true
+
+          function __init__()
+              Unitful.register(ExampleExtension)
+          end
+          end
+          """)
+    pushfirst!(LOAD_PATH, load_path)
+    pushfirst!(DEPOT_PATH, load_cache_path)
+    @eval using ExampleExtension
+    # Delay u"yr" expansion until test time
+    @eval @test uconvert(u"d", 1u"yr") == 365.25u"d"
+finally
+    rm(load_path, recursive=true)
+    rm(load_cache_path, recursive=true)
+end
+
