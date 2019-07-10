@@ -1,8 +1,9 @@
 """
     register(unit_module::Module)
-Makes the [`@u_str`](@ref) macro aware of units defined in new unit modules. By default,
-Unitful is itself a registered module. Note that Main is not, so if you define new units
-at the REPL, you will probably want to do `Unitful.register(Main)`.
+Makes Unitful aware of units defined in a new unit module, including making the
+[`@u_str`](@ref) macro work with these units. By default, Unitful is itself a
+registered module. Note that Main is not, so if you define new units at the
+REPL, you will probably want to do `Unitful.register(Main)`.
 
 Example:
 ```jl
