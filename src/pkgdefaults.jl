@@ -5,50 +5,50 @@
 # At the expense of easy typing, this gives a visual cue to distinguish
 # dimensions from units, and also helps prevent common namespace collisions.
 
-@dimension ᴸ "ᴸ" Length
-@dimension ᴹ "ᴹ" Mass
-@dimension ᵀ "ᵀ" Time
-@dimension ᴵ "ᴵ" Current
-@dimension ᶿ "ᶿ" Temperature
-@dimension ᴶ "ᴶ" Luminosity
-@dimension ᴺ "ᴺ" Amount
+@dimension ᴸ " ᴸ" Length
+@dimension ᴹ " ᴹ" Mass
+@dimension ᵀ " ᵀ" Time
+@dimension ᴵ " ᴵ" Current
+@dimension ᶿ " ᶿ" Temperature
+@dimension ᴶ " ᴶ" Luminosity
+@dimension ᴺ " ᴺ" Amount
 const RelativeScaleTemperature = Quantity{T, ᶿ, <:AffineUnits} where T
 const AbsoluteScaleTemperature = Quantity{T, ᶿ, <:ScalarUnits} where T
 
 # Define derived dimensions.
 @derived_dimension Area                     ᴸ^2
 @derived_dimension Volume                   ᴸ^3
-@derived_dimension Density                  ᴹ/ᴸ^3
+@derived_dimension Density                  ᴹ / ᴸ^3
 @derived_dimension Frequency                inv(ᵀ)
-@derived_dimension Velocity                 ᴸ/ᵀ
-@derived_dimension Acceleration             ᴸ/ᵀ^2
-@derived_dimension Force                    ᴹ*ᴸ/ᵀ^2
-@derived_dimension Pressure                 ᴹ*ᴸ^-1*ᵀ^-2
-@derived_dimension Energy                   ᴹ*ᴸ^2/ᵀ^2
-@derived_dimension Momentum                 ᴹ*ᴸ/ᵀ
-@derived_dimension Power                    ᴸ^2*ᴹ*ᵀ^-3
-@derived_dimension Charge                   ᴵ*ᵀ
-@derived_dimension Voltage                  ᴵ^-1*ᴸ^2*ᴹ*ᵀ^-3
-@derived_dimension ElectricalResistance     ᴵ^-2*ᴸ^2*ᴹ*ᵀ^-3
-@derived_dimension ElectricalResistivity    ᴵ^-2*ᴸ^3*ᴹ*ᵀ^-3
-@derived_dimension ElectricalConductance    ᴵ^2*ᴸ^-2*ᴹ^-1*ᵀ^3
-@derived_dimension ElectricalConductivity   ᴵ^2*ᴸ^-3*ᴹ^-1*ᵀ^3
-@derived_dimension Capacitance              ᴵ^2*ᴸ^-2*ᴹ^-1*ᵀ^4
-@derived_dimension Inductance               ᴵ^-2*ᴸ^2*ᴹ*ᵀ^-2
-@derived_dimension MagneticFlux             ᴵ^-1*ᴸ^2*ᴹ*ᵀ^-2
-@derived_dimension DField                   ᴵ*ᵀ/ᴸ^2
-@derived_dimension EField                   ᴸ*ᴹ*ᵀ^-3*ᴵ^-1
-@derived_dimension HField                   ᴵ/ᴸ
-@derived_dimension BField                   ᴵ^-1*ᴹ*ᵀ^-2
-@derived_dimension Action                   ᴸ^2*ᴹ*ᵀ^-1
-@derived_dimension DynamicViscosity         ᴹ*ᴸ^-1*ᵀ^-1
-@derived_dimension KinematicViscosity       ᴸ^2*ᵀ^-1
+@derived_dimension Velocity                 ᴸ / ᵀ
+@derived_dimension Acceleration             ᴸ / ᵀ^2
+@derived_dimension Force                    ᴹ * ᴸ / ᵀ^2
+@derived_dimension Pressure                 ᴹ * ᴸ^-1* ᵀ^-2
+@derived_dimension Energy                   ᴹ * ᴸ^2 / ᵀ^2
+@derived_dimension Momentum                 ᴹ * ᴸ / ᵀ
+@derived_dimension Power                    ᴸ^2 * ᴹ * ᵀ^-3
+@derived_dimension Charge                   ᴵ * ᵀ
+@derived_dimension Voltage                  ᴵ^-1 * ᴸ^2 * ᴹ * ᵀ^-3
+@derived_dimension ElectricalResistance     ᴵ^-2 * ᴸ^2 * ᴹ * ᵀ^-3
+@derived_dimension ElectricalResistivity    ᴵ^-2 * ᴸ^3 * ᴹ * ᵀ^-3
+@derived_dimension ElectricalConductance    ᴵ^2 * ᴸ^-2 * ᴹ^-1 * ᵀ^3
+@derived_dimension ElectricalConductivity   ᴵ^2 * ᴸ^-3 * ᴹ^-1 * ᵀ^3
+@derived_dimension Capacitance              ᴵ^2 * ᴸ^-2 * ᴹ^-1 * ᵀ^4
+@derived_dimension Inductance               ᴵ^-2 * ᴸ^2 * ᴹ * ᵀ^-2
+@derived_dimension MagneticFlux             ᴵ^-1 * ᴸ^2 * ᴹ * ᵀ^-2
+@derived_dimension DField                   ᴵ * ᵀ / ᴸ^2
+@derived_dimension EField                   ᴸ * ᴹ * ᵀ^-3 * ᴵ^-1
+@derived_dimension HField                   ᴵ / ᴸ
+@derived_dimension BField                   ᴵ^-1 * ᴹ * ᵀ^-2
+@derived_dimension Action                   ᴸ^2 * ᴹ * ᵀ^-1
+@derived_dimension DynamicViscosity         ᴹ * ᴸ^-1 * ᵀ^-1
+@derived_dimension KinematicViscosity       ᴸ^2 * ᵀ^-1
 @derived_dimension Wavenumber               inv(ᴸ)
-@derived_dimension ElectricDipoleMoment     ᴸ*ᵀ*ᴵ
-@derived_dimension ElectricQuadrupoleMoment ᴸ^2*ᵀ*ᴵ
-@derived_dimension MagneticDipoleMoment     ᴸ^2*ᴵ
-@derived_dimension Molarity                 ᴺ/ᴸ^3
-@derived_dimension Molality                 ᴺ/ᴹ
+@derived_dimension ElectricDipoleMoment     ᴸ * ᵀ * ᴵ
+@derived_dimension ElectricQuadrupoleMoment ᴸ^2 * ᵀ * ᴵ
+@derived_dimension MagneticDipoleMoment     ᴸ^2 * ᴵ
+@derived_dimension Molarity                 ᴺ / ᴸ^3
+@derived_dimension Molality                 ᴺ / ᴹ
 
 # Define base units. This is not to imply g is the base SI unit instead of kg.
 # See the documentation for further details.
@@ -57,7 +57,7 @@ const AbsoluteScaleTemperature = Quantity{T, ᶿ, <:ScalarUnits} where T
 @refunit  s       "s"      Second    ᵀ           true
 @refunit  A       "A"      Ampere    ᴵ            true
 @refunit  K       "K"      Kelvin    ᶿ           true
-@refunit  cd      "cd"     Candela   𝐉            true
+@refunit  cd      "cd"     Candela   ᴶ            true
 @refunit  g       "g"      Gram      ᴹ          true
 @refunit  mol     "mol"    Mole      ᴺ           true
 
@@ -240,7 +240,7 @@ isrootpower_dim(::typeof(dimension(Hz)))        = false
 #########
 
 # `using Unitful.DefaultSymbols` will bring the following into the calling namespace:
-# - Dimensions ᴸ,ᴹ,ᵀ,ᴵ,ᶿ,𝐉,ᴺ
+# - Dimensions ᴸ,ᴹ,ᵀ,ᴵ,ᶿ,ᴶ,ᴺ
 # - Base and derived SI units, with SI prefixes
 #   - Candela conflicts with `Base.cd` so it is not brought in (issue #102)
 # - Degrees: °
@@ -255,7 +255,7 @@ const si_no_prefix = (:m, :s, :A, :K, :g, :mol, :rad, :sr, :Hz, :N, :Pa, #:cd,
 baremodule DefaultSymbols
     import Unitful
 
-    for u in (:ᴸ,:ᴹ,:ᵀ,:ᴵ,:ᶿ,:𝐉,:ᴺ)
+    for u in (:ᴸ,:ᴹ,:ᵀ,:ᴵ,:ᶿ,:ᴶ,:ᴺ)
         Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, u)))
         Core.eval(DefaultSymbols, Expr(:export, u))
     end
