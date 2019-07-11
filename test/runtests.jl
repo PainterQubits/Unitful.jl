@@ -16,7 +16,7 @@ import Unitful:
     dB, dB_rp, dB_p, dBm, dBV, dBSPL, Decibel,
     Np, Np_rp, Np_p, Neper
 
-import Unitful: ᴸ, ᵀ, ᴺ, 𝚯
+import Unitful: ᴸ, ᵀ, ᴺ, ᶿ
 
 import Unitful:
     Length, Area, Volume,
@@ -207,9 +207,9 @@ end
         @test_throws AffineError one(100°C)
         @test_throws AffineError one(typeof(100°C))
 
-        @test 0°C isa AffineQuantity{T, 𝚯} where T    # is "relative temperature"
+        @test 0°C isa AffineQuantity{T, ᶿ} where T    # is "relative temperature"
         @test 0°C isa Temperature                             # dimensional correctness
-        @test °C isa AffineUnits{N, 𝚯} where N
+        @test °C isa AffineUnits{N, ᶿ} where N
         @test °C isa TemperatureUnits
 
         @test @inferred(uconvert(°F, 0°C))  === (32//1)°F   # Some known conversions...
@@ -251,17 +251,17 @@ end
     end
     @testset "Promotion" begin
         @test_throws ErrorException Unitful.preferunits(°C)
-        @test @inferred(eltype([1°C, 1K])) <: Quantity{Rational{Int}, 𝚯, typeof(K)}
-        @test @inferred(eltype([1.0°C, 1K])) <: Quantity{Float64, 𝚯, typeof(K)}
-        @test @inferred(eltype([1°C, 1°F])) <: Quantity{Rational{Int}, 𝚯, typeof(K)}
-        @test @inferred(eltype([1.0°C, 1°F])) <: Quantity{Float64, 𝚯, typeof(K)}
+        @test @inferred(eltype([1°C, 1K])) <: Quantity{Rational{Int}, ᶿ, typeof(K)}
+        @test @inferred(eltype([1.0°C, 1K])) <: Quantity{Float64, ᶿ, typeof(K)}
+        @test @inferred(eltype([1°C, 1°F])) <: Quantity{Rational{Int}, ᶿ, typeof(K)}
+        @test @inferred(eltype([1.0°C, 1°F])) <: Quantity{Float64, ᶿ, typeof(K)}
 
         # context units should be identifiable as affine
         @test ContextUnits(°C, °F) isa AffineUnits
 
         let fc = ContextUnits(°F, °C), cc = ContextUnits(°C, °C)
             @test @inferred(promote(1fc, 1cc)) === ((-155//9)cc, (1//1)cc)
-            @test @inferred(eltype([1cc, 1°C])) <: Quantity{Rational{Int}, 𝚯, typeof(cc)}
+            @test @inferred(eltype([1cc, 1°C])) <: Quantity{Rational{Int}, ᶿ, typeof(cc)}
         end
     end
 end

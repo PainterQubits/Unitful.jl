@@ -12,8 +12,8 @@
 @dimension ᶿ "ᶿ" Temperature
 @dimension ᴶ "ᴶ" Luminosity
 @dimension ᴺ "ᴺ" Amount
-const RelativeScaleTemperature = Quantity{T, 𝚯, <:AffineUnits} where T
-const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
+const RelativeScaleTemperature = Quantity{T, ᶿ, <:AffineUnits} where T
+const AbsoluteScaleTemperature = Quantity{T, ᶿ, <:ScalarUnits} where T
 
 # Define derived dimensions.
 @derived_dimension Area                     ᴸ^2
@@ -56,7 +56,7 @@ const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 @refunit  m       "m"      Meter     ᴸ           true
 @refunit  s       "s"      Second    ᵀ           true
 @refunit  A       "A"      Ampere    ᴵ            true
-@refunit  K       "K"      Kelvin    𝚯           true
+@refunit  K       "K"      Kelvin    ᶿ           true
 @refunit  cd      "cd"     Candela   𝐉            true
 @refunit  g       "g"      Gram      ᴹ          true
 @refunit  mol     "mol"    Mole      ᴺ           true
@@ -240,7 +240,7 @@ isrootpower_dim(::typeof(dimension(Hz)))        = false
 #########
 
 # `using Unitful.DefaultSymbols` will bring the following into the calling namespace:
-# - Dimensions ᴸ,ᴹ,ᵀ,ᴵ,𝚯,𝐉,ᴺ
+# - Dimensions ᴸ,ᴹ,ᵀ,ᴵ,ᶿ,𝐉,ᴺ
 # - Base and derived SI units, with SI prefixes
 #   - Candela conflicts with `Base.cd` so it is not brought in (issue #102)
 # - Degrees: °
@@ -255,7 +255,7 @@ const si_no_prefix = (:m, :s, :A, :K, :g, :mol, :rad, :sr, :Hz, :N, :Pa, #:cd,
 baremodule DefaultSymbols
     import Unitful
 
-    for u in (:ᴸ,:ᴹ,:ᵀ,:ᴵ,:𝚯,:𝐉,:ᴺ)
+    for u in (:ᴸ,:ᴹ,:ᵀ,:ᴵ,:ᶿ,:𝐉,:ᴺ)
         Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, u)))
         Core.eval(DefaultSymbols, Expr(:export, u))
     end

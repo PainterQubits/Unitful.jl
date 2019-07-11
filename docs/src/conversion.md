@@ -112,7 +112,7 @@ required because you need some generic logic to take over when manipulating
 quantities with arbitrary dimensions.
 
 The default behavior is to promote to a combination of the base SI units, i.e.
-a quantity of dimension `ᴹ*ᴸ^2/(ᵀ^2*𝚯)` would be converted to `kg*m^2/(s^2*K)`:
+a quantity of dimension `ᴹ*ᴸ^2/(ᵀ^2*ᶿ)` would be converted to `kg*m^2/(s^2*K)`:
 
 ```jldoctest
 julia> promote(1.0u"J/K", 1.0u"g*cm^2/s^2/K")
