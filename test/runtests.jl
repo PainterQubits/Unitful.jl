@@ -35,7 +35,7 @@ const colon = Base.:(:)
 @testset "Construction" begin
     @test isa(NoUnits, FreeUnits)
     @test typeof(ᴸ) === Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
-    @test ᴸ*ᴸ === ᴸ^2
+    @test ᴸ * ᴸ === ᴸ^2
     @test typeof(1.0m) === Unitful.Quantity{Float64, ᴸ,
         Unitful.FreeUnits{(Unitful.Unit{:Meter, ᴸ}(0,1),), ᴸ, nothing}}
     @test typeof(1m^2) === Unitful.Quantity{Int, ᴸ^2,
@@ -407,15 +407,15 @@ end
     @test @inferred(dimension(typeof(1m^2))) === ᴸ^2
     @test @inferred(dimension(Float64)) === NoDims
     @test @inferred(dimension(m^2)) === ᴸ^2
-    @test @inferred(dimension(1m/s)) === ᴸ/ᵀ
-    @test @inferred(dimension(m/s)) === ᴸ/ᵀ
+    @test @inferred(dimension(1m/s)) === ᴸ / ᵀ
+    @test @inferred(dimension(m/s)) === ᴸ / ᵀ
     @test @inferred(dimension(1u"mol")) === ᴺ
     @test @inferred(dimension(μm/m)) === NoDims
     @test @inferred(dimension(missing)) === missing
     @test @inferred(dimension(Missing)) === missing
     @test dimension.([1u"m", 1u"s"]) == [ᴸ, ᵀ]
     @test dimension.([u"m", u"s"]) == [ᴸ, ᵀ]
-    @test (ᴸ/ᵀ)^2 === ᴸ^2 / ᵀ^2
+    @test (ᴸ / ᵀ)^2 === ᴸ^2 / ᵀ^2
     @test isa(m, LengthUnits)
     @test isa(ContextUnits(m,km), LengthUnits)
     @test isa(FixedUnits(m), LengthUnits)
@@ -547,7 +547,7 @@ end
     end
     @testset "> Exponentiation" begin
         @test @inferred(m^3/m) === m^2
-        @test @inferred(ᴸ^3/ᴸ) === ᴸ^2
+        @test @inferred(ᴸ^3 / ᴸ) === ᴸ^2
         @test @inferred(sqrt(4m^2)) === 2.0m
         @test sqrt(4m^(2//3)) === 2.0m^(1//3)
         @test @inferred(sqrt(ᴸ^2)) === ᴸ
@@ -1169,10 +1169,10 @@ end
 
 @testset "Display" begin
     @test string(typeof(1.0m/s)) ==
-        "Quantity{Float64,ᴸ*ᵀ^-1,FreeUnits{(m, s^-1),ᴸ*ᵀ^-1,nothing}}"
+          "Quantity{Float64, ᴸ* ᵀ^-1,FreeUnits{(m, s^-1), ᴸ* ᵀ^-1,nothing}}"
     @test string(typeof(m/s)) ==
-        "FreeUnits{(m, s^-1),ᴸ*ᵀ^-1,nothing}"
-    @test string(dimension(1u"m/s")) == "ᴸ ᵀ^-1"
+        "FreeUnits{(m, s^-1), ᴸ* ᵀ^-1,nothing}"
+    @test string(dimension(1u"m/s")) == " ᴸ  ᵀ^-1"
     @test string(NoDims) == "NoDims"
 end
 
