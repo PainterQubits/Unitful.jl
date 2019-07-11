@@ -60,17 +60,17 @@ the result to PyPlot, for example.
 
 ```jldoctest
 julia> a = [1u"m", 2u"m"]
-2-element Array{Quantity{Int64,𝐋,Unitful.FreeUnits{(m,),𝐋,nothing}},1}:
+2-element Array{Quantity{Int64,ᴸ,Unitful.FreeUnits{(m,),ᴸ,nothing}},1}:
  1 m
  2 m
 
 julia> b = ustrip(a)
-2-element reinterpret(Int64, ::Array{Quantity{Int64,𝐋,Unitful.FreeUnits{(m,),𝐋,nothing}},1}):
+2-element reinterpret(Int64, ::Array{Quantity{Int64,ᴸ,Unitful.FreeUnits{(m,),ᴸ,nothing}},1}):
  1
  2
 
 julia> a[1] = 3u"m"; b
-2-element reinterpret(Int64, ::Array{Quantity{Int64,𝐋,Unitful.FreeUnits{(m,),𝐋,nothing}},1}):
+2-element reinterpret(Int64, ::Array{Quantity{Int64,ᴸ,Unitful.FreeUnits{(m,),ᴸ,nothing}},1}):
  3
  2
 ```
@@ -190,7 +190,7 @@ Examples:
 
 ```jldoctest
 julia> dimension(u"m")
-𝐋
+ᴸ
 
 julia> typeof(dimension(u"m"))
 Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}
@@ -212,7 +212,7 @@ Examples:
 
 ```jldoctest
 julia> dimension(1.0u"m")
-𝐋
+ᴸ
 
 julia> typeof(dimension(1.0u"m/μm"))
 Unitful.Dimensions{()}

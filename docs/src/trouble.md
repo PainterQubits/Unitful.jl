@@ -70,7 +70,7 @@ julia> π/2*u"rad"+90u"°"
 
 ## Broken display of dimension characters in the REPL
 
-On some terminals with some fonts, dimension characters such as 𝐌 are displayed as an 
+On some terminals with some fonts, dimension characters such as ᴹare displayed as an 
 empty box. Setting a wider font spacing in your terminal settings can solve this problem.
 
 ## I have a different problem

@@ -14,7 +14,7 @@ Unitful.register
 ## Dimension and unit inspection
 
 We define a function [`dimension`](@ref) that turns, for example, `acre^2` or `1*acre^2`
-into `𝐋^4`. We can usually add quantities with the same dimension, regardless of specific
+into `ᴸ^4`. We can usually add quantities with the same dimension, regardless of specific
 units (`FixedUnits` cannot be automatically converted, however). Note that dimensions cannot
 be determined by powers of the units: `ft^2` is an area, but so is `ac^1` (an acre).
 

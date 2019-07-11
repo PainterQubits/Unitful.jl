@@ -16,7 +16,7 @@ import Unitful:
     dB, dB_rp, dB_p, dBm, dBV, dBSPL, Decibel,
     Np, Np_rp, Np_p, Neper
 
-import Unitful: 𝐋, 𝐓, 𝐍, 𝚯
+import Unitful: ᴸ, ᵀ, ᴺ, 𝚯
 
 import Unitful:
     Length, Area, Volume,
@@ -34,20 +34,20 @@ const colon = Base.:(:)
 
 @testset "Construction" begin
     @test isa(NoUnits, FreeUnits)
-    @test typeof(𝐋) === Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
-    @test 𝐋*𝐋 === 𝐋^2
-    @test typeof(1.0m) === Unitful.Quantity{Float64, 𝐋,
-        Unitful.FreeUnits{(Unitful.Unit{:Meter, 𝐋}(0,1),), 𝐋, nothing}}
-    @test typeof(1m^2) === Unitful.Quantity{Int, 𝐋^2,
-            Unitful.FreeUnits{(Unitful.Unit{:Meter, 𝐋}(0,2),), 𝐋^2, nothing}}
-    @test typeof(1ac) === Unitful.Quantity{Int, 𝐋^2,
-            Unitful.FreeUnits{(Unitful.Unit{:Acre, 𝐋^2}(0,1),), 𝐋^2, nothing}}
+    @test typeof(ᴸ) === Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
+    @test ᴸ*ᴸ === ᴸ^2
+    @test typeof(1.0m) === Unitful.Quantity{Float64, ᴸ,
+        Unitful.FreeUnits{(Unitful.Unit{:Meter, ᴸ}(0,1),), ᴸ, nothing}}
+    @test typeof(1m^2) === Unitful.Quantity{Int, ᴸ^2,
+            Unitful.FreeUnits{(Unitful.Unit{:Meter, ᴸ}(0,2),), ᴸ^2, nothing}}
+    @test typeof(1ac) === Unitful.Quantity{Int, ᴸ^2,
+            Unitful.FreeUnits{(Unitful.Unit{:Acre, ᴸ^2}(0,1),), ᴸ^2, nothing}}
     @test typeof(ContextUnits(m,μm)) ===
-        ContextUnits{(Unitful.Unit{:Meter, 𝐋}(0,1),), 𝐋, typeof(μm), nothing}
-    @test typeof(1.0*ContextUnits(m,μm)) === Unitful.Quantity{Float64, 𝐋,
-        ContextUnits{(Unitful.Unit{:Meter, 𝐋}(0,1),), 𝐋, typeof(μm), nothing}}
-    @test typeof(1.0*FixedUnits(m)) === Unitful.Quantity{Float64, 𝐋,
-        FixedUnits{(Unitful.Unit{:Meter, 𝐋}(0,1),), 𝐋, nothing}}
+        ContextUnits{(Unitful.Unit{:Meter, ᴸ}(0,1),), ᴸ, typeof(μm), nothing}
+    @test typeof(1.0*ContextUnits(m,μm)) === Unitful.Quantity{Float64, ᴸ,
+        ContextUnits{(Unitful.Unit{:Meter, ᴸ}(0,1),), ᴸ, typeof(μm), nothing}}
+    @test typeof(1.0*FixedUnits(m)) === Unitful.Quantity{Float64, ᴸ,
+        FixedUnits{(Unitful.Unit{:Meter, ᴸ}(0,1),), ᴸ, nothing}}
     @test 3mm != 3*(m*m)                        # mm not interpreted as m*m
     @test (3+4im)*V === V*(3+4im) === (3V+4V*im)  # Complex quantity construction
     @test !isreal(Base.complex(3.0/m, 4.0/m))
@@ -82,7 +82,7 @@ end
 @testset "Conversion" begin
     @testset "> Unitless ↔ unitful conversion" begin
         @test_throws DimensionError convert(typeof(3m), 1)
-        @test_throws DimensionError convert(Quantity{Float64, typeof(𝐋)}, 1)
+        @test_throws DimensionError convert(Quantity{Float64, typeof(ᴸ)}, 1)
         @test_throws DimensionError convert(Float64, 3m)
         @test @inferred(3m/unit(3m)) === 3
         @test @inferred(3.0g/unit(3.0g)) === 3.0
@@ -136,7 +136,7 @@ end
             # an essentially no-op uconvert should not disturb numeric type
             @test @inferred(uconvert(g,1g)) === 1g
             @test @inferred(uconvert(m,0x01*m)) === 0x01*m
-            @test @inferred(convert(Quantity{Float64, 𝐋}, 1m)) === 1.0m
+            @test @inferred(convert(Quantity{Float64, ᴸ}, 1m)) === 1.0m
             @test 1kg === 1kg
             @test typeof(1m)(1m) === 1m
 
@@ -370,7 +370,7 @@ end
     @testset "> Some internal behaviors" begin
         # quantities
         @test Unitful.numtype(Quantity{Float64}) <: Float64
-        @test Unitful.numtype(Quantity{Float64, 𝐋}) <: Float64
+        @test Unitful.numtype(Quantity{Float64, ᴸ}) <: Float64
         @test Unitful.numtype(typeof(1.0kg)) <: Float64
         @test Unitful.numtype(1.0kg) <: Float64
     end
@@ -402,20 +402,20 @@ end
     @test @inferred(unit(Union{Float64,Missing})) === NoUnits
     @test @inferred(unit(missing)) === missing
     @test @inferred(unit(Missing)) === missing
-    @test @inferred(dimension(1m^2)) === 𝐋^2
-    @test @inferred(dimension(1*ContextUnits(m,km)^2)) === 𝐋^2
-    @test @inferred(dimension(typeof(1m^2))) === 𝐋^2
+    @test @inferred(dimension(1m^2)) === ᴸ^2
+    @test @inferred(dimension(1*ContextUnits(m,km)^2)) === ᴸ^2
+    @test @inferred(dimension(typeof(1m^2))) === ᴸ^2
     @test @inferred(dimension(Float64)) === NoDims
-    @test @inferred(dimension(m^2)) === 𝐋^2
-    @test @inferred(dimension(1m/s)) === 𝐋/𝐓
-    @test @inferred(dimension(m/s)) === 𝐋/𝐓
-    @test @inferred(dimension(1u"mol")) === 𝐍
+    @test @inferred(dimension(m^2)) === ᴸ^2
+    @test @inferred(dimension(1m/s)) === ᴸ/ᵀ
+    @test @inferred(dimension(m/s)) === ᴸ/ᵀ
+    @test @inferred(dimension(1u"mol")) === ᴺ
     @test @inferred(dimension(μm/m)) === NoDims
     @test @inferred(dimension(missing)) === missing
     @test @inferred(dimension(Missing)) === missing
-    @test dimension.([1u"m", 1u"s"]) == [𝐋, 𝐓]
-    @test dimension.([u"m", u"s"]) == [𝐋, 𝐓]
-    @test (𝐋/𝐓)^2 === 𝐋^2 / 𝐓^2
+    @test dimension.([1u"m", 1u"s"]) == [ᴸ, ᵀ]
+    @test dimension.([u"m", u"s"]) == [ᴸ, ᵀ]
+    @test (ᴸ/ᵀ)^2 === ᴸ^2 / ᵀ^2
     @test isa(m, LengthUnits)
     @test isa(ContextUnits(m,km), LengthUnits)
     @test isa(FixedUnits(m), LengthUnits)
@@ -547,14 +547,14 @@ end
     end
     @testset "> Exponentiation" begin
         @test @inferred(m^3/m) === m^2
-        @test @inferred(𝐋^3/𝐋) === 𝐋^2
+        @test @inferred(ᴸ^3/ᴸ) === ᴸ^2
         @test @inferred(sqrt(4m^2)) === 2.0m
         @test sqrt(4m^(2//3)) === 2.0m^(1//3)
-        @test @inferred(sqrt(𝐋^2)) === 𝐋
+        @test @inferred(sqrt(ᴸ^2)) === ᴸ
         @test @inferred(sqrt(m^2)) === m
         @test @inferred(cbrt(8m^3)) === 2.0m
         @test cbrt(8m) === 2.0m^(1//3)
-        @test @inferred(cbrt(𝐋^3)) === 𝐋
+        @test @inferred(cbrt(ᴸ^3)) === ᴸ
         @test @inferred(cbrt(m^3)) === m
         @test (2m)^3 === 8*m^3
         @test (8m)^(1//3) === 2.0*m^(1//3)
@@ -567,16 +567,16 @@ end
         _pow_2_3(x) = x^(2//3)
 
         @test_throws ErrorException @inferred(_pow_2_3(m))
-        @test_throws ErrorException @inferred(_pow_2_3(𝐋))
+        @test_throws ErrorException @inferred(_pow_2_3(ᴸ))
         @test_throws ErrorException @inferred(_pow_2_3(1.0m))
 
         @test @inferred(_pow_m3(m)) == m^-3
         @test @inferred(_pow_0(m)) == NoUnits
         @test @inferred(_pow_3(m)) == m^3
 
-        @test @inferred(_pow_m3(𝐋)) == 𝐋^-3
-        @test @inferred(_pow_0(𝐋)) == NoDims
-        @test @inferred(_pow_3(𝐋)) == 𝐋^3
+        @test @inferred(_pow_m3(ᴸ)) == ᴸ^-3
+        @test @inferred(_pow_0(ᴸ)) == NoDims
+        @test @inferred(_pow_3(ᴸ)) == ᴸ^3
 
         @test @inferred(_pow_m3(1.0m)) == 1.0m^-3
         @test @inferred(_pow_0(1.0m)) == 1.0
@@ -1169,10 +1169,10 @@ end
 
 @testset "Display" begin
     @test string(typeof(1.0m/s)) ==
-        "Quantity{Float64,𝐋*𝐓^-1,FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}}"
+        "Quantity{Float64,ᴸ*ᵀ^-1,FreeUnits{(m, s^-1),ᴸ*ᵀ^-1,nothing}}"
     @test string(typeof(m/s)) ==
-        "FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}"
-    @test string(dimension(1u"m/s")) == "𝐋 𝐓^-1"
+        "FreeUnits{(m, s^-1),ᴸ*ᵀ^-1,nothing}"
+    @test string(dimension(1u"m/s")) == "ᴸ ᵀ^-1"
     @test string(NoDims) == "NoDims"
 end
 
@@ -1506,7 +1506,7 @@ module ShadowUnits
 end
 
 @test (@test_logs (:warn, r"found in multiple") eval(:(typeof(u"m")))) ==
-    Unitful.FreeUnits{(Unitful.Unit{:MyMeter, 𝐋}(0, 1//1),), 𝐋, nothing}
+    Unitful.FreeUnits{(Unitful.Unit{:MyMeter, ᴸ}(0, 1//1),), ᴸ, nothing}
 
 # Test that the @u_str macro will not find units in modules which are
 # not loaded before the u_str invocation.

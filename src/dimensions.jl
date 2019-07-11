@@ -12,13 +12,13 @@ and sort uniquely by the name of the `Dimension`.
 Examples:
 
 ```jldoctest
-julia> u"𝐌*𝐋/𝐓^2"
-𝐋 𝐌 𝐓^-2
+julia> u"ᴹ*ᴸ/ᵀ^2"
+ᴸ ᴹᵀ^-2
 
-julia> u"𝐋*𝐌/𝐓^2"
-𝐋 𝐌 𝐓^-2
+julia> u"ᴸ*ᴹ/ᵀ^2"
+ᴸ ᴹᵀ^-2
 
-julia> typeof(u"𝐋*𝐌/𝐓^2") == typeof(u"𝐌*𝐋/𝐓^2")
+julia> typeof(u"ᴸ*ᴹ/ᵀ^2") == typeof(u"ᴹ*ᴸ/ᵀ^2")
 true
 ```
 """

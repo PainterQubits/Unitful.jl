@@ -50,7 +50,7 @@ in the [`@refunit`](@ref) macro.
 
 Returns the `Dimensions` object to which `symb` is bound.
 
-Usage example from `src/pkgdefaults.jl`: `@dimension 𝐋 "𝐋" Length`
+Usage example from `src/pkgdefaults.jl`: `@dimension ᴸ "ᴸ" Length`
 """
 macro dimension(symb, abbr, name)
     s = Symbol(symb)
@@ -81,8 +81,8 @@ Returns `nothing`.
 
 Usage examples:
 
-- `@derived_dimension Area 𝐋^2` gives `Area` and `AreaUnit` type aliases
-- `@derived_dimension Speed 𝐋/𝐓` gives `Speed` and `SpeedUnit` type aliases
+- `@derived_dimension Area ᴸ^2` gives `Area` and `AreaUnit` type aliases
+- `@derived_dimension Speed ᴸ/ᵀ` gives `Speed` and `SpeedUnit` type aliases
 """
 macro derived_dimension(name, dims)
     uname = Symbol(name,"Units")
@@ -123,7 +123,7 @@ the default unit for promotion given this dimension.
 
 Returns the [`Unitful.FreeUnits`](@ref) object to which `symb` is bound.
 
-Usage example: `@refunit m "m" Meter 𝐋 true`
+Usage example: `@refunit m "m" Meter ᴸ true`
 
 This example, found in `src/pkgdefaults.jl`, generates `km`, `m`, `cm`, ...
 """
@@ -227,7 +227,7 @@ end
 Not called directly by the user. Given a unit symbol and a unit's name,
 will define units for each possible SI power-of-ten prefix on that unit.
 
-Example: `@prefixed_unit_symbols m Meter 𝐋 (1.0,1)` results in nm, cm, m, km, ...
+Example: `@prefixed_unit_symbols m Meter ᴸ (1.0,1)` results in nm, cm, m, km, ...
 all getting defined in the calling namespace.
 """
 macro prefixed_unit_symbols(symb,name,dimension,basefactor)
@@ -260,7 +260,7 @@ end
 Not called directly by the user. Given a unit symbol and a unit's name,
 will define units without SI power-of-ten prefixes.
 
-Example: `@unit_symbols ft Foot 𝐋` results in `ft` getting defined but not `kft`.
+Example: `@unit_symbols ft Foot ᴸ` results in `ft` getting defined but not `kft`.
 """
 macro unit_symbols(symb,name,dimension,basefactor)
     s = Symbol(symb)
@@ -275,8 +275,8 @@ end
 """
     preferunits(u0::Units, u::Units...)
 This function specifies the default fallback units for promotion.
-Units provided to this function must have a pure dimension of power 1, like 𝐋 or 𝐓
-but not 𝐋/𝐓 or 𝐋^2. The function will complain if this is not the case. Additionally,
+Units provided to this function must have a pure dimension of power 1, like ᴸ or ᵀ
+but not ᴸ/ᵀ or ᴸ^2. The function will complain if this is not the case. Additionally,
 the function will complain if you provide two units with the same dimension, as a
 courtesy to the user. Finally, you cannot use affine units such as °C with this function.
 
@@ -301,12 +301,12 @@ function preferunits(u0::Units, u::Units...)
         unit, dim = units[i], dims[i]
         if length(typeof(dim).parameters[1]) > 1
             error("preferunits can only be used with a unit that has a pure ",
-            "dimension, like 𝐋 or 𝐓 but not 𝐋/𝐓.")
+            "dimension, like ᴸ or ᵀ but not ᴸ/ᵀ.")
         end
         if length(typeof(dim).parameters[1]) == 1 &&
             typeof(dim).parameters[1][1].power != 1
             error("preferunits cannot handle powers of pure dimensions except 1. ",
-            "For instance, it should not be used with units of dimension 𝐋^2.")
+            "For instance, it should not be used with units of dimension ᴸ^2.")
         end
         y = typeof(dim).parameters[1][1]
         promotion[name(y)] = typeof(unit).parameters[1][1]
@@ -493,7 +493,7 @@ julia> u"m,kg,s"
 (m, kg, s)
 
 julia> typeof(1.0u"m/s")
-Quantity{Float64,𝐋*𝐓^-1,Unitful.FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}}
+Quantity{Float64,ᴸ*ᵀ^-1,Unitful.FreeUnits{(m, s^-1),ᴸ*ᵀ^-1,nothing}}
 
 julia> u"ħ"
 1.0545718001391127e-34 J s

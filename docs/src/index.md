@@ -49,7 +49,7 @@ retrieve them from Unitful in one of three ways:
    into the calling namespace.
 3. `using Unitful.DefaultSymbols` will bring the following symbols into the
    calling namespace:
-     - Dimensions `𝐋,𝐌,𝐓,𝐈,𝚯,𝐉,𝐍` for length, mass, time, current, temperature,
+     - Dimensions `ᴸ,ᴹ,ᵀ,ᴵ,𝚯,𝐉,ᴺ` for length, mass, time, current, temperature,
      luminosity, and amount, respectively.
      - Base and derived SI units, with SI prefixes (except for `cd`, which conflicts
        with `Base.cd`)

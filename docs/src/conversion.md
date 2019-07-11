@@ -112,7 +112,7 @@ required because you need some generic logic to take over when manipulating
 quantities with arbitrary dimensions.
 
 The default behavior is to promote to a combination of the base SI units, i.e.
-a quantity of dimension `𝐌*𝐋^2/(𝐓^2*𝚯)` would be converted to `kg*m^2/(s^2*K)`:
+a quantity of dimension `ᴹ*ᴸ^2/(ᵀ^2*𝚯)` would be converted to `kg*m^2/(s^2*K)`:
 
 ```jldoctest
 julia> promote(1.0u"J/K", 1.0u"g*cm^2/s^2/K")
@@ -135,12 +135,12 @@ the following three cases:
 
 ```jldoctest
 julia> [1.0u"m", 2.0u"m"]
-2-element Array{Quantity{Float64,𝐋,Unitful.FreeUnits{(m,),𝐋,nothing}},1}:
+2-element Array{Quantity{Float64,ᴸ,Unitful.FreeUnits{(m,),ᴸ,nothing}},1}:
  1.0 m
  2.0 m
 
 julia> [1.0u"m", 2.0u"cm"]
-2-element Array{Quantity{Float64,𝐋,Unitful.FreeUnits{(m,),𝐋,nothing}},1}:
+2-element Array{Quantity{Float64,ᴸ,Unitful.FreeUnits{(m,),ᴸ,nothing}},1}:
   1.0 m
  0.02 m
 

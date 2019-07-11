@@ -37,7 +37,7 @@ const NoDims = Dimensions{()}()
 Description of a physical unit, including powers-of-ten prefixes and powers of
 the unit. The name of the unit is encoded in the type parameter `U` as a symbol,
 e.g. `:Meter`, `:Second`, `:Gram`, etc. The type parameter `D` is a [`Dimensions{N}`](@ref)
-object, for instance `Unit{:Meter, 𝐋}` or `Unit{:Liter, 𝐋^3}`. Note that the dimension
+object, for instance `Unit{:Meter, ᴸ}` or `Unit{:Liter, ᴸ^3}`. Note that the dimension
 information refers to the unit, not powers of the unit.
 
 `Unit{U,D}` objects are almost never explicitly manipulated by the user. They
@@ -80,9 +80,9 @@ functionality that should be acceptable to most users. See
 [Basic promotion mechanisms](@ref) in the docs for details.
 
 Example: the unit `m` is actually a singleton of type
-`Unitful.FreeUnits{(Unitful.Unit{:Meter, 𝐋}(0, 1//1),), 𝐋, nothing}`.
+`Unitful.FreeUnits{(Unitful.Unit{:Meter, ᴸ}(0, 1//1),), ᴸ, nothing}`.
 After dividing by `s`, a singleton of type
-`Unitful.FreeUnits{(Unitful.Unit{:Meter, 𝐋}(0, 1//1), Unitful.Unit{:Second, 𝐓}(0, -1//1)), 𝐋/𝐓, nothing}` is returned.
+`Unitful.FreeUnits{(Unitful.Unit{:Meter, ᴸ}(0, 1//1), Unitful.Unit{:Second, ᵀ}(0, -1//1)), ᴸ/ᵀ, nothing}` is returned.
 """
 struct FreeUnits{N,D,A} <: Units{N,D,A} end
 FreeUnits{N,D}() where {N,D} = FreeUnits{N,D,nothing}()

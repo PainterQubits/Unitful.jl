@@ -14,7 +14,7 @@ to avoid overflow issues and general ugliness.
 Usually, the user interacts only with `Units` objects, not `Unit` objects.
 This is because generically, more than one unit is needed to describe a quantity.
 An abstract type [`Unitful.Units{N,D}`](@ref) is defined, where `N` is always a tuple
-of `Unit` objects, and `D` is a [`Unitful.Dimensions{N}`](@ref) object such as `𝐋`, the
+of `Unit` objects, and `D` is a [`Unitful.Dimensions{N}`](@ref) object such as `ᴸ`, the
 object representing the length dimension.
 
 Subtypes of `Unitful.Units{N,D}` are used to implement different behaviors
