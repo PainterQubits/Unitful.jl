@@ -61,6 +61,7 @@ function show(io::IO, mime::MIME"text/plain", x::Quantity)
     show(io, mime, unit(x))
 end
 
+
 function show(io::IO, mime::MIME"text/html", x::Quantity)
     ioc = IOContext(io, :unitsymbolcolor=>:yellow)
     show(ioc, x)
@@ -109,10 +110,7 @@ function show(io::IO, x::Unitlike)
     end
     nothing
 end
-function show(io::IO, ::MIME"application/prs.juno.inline", x::Unitlike)
-    ioc = IOContext(io, :unitsymbolcolor=>:yellow)
-    show(ioc, x)
-end
+
 
 """
     show(io::IO, x::AbstractArray{Quantity{T,D,U}, N})  where {T,D,U,N}
@@ -173,17 +171,7 @@ This is done internally when the output of vanilla Julia types would also double
 """
 function showrep(io::IO, x::Unit)
     p = power(x)
-    supers = if p == 1//1
-                ""
-            elseif p == 2//1
-                "²"
-            elseif p == 3//1
-                "³"
-            elseif p == 4//1
-                "⁴"
-            else
-                superscript(p)
-            end
+    supers = superscript(p)
     if get(io, :showconstructor, false)
         # Print a longer, more formal definition which can be used as a constructor or inform the interested user.
         print(io, typeof(x), "(", tens(x), ", ", power(x), ")")
@@ -223,6 +211,25 @@ function show(io::IO, x::Quantity{T,D,U}) where {T<:Rational, D, U}
     print(io, ")")
     show_unit(io, x)
 end
+
+function show(io::IO, mime::MIME"text/plain", x::Quantity{T,D,U}) where {T<:Rational, D, U}
+    # Add paranthesis: 1//1000m² -> (1//1000)m²
+    print(io, "(")
+    show(io, mime, x.val)
+    print(io, ")")
+    show(io, mime, unit(x))
+end
+
+function show(io::IO, mime::MIME"text/html", x::Quantity{T,D,U}) where {T<:Rational, D, U}
+    # Add paranthesis: 1//1000m² -> (1//1000)m²
+    ioc = IOContext(io, :unitsymbolcolor=>:yellow)
+    print(ioc, "(")
+    show(ioc, mime, x.val)
+    print(ioc, ")")
+    show_unit(ioc, mime, unit(x))
+end
+
+
 function show(io::IO, x::FreeUnits{N,D,A}) where {N, D, A<:Affine}
     showrep(io, x)
 end
@@ -250,12 +257,35 @@ function show_unit(io::IO, x)
             end
         end
     end
-
 end
+
 """
-    superscript(i::Rational)
-Prints exponents
+String representation of exponent.
 """
 function superscript(i::Rational)
-    i.den == 1 ? "^" * string(i.num) : "^" * replace(string(i), "//" => "/")
+    deno = i.den
+    nume = i.num
+    if deno == 1
+        if nume == 1
+            ""
+        elseif nume == -4
+            "⁻⁴"
+        elseif nume == -3
+            "⁻³"
+        elseif nume == -2
+            "⁻²"
+        elseif nume == -1
+            "⁻¹"
+        elseif nume == 2
+            "²"
+        elseif nume == 3
+            "³"
+        elseif nume == 4
+            "⁴"
+        else
+            "^" * string(i.num)
+        end
+    else
+        "^" * replace(string(i), "//" => "/")
+    end
 end

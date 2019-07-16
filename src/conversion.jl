@@ -1,6 +1,14 @@
 """
     convfact(s::Units, t::Units)
-Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.01`.
+Find the conversion factor from unit `t` to unit `s`.
+# Examples
+```julia-repl
+julia> convfact(m, cm) -> 1 // 100
+(1//100)kg
+
+julia> convfact(kg∙m, cm)
+(1//100)kg
+```
 """
 @generated function convfact(s::Units, t::Units)
     sunits = s.parameters[1]
@@ -9,7 +17,12 @@ Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.0
     # Check if conversion is possible in principle
     sdim = dimension(s())
     tdim = dimension(t())
-    sdim != tdim && throw(DimensionError(s(),t()))
+    #sdim != tdim && throw(DimensionError(s(),t()))
+
+    if sdim != tdim
+        # The conversion factor is a quantity, not a pure number.
+        return convfact_q(s, t)
+    end
 
     # first convert to base SI units.
     # fact1 is what would need to be multiplied to get to base SI units
@@ -50,6 +63,19 @@ Returns 1. (Avoids effort when unnecessary.)
 convfact(s::Units{S}, t::Units{S}) where {S} = 1
 
 """
+For conversion factors which are quantities.
+There may be a speed improvement in calling this directly
+instead of through 'convfact'.
+"""
+@noinline function convfact_q(s::Type{S}, t::Type{T}) where {S<:FreeUnits, T<:FreeUnits}
+    us = S()
+    ut = T()
+    unc = upreferred(S() / T())
+    cf = convfact(us / unc, ut)
+    Quantity(cf, unc)
+end
+
+"""
     uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
 Convert a [`Unitful.Quantity`](@ref) to different units. The conversion will
 fail if the target units `a` have a different dimension than the dimension of
@@ -71,7 +97,12 @@ function uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
     elseif (a isa AffineUnits) || (x isa AffineQuantity)
         return uconvert_affine(a, x)
     else
-        return Quantity(x.val * convfact(a, U()), a)
+        cf = convfact(a, U())
+        if cf isa Quantity
+            return Quantity(cf * a)
+        else
+            return Quantity(x.val * cf, a)
+        end
     end
 end
 

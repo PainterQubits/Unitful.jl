@@ -35,11 +35,24 @@ end
 *(A::Units, B::AbstractArray) = broadcast(*, A, B)
 *(A::AbstractArray, B::Units) = broadcast(*, A, B)
 
+"""
+Unitful defines the bullet operator `∙` (Unicode U+2219, \vysmblkcircle + tab in Julia).
+
+In the context of units, the appearance of the `*` symbol is dominating, hence it is often
+dropped in favour of a short space. By allowing `∙`, REPL output with units is easily readable
+and can be parsed by Julia.
+"""
+∙(a, b) = *(a,b)
+
+
+
 # Division (units)
 /(x::AbstractQuantity, y::Units) = Quantity(x.val, unit(x) / y)
 /(x::Units, y::AbstractQuantity) = Quantity(1/y.val, x / unit(y))
 /(x::Number, y::Units) = Quantity(x,inv(y))
 /(x::Units, y::Number) = (1/y) * x
+/(A::AbstractArray, B::Units) = broadcast(/, A, B)
+/(A::Units, B::AbstractArray) = broadcast(/, A, B)
 
 //(x::AbstractQuantity, y::Units) = Quantity(x.val, unit(x) / y)
 //(x::Units, y::AbstractQuantity) = Quantity(1//y.val, x / unit(y))
