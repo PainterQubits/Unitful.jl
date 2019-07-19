@@ -48,6 +48,13 @@ function show(io::IO, x::Unit{N,D}) where {N,D}
     show(io, FreeUnits{(x,), D, nothing}())
 end
 
+# Space between numerical value and unit should always be included
+# except for angular degress, minutes and seconds (° ′ ″)
+# See SI 9th edition, section 5.4.3; "Formatting the value of a quantity"
+# https://www.bipm.org/utils/common/pdf/si-brochure/SI-Brochure-9.pdf
+has_unit_spacing(u) = true
+has_unit_spacing(u::Units{(Unit{:Degree, NoDims}(0, 1//1),), NoDims}) = false
+
 """
     show(io::IO, x::Quantity)
 Show a unitful quantity by calling `show` on the numeric value, appending a
@@ -56,7 +63,7 @@ space, and then calling `show` on a units object `U()`.
 function show(io::IO, x::Quantity)
     show(io,x.val)
     if !isunitless(unit(x))
-        print(io," ")
+        has_unit_spacing(unit(x)) && print(io," ")
         show(io, unit(x))
     end
     nothing
@@ -65,16 +72,9 @@ end
 function show(io::IO, mime::MIME"text/plain", x::Quantity)
     show(io, mime, x.val)
     if !isunitless(unit(x))
-        print(io," ")
+        has_unit_spacing(unit(x)) && print(io," ")
         show(io, mime, unit(x))
     end
-end
-
-function show(io::IO, x::Quantity{S, NoDims, <:Units{
-    (Unitful.Unit{:Degree, NoDims}(0, 1//1),), NoDims}}) where S
-    show(io, x.val)
-    show(io, unit(x))
-    nothing
 end
 
 function show(io::IO, x::Type{T}) where T<:Quantity
