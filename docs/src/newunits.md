@@ -67,6 +67,24 @@ inside a tuple matters for type comparisons. Using the unary multiplication
 operator on the `Units` object will return a "canonically sorted" `Units` object.
 Indeed, this is how we avoid ordering issues when multiplying quantities together.
 
+## Using local/custom untis modules in another local/custom module
+
+Following the instructions above and exemplary Units packages' source code in the Unitful
+family, you might have just created your own units module, `MyUnits.jl`.
+Suppose `MyUnits.jl` remains local due to not finishing julia's registration process.
+To use your units in another local module, e.g., `MyFunctionality.jl`:
+
+```julia
+module MyFunctionality
+include("path/to/your/MyUnits.jl")
+using Unitful
+Unitful.register(MyUnits)
+
+# your units are now available
+
+end
+```
+
 ## Defining units in precompiled packages
 
 See [Precompilation](@ref).
