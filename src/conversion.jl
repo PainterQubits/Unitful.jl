@@ -1,13 +1,24 @@
 """
     convfact(s::Units, t::Units)
-Find the conversion factor from unit `t` to unit `s`.
+Find the conversion factor from unit `s` to unit `t`:
+- 2m * convfact(m, cm) = 2cm
+- s ∙ convfact(s, t) = t
 # Examples
 ```julia-repl
-julia> convfact(m, cm) -> 1 // 100
-(1//100)kg
+julia> convfact(cm, m)
+(100//1)
 
-julia> convfact(kg∙m, cm)
-(1//100)kg
+julia> 2cm * convfact(cm, m) == 2m
+true
+
+julia> 1inch * convfact(inch, mm) == 1mm
+true
+
+julia> convfact(m, kg*m)
+1kg
+
+julia> 2m * convfact(m, kg*m) == 2kg * m
+true
 ```
 """
 @generated function convfact(s::Units, t::Units)
@@ -70,8 +81,8 @@ instead of through 'convfact'.
 @noinline function convfact_q(s::Type{S}, t::Type{T}) where {S<:FreeUnits, T<:FreeUnits}
     us = S()
     ut = T()
-    unc = upreferred(S() / T())
-    cf = convfact(us / unc, ut)
+    unc = upreferred(T() / S() )
+    cf = convfact(us * unc, ut)
     Quantity(cf, unc)
 end
 
@@ -99,7 +110,7 @@ function uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
     else
         cf = convfact(a, U())
         if cf isa Quantity
-            return Quantity(cf * a)
+            return Quantity(x.val * cf * a)
         else
             return Quantity(x.val * cf, a)
         end

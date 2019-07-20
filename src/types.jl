@@ -90,6 +90,7 @@ FreeUnits(::Units{N,D,A}) where {N,D,A} = FreeUnits{N,D,A}()
 
 const NoUnits = FreeUnits{(), NoDims}()
 (y::FreeUnits)(x::Number) = uconvert(y,x)
+(y::FreeUnits)(x::AbstractArray) = uconvert.(y,x)
 
 """
     struct ContextUnits{N,D,P,A} <: Units{N,D,A}
