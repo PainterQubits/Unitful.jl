@@ -84,6 +84,20 @@ function show(io::IO, x::Type{T}) where T<:Unitlike
     invoke(show, Tuple{IO, typeof(x)}, IOContext(io, :showoperators=>true), x)
 end
 
+function show(io::IO, r::Union{StepRange{T},StepRangeLen{T}}) where T<:Quantity
+    a,s,b = first(r), step(r), last(r)
+    U = unit(a)
+    print(io, '(')
+    if ustrip(U, s) == 1
+        show(io, ustrip(U, a):ustrip(U, b))
+    else
+        show(io, ustrip(U, a):ustrip(U, s):ustrip(U, b))
+    end
+    print(io, ')')
+    has_unit_spacing(U) && print(io,' ')
+    show(io, U)
+end
+
 function show(io::IO, x::typeof(NoDims))
     print(io, "NoDims")
 end
