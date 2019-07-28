@@ -118,6 +118,9 @@ for p in (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
     Core.eval(Unitful, :(const $(Symbol(p,:l)) = $(Symbol(p,:L))))
 end
 
+# Molarity
+@unit M      "M"        Molar       1mol/L                  true
+
 # Energy
 const q = 1.602_176_634e-19*C        # CODATA 2018; `e` means 2.718...
 @unit eV     "eV"       eV          q*V                     true
