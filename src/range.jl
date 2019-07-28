@@ -94,3 +94,5 @@ end
 function /(x::Base.TwicePrecision, v::Quantity)
     x / Base.TwicePrecision(oftype(ustrip(x.hi)/ustrip(v)*unit(v), v))
 end
+
+Base.to_index(r::AbstractArray, i::Quantity) = Base.to_index(r, ustrip(i))

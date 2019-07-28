@@ -1164,6 +1164,11 @@ end
             @test size(rand(Q, 2, 3)) == (2,3)
             @test eltype(@inferred(rand(Q, 2))) == Q
         end
+
+        @testset "Array indexing" begin
+            a = [1u"m", 2u"m"]
+            @test @inferred(Base.to_index(a, 2u"m")) == 2
+        end
     end
 end
 
