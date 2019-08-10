@@ -75,6 +75,8 @@ function uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
     end
 end
 
+uconvert(::typeof(NoUnits), x::Union{Real,Complex}) = x
+
 function uconvert(a::Units, x::Number)
     if dimension(a) == NoDims
         Quantity(x * convfact(a, NoUnits), a)
