@@ -31,7 +31,7 @@ also make your units accessible to Unitful's [`@u_str`](@ref) macro. Your unit
 symbols should ideally be distinctive to avoid colliding with symbols defined
 in other packages or in Unitful. If there is a collision, the [`@u_str`](@ref)
 macro will still work, but it will use the unit found in whichever package was
-registered most recently, and it will omit a warning every time.
+registered most recently, and it will emit a warning every time.
 
 If you use the `@u_str` macro with the units defined in your package, you'll
 also need to call `Unitful.register()` at the top level of your package at
