@@ -1446,6 +1446,8 @@ end
             @test false * 3dB == 0*dB
             @test 1V * 20dB == 10V
             @test 20dB * 1V == 10V
+            @test 10J * 10dB == 100J
+            @test 10W/m^3 * 10dB == 100W/m^3
         end
 
         @testset ">> MixedUnits" begin
