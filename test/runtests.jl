@@ -170,6 +170,11 @@ end
             @test uconvert(g, 1*FixedUnits(kg)) == 1000g         # manual conversion okay
             # Issue 79:
             @test isapprox(upreferred(Unitful.ɛ0), 8.85e-12u"F/m", atol=0.01e-12u"F/m")
+            # Issue 261:
+            @test 1u"rps" == 360°/s
+            @test 1u"rps" == 2π/s
+            @test 1u"rpm" == 360°/minute
+            @test 1u"rpm" == 2π/minute
         end
     end
 end

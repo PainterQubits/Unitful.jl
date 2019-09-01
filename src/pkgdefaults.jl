@@ -101,8 +101,8 @@ end
 @unit hr     "hr"       Hour                  3600s         false
 @unit d      "d"        Day                   86400s        false
 @unit wk     "wk"       Week                  604800s       false
-@unit rps    "rps"      RevolutionsPerSecond  1/s           false
-@unit rpm    "rpm"      RevolutionsPerMinute  1/minute      false
+@unit rps    "rps"      RevolutionsPerSecond  2π*rad/s      false
+@unit rpm    "rpm"      RevolutionsPerMinute  2π*rad/minute false
 
 # Area
 # The hectare is used more frequently than any other power-of-ten of an are.
