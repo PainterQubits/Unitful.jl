@@ -325,6 +325,8 @@ else
 end
 zero(x::AbstractQuantity) = Quantity(zero(x.val), unit(x))
 zero(x::AffineQuantity) = Quantity(zero(x.val), absoluteunit(x))
+zero(x::Type{<:AbstractQuantity{T}}) where {T} = throw(ArgumentError("zero($x) not defined."))
+zero(x::Type{<:AbstractQuantity{T,D}}) where {T,D} = zero(T) * upreferred(D)
 zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:ScalarUnits} = zero(T)*U()
 zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:AffineUnits} = zero(T)*absoluteunit(U())
 
