@@ -232,10 +232,12 @@ isrootpower_dim(::typeof(dimension(A)))         = true
 isrootpower_dim(::typeof(dimension(Pa)))        = true
 isrootpower_dim(::typeof(dimension(W/m^2/Hz)))  = false     # spectral flux dens.
 isrootpower_dim(::typeof(dimension(W/m^2)))     = false     # intensity
+isrootpower_dim(::typeof(dimension(W/m^2/m)))   = false
 isrootpower_dim(::typeof(𝐋^3))                  = false     # reflectivity
 isrootpower_dim(::typeof(dimension(Ω)))         = true
 isrootpower_dim(::typeof(dimension(S)))         = true
 isrootpower_dim(::typeof(dimension(Hz)))        = false
+isrootpower_dim(::typeof(dimension(J)))         = false
 
 #########
 
