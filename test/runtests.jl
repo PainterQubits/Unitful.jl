@@ -499,6 +499,9 @@ end
         @test @inferred(zero(1m)) === 0m                # Additive identity
         @test @inferred(zero(typeof(1m))) === 0m
         @test @inferred(zero(typeof(1.0m))) === 0.0m
+        @test_throws ArgumentError zero(Quantity{Int})
+        @test zero(Quantity{Int, 𝐋}) == 0m
+        @test zero(Quantity{Int, 𝐋}) isa Quantity{Int}
         @test @inferred(π/2*u"rad" + 90u"°") ≈ π        # Dimless quantities
         @test @inferred(π/2*u"rad" - 90u"°") ≈ 0        # Dimless quantities
         @test_throws DimensionError 1+1m                # Dim mismatched
@@ -1163,6 +1166,8 @@ end
             @test size(rand(Q, 2)) == (2,)
             @test size(rand(Q, 2, 3)) == (2,3)
             @test eltype(@inferred(rand(Q, 2))) == Q
+            @test_throws ArgumentError zero([1u"m", 1u"s"])
+            @test zero(Quantity{Int,𝐋}[1u"m", 1u"mm"]) == [0, 0]u"m"
         end
     end
 end
@@ -1586,4 +1591,3 @@ finally
     rm(load_path, recursive=true)
     rm(load_cache_path, recursive=true)
 end
-
