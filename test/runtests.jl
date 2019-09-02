@@ -26,7 +26,10 @@ import Unitful:
     Current,
     Temperature, AbsoluteScaleTemperature, RelativeScaleTemperature,
     Action,
-    Power
+    Power,
+    MassFlow,
+    MolarFlow,
+    VolumeFlow
 
 import Unitful: LengthUnits, AreaUnits, MassUnits, TemperatureUnits
 
@@ -450,7 +453,9 @@ end
     @test isa(u"h", Action)
     @test isa(3u"dBm", Power)
     @test isa(3u"dBm*Hz*s", Power)
-
+    @test isa(1kg/s, MassFlow)
+    @test isa(1mol/s, MolarFlow)
+    @test isa(1m^3/s, VolumeFlow)
 end
 
 @testset "Mathematics" begin
