@@ -71,8 +71,7 @@ for (_x,_y) in ((:sin,:sind), (:cos,:cosd), (:tan,:tand),
 end
 
 # SI and related units
-@unit cycle  "cycle"    Cycle       2π*rad                  false
-@unit Hz     "Hz"       Hertz       1cycle/s                true
+@unit Hz     "Hz"       Hertz       1/s                     true
 @unit N      "N"        Newton      1kg*m/s^2               true
 @unit Pa     "Pa"       Pascal      1N/m^2                  true
 @unit J      "J"        Joule       1N*m                    true
@@ -102,8 +101,8 @@ end
 @unit hr     "hr"       Hour                  3600s         false
 @unit d      "d"        Day                   86400s        false
 @unit wk     "wk"       Week                  604800s       false
-@unit rps    "rps"      RevolutionsPerSecond  1cycle/s      false
-@unit rpm    "rpm"      RevolutionsPerMinute  1cycle/minute false
+@unit rps    "rps"      RevolutionsPerSecond  2π*rad/s      false
+@unit rpm    "rpm"      RevolutionsPerMinute  2π*rad/minute false
 
 # Area
 # The hectare is used more frequently than any other power-of-ten of an are.
