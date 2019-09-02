@@ -46,6 +46,9 @@ const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 @derived_dimension MagneticDipoleMoment     𝐋^2*𝐈
 @derived_dimension Molarity                 𝐍/𝐋^3
 @derived_dimension Molality                 𝐍/𝐌
+@derived_dimension MassFlow                 𝐌/𝐓
+@derived_dimension MolarFlow                𝐍/𝐓
+@derived_dimension VolumeFlow               𝐋^3/𝐓
 
 # Define base units. This is not to imply g is the base SI unit instead of kg.
 # See the documentation for further details.
