@@ -182,7 +182,7 @@ const R∞ = 10_973_731.568_160/m     # (21) Rydberg constant
 @unit ft        "ft"       Foot                 12inch                  false
 @unit yd        "yd"       Yard                 3ft                     false
 @unit mi        "mi"       Mile                 1760yd                  false
-@unit angstrom  "Å"        Angstrom             (1//10)*Unitful.nm      false
+@unit angstrom  "Å"        Angstrom             (1//10)*nm      false
 
 # Area
 @unit ac        "ac"       Acre                 (316160658//78125)*m^2  false
