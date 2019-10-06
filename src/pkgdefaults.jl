@@ -183,6 +183,8 @@ const R∞ = 10_973_731.568_160/m     # (21) Rydberg constant
 @unit yd        "yd"       Yard                 3ft                     false
 @unit mi        "mi"       Mile                 1760yd                  false
 @unit angstrom  "Å"        Angstrom             (1//10)*nm      false
+# U+00c5 (opt-shift-A on macOS) and U+212b ('\Angstrom' in REPL) look identical:
+const Å = Å = angstrom
 
 # Area
 @unit ac        "ac"       Acre                 (316160658//78125)*m^2  false
