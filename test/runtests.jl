@@ -171,6 +171,7 @@ end
             @test_throws DimensionError uconvert(ContextUnits(m,mm), 1kg)
             @test_throws DimensionError uconvert(m, 1*FixedUnits(kg))
             @test uconvert(g, 1*FixedUnits(kg)) == 1000g         # manual conversion okay
+            @test (1kg, 2g, missing) .|> g === ((1000//1)g, 2g, missing)
             # Issue 79:
             @test isapprox(upreferred(Unitful.ɛ0), 8.85e-12u"F/m", atol=0.01e-12u"F/m")
             # Issue 261:

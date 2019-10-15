@@ -89,7 +89,7 @@ FreeUnits{N,D}() where {N,D} = FreeUnits{N,D,nothing}()
 FreeUnits(::Units{N,D,A}) where {N,D,A} = FreeUnits{N,D,A}()
 
 const NoUnits = FreeUnits{(), NoDims}()
-(y::FreeUnits)(x::Number) = uconvert(y,x)
+(y::FreeUnits)(x) = uconvert(y,x)
 
 """
     struct ContextUnits{N,D,P,A} <: Units{N,D,A}
@@ -106,7 +106,7 @@ end
 ContextUnits{N,D,P}() where {N,D,P} = ContextUnits{N,D,P,nothing}()
 ContextUnits(u::Units{N,D,A}) where {N,D,A} =
     ContextUnits{N,D,typeof(FreeUnits(upreferred(u))),A}()
-(y::ContextUnits)(x::Number) = uconvert(y,x)
+(y::ContextUnits)(x) = uconvert(y,x)
 
 """
     struct FixedUnits{N,D,A} <: Units{N,D,A} end
@@ -254,7 +254,7 @@ struct MixedUnits{T<:LogScaled, U<:Units}
 end
 MixedUnits{T}() where {T} = MixedUnits{T, typeof(NoUnits)}(NoUnits)
 MixedUnits{T}(u::Units) where {T} = MixedUnits{T,typeof(u)}(u)
-(y::MixedUnits)(x::Number) = uconvert(y,x)
+(y::MixedUnits)(x) = uconvert(y,x)
 
 # For logarithmic quantities
 struct IsRootPowerRatio{S,T}
