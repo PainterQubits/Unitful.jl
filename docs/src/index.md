@@ -99,6 +99,13 @@ julia> mod(1hr+3minute+5s, 24s)
 17//1 s
 ```
 
+One useful interactive function is being able to convert to preferred (in this case SI) units. 
+
+```jldoctest
+julia> upreferred(F/m)
+A^2 s^4 kg^-1 m^-3
+```
+
 !!! note
     Quantities in `°C` or `⁠°F` always unit-convert under an affine transformation that takes
     their relative scales into account. To avoid ambiguities that can lead to incorrect
