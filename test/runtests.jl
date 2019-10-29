@@ -1,5 +1,5 @@
 using Unitful
-using Test, LinearAlgebra, Random
+using Test, LinearAlgebra, Random, ConstructionBase
 import Unitful: DimensionError, AffineError
 import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
 import Unitful: FreeUnits, ContextUnits, FixedUnits, AffineUnits, AffineQuantity
@@ -75,6 +75,7 @@ const colon = Base.:(:)
     @test ContextUnits(m, FixedUnits(mm)) === ContextUnits(m, mm)
     @test ContextUnits(m, ContextUnits(mm, mm)) === ContextUnits(m, mm)
     @test_throws DimensionError ContextUnits(m,kg)
+    @test ConstructionBase.constructorof(typeof(1.0m))(2) === 2m
 end
 
 @testset "Types" begin
