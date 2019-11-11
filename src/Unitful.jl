@@ -18,7 +18,7 @@ import Base: Integer, Rational, typemin, typemax
 import Base: steprange_last, unsigned
 
 import LinearAlgebra: Diagonal, Bidiagonal, Tridiagonal, SymTridiagonal
-import LinearAlgebra: istril, istriu, norm
+import LinearAlgebra: istril, istriu, norm, pinv
 import Random
 
 import ConstructionBase: constructorof

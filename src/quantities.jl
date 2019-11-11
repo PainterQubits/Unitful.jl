@@ -32,8 +32,13 @@ function *(x::AbstractQuantity, y::Number)
     return Quantity(x.val*y, unit(x))
 end
 
-*(A::Units, B::AbstractArray) = broadcast(*, A, B)
-*(A::AbstractArray, B::Units) = broadcast(*, A, B)
+for f in (:/, :*)
+    if f != :/
+        @eval ($f)(A::Units, B::AbstractArray) = broadcast($f, A, B)
+    end
+    @eval ($f)(A::AbstractArray, B::Units) = broadcast($f, A, B)
+end
+/(x::Units, v::AbstractVector) = x*pinv(v)
 
 # Division (units)
 /(x::AbstractQuantity, y::Units) = Quantity(x.val, unit(x) / y)
