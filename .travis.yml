@@ -4,7 +4,6 @@ os:
   - linux
 #  - osx    # locally test on my MacBook Pro; OS X tests take too long on Travis CI
 julia:
-  - 0.7
   - 1.0
   - 1.1
   - 1.2
