@@ -145,6 +145,12 @@ struct Quantity{T,D,U} <: AbstractQuantity{T,D,U}
     Quantity{T,D,U}(v::Quantity) where {T,D,U} = convert(Quantity{T,D,U}, v)
 end
 
+# Field-only constructor
+Quantity{<:Any,D,U}(val) where {D,U} = Quantity{typeof(val),D,U}(val)
+
+constructorof(::Type{Unitful.Quantity{_,D,U}}) where {_,D,U} =
+    Unitful.Quantity{T,D,U} where T
+
 """
     DimensionlessUnits{U}
 Useful for dispatching on [`Unitful.Units`](@ref) types that have no dimensions.

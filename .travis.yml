@@ -4,16 +4,15 @@ os:
   - linux
 #  - osx    # locally test on my MacBook Pro; OS X tests take too long on Travis CI
 julia:
-  - 0.7
   - 1.0
   - 1.1
   - 1.2
   - nightly
 notifications:
   email: false
-# matrix:
-#   allow_failures:
-#   - julia: nightly
+matrix:
+  allow_failures:
+  - julia: nightly
 # uncomment the following lines to override the default test script
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
