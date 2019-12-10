@@ -1601,7 +1601,7 @@ try
           module ExampleExtension
           using Unitful
 
-          @unit yr "yr" JulianYear 365.25u"d" true
+          @unit year "year" JulianYear 365u"d" true
 
           function __init__()
               Unitful.register(ExampleExtension)
@@ -1611,8 +1611,8 @@ try
     pushfirst!(LOAD_PATH, load_path)
     pushfirst!(DEPOT_PATH, load_cache_path)
     @eval using ExampleExtension
-    # Delay u"yr" expansion until test time
-    @eval @test uconvert(u"d", 1u"yr") == 365.25u"d"
+    # Delay u"year" expansion until test time
+    @eval @test uconvert(u"d", 1u"year") == 365u"d"
 finally
     rm(load_path, recursive=true)
     rm(load_cache_path, recursive=true)
