@@ -163,10 +163,10 @@ for _y in (:sin, :cos, :tan, :cot, :sec, :csc, :cis)
     @eval ($_y)(x::DimensionlessQuantity) = ($_y)(uconvert(NoUnits, x))
 end
 
-atan(y::AbstractQuantity, x::AbstractQuantity) = atan(promote(y,x)...)
+atan(y::AbstractQuantity{T1,D,U1}, x::AbstractQuantity{T2,D,U2}) where {T1,T2,D,U1,U2} =
+    atan(promote(y,x)...)
 atan(y::AbstractQuantity{T,D,U}, x::AbstractQuantity{T,D,U}) where {T,D,U} = atan(y.val,x.val)
-atan(y::AbstractQuantity{T,D1,U1}, x::AbstractQuantity{T,D2,U2}) where {T,D1,U1,D2,U2} =
-    throw(DimensionError(x,y))
+atan(y::AbstractQuantity, x::AbstractQuantity) = throw(DimensionError(x,y))
 
 for (f, F) in [(:min, :<), (:max, :>)]
     @eval @generated function ($f)(x::AbstractQuantity, y::AbstractQuantity)    #TODO

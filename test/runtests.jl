@@ -611,6 +611,10 @@ end
         @test @inferred(sec(0°)) == 1
         @test @inferred(cot(45°)) == 1
         @test @inferred(atan(m*sqrt(3),1m)) ≈ 60°
+        @test @inferred(atan(m*sqrt(3),1.0m)) ≈ 60°
+        @test @inferred(atan(m*sqrt(3),1000mm)) ≈ 60°
+        @test @inferred(atan(m*sqrt(3),1e+3mm)) ≈ 60°
+        @test_throws DimensionError atan(m*sqrt(3),1e+3s)
         @test @inferred(angle((3im)*V)) ≈ 90°
     end
     @testset "> Exponentials and logarithms" begin
