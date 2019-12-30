@@ -31,6 +31,9 @@ export uconvertp, uconvertrp, convertr, convertrp, reflevel, linear
 export @logscale, @logunit, @dB, @B, @cNp, @Np
 export Level, Gain
 
+export quantity2magnitude, magnitude2quantity
+export assert_preferunits, assert_prefersibase
+
 const unitmodules = Vector{Module}()
 
 function _basefactors(m::Module)

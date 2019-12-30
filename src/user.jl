@@ -586,3 +586,76 @@ function basefactor end
 Returns a [`Unitful.Dimensions`](@ref) object describing the given unit `x`.
 """
 function dimension end
+
+
+
+
+"""
+    assert_preferunits(u0,u...)
+Wrapper call to preferunits with assertion that it had an effect.
+"""
+function  assert_preferunits(u0,u...)
+    Unitful.preferunits(u0,u...)
+    for u in eachindex((u0, u...))
+        @assert u==upreferred(u)
+    end
+    true
+end
+
+"""
+    assert_prefersibase()
+Ensure that preferred units are SI base units
+
+```jldoctest
+julia> using Unitful
+
+julia> assert_prefersibase()
+true
+```
+"""
+assert_prefersibase()=assert_preferunits(m,s,A,K,cd,kg,mol)
+
+
+"""
+    quantity2magnitude(unit_or_quantity)
+
+Convert  unitful quantity or unit to the the preferred unit and strip
+the numerical value (magnitude) from the result. 
+This is different from Unitful.ustrip  which just strips the magnitude from the given unit.
+This shall ensure that all magnitudes calculated are expressed consistently to the same
+set of preferrred units.
+
+Example:
+
+```jldoctest
+julia> using Unitful
+
+julia> cm=quantity2magnitude(u"cm")
+0.01
+```
+
+"""
+quantity2magnitude(::Type{T}, u) where T=ustrip(upreferred(one(T)*u))
+quantity2magnitude(u)=quantity2magnitude(Float64,u)
+
+
+
+"""
+    magnitude2quantity(unit,magnitude)
+Make unitful quantity from  magnitude value 
+
+Example:
+
+```jldoctest
+julia> using Unitful
+
+julia> cm=quantity2magnitude(u"cm")
+0.01
+
+julia> magnitude2quantity(u"mm",4*cm)
+40.0 mm
+```
+
+"""
+magnitude2quantity(unit,magnitude)=uconvert(unit,magnitude*upreferred(unit))
+
