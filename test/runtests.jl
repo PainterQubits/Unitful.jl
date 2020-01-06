@@ -130,6 +130,7 @@ end
     @testset "> Unitful ↔ unitful conversion" begin
         @testset ">> Numeric conversion" begin
             @test @inferred(float(3m)) === 3.0m
+            @test @inferred(Float32(3m)) === 3.0f0m
             @test @inferred(Integer(3.0A)) === 3A
             @test Rational(3.0m) === (Int64(3)//1)*m
             @test typeof(convert(typeof(0.0°), 90°)) == typeof(0.0°)
