@@ -74,27 +74,28 @@ for (_x,_y) in ((:sin,:sind), (:cos,:cosd), (:tan,:tand),
 end
 
 # SI and related units
-@unit Hz     "Hz"       Hertz       1/s                     true
-@unit N      "N"        Newton      1kg*m/s^2               true
-@unit Pa     "Pa"       Pascal      1N/m^2                  true
-@unit J      "J"        Joule       1N*m                    true
-@unit W      "W"        Watt        1J/s                    true
-@unit C      "C"        Coulomb     1A*s                    true
-@unit V      "V"        Volt        1W/A                    true
-@unit Ω      "Ω"        Ohm         1V/A                    true
-@unit S      "S"        Siemens     1/Ω                     true
-@unit F      "F"        Farad       1s^4*A^2/(kg*m^2)       true
-@unit H      "H"        Henry       1J/(A^2)                true
-@unit T      "T"        Tesla       1kg/(A*s^2)             true
-@unit Wb     "Wb"       Weber       1kg*m^2/(A*s^2)         true
-@unit lm     "lm"       Lumen       1cd*sr                  true
-@unit lx     "lx"       Lux         1lm/m^2                 true
-@unit Bq     "Bq"       Becquerel   1/s                     true
-@unit Gy     "Gy"       Gray        1J/kg                   true
-@unit Sv     "Sv"       Sievert     1J/kg                   true
-@unit kat    "kat"      Katal       1mol/s                  true
-@unit percent "%"       Percent     1//100                  false
-@unit permille "‰"      Permille    1//1000                 false
+@unit Hz              "Hz"   Hertz           1/s                true
+@unit N               "N"    Newton          1kg*m/s^2          true
+@unit Pa              "Pa"   Pascal          1N/m^2             true
+@unit J               "J"    Joule           1N*m               true
+@unit W               "W"    Watt            1J/s               true
+@unit C               "C"    Coulomb         1A*s               true
+@unit V               "V"    Volt            1W/A               true
+@unit Ω               "Ω"    Ohm             1V/A               true
+@unit S               "S"    Siemens         1/Ω                true
+@unit F               "F"    Farad           1s^4*A^2/(kg*m^2)  true
+@unit H               "H"    Henry           1J/(A^2)           true
+@unit T               "T"    Tesla           1kg/(A*s^2)        true
+@unit Wb              "Wb"   Weber           1kg*m^2/(A*s^2)    true
+@unit lm              "lm"   Lumen           1cd*sr             true
+@unit lx              "lx"   Lux             1lm/m^2            true
+@unit Bq              "Bq"   Becquerel       1/s                true
+@unit Gy              "Gy"   Gray            1J/kg              true
+@unit Sv              "Sv"   Sievert         1J/kg              true
+@unit kat             "kat"  Katal           1mol/s             true
+@unit percent         "%"    Percent         1//100             false
+@unit permille        "‰"    Permille        1//1000            false
+@unit pertenthousand  "‱"    Pertenthousand  1//10000           false
 
 # Temperature
 @affineunit °C "°C"     (27315//100)K
