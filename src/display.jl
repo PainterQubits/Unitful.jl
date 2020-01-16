@@ -154,10 +154,6 @@ end
     superscript(i::Rational)
 Prints exponents.
 """
-"""
-    superscript(i::Rational)
-Prints exponents.
-"""
 function superscript(i::Rational)
     i.den == 1 ? superscript(i.num) : string(superscript(i.num), '\u141F', superscript(i.den))
 end
