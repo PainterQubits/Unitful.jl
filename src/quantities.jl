@@ -383,13 +383,17 @@ function frexp(x::AbstractQuantity{T}) where {T <: AbstractFloat}
     a*unit(x), b
 end
 
-"""
-    float(x::AbstractQuantity)
-Convert the numeric backing type of `x` to a floating-point representation.
-Returns a `Quantity` with the same units.
-"""
-float(x::AbstractQuantity) = Quantity(float(x.val), unit(x))
-
+for f in (:float, :BigFloat, :Float64, :Float32, :Float16)
+    @eval begin
+    """
+        $($f)(x::AbstractQuantity)
+    Convert the numeric backing type of `x` to a floating-point representation.
+    Returns a `Quantity` with the same units.
+    """
+    (Base.$f)(x::AbstractQuantity) = Quantity($f(x.val), unit(x))
+    end
+end
+   
 """
     Integer(x::AbstractQuantity)
 Convert the numeric backing type of `x` to an integer representation.
