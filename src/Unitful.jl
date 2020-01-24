@@ -30,7 +30,7 @@ export Quantity, DimensionlessQuantity, NoUnits, NoDims
 export uconvertp, uconvertrp, convertr, convertrp, reflevel, linear
 export @logscale, @logunit, @dB, @B, @cNp, @Np
 export Level, Gain
-export parseunit
+export uparse
 
 const unitmodules = Vector{Module}()
 

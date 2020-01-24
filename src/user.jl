@@ -514,26 +514,26 @@ macro u_str(unit)
 end
 
 """
-    parseunit([unit_module(s),] string)
+    uparse(string, [unit_context=ctx,])
 
-Parse a string as a unit type. The format for `string` must be a valid Julia
-expression, and any identifiers will be looked up in the context `unit_module`
+Parse a string as a unit or quantity. The format for `string` must be a valid
+Julia expression, and any identifiers will be looked up in the context `ctx`,
 which may be a `Module` or a vector of `Module`s. By default
-`unit_module=Unitful`.
+`unit_context=Unitful`.
 
 Examples:
 
 ```jldoctest
-julia> parseunit("m/s")
-1.0 m s^-1
+julia> uparse("m/s")
+m s^-1
+
+julia> uparse("1.0*dB")
+1.0 dB
 ```
 """
-parseunit(str::AbstractString) = parseunit(Unitful, str)
-
-parseunit(unitmodule::Module, str) = parseunit([unitmodule], str)
-function parseunit(unitmods, str)
+function uparse(str, unit_context=Unitful)
     ex = Meta.parse(str)
-    eval(lookup_units(unitmods, ex))
+    eval(lookup_units(unit_context, ex))
 end
 
 const allowed_funcs = [:*, :/, :^, :sqrt, :√, :+, :-, ://]
@@ -590,6 +590,7 @@ function lookup_units(unitmods, sym::Symbol)
                  We will use the one from $m."""
     return u
 end
+lookup_units(unitmod::Module, ex::Symbol) = lookup_units([unitmod], ex)
 
 lookup_units(unitmods, literal::Number) = literal
 

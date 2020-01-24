@@ -388,26 +388,27 @@ end
 end
 
 @testset "Unit string parsing" begin
-    @test parseunit("m") == m
-    @test parseunit("m,s") == (m,s)
-    @test parseunit("1.0") == 1.0
-    @test parseunit("m/s") == m/s
-    @test parseunit("1.0m/s") == 1.0m/s
-    @test parseunit("m^-1") == m^-1
-    @test parseunit("dB/Hz") == dB/Hz
-    @test parseunit("3.0dB/Hz") == 3.0dB/Hz
+    @test uparse("m") == m
+    @test uparse("m,s") == (m,s)
+    @test uparse("1.0") == 1.0
+    @test uparse("m/s") == m/s
+    @test uparse("N*m") == N*m
+    @test uparse("1.0m/s") == 1.0m/s
+    @test uparse("m^-1") == m^-1
+    @test uparse("dB/Hz") == dB/Hz
+    @test uparse("3.0dB/Hz") == 3.0dB/Hz
 
     # Invalid unit strings
-    @test_throws Meta.ParseError parseunit("N m")
-    @test_throws ArgumentError parseunit("abs(2)")
-    @test_throws ArgumentError parseunit("(1,2)")
-    @test_throws ArgumentError parseunit("begin end")
+    @test_throws Meta.ParseError uparse("N m")
+    @test_throws ArgumentError uparse("abs(2)")
+    @test_throws ArgumentError uparse("(1,2)")
+    @test_throws ArgumentError uparse("begin end")
 
     # test ustrcheck_bool
-    @test_throws ArgumentError parseunit("basefactor") # non-Unit symbols
+    @test_throws ArgumentError uparse("basefactor") # non-Unit symbols
     # ustrcheck_bool(::Quantity)
-    @test parseunit("h") == Unitful.h
-    @test parseunit("π") == π              # issue 112
+    @test uparse("h") == Unitful.h
+    @test uparse("π") == π              # issue 112
 end
 
 @testset "Unit and dimensional analysis" begin
@@ -1565,8 +1566,17 @@ end
 @test DoesUseFooUnits.foo() === 1u"foo"
 
 # Tests for unit extension modules in unit parsing
-@test_throws ArgumentError parseunit(Unitful, "foo")
-@test parseunit(FooUnits, "foo") === u"foo"
+@test_throws ArgumentError uparse("foo", Unitful)
+@test uparse("foo", FooUnits) === u"foo"
+@test uparse("foo", [Unitful, FooUnits]) === u"foo"
+@test uparse("foo", [FooUnits, Unitful]) === u"foo"
+
+# Test for #272
+module OnlyUstrImported
+    import Unitful: @u_str
+    u = u"m"
+end
+@test OnlyUstrImported.u === m
 
 # Test to make sure user macros are working properly
 module TUM
