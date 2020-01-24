@@ -1566,10 +1566,10 @@ end
 @test DoesUseFooUnits.foo() === 1u"foo"
 
 # Tests for unit extension modules in unit parsing
-@test_throws ArgumentError uparse("foo", Unitful)
-@test uparse("foo", FooUnits) === u"foo"
-@test uparse("foo", [Unitful, FooUnits]) === u"foo"
-@test uparse("foo", [FooUnits, Unitful]) === u"foo"
+@test_throws ArgumentError uparse("foo", unit_context=Unitful)
+@test uparse("foo", unit_context=FooUnits) === u"foo"
+@test uparse("foo", unit_context=[Unitful, FooUnits]) === u"foo"
+@test uparse("foo", unit_context=[FooUnits, Unitful]) === u"foo"
 
 # Test for #272
 module OnlyUstrImported

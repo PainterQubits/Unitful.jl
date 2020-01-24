@@ -514,7 +514,7 @@ macro u_str(unit)
 end
 
 """
-    uparse(string, [unit_context=ctx,])
+    uparse(string [; unit_context=ctx])
 
 Parse a string as a unit or quantity. The format for `string` must be a valid
 Julia expression, and any identifiers will be looked up in the context `ctx`,
@@ -531,7 +531,7 @@ julia> uparse("1.0*dB")
 1.0 dB
 ```
 """
-function uparse(str, unit_context=Unitful)
+function uparse(str; unit_context=Unitful)
     ex = Meta.parse(str)
     eval(lookup_units(unit_context, ex))
 end
