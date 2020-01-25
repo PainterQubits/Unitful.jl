@@ -502,67 +502,97 @@ julia> u"ħ"
 """
 macro u_str(unit)
     ex = Meta.parse(unit)
-    esc(replace_value(__module__, ex))
+    unitmods = [Unitful]
+    for m in Unitful.unitmodules
+        # Find registered unit extension modules which are also loaded by
+        # __module__ (required so that precompilation will work).
+        if isdefined(__module__, nameof(m)) && getfield(__module__, nameof(m)) === m
+            push!(unitmods, m)
+        end
+    end
+    esc(lookup_units(unitmods, ex))
+end
+
+"""
+    uparse(string [; unit_context=ctx])
+
+Parse a string as a unit or quantity. The format for `string` must be a valid
+Julia expression, and any identifiers will be looked up in the context `ctx`,
+which may be a `Module` or a vector of `Module`s. By default
+`unit_context=Unitful`.
+
+Examples:
+
+```jldoctest
+julia> uparse("m/s")
+m s^-1
+
+julia> uparse("1.0*dB")
+1.0 dB
+```
+"""
+function uparse(str; unit_context=Unitful)
+    ex = Meta.parse(str)
+    eval(lookup_units(unit_context, ex))
 end
 
 const allowed_funcs = [:*, :/, :^, :sqrt, :√, :+, :-, ://]
-function replace_value(targetmod, ex::Expr)
+function lookup_units(unitmods, ex::Expr)
     if ex.head == :call
         ex.args[1] in allowed_funcs ||
-            error("""$(ex.args[1]) is not a valid function call when parsing a unit.
-             Only the following functions are allowed: $allowed_funcs""")
+            throw(ArgumentError(
+                  """$(ex.args[1]) is not a valid function call when parsing a unit.
+                   Only the following functions are allowed: $allowed_funcs"""))
         for i=2:length(ex.args)
             if typeof(ex.args[i])==Symbol || typeof(ex.args[i])==Expr
-                ex.args[i]=replace_value(targetmod, ex.args[i])
+                ex.args[i]=lookup_units(unitmods, ex.args[i])
             end
         end
         return ex
     elseif ex.head == :tuple
         for i=1:length(ex.args)
             if typeof(ex.args[i])==Symbol
-                ex.args[i]=replace_value(targetmod, ex.args[i])
+                ex.args[i]=lookup_units(unitmods, ex.args[i])
             else
-                error("only use symbols inside the tuple.")
+                throw(ArgumentError("Only use symbols inside the tuple."))
             end
         end
         return ex
     else
-        error("Expr head $(ex.head) must equal :call or :tuple")
+        throw(ArgumentError("Expr head $(ex.head) must equal :call or :tuple"))
     end
 end
 
-function replace_value(targetmod, sym::Symbol)
-    f = m->()
-    inds = findall(unitmodules) do m
-        # Ensure that both the unit exists in the registered unit module, and
-        # that the target module (the one invoking `u_str`) has loaded it so
-        # that precompilation will work.
-        isdefined(m,sym)             && ustrcheck_bool(getfield(m, sym))  &&
-        isdefined(targetmod, nameof(m)) && getfield(targetmod,nameof(m)) === m
-    end
+function lookup_units(unitmods, sym::Symbol)
+    has_unit = m->(isdefined(m,sym) && ustrcheck_bool(getfield(m, sym)))
+    inds = findall(has_unit, unitmods)
     if isempty(inds)
         # Check whether unit exists in the global list to give an improved
         # error message.
-        f = m->(isdefined(m,sym) && ustrcheck_bool(getfield(m, sym)))
-        hintidx = findfirst(f, unitmodules)
+        hintidx = findfirst(has_unit, unitmodules)
         if hintidx !== nothing
             hintmod = unitmodules[hintidx]
-            error("Symbol `$sym` was found in unit module $hintmod, but was not loaded into $targetmod. Consider `using $hintmod` within `$targetmod`?")
+            throw(ArgumentError(
+                """Symbol `$sym` was found in the globally registered unit module $hintmod
+                   but was not in the provided list of unit modules $(join(unitmods, ", ")).
+
+                   (Consider `using $hintmod` in your module if you are using `@u_str`?)"""))
         else
-            error("Symbol $sym could not be found in registered unit modules.")
+            throw(ArgumentError("Symbol $sym could not be found in unit modules $unitmods"))
         end
     end
 
-    m = unitmodules[inds[end]]
+    m = unitmods[inds[end]]
     u = getfield(m, sym)
 
-    any(u != u1 for u1 in getfield.(unitmodules[inds[1:(end-1)]], sym)) &&
-        @warn(string("Symbol $sym was found in multiple registered unit modules. ",
-         "We will use the one from $m."))
+    any(u != u1 for u1 in getfield.(unitmods[inds[1:(end-1)]], sym)) &&
+        @warn """Symbol $sym was found in multiple registered unit modules.
+                 We will use the one from $m."""
     return u
 end
+lookup_units(unitmod::Module, ex::Symbol) = lookup_units([unitmod], ex)
 
-replace_value(targetmod, literal::Number) = literal
+lookup_units(unitmods, literal::Number) = literal
 
 ustrcheck_bool(::Number) = true
 ustrcheck_bool(::MixedUnits) = true

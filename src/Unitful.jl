@@ -30,6 +30,7 @@ export Quantity, DimensionlessQuantity, NoUnits, NoDims
 export uconvertp, uconvertrp, convertr, convertrp, reflevel, linear
 export @logscale, @logunit, @dB, @B, @cNp, @Np
 export Level, Gain
+export uparse
 
 const unitmodules = Vector{Module}()
 
@@ -63,10 +64,5 @@ include("fastmath.jl")
 include("logarithm.jl")
 include("complex.jl")
 include("pkgdefaults.jl")
-
-function __init__()
-    # @u_str should be aware of units defined in module Unitful
-    Unitful.register(Unitful)
-end
 
 end

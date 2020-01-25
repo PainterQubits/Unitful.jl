@@ -387,22 +387,28 @@ end
     end
 end
 
-@testset "Unit string macro" begin
-    @test u"m" == m
-    @test u"m,s" == (m,s)
-    @test u"1.0" == 1.0
-    @test u"m/s" == m/s
-    @test u"1.0m/s" == 1.0m/s
-    @test u"m^-1" == m^-1
-    @test u"dB/Hz" == dB/Hz
-    @test u"3.0dB/Hz" == 3.0dB/Hz
-    @test_throws LoadError macroexpand(@__MODULE__, :(u"N m"))
-    @test_throws LoadError macroexpand(@__MODULE__, :(u"abs(2)"))
-    @test_throws LoadError @eval u"basefactor"
+@testset "Unit string parsing" begin
+    @test uparse("m") == m
+    @test uparse("m,s") == (m,s)
+    @test uparse("1.0") == 1.0
+    @test uparse("m/s") == m/s
+    @test uparse("N*m") == N*m
+    @test uparse("1.0m/s") == 1.0m/s
+    @test uparse("m^-1") == m^-1
+    @test uparse("dB/Hz") == dB/Hz
+    @test uparse("3.0dB/Hz") == 3.0dB/Hz
 
-    # test ustrcheck(::Quantity)
-    @test u"h" == Unitful.h
-    @test u"π" == π              # issue 112
+    # Invalid unit strings
+    @test_throws Meta.ParseError uparse("N m")
+    @test_throws ArgumentError uparse("abs(2)")
+    @test_throws ArgumentError uparse("(1,2)")
+    @test_throws ArgumentError uparse("begin end")
+
+    # test ustrcheck_bool
+    @test_throws ArgumentError uparse("basefactor") # non-Unit symbols
+    # ustrcheck_bool(::Quantity)
+    @test uparse("h") == Unitful.h
+    @test uparse("π") == π              # issue 112
 end
 
 @testset "Unit and dimensional analysis" begin
@@ -1558,6 +1564,19 @@ module DoesUseFooUnits
     foo() = 1u"foo"
 end
 @test DoesUseFooUnits.foo() === 1u"foo"
+
+# Tests for unit extension modules in unit parsing
+@test_throws ArgumentError uparse("foo", unit_context=Unitful)
+@test uparse("foo", unit_context=FooUnits) === u"foo"
+@test uparse("foo", unit_context=[Unitful, FooUnits]) === u"foo"
+@test uparse("foo", unit_context=[FooUnits, Unitful]) === u"foo"
+
+# Test for #272
+module OnlyUstrImported
+    import Unitful: @u_str
+    u = u"m"
+end
+@test OnlyUstrImported.u === m
 
 # Test to make sure user macros are working properly
 module TUM
