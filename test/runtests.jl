@@ -914,24 +914,22 @@ end
     @test ceil(Int16, 1.0314m/mm) === Int16(1032.0)
     @test trunc(Int16, -1.0314m/mm) === Int16(-1031.0)
     @test round(Int16, 1.0314m/mm) === Int16(1031.0)
-    if VERSION >= v"1"
-        @test floor(typeof(1mm), 1.0314m) === 1031mm
-        @test floor(typeof(1.0mm), 1.0314m) === 1031.0mm
-        @test floor(typeof(1.0mm), 1.0314m; digits=1) === 1031.4mm
-        @test ceil(typeof(1mm), 1.0314m) === 1032mm
-        @test ceil(typeof(1.0mm), 1.0314m) === 1032.0mm
-        @test ceil(typeof(1.0mm), 1.0314m; digits=1) === 1031.4mm
-        @test trunc(typeof(1mm), -1.0314m) === -1031mm
-        @test trunc(typeof(1.0mm), -1.0314m) === -1031.0mm
-        @test trunc(typeof(1.0mm), -1.0314m; digits=1) === -1031.4mm
-        @test round(typeof(1mm), 1.0314m) === 1031mm
-        @test round(typeof(1.0mm), 1.0314m) === 1031.0mm
-        @test round(typeof(1.0mm), 1.0314m; digits=1) === 1031.4mm
-        @test round(u"inch", 1.0314m) === 41.0u"inch"
-        @test round(Int, u"inch", 1.0314m) === 41u"inch"
-        @test round(typeof(1m), 137cm) === 1m
-        @test round(137cm/m) === 1//1
-    end
+    @test floor(typeof(1mm), 1.0314m) === 1031mm
+    @test floor(typeof(1.0mm), 1.0314m) === 1031.0mm
+    @test floor(typeof(1.0mm), 1.0314m; digits=1) === 1031.4mm
+    @test ceil(typeof(1mm), 1.0314m) === 1032mm
+    @test ceil(typeof(1.0mm), 1.0314m) === 1032.0mm
+    @test ceil(typeof(1.0mm), 1.0314m; digits=1) === 1031.4mm
+    @test trunc(typeof(1mm), -1.0314m) === -1031mm
+    @test trunc(typeof(1.0mm), -1.0314m) === -1031.0mm
+    @test trunc(typeof(1.0mm), -1.0314m; digits=1) === -1031.4mm
+    @test round(typeof(1mm), 1.0314m) === 1031mm
+    @test round(typeof(1.0mm), 1.0314m) === 1031.0mm
+    @test round(typeof(1.0mm), 1.0314m; digits=1) === 1031.4mm
+    @test round(u"inch", 1.0314m) === 41.0u"inch"
+    @test round(Int, u"inch", 1.0314m) === 41u"inch"
+    @test round(typeof(1m), 137cm) === 1m
+    @test round(137cm/m) === 1//1
 end
 
 @testset "Sgn, abs, &c." begin
