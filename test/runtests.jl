@@ -1194,12 +1194,14 @@ end
 end
 
 @testset "Display" begin
-    @test string(typeof(1.0m/s)) ==
-        "Quantity{Float64,𝐋*𝐓^-1,FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}}"
-    @test string(typeof(m/s)) ==
-        "FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}"
-    @test string(dimension(1u"m/s")) == "𝐋 𝐓^-1"
-    @test string(NoDims) == "NoDims"
+    withenv("UNITFUL_FANCY_EXPONENTS" => false) do
+        @test string(typeof(1.0m/s)) ==
+            "Quantity{Float64,𝐋*𝐓^-1,FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}}"
+        @test string(typeof(m/s)) ==
+            "FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}"
+        @test string(dimension(1u"m/s")) == "𝐋 𝐓^-1"
+        @test string(NoDims) == "NoDims"
+    end
 end
 
 struct Foo <: Number end
@@ -1207,18 +1209,28 @@ Base.show(io::IO, x::Foo) = print(io, "1")
 Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
 
 @testset "Show quantities" begin
-    @test repr(1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
-    @test repr("text/plain", 1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
-    @test repr(Foo() * u"m * s * kg^-1") == "1 m s kg^-1"
-    @test repr("text/plain", Foo() * u"m * s * kg^-1") == "42.0 m s kg^-1"
-    # Angular degree printing #253
-    @test sprint(show, 1.0°)       == "1.0°"
-    @test repr("text/plain", 1.0°) == "1.0°"
+    withenv("UNITFUL_FANCY_EXPONENTS" => false) do
+        @test repr(1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
+        @test repr("text/plain", 1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
+        @test repr(Foo() * u"m * s * kg^-1") == "1 m s kg^-1"
+        @test repr("text/plain", Foo() * u"m * s * kg^-1") == "42.0 m s kg^-1"
 
-    # Concise printing of ranges
-    @test repr((1:10)*u"kg/m^3") == "(1:10) kg m^-3"
-    @test repr((1.0:0.1:10.0)*u"kg/m^3") == "(1.0:0.1:10.0) kg m^-3"
-    @test repr((1:10)*°) == "(1:10)°"
+        # Angular degree printing #253
+        @test sprint(show, 1.0°)       == "1.0°"
+        @test repr("text/plain", 1.0°) == "1.0°"
+
+        # Concise printing of ranges
+        @test repr((1:10)*u"kg/m^3") == "(1:10) kg m^-3"
+        @test repr((1.0:0.1:10.0)*u"kg/m^3") == "(1.0:0.1:10.0) kg m^-3"
+        @test repr((1:10)*°) == "(1:10)°"
+    end
+    withenv("UNITFUL_FANCY_EXPONENTS" => true) do
+        @test repr(1.0 * u"m * s * kg^(-1//2)") == "1.0 m s kg⁻¹ᐟ²"
+    end
+    withenv("UNITFUL_FANCY_EXPONENTS" => nothing) do
+        @test repr(1.0 * u"m * s * kg^(-1//2)") ==
+            (Sys.isapple() ? "1.0 m s kg⁻¹ᐟ²" : "1.0 m s kg^-1/2")
+    end
 end
 
 @testset "DimensionError message" begin
