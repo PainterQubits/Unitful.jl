@@ -155,5 +155,28 @@ end
 Prints exponents.
 """
 function superscript(i::Rational)
-    i.den == 1 ? "^" * string(i.num) : "^" * replace(string(i), "//" => "/")
+    v = @eval get(ENV, "UNITFUL_FANCY_EXPONENTS", $(Sys.isapple() ? "true" : "false"))
+    t = tryparse(Bool, lowercase(v))
+    k = (t === nothing) ? false : t
+    if k
+        return i.den == 1 ? superscript(i.num) : string(superscript(i.num), '\u141F', superscript(i.den))
+    else
+        i.den == 1 ? "^" * string(i.num) : "^" * replace(string(i), "//" => "/")
+    end
+end
+
+# Taken from SIUnits.jl
+superscript(i::Integer) = map(repr(i)) do c
+    c == '-' ? '\u207b' :
+    c == '1' ? '\u00b9' :
+    c == '2' ? '\u00b2' :
+    c == '3' ? '\u00b3' :
+    c == '4' ? '\u2074' :
+    c == '5' ? '\u2075' :
+    c == '6' ? '\u2076' :
+    c == '7' ? '\u2077' :
+    c == '8' ? '\u2078' :
+    c == '9' ? '\u2079' :
+    c == '0' ? '\u2070' :
+    error("unexpected character")
 end
