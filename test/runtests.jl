@@ -930,6 +930,16 @@ end
     @test round(Int, u"inch", 1.0314m) === 41u"inch"
     @test round(typeof(1m), 137cm) === 1m
     @test round(137cm/m) === 1//1
+    @test round(u"m", -125u"cm", sigdigits=2) === -1.2u"m"
+    @test round(u"m", (125//1)u"cm", sigdigits=2) === 1.2u"m"
+    @test round(u"m", -125u"cm", RoundNearestTiesUp, sigdigits=2) === -1.2u"m"
+    @test round(u"m", (125//1)u"cm", RoundNearestTiesUp, sigdigits=2) === 1.3u"m"
+    @test floor(u"m", -125u"cm", sigdigits=2) === -1.3u"m"
+    @test floor(u"m", (125//1)u"cm", sigdigits=2) === 1.2u"m"
+    @test ceil(u"m", -125u"cm", sigdigits=2) === -1.2u"m"
+    @test ceil(u"m", (125//1)u"cm", sigdigits=2) === 1.3u"m"
+    @test trunc(u"m", -125u"cm", sigdigits=2) === -1.2u"m"
+    @test trunc(u"m", (125//1)u"cm", sigdigits=2) === 1.2u"m"
 end
 
 @testset "Sgn, abs, &c." begin
