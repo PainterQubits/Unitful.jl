@@ -105,6 +105,7 @@ end
 @unit hr     "hr"       Hour                  3600s         false
 @unit d      "d"        Day                   86400s        false
 @unit wk     "wk"       Week                  604800s       false
+@unit yr     "yr"       Year                  31557600s     false
 @unit rps    "rps"      RevolutionsPerSecond  2π*rad/s      false
 @unit rpm    "rpm"      RevolutionsPerMinute  2π*rad/minute false
 

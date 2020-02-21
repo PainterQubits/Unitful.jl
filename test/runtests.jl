@@ -10,7 +10,7 @@ import Unitful:
     mg, g, kg,
     Ra, °F, °C, K,
     rad, °,
-    ms, s, minute, hr, Hz,
+    ms, s, minute, hr, d, yr, Hz,
     J, A, N, mol, V,
     mW, W,
     dB, dB_rp, dB_p, dBm, dBV, dBSPL, Decibel,
@@ -165,6 +165,10 @@ end
             @test 1inch == (254//100)*cm
             @test 1ft == 12inch
             @test 1/mi == 1//(5280ft)
+            @test 1minute == 60s
+            @test 1hr == 60minute
+            @test 1d == 24hr
+            @test 1yr == 365.25d
             @test 1J == 1kg*m^2/s^2
             @test typeof(1cm)(1m) === 100cm
             @test (3V+4V*im) != (3m+4m*im)
@@ -1631,7 +1635,7 @@ try
           module ExampleExtension
           using Unitful
 
-          @unit yr "yr" JulianYear 365.25u"d" true
+          @unit year "year" JulianYear 365u"d" true
 
           function __init__()
               Unitful.register(ExampleExtension)
@@ -1641,8 +1645,8 @@ try
     pushfirst!(LOAD_PATH, load_path)
     pushfirst!(DEPOT_PATH, load_cache_path)
     @eval using ExampleExtension
-    # Delay u"yr" expansion until test time
-    @eval @test uconvert(u"d", 1u"yr") == 365.25u"d"
+    # Delay u"year" expansion until test time
+    @eval @test uconvert(u"d", 1u"year") == 365u"d"
 finally
     rm(load_path, recursive=true)
     rm(load_cache_path, recursive=true)
