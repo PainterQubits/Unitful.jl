@@ -281,9 +281,9 @@ _rounderr() = error("specify the type of the quantity to convert to ",
     "when rounding quantities. Example: round(typeof(1u\"m\"), 137u\"cm\").")
 
 # convenience methods
-round(u::Units, q::Quantity, r::RoundingMode=RoundNearest; kwargs...) =
-    round(numtype(q), u, q, r; kwargs...)
-round(::Type{T}, u::Units, q::Quantity, r::RoundingMode=RoundNearest;
+round(u::Units, q::AbstractQuantity, r::RoundingMode=RoundNearest; kwargs...) =
+    Quantity(round(ustrip(u, q), r; kwargs...), u)
+round(::Type{T}, u::Units, q::AbstractQuantity, r::RoundingMode=RoundNearest;
         kwargs...) where {T<:Number} =
     round(Quantity{T, dimension(u), typeof(u)}, q, r; kwargs...)
 
@@ -297,23 +297,26 @@ round(::Type{T}, x::AbstractQuantity, r=RoundingMode=RoundNearest;
     kwargs...) where {T<:Number} = _dimerr(:round)
 round(::Type{T}, x::DimensionlessQuantity, r::RoundingMode=RoundNearest;
     kwargs...) where {T<:Number} = round(T, uconvert(NoUnits, x), r; kwargs...)
-function round(::Type{T}, x::Quantity, r::RoundingMode=RoundNearest;
+function round(::Type{T}, x::AbstractQuantity;
         kwargs...) where {S, T <: Quantity{S}}
     u = unit(T)
-    unitless = ustrip(uconvert(u, x))
-    return Quantity{S, dimension(T), typeof(u)}(round(float(unitless), r; kwargs...))
+    unitless = ustrip(u, x)
+    return Quantity{S, dimension(T), typeof(u)}(round(unitless; kwargs...))
+end
+function round(::Type{T}, x::AbstractQuantity, r::RoundingMode;
+        kwargs...) where {S, T <: Quantity{S}}
+    u = unit(T)
+    unitless = ustrip(u, x)
+    return Quantity{S, dimension(T), typeof(u)}(round(unitless, r; kwargs...))
 end
 
 # that should actually be fixed in Base ↓
-trunc(x::AbstractQuantity; kwargs...) = round(x, RoundToZero; kwargs...)
-floor(x::AbstractQuantity; kwargs...) = round(x, RoundDown; kwargs...)
-ceil(x::AbstractQuantity; kwargs...)  = round(x, RoundUp; kwargs...)
-trunc(::Type{T}, x::AbstractQuantity; kwargs...) where {T<:Number} =
-    round(T, x, RoundToZero; kwargs...)
-floor(::Type{T}, x::AbstractQuantity; kwargs...) where {T<:Number} =
-    round(T, x, RoundDown; kwargs...)
-ceil(::Type{T}, x::AbstractQuantity; kwargs...)  where {T<:Number} =
-    round(T, x, RoundUp; kwargs...)
+for (f,r) = ((:trunc, :RoundToZero), (:floor, :RoundDown), (:ceil, :RoundUp))
+    @eval $f(x::AbstractQuantity; kwargs...) = round(x, $r; kwargs...)
+    @eval $f(::Type{T}, x::AbstractQuantity; kwargs...) where {T<:Number} =
+        round(T, x, $r; kwargs...)
+    @eval $f(u::Units, x::AbstractQuantity; kwargs...) = round(u, x, $r; kwargs...)
+end
 
 zero(x::AbstractQuantity) = Quantity(zero(x.val), unit(x))
 zero(x::AffineQuantity) = Quantity(zero(x.val), absoluteunit(x))
