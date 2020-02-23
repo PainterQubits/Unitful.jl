@@ -644,6 +644,8 @@ end
         @test !isfinite(Inf*m)
         @test isnan(NaN*m)
         @test !isnan(1.0m)
+        @test isone(1.0m)
+        @test !isone(1.4m)
     end
     @testset "> Floating point tests" begin
         @test isapprox(1.0u"m",(1.0+eps(1.0))u"m")

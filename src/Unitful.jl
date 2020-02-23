@@ -9,7 +9,7 @@ import Base: exp, exp10, exp2, expm1, log, log10, log1p, log2
 import Base: sin, cos, tan, cot, sec, csc, atan, cis
 
 import Base: eps, mod, rem, div, fld, cld, trunc, round, sign, signbit
-import Base: isless, isapprox, isinteger, isreal, isinf, isfinite, isnan
+import Base: isless, isapprox, isinteger, isreal, isinf, isfinite, isnan, isone
 import Base: copysign, flipsign
 import Base: prevfloat, nextfloat, maxintfloat, rat, step
 import Base: length, float, last, one, oneunit, zero, range

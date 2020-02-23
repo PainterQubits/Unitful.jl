@@ -341,6 +341,7 @@ isreal(x::AbstractQuantity) = isreal(x.val)
 isfinite(x::AbstractQuantity) = isfinite(x.val)
 isinf(x::AbstractQuantity) = isinf(x.val)
 isnan(x::AbstractQuantity) = isnan(x.val)
+isone(x::AbstractQuantity) = isone(x.val)
 
 eps(x::T) where {T<:AbstractQuantity} = T(eps(x.val))
 eps(x::Type{T}) where {T<:AbstractQuantity} = eps(Unitful.numtype(T))
