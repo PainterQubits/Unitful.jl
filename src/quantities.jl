@@ -57,9 +57,15 @@ end
 //(x::AbstractQuantity, y::Complex) = Quantity(//(x.val, y), unit(x))
 
 for f in (:div, :fld, :cld)
-    @eval function ($f)(x::AbstractQuantity, y::AbstractQuantity)
-        z = uconvert(unit(y), x)        # TODO: use promote?
-        ($f)(z.val,y.val)
+    @eval begin
+        function ($f)(x::AbstractQuantity, y::AbstractQuantity)
+            z = uconvert(unit(y), x)        # TODO: use promote?
+            ($f)(z.val,y.val)
+        end
+
+        ($f)(x::Number, y::AbstractQuantity) = Quantity(($f)(x, y.val), unit(y))
+
+        ($f)(x::AbstractQuantity, y::Number) = Quantity(($f)(x.val, y), unit(x))
     end
 end
 
