@@ -562,12 +562,12 @@ end
         @test missing / m === missing        # Missing / Unit (// is not defined for Missing)
         @test @inferred(div(10m, -3cm)) === -333
         @test @inferred(div(10m, 3)) === 3m
-        @test @inferred(div(10, 3m)) === 3m
+        @test @inferred(div(10, 3m)) === 3/m
         @test @inferred(fld(10m, -3cm)) === -334
         @test @inferred(fld(10m, 3)) === 3m
-        @test @inferred(fld(10, 3m)) === 3m
+        @test @inferred(fld(10, 3m)) === 3/m
         @test @inferred(cld(10m, 3)) === 4m
-        @test @inferred(cld(10, 3m)) === 4m
+        @test @inferred(cld(10, 3m)) === 4/m
         @test rem(10m, -3cm) == 1.0cm
         @test mod(10m, -3cm) == -2.0cm
         @test mod(1hr+3minute+5s, 24s) == 17s

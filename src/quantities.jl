@@ -63,9 +63,9 @@ for f in (:div, :fld, :cld)
             ($f)(z.val,y.val)
         end
 
-        ($f)(x::Number, y::AbstractQuantity) = Quantity(($f)(x, y.val), unit(y))
+        ($f)(x::Number, y::AbstractQuantity) = ($f)(x, ustrip(y)) / unit(y)
 
-        ($f)(x::AbstractQuantity, y::Number) = Quantity(($f)(x.val, y), unit(x))
+        ($f)(x::AbstractQuantity, y::Number) = unit(x) * ($f)(ustrip(x), y)
     end
 end
 
