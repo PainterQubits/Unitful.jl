@@ -56,7 +56,7 @@ end
 # ambiguity resolution
 //(x::AbstractQuantity, y::Complex) = Quantity(//(x.val, y), unit(x))
 
-for f in (:div, :fld, :cld)
+for f in (:fld, :cld)
     @eval begin
         function ($f)(x::AbstractQuantity, y::AbstractQuantity)
             z = uconvert(unit(y), x)        # TODO: use promote?
@@ -67,6 +67,19 @@ for f in (:div, :fld, :cld)
 
         ($f)(x::AbstractQuantity, y::Number) = Quantity(($f)(ustrip(x), y), unit(x) / unit(y))
     end
+end
+
+function div(x::AbstractQuantity, y::AbstractQuantity, r::RoundingMode=RoundToZero)
+    z = uconvert(unit(y), x)        # TODO: use promote?
+    div(z.val,y.val, r)
+end
+
+function div(x::Number, y::AbstractQuantity, r::RoundingMode=RoundToZero)
+    Quantity(div(x, ustrip(y), r), unit(x) / unit(y))
+end
+
+function div(x::AbstractQuantity, y::Number, r::RoundingMode=RoundToZero)
+    Quantity(div(ustrip(x), y, r), unit(x) / unit(y))
 end
 
 for f in (:mod, :rem)
