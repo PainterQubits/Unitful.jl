@@ -69,17 +69,17 @@ for f in (:fld, :cld)
     end
 end
 
-function div(x::AbstractQuantity, y::AbstractQuantity, r::RoundingMode=RoundToZero)
+function div(x::AbstractQuantity, y::AbstractQuantity, r...)
     z = uconvert(unit(y), x)        # TODO: use promote?
-    div(z.val,y.val, r)
+    div(z.val,y.val, r...)
 end
 
-function div(x::Number, y::AbstractQuantity, r::RoundingMode=RoundToZero)
-    Quantity(div(x, ustrip(y), r), unit(x) / unit(y))
+function div(x::Number, y::AbstractQuantity, r...)
+    Quantity(div(x, ustrip(y), r...), unit(x) / unit(y))
 end
 
-function div(x::AbstractQuantity, y::Number, r::RoundingMode=RoundToZero)
-    Quantity(div(ustrip(x), y, r), unit(x))
+function div(x::AbstractQuantity, y::Number, r...)
+    Quantity(div(ustrip(x), y, r...), unit(x))
 end
 
 for f in (:mod, :rem)
