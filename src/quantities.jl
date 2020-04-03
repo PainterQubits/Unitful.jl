@@ -65,7 +65,7 @@ for f in (:fld, :cld)
 
         ($f)(x::Number, y::AbstractQuantity) = Quantity(($f)(x, ustrip(y)), unit(x) / unit(y))
 
-        ($f)(x::AbstractQuantity, y::Number) = Quantity(($f)(ustrip(x), y), unit(x) / unit(y))
+        ($f)(x::AbstractQuantity, y::Number) = Quantity(($f)(ustrip(x), y), unit(x))
     end
 end
 
@@ -79,7 +79,7 @@ function div(x::Number, y::AbstractQuantity, r::RoundingMode=RoundToZero)
 end
 
 function div(x::AbstractQuantity, y::Number, r::RoundingMode=RoundToZero)
-    Quantity(div(ustrip(x), y, r), unit(x) / unit(y))
+    Quantity(div(ustrip(x), y, r), unit(x))
 end
 
 for f in (:mod, :rem)
