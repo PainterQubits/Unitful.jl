@@ -1,8 +1,9 @@
 """
     register(unit_module::Module)
-Makes the [`@u_str`](@ref) macro aware of units defined in new unit modules. By default,
-Unitful is itself a registered module. Note that Main is not, so if you define new units
-at the REPL, you will probably want to do `Unitful.register(Main)`.
+Makes Unitful aware of units defined in a new unit module, including making the
+[`@u_str`](@ref) macro work with these units. By default, Unitful is itself a
+registered module. Note that Main is not, so if you define new units at the
+REPL, you will probably want to do `Unitful.register(Main)`.
 
 Example:
 ```jl
@@ -17,7 +18,12 @@ end
 end #module
 ```
 """
-register(unit_module::Module) = push!(Unitful.unitmodules, unit_module)
+function register(unit_module::Module)
+    push!(Unitful.unitmodules, unit_module)
+    if unit_module !== Unitful
+        merge!(Unitful.basefactors, _basefactors(unit_module))
+    end
+end
 
 """
     @dimension(symb, abbr, name)
@@ -56,10 +62,10 @@ macro dimension(symb, abbr, name)
         Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
         const global $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
         const global ($name){T,U} = Union{
-            Unitful.Quantity{T,typeof($s),U},
-            Unitful.Level{L,S,Unitful.Quantity{T,typeof($s),U}} where {L,S}}
-        const global ($uname){U} = Unitful.Units{U,typeof($s)}
-        const global ($funame){U} = Unitful.FreeUnits{U,typeof($s)}
+            Unitful.Quantity{T,$s,U},
+            Unitful.Level{L,S,Unitful.Quantity{T,$s,U}} where {L,S}}
+        const global ($uname){U} = Unitful.Units{U,$s}
+        const global ($funame){U} = Unitful.FreeUnits{U,$s}
         $s
     end)
 end
@@ -84,10 +90,10 @@ macro derived_dimension(name, dims)
     funame = Symbol(name,"FreeUnits")
     esc(quote
         const global ($name){T,U} = Union{
-            Unitful.Quantity{T,typeof($dims),U},
-            Unitful.Level{L,S,Unitful.Quantity{T,typeof($dims),U}} where {L,S}}
-        const global ($uname){U} = Unitful.Units{U,typeof($dims)}
-        const global ($funame){U} = Unitful.FreeUnits{U,typeof($dims)}
+            Unitful.Quantity{T,$dims,U},
+            Unitful.Level{L,S,Unitful.Quantity{T,$dims,U}} where {L,S}}
+        const global ($uname){U} = Unitful.Units{U,$dims}
+        const global ($funame){U} = Unitful.FreeUnits{U,$dims}
         nothing
     end)
 end
@@ -127,7 +133,7 @@ macro refunit(symb, abbr, name, dimension, tf)
     n = Meta.quot(Symbol(name))
 
     push!(expr.args, quote
-        Unitful.abbr(::Unitful.Unit{$n,typeof($dimension)}) = $abbr
+        Unitful.abbr(::Unitful.Unit{$n, $dimension}) = $abbr
     end)
 
     if tf
@@ -169,7 +175,7 @@ macro unit(symb,abbr,name,equals,tf)
                                  ($equals)/Unitful.unit($equals),
                                  Unitful.tensfactor(Unitful.unit($equals)), 1))
     push!(expr.args, quote
-        Unitful.abbr(::Unitful.Unit{$n,typeof($d)}) = $abbr
+        Unitful.abbr(::Unitful.Unit{$n, $d}) = $abbr
     end)
 
     if tf
@@ -190,6 +196,34 @@ macro unit(symb,abbr,name,equals,tf)
 end
 
 """
+    @affineunit(symb, abbr, offset)
+Macro for easily defining affine units. `offset` gives the zero of the relative scale
+in terms of an absolute scale; the scaling is the same as the absolute scale. Example:
+`@affineunit °C "°C" (27315//100)K` is used internally to define degrees Celsius.
+"""
+macro affineunit(symb, abbr, offset)
+    s = Symbol(symb)
+    return esc(quote
+        const global $s = Unitful.affineunit($offset)
+        Base.show(io::IO, ::Unitful.genericunit($s)) = print(io, $abbr)
+    end)
+end
+
+function basefactors_expr(m::Module, n, basefactor)
+    if m === Unitful
+        :($(_basefactors(Unitful))[$n] = $basefactor)
+    else
+        # We add the base factor to dictionaries both in Unitful and the other
+        # module so that the factor is available both interactively and with
+        # precompilation.
+        quote
+            $(_basefactors(m))[$n] = $basefactor
+            $(_basefactors(Unitful))[$n] = $basefactor
+        end
+    end
+end
+
+"""
     @prefixed_unit_symbols(symb,name,dimension,basefactor)
 Not called directly by the user. Given a unit symbol and a unit's name,
 will define units for each possible SI power-of-ten prefix on that unit.
@@ -203,20 +237,20 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
 
     for (k,v) in prefixdict
         s = Symbol(v,symb)
-        u = :(Unitful.Unit{$n, typeof($dimension)}($k,1//1))
+        u = :(Unitful.Unit{$n, $dimension}($k,1//1))
         ea = quote
-            Unitful.basefactors[$n] = $basefactor
-            const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+            $(basefactors_expr(__module__, n, basefactor))
+            const global $s = Unitful.FreeUnits{($u,), Unitful.dimension($u), nothing}()
         end
         push!(expr.args, ea)
     end
 
     # These lines allow for μ to be typed with option-m on a Mac.
     s = Symbol(:µ, symb)
-    u = :(Unitful.Unit{$n, typeof($dimension)}(-6,1//1))
+    u = :(Unitful.Unit{$n, $dimension}(-6,1//1))
     push!(expr.args, quote
-        Unitful.basefactors[$n] = $basefactor
-        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+        $(basefactors_expr(__module__, n, basefactor))
+        const global $s = Unitful.FreeUnits{($u,), Unitful.dimension($u), nothing}()
     end)
 
     esc(expr)
@@ -232,10 +266,10 @@ Example: `@unit_symbols ft Foot 𝐋` results in `ft` getting defined but not `k
 macro unit_symbols(symb,name,dimension,basefactor)
     s = Symbol(symb)
     n = Meta.quot(Symbol(name))
-    u = :(Unitful.Unit{$n,typeof($dimension)}(0,1//1))
+    u = :(Unitful.Unit{$n, $dimension}(0,1//1))
     esc(quote
-        Unitful.basefactors[$n] = $basefactor
-        const global $s = Unitful.FreeUnits{($u,),typeof(Unitful.dimension($u))}()
+        $(basefactors_expr(__module__, n, basefactor))
+        const global $s = Unitful.FreeUnits{($u,), Unitful.dimension($u), nothing}()
     end)
 end
 
@@ -245,7 +279,7 @@ This function specifies the default fallback units for promotion.
 Units provided to this function must have a pure dimension of power 1, like 𝐋 or 𝐓
 but not 𝐋/𝐓 or 𝐋^2. The function will complain if this is not the case. Additionally,
 the function will complain if you provide two units with the same dimension, as a
-courtesy to the user.
+courtesy to the user. Finally, you cannot use affine units such as °C with this function.
 
 Once [`Unitful.upreferred`](@ref) has been called or quantities have been promoted,
 this function will appear to have no effect.
@@ -255,6 +289,9 @@ Usage example: `preferunits(u"m,s,A,K,cd,kg,mol"...)`
 function preferunits(u0::Units, u::Units...)
 
     units = (u0, u...)
+    any(x->x isa AffineUnits, units) &&
+        error("cannot use `Unitful.preferunits` with affine units; try `Unitful.ContextUnits`.")
+
     dims = map(dimension, units)
     if length(union(dims)) != length(dims)
         error("preferunits received more than one unit of a given ",
@@ -280,17 +317,6 @@ function preferunits(u0::Units, u::Units...)
 end
 
 """
-    upreferred(x::Dimensions)
-Return units which are preferred for dimensions `x`. If you are using the
-factory defaults, this function will return a product of powers of base SI units
-(as [`Unitful.FreeUnits`](@ref)).
-"""
-@generated function upreferred(x::Dimensions{D}) where {D}
-    u = *(FreeUnits{((Unitful.promotion[name(z)]^z.power for z in D)...,),()}())
-    :($u)
-end
-
-"""
     upreferred(x::Number)
     upreferred(x::Quantity)
 Unit-convert `x` to units which are preferred for the dimensions of `x`.
@@ -301,6 +327,7 @@ units `ContextUnits(z,z)`.
 """
 @inline upreferred(x::Number) = x
 @inline upreferred(x::Quantity) = uconvert(upreferred(unit(x)), x)
+@inline upreferred(::Missing) = missing
 
 """
     upreferred(x::Units)
@@ -433,6 +460,16 @@ macro logunit(symb, abbr, logscale, reflevel)
 end
 
 """
+    affineunit(x::Quantity)
+Returns a [`Unitful.Units`](@ref) object that can be used to construct affine quantities.
+Primarily, this is for relative temperatures (as opposed to absolute temperatures,
+which transform as usual under unit conversion). To use this function, pass the scale offset,
+e.g. `affineunit(273.15K)` yields a Celsius unit.
+"""
+affineunit(x::Quantity{T,D,FreeUnits{N,D,nothing}}) where {N,D,T} =
+    FreeUnits{N,D,Affine{-ustrip(x)}}()
+
+"""
     @u_str(unit)
 String macro to easily recall units, dimensions, or quantities defined in
 unit modules that have been registered with [`Unitful.register`](@ref).
@@ -443,9 +480,6 @@ will be used.
 
 Note that what goes inside must be parsable as a valid Julia expression.
 In other words, u"N m" will fail if you intended to write u"N*m".
-
-Since `@u_str` dynamically looks through registered modules, it does not play well with
-precompilation. You shouldn't use this macro in a precompiled module.
 
 Examples:
 
@@ -460,7 +494,7 @@ julia> u"m,kg,s"
 (m, kg, s)
 
 julia> typeof(1.0u"m/s")
-Quantity{Float64, Dimensions:{𝐋 𝐓^-1}, Units:{m s^-1}}
+Quantity{Float64,𝐋*𝐓^-1,Unitful.FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}}
 
 julia> u"ħ"
 1.0545718001391127e-34 J s
@@ -468,51 +502,97 @@ julia> u"ħ"
 """
 macro u_str(unit)
     ex = Meta.parse(unit)
-    esc(replace_value(ex))
+    unitmods = [Unitful]
+    for m in Unitful.unitmodules
+        # Find registered unit extension modules which are also loaded by
+        # __module__ (required so that precompilation will work).
+        if isdefined(__module__, nameof(m)) && getfield(__module__, nameof(m)) === m
+            push!(unitmods, m)
+        end
+    end
+    esc(lookup_units(unitmods, ex))
+end
+
+"""
+    uparse(string [; unit_context=ctx])
+
+Parse a string as a unit or quantity. The format for `string` must be a valid
+Julia expression, and any identifiers will be looked up in the context `ctx`,
+which may be a `Module` or a vector of `Module`s. By default
+`unit_context=Unitful`.
+
+Examples:
+
+```jldoctest
+julia> uparse("m/s")
+m s^-1
+
+julia> uparse("1.0*dB")
+1.0 dB
+```
+"""
+function uparse(str; unit_context=Unitful)
+    ex = Meta.parse(str)
+    eval(lookup_units(unit_context, ex))
 end
 
 const allowed_funcs = [:*, :/, :^, :sqrt, :√, :+, :-, ://]
-function replace_value(ex::Expr)
+function lookup_units(unitmods, ex::Expr)
     if ex.head == :call
         ex.args[1] in allowed_funcs ||
-            error("""$(ex.args[1]) is not a valid function call when parsing a unit.
-             Only the following functions are allowed: $allowed_funcs""")
+            throw(ArgumentError(
+                  """$(ex.args[1]) is not a valid function call when parsing a unit.
+                   Only the following functions are allowed: $allowed_funcs"""))
         for i=2:length(ex.args)
             if typeof(ex.args[i])==Symbol || typeof(ex.args[i])==Expr
-                ex.args[i]=replace_value(ex.args[i])
+                ex.args[i]=lookup_units(unitmods, ex.args[i])
             end
         end
-        return Core.eval(@__MODULE__, ex)
+        return ex
     elseif ex.head == :tuple
         for i=1:length(ex.args)
             if typeof(ex.args[i])==Symbol
-                ex.args[i]=replace_value(ex.args[i])
+                ex.args[i]=lookup_units(unitmods, ex.args[i])
             else
-                error("only use symbols inside the tuple.")
+                throw(ArgumentError("Only use symbols inside the tuple."))
             end
         end
-        return Core.eval(@__MODULE__, ex)
+        return ex
     else
-        error("Expr head $(ex.head) must equal :call or :tuple")
+        throw(ArgumentError("Expr head $(ex.head) must equal :call or :tuple"))
     end
 end
 
-function replace_value(sym::Symbol)
-    f = m->(isdefined(m,sym) && ustrcheck_bool(getfield(m, sym)))
-    inds = findall(f, unitmodules)
-    isempty(inds) &&
-        error("Symbol $sym could not be found in registered unit modules.")
+function lookup_units(unitmods, sym::Symbol)
+    has_unit = m->(isdefined(m,sym) && ustrcheck_bool(getfield(m, sym)))
+    inds = findall(has_unit, unitmods)
+    if isempty(inds)
+        # Check whether unit exists in the global list to give an improved
+        # error message.
+        hintidx = findfirst(has_unit, unitmodules)
+        if hintidx !== nothing
+            hintmod = unitmodules[hintidx]
+            throw(ArgumentError(
+                """Symbol `$sym` was found in the globally registered unit module $hintmod
+                   but was not in the provided list of unit modules $(join(unitmods, ", ")).
 
-    m = unitmodules[inds[end]]
+                   (Consider `using $hintmod` in your module if you are using `@u_str`?)"""))
+        else
+            throw(ArgumentError("Symbol $sym could not be found in unit modules $unitmods"))
+        end
+    end
+
+    m = unitmods[inds[end]]
     u = getfield(m, sym)
 
-    any(u != u1 for u1 in getfield.(unitmodules[inds[1:(end-1)]], sym)) &&
-        @warn(string("Symbol $sym was found in multiple registered unit modules. ",
-         "We will use the one from $m."))
+    any(u != u1 for u1 in getfield.(unitmods[inds[1:(end-1)]], sym)) &&
+        @warn """Symbol $sym was found in multiple registered unit modules.
+                 We will use the one from $m."""
     return u
 end
+lookup_units(unitmod::Module, ex::Symbol) = lookup_units([unitmod], ex)
 
-replace_value(literal::Number) = literal
+lookup_units(unitmods, literal::Number) = literal
 
 ustrcheck_bool(::Number) = true
 ustrcheck_bool(::MixedUnits) = true

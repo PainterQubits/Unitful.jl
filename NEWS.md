@@ -1,3 +1,23 @@
+- v0.14.0
+  - Support for `digits` kwarg (#196).
+  - Try to support precompilation with `u_str` macro (#201).
+- v0.13.0
+  - Implement affine quantities for better temperature handling (#177, #182).
+  - Rename `°Ra` to `Ra` to emphasize that it is an absolute scale.
+  - Fix some precompilation issues (#161).
+  - Add `Velocity`, `Acceleration`, `Density` derived dimensions (#187).
+  - Days display as `d` now (#184).
+  - Type signature of `Quantity`s has been simplified. Helps with reading error messages (#183).
+  - Support `isequal` with `NaN` quantities (#172).
+- v0.12.0
+  - Bug fixes.
+  - Support carrier-to-noise-density ratio (C/N0) in dB-Hz.
+  - Added dimensions: `DField`, `EField`, `ElectricDipoleMoment`, `ElectricQuadrupoleMoment`, `MagneticDipoleMoment`.
+  - Added unit: `barn`.
+  - Some documentation improvements.
+- v0.11.0--v0.9.0
+  - Fixes for Julia 0.7 update, primarily.
+  - Some new TwicePrecision functionality for quantities.
 - v0.8.0
   - Add Rydberg constant, unified atomic mass unit, mils, rpm, rps, percent, permille.
   - Introduce/rename derived dimensions: ElectricalConductivity, ElectricalResistivity,

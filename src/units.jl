@@ -4,7 +4,10 @@
     # don't have to figure out the units each time.
     linunits = Vector{Unit}()
 
+    nunits = length(a) + 1
     for x in (a0, a...)
+        (x.parameters[3] !== nothing) && (nunits > 1) &&
+            throw(AffineError("an invalid operation was attempted with affine units: $(x())"))
         xp = x.parameters[1]
         append!(linunits, xp[1:end])
     end
@@ -39,15 +42,15 @@
             next = iterate(linunits, state)
         end
         if p != 0
-            push!(c, Unit{name(oldvalue),dimtype(oldvalue)}(tens(oldvalue), p))
+            push!(c, Unit{name(oldvalue), dimtype(oldvalue)}(tens(oldvalue), p))
         end
     end
     # results in:
     # [nm,cm^6,m^6,µs^3,s]
 
     d = (c...,)
-    f = typeof(mapreduce(dimension, *, d; init=NoDims))
-    :(FreeUnits{$d,$f}())
+    f = mapreduce(dimension, *, d; init=NoDims)
+    :(FreeUnits{$d,$f,$(a0.parameters[3])}())
 end
 *(a0::ContextUnits, a::ContextUnits...) =
     ContextUnits(*(FreeUnits(a0), FreeUnits.(a)...),
@@ -87,7 +90,14 @@ true
 *(a0::Units, a::Units...) = FixedUnits(*(FreeUnits(a0), FreeUnits.(a)...))
 # Logic above is that if we're not using FreeOrContextUnits, at least one is FixedUnits.
 
+*(a0::Units, a::Missing) = missing
+*(a0::Missing, a::Units) = missing
+
 /(x::Units, y::Units) = *(x,inv(y))
+
+/(x::Units, y::Missing) = missing
+/(x::Missing, y::Units) = missing
+
 //(x::Units, y::Units)  = x/y
 
 # Both methods needed for ambiguity resolution
@@ -97,26 +107,37 @@ true
 # A word of caution:
 # Exponentiation is not type-stable for `Units` objects.
 # Dimensions get reconstructed anyway so we pass () for the D type parameter...
-^(x::FreeUnits{N}, y::Integer) where {N} = *(FreeUnits{map(a->a^y, N), ()}())
-^(x::FreeUnits{N}, y::Number) where {N} = *(FreeUnits{map(a->a^y, N), ()}())
+^(x::AffineUnits, y::Integer) =
+    throw(AffineError("an invalid operation was attempted with affine units: $x"))
+^(x::AffineUnits, y::Number) =
+    throw(AffineError("an invalid operation was attempted with affine units: $x"))
 
-^(x::ContextUnits{N,D,P}, y::Integer) where {N,D,P} =
+^(x::FreeUnits{N,D,nothing}, y::Integer) where {N,D} = *(FreeUnits{map(a->a^y, N), ()}())
+^(x::FreeUnits{N,D,nothing}, y::Number) where {N,D} = *(FreeUnits{map(a->a^y, N), ()}())
+
+^(x::ContextUnits{N,D,P,nothing}, y::Integer) where {N,D,P} =
     *(ContextUnits{map(a->a^y, N), (), typeof(P()^y)}())
-^(x::ContextUnits{N,D,P}, y::Number) where {N,D,P} =
+^(x::ContextUnits{N,D,P,nothing}, y::Number) where {N,D,P} =
     *(ContextUnits{map(a->a^y, N), (), typeof(P()^y)}())
 
-^(x::FixedUnits{N}, y::Integer) where {N} = *(FixedUnits{map(a->a^y, N), ()}())
-^(x::FixedUnits{N}, y::Number) where {N} = *(FixedUnits{map(a->a^y, N), ()}())
+^(x::FixedUnits{N,D,nothing}, y::Integer) where {N,D} = *(FixedUnits{map(a->a^y, N), ()}())
+^(x::FixedUnits{N,D,nothing}, y::Number) where {N,D} = *(FixedUnits{map(a->a^y, N), ()}())
 
-@generated function Base.literal_pow(::typeof(^), x::FreeUnits{N}, ::Val{p}) where {N,p}
+^(x::Units, y::Missing) = missing
+^(x::Missing, y::Units) = missing
+
+Base.literal_pow(::typeof(^), x::AffineUnits, ::Val{p}) where p =
+    throw(AffineError("an invalid operation was attempted with affine units: $x"))
+
+@generated function Base.literal_pow(::typeof(^), x::FreeUnits{N,D,nothing}, ::Val{p}) where {N,D,p}
     y = *(FreeUnits{map(a->a^p, N), ()}())
     :($y)
 end
-@generated function Base.literal_pow(::typeof(^), x::ContextUnits{N,D,P}, ::Val{p}) where {N,D,P,p}
+@generated function Base.literal_pow(::typeof(^), x::ContextUnits{N,D,P,nothing}, ::Val{p}) where {N,D,P,p}
     y = *(ContextUnits{map(a->a^p, N), (), typeof(P()^p)}())
     :($y)
 end
-@generated function Base.literal_pow(::typeof(^), x::FixedUnits{N}, ::Val{p}) where {N,p}
+@generated function Base.literal_pow(::typeof(^), x::FixedUnits{N,D,nothing}, ::Val{p}) where {N,D,p}
     y = *(FixedUnits{map(a->a^p, N), ()}())
     :($y)
 end
@@ -127,12 +148,16 @@ end
 for (fun,pow) in ((:inv, -1//1), (:sqrt, 1//2), (:cbrt, 1//3))
     # The following are generated functions to ensure type stability.
     @eval @generated function ($fun)(x::FreeUnits)
+        (x <: AffineUnits) && throw(
+            AffineError("an invalid operation was attempted with affine units: $(x())"))
         unittuple = map(x->x^($pow), x.parameters[1])
         y = *(FreeUnits{unittuple,()}())    # sort appropriately
         :($y)
     end
 
     @eval @generated function ($fun)(x::ContextUnits)
+        (x <: AffineUnits) && throw(
+            AffineError("an invalid operation was attempted with affine units: $(x())"))
         unittuple = map(x->x^($pow), x.parameters[1])
         promounit = ($fun)(x.parameters[3]())
         y = *(ContextUnits{unittuple,(),typeof(promounit)}())   # sort appropriately
@@ -140,6 +165,8 @@ for (fun,pow) in ((:inv, -1//1), (:sqrt, 1//2), (:cbrt, 1//3))
     end
 
     @eval @generated function ($fun)(x::FixedUnits)
+        (x <: AffineUnits) && throw(
+            AffineError("an invalid operation was attempted with affine units: $(x())"))
         unittuple = map(x->x^($pow), x.parameters[1])
         y = *(FixedUnits{unittuple,()}())   # sort appropriately
         :($y)
@@ -252,9 +279,21 @@ end
 
 function *(x::Base.TwicePrecision{Q}, v::Real) where Q<:Quantity
     v == 0 && return Base.TwicePrecision(x.hi*v, x.lo*v)
-    x * Base.TwicePrecision(oftype(ustrip(x.hi)*v, v))
+    (ustrip(x) * Base.TwicePrecision(oftype(ustrip(x.hi)*v, v))) * unit(x)
 end
 
 Base.mul12(x::Quantity, y::Quantity) = Base.mul12(ustrip(x), ustrip(y)) .* (unit(x) * unit(y))
 Base.mul12(x::Quantity, y::Real)     = Base.mul12(ustrip(x), y) .* unit(x)
 Base.mul12(x::Real, y::Quantity)     = Base.mul12(x, ustrip(y)) .* unit(y)
+
+# The following method must not be defined before `*(a0::FreeUnits, a::FreeUnits...)`
+"""
+    upreferred(x::Dimensions)
+Return units which are preferred for dimensions `x`. If you are using the
+factory defaults, this function will return a product of powers of base SI units
+(as [`Unitful.FreeUnits`](@ref)).
+"""
+@generated function upreferred(x::Dimensions{D}) where {D}
+    u = *(FreeUnits{((Unitful.promotion[name(z)]^z.power for z in D)...,),()}())
+    :($u)
+end

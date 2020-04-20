@@ -55,20 +55,8 @@ ERROR: DimensionError:  and m are not dimensionally compatible.
 You can also directly convert to a subtype of `Real` or `Complex`:
 
 ```jldoctest
-julia> Float64(1.0u"μm/m")
+julia> convert(Float64, 1.0u"μm/m")
 1.0e-6
-```
-
-### Temperature conversion
-
-If the dimension of a `Quantity` is purely temperature, then conversion
-respects scale offsets. For instance, converting 0°C to °F returns the expected
-result, 32°F. If instead temperature appears in combination with other units,
-scale offsets don't make sense and we consider temperature *intervals*.
-
-```jldoctest
-julia> uconvert(u"K", 21.0u"°C")
-294.15 K
 ```
 
 ## Basic promotion mechanisms
@@ -147,17 +135,17 @@ the following three cases:
 
 ```jldoctest
 julia> [1.0u"m", 2.0u"m"]
-2-element Array{Quantity{Float64, Dimensions:{𝐋}, Units:{m}},1}:
+2-element Array{Quantity{Float64,𝐋,Unitful.FreeUnits{(m,),𝐋,nothing}},1}:
  1.0 m
  2.0 m
 
 julia> [1.0u"m", 2.0u"cm"]
-2-element Array{Quantity{Float64, Dimensions:{𝐋}, Units:{m}},1}:
+2-element Array{Quantity{Float64,𝐋,Unitful.FreeUnits{(m,),𝐋,nothing}},1}:
   1.0 m
  0.02 m
 
 julia> [1.0u"m", 2.0]
-2-element Array{Unitful.Quantity{Float64,D,U} where U where D,1}:
+2-element Array{Quantity{Float64,D,U} where U where D,1}:
  1.0 m
    2.0
 ```
@@ -177,7 +165,8 @@ julia> f([1.0u"m", 2.0u"cm"])
 1.02 m
 
 julia> f([1.0u"g", 2.0u"cm"])
-ERROR: MethodError: no method matching f(::Array{Unitful.Quantity{Float64,D,U} where U where D,1})
+ERROR: MethodError: no method matching f(::Array{Quantity{Float64,D,U} where U where D,1})
+[...]
 ```
 
 ## Advanced promotion mechanisms

@@ -20,24 +20,26 @@ function promote_unit end
 promote_unit(x::Units, y::Units, z::Units, t::Units...) =
     promote_unit(_promote_unit(x,y), z, t...)
 
-# Use configurable fall-back mechanism for FreeUnits
 @inline _promote_unit(x::T, y::T) where {T <: FreeUnits} = T()
+# Use configurable fall-back mechanism for FreeUnits
 @inline _promote_unit(x::FreeUnits{N1,D}, y::FreeUnits{N2,D}) where {N1,N2,D} =
     upreferred(dimension(x))
 
-# same units, but promotion context disagrees
 @inline _promote_unit(x::T, y::T) where {T <: ContextUnits} = T()  #ambiguity reasons
-@inline _promote_unit(x::ContextUnits{N,D,P1}, y::ContextUnits{N,D,P2}) where {N,D,P1,P2} =
-    ContextUnits{N,D,promote_unit(P1(), P2())}()
+# same units, but promotion context disagrees
+@inline _promote_unit(x::ContextUnits{N,D,P1,A}, y::ContextUnits{N,D,P2,A}) where {N,D,P1,P2,A} =
+    ContextUnits{N,D,promote_unit(P1(), P2()),A}()
 # different units, but promotion context agrees
 @inline _promote_unit(x::ContextUnits{N1,D,P}, y::ContextUnits{N2,D,P}) where {N1,N2,D,P} =
     ContextUnits(P(), P())
 # different units, promotion context disagrees, fall back to FreeUnits
-@inline _promote_unit(x::ContextUnits{N1,D}, y::ContextUnits{N2,D}) where {N1,N2,D} =
+@inline _promote_unit(x::ContextUnits{N1,D,P1}, y::ContextUnits{N2,D,P2}) where {N1,N2,D,P1,P2} =
     promote_unit(FreeUnits(x), FreeUnits(y))
 
 # ContextUnits beat FreeUnits
-@inline _promote_unit(x::ContextUnits{N,D}, y::FreeUnits{N,D}) where {N,D} = x
+@inline _promote_unit(x::ContextUnits{N,D,P,A}, y::FreeUnits{N,D,A}) where {N,D,P,A} = x
+@inline _promote_unit(x::ContextUnits{N,D,P,A1}, y::FreeUnits{N,D,A2}) where {N,D,P,A1,A2} =
+    ContextUnits(P(), P())
 @inline _promote_unit(x::ContextUnits{N1,D,P}, y::FreeUnits{N2,D}) where {N1,N2,D,P} =
     ContextUnits(P(), P())
 @inline _promote_unit(x::FreeUnits, y::ContextUnits) = promote_unit(y,x)
@@ -64,11 +66,15 @@ Base.promote_rule(::Type{Quantity{S1,D1,U1}},
 
 # quantity, quantity (same dims, different units)
 function Base.promote_rule(::Type{Quantity{S1,D,U1}},
-    ::Type{Quantity{S2,D,U2}}) where {S1,S2,D,U1,U2}
+        ::Type{Quantity{S2,D,U2}}) where {S1,S2,D,U1,U2}
 
     p = promote_unit(U1(), U2())
-    numtype = promote_type(S1,S2,
-        promote_type(typeof(convfact(p,U1())), typeof(convfact(p,U2()))))
+    c1 = convfact(p, U1())
+    c1′ = affinetranslation(U1())
+    c2 = convfact(p, U2())
+    c2′ = affinetranslation(U2())
+    numtype = promote_type(S1, S2,
+        promote_type(typeof(c1), typeof(c2), typeof(c1′), typeof(c2′)))
     if !isunitless(p)
         if U1 <: ContextUnits && U2 <: ContextUnits
             up1 = upreferred(U1())
@@ -89,12 +95,15 @@ end
 
 # number, quantity
 function Base.promote_rule(::Type{Quantity{S,D,U}}, ::Type{T}) where {S,T <: Number,D,U}
-    if D == Dimensions{()}
+    if D == NoDims
         promote_type(S,T,typeof(convfact(NoUnits,U())))
     else
         Quantity{promote_type(S,T)}
     end
 end
+
+Base.promote_rule(::Type{S}, ::Type{T}) where {S<:AbstractIrrational,S2,T<:Quantity{S2}} =
+    promote_type(promote_type(S, real(S2)), T)
 
 Base.promote_rule(::Type{Quantity{S}}, ::Type{T}) where {S,T <: Number} =
     Quantity{promote_type(S,T)}

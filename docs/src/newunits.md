@@ -21,15 +21,18 @@ available to the [`@u_str`](@ref) string macro.
 
 An example of defining units in a module:
 
-```jldoctest
+```jldoctest register
 julia> module MyUnits; using Unitful; @unit myMeter "m" MyMeter 1u"m" false; end
 MyUnits
 
 julia> using Unitful
 
 julia> u"myMeter"
-ERROR: Symbol myMeter could not be found in registered unit modules.
+ERROR: LoadError: Symbol myMeter could not be found in registered unit modules.
+[...]
+```
 
+```jldoctest register
 julia> Unitful.register(MyUnits)
 2-element Array{Module,1}:
  Unitful
@@ -50,7 +53,7 @@ You can also define units directly in the `Main` module at the REPL:
 ```jldoctest
 julia> using Unitful
 
-julia> Unitful.register(current_module());
+julia> Unitful.register(@__MODULE__);
 
 julia> @unit M "M" Molar 1u"mol/L" true;
 
@@ -64,13 +67,17 @@ inside a tuple matters for type comparisons. Using the unary multiplication
 operator on the `Units` object will return a "canonically sorted" `Units` object.
 Indeed, this is how we avoid ordering issues when multiplying quantities together.
 
+## Defining units in precompiled packages
+
+See [Precompilation](@ref).
+
 ## Useful functions and macros
 ```@docs
 Unitful.@dimension
 Unitful.@derived_dimension
 Unitful.@refunit
 Unitful.@unit
-Unitful.offsettemp
+Unitful.@affineunit
 ```
 
 ## Internals

@@ -1,3 +1,8 @@
+By default, exponents on units or dimensions are indicated using Unicode superscripts on
+macOS and without superscripts on other operating systems. You can set the environment
+variable `UNITFUL_FANCY_EXPONENTS` to either `true` or `false` to force using or not using
+the exponents.
+
 ```@docs
 Unitful.abbr
 Unitful.prefix
