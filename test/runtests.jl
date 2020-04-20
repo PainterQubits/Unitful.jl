@@ -177,7 +177,7 @@ end
             @test_throws DimensionError uconvert(ContextUnits(m,mm), 1kg)
             @test_throws DimensionError uconvert(m, 1*FixedUnits(kg))
             @test uconvert(g, 1*FixedUnits(kg)) == 1000g         # manual conversion okay
-            @test (1kg, 2g, missing) .|> g === ((1000//1)g, 2g, missing)
+            @test (1kg, 2g, 3mg, missing) .|> g === (1000g, 2g, (3//1000)g, missing)
             # Issue 79:
             @test isapprox(upreferred(Unitful.ɛ0), 8.85e-12u"F/m", atol=0.01e-12u"F/m")
             # Issue 261:
@@ -297,7 +297,7 @@ end
         @test @inferred(upreferred(unit(1g |> ContextUnits(g,mg)))) === ContextUnits(mg,mg)
         @test @inferred(upreferred(1g |> ContextUnits(g,mg))) == 1000mg
 
-        @test @inferred(upreferred(1N)) === (1//1)*kg*m/s^2
+        @test @inferred(upreferred(1N)) === 1*kg*m/s^2
         @test ismissing(upreferred(missing))
     end
     @testset "> promote_unit" begin

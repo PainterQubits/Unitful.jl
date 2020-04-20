@@ -38,6 +38,10 @@ Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.0
         end
     end
 
+    if denominator(ex) == 1 # Use an integer for conversion if the ratio is whole
+        ex = numerator(ex)  # so that, e.g., uconvert(s, 1minute) = 60s
+    end
+
     a ≈ 1.0 ? (inex = 1) : (inex = a)
     y = inex * ex
     :($y)
