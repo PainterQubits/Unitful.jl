@@ -77,13 +77,6 @@ function show(io::IO, mime::MIME"text/plain", x::Quantity)
     end
 end
 
-function show(io::IO, x::Type{T}) where T<:Quantity
-    invoke(show, Tuple{IO, typeof(x)}, IOContext(io, :showoperators=>true), x)
-end
-function show(io::IO, x::Type{T}) where T<:Unitlike
-    invoke(show, Tuple{IO, typeof(x)}, IOContext(io, :showoperators=>true), x)
-end
-
 function show(io::IO, r::Union{StepRange{T},StepRangeLen{T}}) where T<:Quantity
     a,s,b = first(r), step(r), last(r)
     U = unit(a)
