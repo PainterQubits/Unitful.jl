@@ -199,6 +199,10 @@ end
 
         convert(typeof(2u"s"), Second(3)) === 3u"s"
         promote(4u"s", Second(5)) === (4u"s", 5u"s")
+
+        convert(Second, 1u"hr") === Second(3600)
+        convert(Minute, 1u"hr") === Minute(60)
+        convert(Day, 2u"wk") === Day(14)
     end
 end
 
