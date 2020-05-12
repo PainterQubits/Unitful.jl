@@ -1,5 +1,5 @@
 using Unitful
-using Test, LinearAlgebra, Random, ConstructionBase
+using Test, LinearAlgebra, Random, Dates, ConstructionBase
 import Unitful: DimensionError, AffineError
 import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
 import Unitful: FreeUnits, ContextUnits, FixedUnits, AffineUnits, AffineQuantity
@@ -186,6 +186,19 @@ end
             @test 1u"rpm" == 360°/minute
             @test 1u"rpm" == 2π/minute
         end
+    end
+    @testset "> Date ↔ unitful conversion" begin
+        uconvert(u"s", Nanosecond(1)) === (1//10^9)u"s"
+        uconvert(u"s", Microsecond(1)) === (1//10^6)u"s"
+        uconvert(u"s", Millisecond(1)) === (1//1000)u"s"
+        uconvert(u"s", Second(1)) === 1u"s"
+        uconvert(u"s", Minute(1)) === 60u"s"
+        uconvert(u"s", Hour(1)) === 3600u"s"
+        uconvert(u"hr", Day(1)) === 24u"hr"
+        uconvert(u"hr", Week(1)) === 7*24u"hr"
+
+        convert(typeof(2u"s"), Second(3)) === 3u"s"
+        promote(4u"s", Second(5)) === (4u"s", 5u"s")
     end
 end
 
