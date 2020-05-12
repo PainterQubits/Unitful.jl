@@ -146,3 +146,22 @@ convert(::Type{T}, y::Quantity) where {T <: Real} =
     T(uconvert(NoUnits, y))
 convert(::Type{T}, y::Quantity) where {T <: Complex} =
     T(uconvert(NoUnits, y))
+
+using Dates: FixedPeriod
+# Dates.FixedPeriod == Union{Day, Hour, Microsecond, Millisecond, Minute, Nanosecond, Second, Week}
+
+uconvert(a::Units, x::FixedPeriod) = uconvert(a, _unit(x))
+
+convert(type::Type{<:Quantity}, x::FixedPeriod) = convert(type, _unit(x))
+
+_unit(::Nanosecond) = x.value * u"ns"
+_unit(::Microsecond) = x.value * u"μs"
+_unit(::Millisecond) = x.value * u"ms"
+_unit(::Second) = x.value * u"s"
+_unit(::Minute) = x.value * u"minute"
+_unit(::Hour) = x.value * u"hr"
+_unit(::Day) = x.value * u"d"
+_unit(::Week) = x.value * u"wk"
+
+Base.inv(x::FixedPeriod) = inv(_unit(x))
+
