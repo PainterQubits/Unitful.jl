@@ -154,14 +154,14 @@ uconvert(a::Units, x::FixedPeriod) = uconvert(a, _unit(x))
 
 convert(type::Type{<:Quantity}, x::FixedPeriod) = convert(type, _unit(x))
 
-_unit(::Nanosecond) = x.value * u"ns"
-_unit(::Microsecond) = x.value * u"μs"
-_unit(::Millisecond) = x.value * u"ms"
-_unit(::Second) = x.value * u"s"
-_unit(::Minute) = x.value * u"minute"
-_unit(::Hour) = x.value * u"hr"
-_unit(::Day) = x.value * u"d"
-_unit(::Week) = x.value * u"wk"
+_unit(x::Nanosecond) = x.value * u"ns"
+_unit(x::Microsecond) = x.value * u"μs"
+_unit(x::Millisecond) = x.value * u"ms"
+_unit(x::Second) = x.value * u"s"
+_unit(x::Minute) = x.value * u"minute"
+_unit(x::Hour) = x.value * u"hr"
+_unit(x::Day) = x.value * u"d"
+_unit(x::Week) = x.value * u"wk"
 
 Base.inv(x::FixedPeriod) = inv(_unit(x))
 
