@@ -13,7 +13,7 @@ Quantity(x::Dates.Week) = x.value * u"wk"
 uconvert(a::Units, x::Dates.FixedPeriod) = uconvert(a, Quantity(x))
 
 Base.promote_rule(::Type{Quantity{T,D,U}}, ::Type{<:Dates.FixedPeriod}) where {T,D,U} =
-    Quantity{promote_type(T,Int),D,U}
+    Quantity{promote_type(T,Int64),D,U}
 
 convert(type::Type{<:Quantity}, x::Dates.FixedPeriod) = convert(type, Quantity(x))
 
