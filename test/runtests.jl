@@ -33,6 +33,11 @@ import Unitful:
 
 import Unitful: LengthUnits, AreaUnits, MassUnits, TemperatureUnits
 
+using Dates:
+    Dates,
+    Nanosecond, Microsecond, Millisecond, Second, Minute, Hour, Day, Week,
+    Month, Year
+
 const colon = Base.:(:)
 
 @testset "Construction" begin
@@ -190,6 +195,8 @@ end
         end
     end
 end
+
+include("dates.jl")
 
 @testset "Temperature and affine quantities" begin
     @testset "Affine transforms and quantities" begin
