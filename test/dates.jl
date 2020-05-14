@@ -34,7 +34,7 @@
             @test Int64(3)u"m" * Day(1) === Int64(3)u"m*d"
             @test 1.0f0u"m" * Microsecond(-2) === -2.0f0u"m*μs"
             @test Hour(4) * Int32(2)u"m" === Int64(8)u"hr*m"
-            @test Second(5) * (3//2)u"Hz" === Rational{Int64}(15//2)u"s*Hz"
+            @test Second(5) * (3//2)u"Hz" === Rational{Int64}(15,2)u"s*Hz"
             @test Second(5) * 2u"1/s" === Int64(10)
             @test 2.5u"1/s^2" * Second(2) === 5.0u"1/s"
             @test_throws AffineError Second(1) * 1u"°C"
@@ -59,8 +59,8 @@
             @test 5u"m" / Hour(2) === 2.5u"m/hr"
             @test 5.0f0u"m" / Hour(2) === 2.5f0u"m/hr"
             # //
-            @test Nanosecond(10) // 2u"m" === Rational{Int64}(5//1)u"ns/m"
-            @test 5u"m" // Hour(2) === Rational{Int64}(5//2)u"m/hr"
+            @test Nanosecond(10) // 2u"m" === Rational{Int64}(5,1)u"ns/m"
+            @test 5u"m" // Hour(2) === Rational{Int64}(5,2)u"m/hr"
             # div
             @test div(Second(1), 2u"ms") == div(1u"s", Millisecond(2)) == 500
             @test div(Second(11), 2u"s") == div(11u"s", Second(2)) == 5
@@ -101,9 +101,9 @@
 
     @testset "> Conversion" begin
         @test uconvert(u"s", Second(3)) === Int64(3)u"s"
-        @test uconvert(u"hr", Minute(90)) === Rational{Int64}(3//2)u"hr"
+        @test uconvert(u"hr", Minute(90)) === Rational{Int64}(3,2)u"hr"
         @test uconvert(u"ns", Millisecond(-2)) === Int64(-2_000_000)u"ns"
-        @test uconvert(u"wk", Hour(1)) === Rational{Int64}(1//168)u"wk"
+        @test uconvert(u"wk", Hour(1)) === Rational{Int64}(1,168)u"wk"
         @test_throws DimensionError uconvert(u"m", Second(1))
 
         @test convert(typeof(1.0u"s"), Second(3)) === 3.0u"s"
@@ -168,15 +168,15 @@
         @test_throws DimensionError ceil(Second, 1u"m")
         @test_throws DimensionError floor(Second, 1u"m")
         @static if VERSION ≥ v"1.2.0"
-            @test round(u"minute", Second(-50)) === round(u"minute", Second(-50), RoundNearest) === (-1//1)u"minute"
-            @test round(u"minute", Second(-90)) === round(u"minute", Second(-90), RoundNearest) === (-2//1)u"minute"
-            @test round(u"minute", Second(150)) === round(u"minute", Second(150), RoundNearest) === (2//1)u"minute"
-            @test round(u"minute", Second(-50), RoundNearestTiesAway) === (-1//1)u"minute"
-            @test round(u"minute", Second(-90), RoundNearestTiesAway) === (-2//1)u"minute"
-            @test round(u"minute", Second(150), RoundNearestTiesAway) === (3//1)u"minute"
-            @test round(u"minute", Second(-50), RoundNearestTiesUp) === (-1//1)u"minute"
-            @test round(u"minute", Second(-90), RoundNearestTiesUp) === (-1//1)u"minute"
-            @test round(u"minute", Second(150), RoundNearestTiesUp) === (3//1)u"minute"
+            @test round(u"minute", Second(-50)) === round(u"minute", Second(-50), RoundNearest) === Rational{Int64}(-1,1)u"minute"
+            @test round(u"minute", Second(-90)) === round(u"minute", Second(-90), RoundNearest) === Rational{Int64}(-2,1)u"minute"
+            @test round(u"minute", Second(150)) === round(u"minute", Second(150), RoundNearest) === Rational{Int64}(2,1)u"minute"
+            @test round(u"minute", Second(-50), RoundNearestTiesAway) === Rational{Int64}(-1,1)u"minute"
+            @test round(u"minute", Second(-90), RoundNearestTiesAway) === Rational{Int64}(-2,1)u"minute"
+            @test round(u"minute", Second(150), RoundNearestTiesAway) === Rational{Int64}(3,1)u"minute"
+            @test round(u"minute", Second(-50), RoundNearestTiesUp) === Rational{Int64}(-1,1)u"minute"
+            @test round(u"minute", Second(-90), RoundNearestTiesUp) === Rational{Int64}(-1,1)u"minute"
+            @test round(u"minute", Second(150), RoundNearestTiesUp) === Rational{Int64}(3,1)u"minute"
         end
         @static if VERSION ≥ v"1.5.0-DEV.742"
             @test trunc(u"minute", Second(-50)) === round(u"minute", Second(-50), RoundToZero) === (0//1)u"minute"
