@@ -167,15 +167,17 @@
         @test_throws DimensionError trunc(Second, 1u"m")
         @test_throws DimensionError ceil(Second, 1u"m")
         @test_throws DimensionError floor(Second, 1u"m")
-        @test round(u"minute", Second(-50)) === round(u"minute", Second(-50), RoundNearest) === (-1//1)u"minute"
-        @test round(u"minute", Second(-90)) === round(u"minute", Second(-90), RoundNearest) === (-2//1)u"minute"
-        @test round(u"minute", Second(150)) === round(u"minute", Second(150), RoundNearest) === (2//1)u"minute"
-        @test round(u"minute", Second(-50), RoundNearestTiesAway) === (-1//1)u"minute"
-        @test round(u"minute", Second(-90), RoundNearestTiesAway) === (-2//1)u"minute"
-        @test round(u"minute", Second(150), RoundNearestTiesAway) === (3//1)u"minute"
-        @test round(u"minute", Second(-50), RoundNearestTiesUp) === (-1//1)u"minute"
-        @test round(u"minute", Second(-90), RoundNearestTiesUp) === (-1//1)u"minute"
-        @test round(u"minute", Second(150), RoundNearestTiesUp) === (3//1)u"minute"
+        @static if VERSION ≥ v"1.2.0"
+            @test round(u"minute", Second(-50)) === round(u"minute", Second(-50), RoundNearest) === (-1//1)u"minute"
+            @test round(u"minute", Second(-90)) === round(u"minute", Second(-90), RoundNearest) === (-2//1)u"minute"
+            @test round(u"minute", Second(150)) === round(u"minute", Second(150), RoundNearest) === (2//1)u"minute"
+            @test round(u"minute", Second(-50), RoundNearestTiesAway) === (-1//1)u"minute"
+            @test round(u"minute", Second(-90), RoundNearestTiesAway) === (-2//1)u"minute"
+            @test round(u"minute", Second(150), RoundNearestTiesAway) === (3//1)u"minute"
+            @test round(u"minute", Second(-50), RoundNearestTiesUp) === (-1//1)u"minute"
+            @test round(u"minute", Second(-90), RoundNearestTiesUp) === (-1//1)u"minute"
+            @test round(u"minute", Second(150), RoundNearestTiesUp) === (3//1)u"minute"
+        end
         @static if VERSION ≥ v"1.5.0-DEV.742"
             @test trunc(u"minute", Second(-50)) === round(u"minute", Second(-50), RoundToZero) === (0//1)u"minute"
             @test trunc(u"minute", Second(-90)) === round(u"minute", Second(-90), RoundToZero) === (-1//1)u"minute"
@@ -204,14 +206,14 @@
         @test_throws DimensionError trunc(u"m", Day(10), digits=1)
         @test_throws DimensionError ceil(u"m", Day(10), sigdigits=3)
         @test_throws DimensionError floor(u"m", Day(10), digits=1, base=2)
-        @test round(Int, u"minute", Second(-50)) === -1u"minute"
+        @static if VERSION ≥ v"1.2.0"
+            @test round(Int, u"minute", Second(-50)) === -1u"minute"
+            @test round(Float32, u"minute", Second(-50)) === -1.0f0u"minute"
+        end
         @static if VERSION ≥ v"1.5.0-DEV.742"
             @test floor(Int, u"minute", Second(50)) === round(Int, u"minute", Second(50), RoundDown) === 0u"minute"
             @test ceil(Int, u"minute", Second(50)) === round(Int, u"minute", Second(50), RoundUp) === 1u"minute"
             @test trunc(Int, u"minute", Second(50)) === round(Int, u"minute", Second(50), RoundToZero) === 0u"minute"
-        end
-        @test round(Float32, u"minute", Second(-50)) === -1.0f0u"minute"
-        @static if VERSION ≥ v"1.5.0-DEV.742"
             @test floor(Float32, u"minute", Second(50)) === round(Float32, u"minute", Second(50), RoundDown) === 0.0f0u"minute"
             @test ceil(Float32, u"minute", Second(50)) === round(Float32, u"minute", Second(50), RoundUp) === 1.0f0u"minute"
             @test trunc(Float32, u"minute", Second(50)) === round(Float32, u"minute", Second(50), RoundToZero) === 0.0f0u"minute"
@@ -229,7 +231,9 @@
         @test_throws DimensionError floor(Float32, u"m", Second(-50))
         @test_throws DimensionError ceil(Float32, u"m", Second(-50), digits=1)
         @test_throws DimensionError trunc(Float32, u"m", Second(-50), sigdigits=3, base=2)
-        @test round(typeof(1.0f0u"minute"), Second(-50)) === -1.0f0u"minute"
+        @static if VERSION ≥ v"1.2.0"
+            @test round(typeof(1.0f0u"minute"), Second(-50)) === -1.0f0u"minute"
+        end
         @static if VERSION ≥ v"1.5.0-DEV.742"
             @test round(typeof(1.0f0u"minute"), Second(50), RoundToZero) === 0.0f0u"minute"
         end
@@ -259,8 +263,8 @@
         @test isequal(Second(2), 2.0u"s")
         @test isequal(72u"hr", Day(3))
         @test !isequal(Millisecond(0), -0.0u"ms") # !isequal(0.0, -0.0)
-        @test !isequal((Day(4), 4u"hr"))
-        @test !isequal((4u"cm", Day(4)))
+        @test !isequal(Day(4), 4u"hr")
+        @test !isequal(4u"cm", Day(4))
         # <
         @test Second(1) < 1001u"ms"
         @test 3u"minute" < Minute(4)
