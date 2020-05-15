@@ -32,7 +32,6 @@ unit(p::Dates.FixedPeriod) = unit(typeof(p))
 numtype(x::Dates.FixedPeriod) = numtype(typeof(x))
 numtype(::Type{T}) where {T<:Dates.FixedPeriod} = Int64
 
-quantitytype(x::Dates.FixedPeriod) = quantitytype(typeof(x))
 quantitytype(::Type{T}) where {T<:Dates.FixedPeriod} =
     Quantity{numtype(T),dimension(T),typeof(unit(T))}
 
