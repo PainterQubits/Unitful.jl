@@ -1,12 +1,11 @@
 @testset "Dates stdlib" begin
-    @testset "> dimension, numtype, unit, ustrip" begin
+    @testset "> dimension, numtype, unit" begin
         for (T,u) = ((Nanosecond, u"ns"), (Microsecond, u"μs"), (Millisecond, u"ms"),
                      (Second, u"s"), (Minute, u"minute"), (Hour, u"hr"), (Day, u"d"),
                      (Week, u"wk"))
             @test dimension(T) === dimension(T(1)) === 𝐓
             @test Unitful.numtype(T) === Unitful.numtype(T(1)) === typeof(Dates.value(T(1)))
             @test unit(T) === unit(T(1)) === u
-            @test ustrip(T(5)) === Int64(5)
         end
         for T = (Month, Year)
             @test_throws MethodError dimension(T)
@@ -15,7 +14,6 @@
             @test_throws MethodError Unitful.numtype(T(1))
             @test_throws MethodError unit(T)
             @test_throws MethodError unit(T(1))
-            @test_throws MethodError ustrip(T(1))
         end
     end
 
@@ -100,11 +98,25 @@
     end
 
     @testset "> Conversion" begin
-        @test uconvert(u"s", Second(3)) === Int64(3)u"s"
-        @test uconvert(u"hr", Minute(90)) === Rational{Int64}(3,2)u"hr"
-        @test uconvert(u"ns", Millisecond(-2)) === Int64(-2_000_000)u"ns"
-        @test uconvert(u"wk", Hour(1)) === Rational{Int64}(1,168)u"wk"
+        @test uconvert(u"s", Second(3)) === u"s"(Second(3)) === Int64(3)u"s"
+        @test uconvert(u"hr", Minute(90)) === u"hr"(Minute(90)) === Rational{Int64}(3,2)u"hr"
+        @test uconvert(u"ns", Millisecond(-2)) === u"ns"(Millisecond(-2)) === Int64(-2_000_000)u"ns"
+        @test uconvert(u"wk", Hour(1)) === u"wk"(Hour(1)) === Rational{Int64}(1,168)u"wk"
         @test_throws DimensionError uconvert(u"m", Second(1))
+        @test_throws DimensionError u"m"(Second(1))
+
+        for (T,u) = ((Nanosecond, u"ns"), (Microsecond, u"μs"), (Millisecond, u"ms"),
+                     (Second, u"s"), (Minute, u"minute"), (Hour, u"hr"), (Day, u"d"),
+                     (Week, u"wk"))
+            @test ustrip(T(5)) === ustrip(u, T(5)) === Int64(5)
+        end
+        @test ustrip(u"ms", Second(1)) === Int64(1000)
+        @test ustrip(u"wk", Day(1)) === Rational{Int64}(1,7)
+        @test_throws DimensionError ustrip(u"m", Nanosecond(1))
+        @test_throws MethodError ustrip(Month(1))
+        @test_throws MethodError ustrip(Year(1))
+        @test_throws MethodError ustrip(u"s", Month(1))
+        @test_throws MethodError ustrip(u"yr", Year(1))
 
         @test convert(typeof(1.0u"s"), Second(3)) === 3.0u"s"
         @test convert(typeof((1//1)u"s"), Second(3)) === (3//1)u"s"
