@@ -191,15 +191,15 @@
             @test round(u"minute", Second(150), RoundNearestTiesUp) === Rational{Int64}(3,1)u"minute"
         end
         @static if VERSION ≥ v"1.5.0-DEV.742"
-            @test trunc(u"minute", Second(-50)) === round(u"minute", Second(-50), RoundToZero) === (0//1)u"minute"
-            @test trunc(u"minute", Second(-90)) === round(u"minute", Second(-90), RoundToZero) === (-1//1)u"minute"
-            @test trunc(u"minute", Second(150)) === round(u"minute", Second(150), RoundToZero) === (2//1)u"minute"
-            @test ceil(u"minute", Second(-50))  === round(u"minute", Second(-50), RoundUp) === (0//1)u"minute"
-            @test ceil(u"minute", Second(-90))  === round(u"minute", Second(-90), RoundUp) === (-1//1)u"minute"
-            @test ceil(u"minute", Second(150))  === round(u"minute", Second(150), RoundUp) === (3//1)u"minute"
-            @test floor(u"minute", Second(-50)) === round(u"minute", Second(-50), RoundDown) === (-1//1)u"minute"
-            @test floor(u"minute", Second(-90)) === round(u"minute", Second(-90), RoundDown) === (-2//1)u"minute"
-            @test floor(u"minute", Second(150)) === round(u"minute", Second(150), RoundDown) === (2//1)u"minute"
+            @test trunc(u"minute", Second(-50)) === round(u"minute", Second(-50), RoundToZero) === Rational{Int64}(0,1)u"minute"
+            @test trunc(u"minute", Second(-90)) === round(u"minute", Second(-90), RoundToZero) === Rational{Int64}(-1,1)u"minute"
+            @test trunc(u"minute", Second(150)) === round(u"minute", Second(150), RoundToZero) === Rational{Int64}(2,1)u"minute"
+            @test ceil(u"minute", Second(-50))  === round(u"minute", Second(-50), RoundUp) === Rational{Int64}(0,1)u"minute"
+            @test ceil(u"minute", Second(-90))  === round(u"minute", Second(-90), RoundUp) === Rational{Int64}(-1,1)u"minute"
+            @test ceil(u"minute", Second(150))  === round(u"minute", Second(150), RoundUp) === Rational{Int64}(3,1)u"minute"
+            @test floor(u"minute", Second(-50)) === round(u"minute", Second(-50), RoundDown) === Rational{Int64}(-1,1)u"minute"
+            @test floor(u"minute", Second(-90)) === round(u"minute", Second(-90), RoundDown) === Rational{Int64}(-2,1)u"minute"
+            @test floor(u"minute", Second(150)) === round(u"minute", Second(150), RoundDown) === Rational{Int64}(2,1)u"minute"
         end
         @test_throws DimensionError round(u"m", Second(1))
         @test_throws DimensionError round(u"m", Second(1), RoundNearestTiesAway)
