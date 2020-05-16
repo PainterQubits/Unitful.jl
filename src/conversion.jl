@@ -38,8 +38,8 @@ Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.0
         end
     end
 
-    if ex isa Rational && denominator(x) == 1
-        ex = numerator(x)
+    if ex isa Rational && denominator(ex) == 1
+        ex = numerator(ex)
     end
     
     a ≈ 1.0 ? (inex = 1) : (inex = a)
