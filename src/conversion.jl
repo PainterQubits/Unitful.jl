@@ -47,6 +47,9 @@ Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.0
     :($y)
 end
 
+Base.denominator(::Float64) = 1
+Base.numerator(x::Float64) = x
+
 """
     convfact{S}(s::Units{S}, t::Units{S})
 Returns 1. (Avoids effort when unnecessary.)
