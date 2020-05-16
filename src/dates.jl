@@ -41,8 +41,9 @@ Quantity(period::Dates.FixedPeriod) = Quantity(ustrip(period), unit(period))
 
 uconvert(u::Units, period::Dates.FixedPeriod) = uconvert(u, Quantity(period))
 
-convert(T::Type{<:AbstractQuantity}, period::Dates.FixedPeriod) =
-    convert(T, Quantity(period))
+(T::Type{<:AbstractQuantity})(period::Dates.FixedPeriod) = T(Quantity(period))
+
+convert(T::Type{<:AbstractQuantity}, period::Dates.FixedPeriod) = T(period)
 convert(T::Type{<:Dates.FixedPeriod}, x::AbstractQuantity) = T(x)
 
 round(T::Type{<:Dates.FixedPeriod}, x::AbstractQuantity, r::RoundingMode=RoundNearest) =
@@ -64,7 +65,7 @@ for (f, r) in ((:floor,:RoundDown), (:ceil,:RoundUp), (:trunc,:RoundToZero))
         round(T, period, $r; kwargs...)
 end
 
-for op = (:+, :-, :*, :/, ://, :div, :fld, :cld, :mod, :rem, :atan,
+for op = (:+, :-, :*, :/, ://, :fld, :cld, :mod, :rem, :atan,
           :(==), :isequal, :<, :isless, :≤)
     @eval $op(x::Dates.FixedPeriod, y::AbstractQuantity) = $op(Quantity(x), y)
     @eval $op(x::AbstractQuantity, y::Dates.FixedPeriod) = $op(x, Quantity(y))
@@ -73,6 +74,9 @@ for op = (:*, :/, ://)
     @eval $op(x::Dates.FixedPeriod, y::Units) = $op(Quantity(x), y)
     @eval $op(x::Units, y::Dates.FixedPeriod) = $op(x, Quantity(y))
 end
+
+div(x::Dates.FixedPeriod, y::AbstractQuantity, r...) = div(Quantity(x), y, r...)
+div(x::AbstractQuantity, y::Dates.FixedPeriod, r...) = div(x, Quantity(y), r...)
 
 isapprox(x::Dates.FixedPeriod, y::AbstractQuantity; kwargs...) =
     isapprox(Quantity(x), y; kwargs...)

@@ -60,33 +60,47 @@
             @test Nanosecond(10) // 2u"m" === Rational{Int64}(5,1)u"ns/m"
             @test 5u"m" // Hour(2) === Rational{Int64}(5,2)u"m/hr"
             # div
-            @test div(Second(1), 2u"ms") == div(1u"s", Millisecond(2)) == 500
-            @test div(Second(11), 2u"s") == div(11u"s", Second(2)) == 5
-            @test div(Second(-5), 2u"s") == div(-5u"s", Second(2)) == -2
+            @test div(Second(1), 2u"ms") == div(1u"s", Millisecond(2)) == div(1000, 2)
+            @test div(Second(11), 2u"s") == div(11u"s", Second(2)) == div(11, 2)
+            @test div(Second(-5), 2u"s") == div(-5u"s", Second(2)) == div(-5, 2)
             @test_throws DimensionError div(Second(1), 1u"m")
             @test_throws DimensionError div(1u"m", Second(1))
+            @static if VERSION ≥ v"1.4.0-DEV.208"
+                for r = (RoundNearest, RoundNearestTiesAway, RoundNearestTiesUp, RoundToZero, RoundUp, RoundDown)
+                    @test div(Second(11), 2u"s", r) == div(11u"s", Second(2), r) == div(11, 2, r)
+                    @test div(Second(-5), 2u"s", r) == div(-5u"s", Second(2), r) == div(-5, 2, r)
+                    @test_throws DimensionError div(Second(1), 1u"m", r)
+                    @test_throws DimensionError div(1u"m", Second(1), r)
+                end
+            end
             # fld
-            @test fld(Second(1), 2u"ms") == fld(1u"s", Millisecond(2)) == 500
-            @test fld(Second(11), 2u"s") == fld(11u"s", Second(2)) == 5
-            @test fld(Second(-5), 2u"s") == fld(-5u"s", Second(2)) == -3
+            @test fld(Second(1), 2u"ms") == fld(1u"s", Millisecond(2)) == fld(1000, 2)
+            @test fld(Second(11), 2u"s") == fld(11u"s", Second(2)) == fld(11, 2)
+            @test fld(Second(-5), 2u"s") == fld(-5u"s", Second(2)) == fld(-5, 2)
             @test_throws DimensionError fld(Second(1), 1u"m")
             @test_throws DimensionError fld(1u"m", Second(1))
             # cld
-            @test cld(Second(1), 2u"ms") == cld(1u"s", Millisecond(2)) == 500
-            @test cld(Second(11), 2u"s") == cld(11u"s", Second(2)) == 6
-            @test cld(Second(-5), 2u"s") == cld(-5u"s", Second(2)) == -2
+            @test cld(Second(1), 2u"ms") == cld(1u"s", Millisecond(2)) == cld(1000, 2)
+            @test cld(Second(11), 2u"s") == cld(11u"s", Second(2)) == cld(11, 2)
+            @test cld(Second(-5), 2u"s") == cld(-5u"s", Second(2)) == cld(-5, 2)
             @test_throws DimensionError cld(Second(1), 1u"m")
             @test_throws DimensionError cld(1u"m", Second(1))
             # mod
-            @test mod(Second(11), 3_000u"ms") == mod(11u"s", Millisecond(3_000)) == 2u"s"
-            @test mod(Second(11), -3u"s") == mod(11u"s", Second(-3)) == -1u"s"
+            @test mod(Second(11), 3_000u"ms") == mod(11u"s", Millisecond(3_000)) == mod(11, 3)u"s"
+            @test mod(Second(11), -3u"s") == mod(11u"s", Second(-3)) == mod(11, -3)u"s"
             @test_throws DimensionError mod(Second(1), 1u"m")
             @test_throws DimensionError mod(1u"m", Second(1))
             # rem
-            @test rem(Second(11), 3_000u"ms") == rem(11u"s", Millisecond(3_000)) == 2u"s"
-            @test rem(Second(11), -3u"s") == rem(11u"s", Second(-3)) == 2u"s"
+            @test rem(Second(11), 3_000u"ms") == rem(11u"s", Millisecond(3_000)) == rem(11, 3)u"s"
+            @test rem(Second(11), -3u"s") == rem(11u"s", Second(-3)) == rem(11, -3)u"s"
             @test_throws DimensionError rem(Second(1), 1u"m")
             @test_throws DimensionError rem(1u"m", Second(1))
+            for r = (RoundToZero, RoundUp, RoundDown)
+                @test rem(Second(11), 2u"s", r) == rem(11u"s", Second(2), r) == rem(11, 2, r)u"s"
+                @test rem(Second(-5), 2u"s", r) == rem(-5u"s", Second(2), r) == rem(-5, 2, r)u"s"
+                @test_throws DimensionError rem(Second(1), 1u"m", r)
+                @test_throws DimensionError rem(1u"m", Second(1), r)
+            end
         end
 
         @testset ">> atan" begin
@@ -98,41 +112,69 @@
     end
 
     @testset "> Conversion" begin
-        @test uconvert(u"s", Second(3)) === u"s"(Second(3)) === Int64(3)u"s"
-        @test uconvert(u"hr", Minute(90)) === u"hr"(Minute(90)) === Rational{Int64}(3,2)u"hr"
-        @test uconvert(u"ns", Millisecond(-2)) === u"ns"(Millisecond(-2)) === Int64(-2_000_000)u"ns"
-        @test uconvert(u"wk", Hour(1)) === u"wk"(Hour(1)) === Rational{Int64}(1,168)u"wk"
-        @test_throws DimensionError uconvert(u"m", Second(1))
-        @test_throws DimensionError u"m"(Second(1))
-
-        for (T,u) = ((Nanosecond, u"ns"), (Microsecond, u"μs"), (Millisecond, u"ms"),
-                     (Second, u"s"), (Minute, u"minute"), (Hour, u"hr"), (Day, u"d"),
-                     (Week, u"wk"))
-            @test ustrip(T(5)) === ustrip(u, T(5)) === Int64(5)
+        @testset ">> uconvert" begin
+            @test uconvert(u"s", Second(3)) === u"s"(Second(3)) === Int64(3)u"s"
+            @test uconvert(u"hr", Minute(90)) === u"hr"(Minute(90)) === Rational{Int64}(3,2)u"hr"
+            @test uconvert(u"ns", Millisecond(-2)) === u"ns"(Millisecond(-2)) === Int64(-2_000_000)u"ns"
+            @test uconvert(u"wk", Hour(1)) === u"wk"(Hour(1)) === Rational{Int64}(1,168)u"wk"
+            @test_throws DimensionError uconvert(u"m", Second(1))
+            @test_throws DimensionError u"m"(Second(1))
         end
-        @test ustrip(u"ms", Second(1)) === Int64(1000)
-        @test ustrip(u"wk", Day(1)) === Rational{Int64}(1,7)
-        @test_throws DimensionError ustrip(u"m", Nanosecond(1))
-        @test_throws MethodError ustrip(Month(1))
-        @test_throws MethodError ustrip(Year(1))
-        @test_throws MethodError ustrip(u"s", Month(1))
-        @test_throws MethodError ustrip(u"yr", Year(1))
 
-        @test convert(typeof(1.0u"s"), Second(3)) === 3.0u"s"
-        @test convert(typeof((1//1)u"s"), Second(3)) === (3//1)u"s"
-        @test convert(typeof(1.0u"d"), Hour(6)) === 0.25u"d"
-        @test_throws DimensionError convert(typeof(1.0u"m"), Week(1))
+        @testset ">> ustrip" begin
+            for (T,u) = ((Nanosecond, u"ns"), (Microsecond, u"μs"), (Millisecond, u"ms"),
+                         (Second, u"s"), (Minute, u"minute"), (Hour, u"hr"), (Day, u"d"),
+                (Week, u"wk"))
+                @test ustrip(T(5)) === ustrip(u, T(5)) === Int64(5)
+            end
+            @test ustrip(u"ms", Second(1)) === Int64(1000)
+            @test ustrip(u"wk", Day(1)) === Rational{Int64}(1,7)
+            @test_throws DimensionError ustrip(u"m", Nanosecond(1))
+            @test_throws MethodError ustrip(Month(1))
+            @test_throws MethodError ustrip(Year(1))
+            @test_throws MethodError ustrip(u"s", Month(1))
+            @test_throws MethodError ustrip(u"yr", Year(1))
+        end
 
-        @test Week(4u"wk") === Week(4)
-        @test Microsecond((3//2)u"ms") === Microsecond(1500)
-        @test Millisecond(1.0u"s") === Millisecond(1000)
-        @test_throws DimensionError Second(1u"m")
+        @testset ">> Constructors" begin
+            for (T,u) = ((Nanosecond, u"ns"), (Microsecond, u"μs"), (Millisecond, u"ms"),
+                         (Second, u"s"), (Minute, u"minute"), (Hour, u"hr"), (Day, u"d"),
+                (Week, u"wk"))
+                @test Quantity(T(5)) === Int64(5)*u
+                @test Quantity{Float64,𝐓,typeof(u)}(T(5)) === 5.0u
+            end
+            @test Quantity{Float64,𝐓,typeof(u"d")}(Hour(6)) === 0.25u"d"
+            @test_throws InexactError Quantity{Int64,𝐓,typeof(u"d")}(Hour(6))
+            @test_throws DimensionError Quantity{Float64,𝐋,typeof(u"m")}(Hour(6))
+            @test_throws MethodError Quantity{Float64,𝐓,typeof(u"d")}(Month(1))
+            @test_throws MethodError Quantity{Float64,𝐓,typeof(u"d")}(Year(1))
 
-        @test convert(Second, 1.0u"s") === Second(1)
-        @test convert(Day, 3u"wk") === Day(21)
-        @test_throws DimensionError convert(Second, 1u"m")
-        @test_throws InexactError convert(Second, 1u"ms")
-        @test_throws InexactError convert(Second, 1.5u"s")
+            @test Week(4u"wk") === Week(4)
+            @test Microsecond((3//2)u"ms") === Microsecond(1500)
+            @test Millisecond(1.0u"s") === Millisecond(1000)
+            @test_throws InexactError Second(1u"ms")
+            @test_throws DimensionError Second(1u"m")
+            @test_throws DimensionError Month(1u"s") # Doesn't throw MethodError because Month(::Number) exists
+            @test_throws DimensionError Year(1u"s") # Doesn't throw MethodError because Year(::Number) exists
+        end
+
+        @testset ">> convert" begin
+            @test convert(typeof(1.0u"s"), Second(3)) === 3.0u"s"
+            @test convert(typeof((1//1)u"s"), Second(3)) === (3//1)u"s"
+            @test convert(typeof(1.0u"d"), Hour(6)) === 0.25u"d"
+            @test_throws InexactError convert(typeof(1u"d"), Hour(6))
+            @test_throws DimensionError convert(typeof(1.0u"m"), Week(1))
+            @test_throws MethodError convert(typeof(1u"d"), Month(1))
+            @test_throws MethodError convert(typeof(1u"d"), Year(1))
+
+            @test convert(Second, 1.0u"s") === Second(1)
+            @test convert(Day, 3u"wk") === Day(21)
+            @test_throws DimensionError convert(Second, 1u"m")
+            @test_throws InexactError convert(Second, 1u"ms")
+            @test_throws InexactError convert(Second, 1.5u"s")
+            @test_throws MethodError convert(Month, 1u"s")
+            @test_throws MethodError convert(Year, 1u"s")
+        end
     end
 
     @testset "> Rounding" begin
