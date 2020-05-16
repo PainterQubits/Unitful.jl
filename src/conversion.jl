@@ -38,20 +38,14 @@ Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.0
         end
     end
 
-    ex = convertwholeratio(ex)
-
+    if ex isa Rational && denominator(x) == 1
+        ex = numerator(x)
+    end
+    
     a ≈ 1.0 ? (inex = 1) : (inex = a)
     y = inex * ex
     :($y)
 end
-
-"""
-    convertwholeratio(x)
-
-Removes the denominator of whole rationals.
-"""
-convertwholeratio(x::Rational) = denominator(x) == 1 ? numerator(x) : x
-convertwholeratio(x) = x
 
 """
     convfact{S}(s::Units{S}, t::Units{S})
