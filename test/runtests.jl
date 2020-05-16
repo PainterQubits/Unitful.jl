@@ -126,6 +126,8 @@ end
         # Issue 26
         @unit altL "altL" altLiter 1000*cm^3 true
         @test convert(Float64, 1altL/cm^3) === 1000.0
+        # Issue 327
+        @test uconvert(u"√cm", 1u"√m") == 10u"√cm"
     end
     @testset "> Unitful ↔ unitful conversion" begin
         @testset ">> Numeric conversion" begin
