@@ -36,7 +36,8 @@ import Unitful: LengthUnits, AreaUnits, MassUnits, TemperatureUnits
 using Dates:
     Dates,
     Nanosecond, Microsecond, Millisecond, Second, Minute, Hour, Day, Week,
-    Month, Year
+    Month, Year,
+    CompoundPeriod
 
 const colon = Base.:(:)
 
