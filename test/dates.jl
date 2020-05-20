@@ -86,7 +86,11 @@
                         @test_throws DimensionError div(Second(1), 1u"m", r)
                         @test_throws DimensionError div(1u"m", Second(1), r)
 
-                        @test div(4u"minute", CompoundPeriod(Minute(1), Second(30)), r) == div(8, 3, r)
+                        if Sys.WORD_SIZE == 32 && r in (RoundNearestTiesAway, RoundNearestTiesUp)
+                            @test_broken div(4u"minute", CompoundPeriod(Minute(1), Second(30)), r) == div(8, 3, r)
+                        else
+                            @test div(4u"minute", CompoundPeriod(Minute(1), Second(30)), r) == div(8, 3, r)
+                        end
                         @test div(CompoundPeriod(Minute(4)), 90u"s", r) == div(8, 3, r)
                         @test_throws DimensionError div(4u"m", CompoundPeriod(Minute(1), Second(30)), r)
                         @test_throws DimensionError div(CompoundPeriod(Minute(4)), 90u"m", r)
@@ -170,14 +174,27 @@
             @test_throws DimensionError uconvert(u"m", Second(1))
             @test_throws DimensionError u"m"(Second(1))
 
-            @test uconvert(u"yr", CompoundPeriod()) === u"yr"(CompoundPeriod()) === Rational{Int64}(0,1)u"yr"
+            @static if Sys.WORD_SIZE == 32
+                @test uconvert(u"yr", CompoundPeriod()) === u"yr"(CompoundPeriod()) === 0.0u"yr"
+            else
+                @test uconvert(u"yr", CompoundPeriod()) === u"yr"(CompoundPeriod()) === Rational{Int64}(0,1)u"yr"
+            end
             @test uconvert(u"μs", CompoundPeriod()) === u"μs"(CompoundPeriod()) === Rational{Int64}(0,1)u"μs"
             @test uconvert(u"ns", CompoundPeriod()) === u"ns"(CompoundPeriod()) === Int64(0)u"ns"
             @test uconvert(u"ps", CompoundPeriod()) === u"ps"(CompoundPeriod()) === Int64(0)u"ps"
-            @test uconvert(u"yr", CompoundPeriod(Day(365),Hour(6))) === u"yr"(CompoundPeriod(Day(365),Hour(6))) === Rational{Int64}(1,1)u"yr"
-            @test uconvert(u"μs", CompoundPeriod(Day(365),Hour(6))) === u"μs"(CompoundPeriod(Day(365),Hour(6))) === Rational{Int64}(31_557_600_000_000,1)u"μs"
-            @test uconvert(u"ns", CompoundPeriod(Day(365),Hour(6))) === u"ns"(CompoundPeriod(Day(365),Hour(6))) === Int64(31_557_600_000_000_000)u"ns"
-            @test uconvert(u"ps", CompoundPeriod(Week(1),Hour(-1))) === u"ps"(CompoundPeriod(Week(1),Hour(-1))) === Int64(601_200_000_000_000_000)u"ps"
+            @static if Sys.WORD_SIZE == 32
+                @test uconvert(u"yr", CompoundPeriod(Day(365),Hour(6))) === 1.0u"yr"
+                @test u"yr"(CompoundPeriod(Day(365),Hour(6))) === 1.0u"yr"
+            else
+                @test uconvert(u"yr", CompoundPeriod(Day(365),Hour(6))) === Rational{Int64}(1,1)u"yr"
+                @test u"yr"(CompoundPeriod(Day(365),Hour(6))) === Rational{Int64}(1,1)u"yr"
+            end
+            @test uconvert(u"μs", CompoundPeriod(Day(365),Hour(6))) === Rational{Int64}(31_557_600_000_000,1)u"μs"
+            @test u"μs"(CompoundPeriod(Day(365),Hour(6))) === Rational{Int64}(31_557_600_000_000,1)u"μs"
+            @test uconvert(u"ns", CompoundPeriod(Day(365),Hour(6))) === Int64(31_557_600_000_000_000)u"ns"
+            @test u"ns"(CompoundPeriod(Day(365),Hour(6))) === Int64(31_557_600_000_000_000)u"ns"
+            @test uconvert(u"ps", CompoundPeriod(Week(1),Hour(-1))) === Int64(601_200_000_000_000_000)u"ps"
+            @test u"ps"(CompoundPeriod(Week(1),Hour(-1))) === Int64(601_200_000_000_000_000)u"ps"
             @test_throws DimensionError uconvert(u"m", CompoundPeriod(Day(365),Hour(6)))
             @test_throws DimensionError u"m"(CompoundPeriod(Day(365),Hour(6)))
             @test_throws MethodError uconvert(u"yr", CompoundPeriod(Year(1),Day(1)))
@@ -200,11 +217,19 @@
             @test_throws MethodError ustrip(u"s", Month(1))
             @test_throws MethodError ustrip(u"yr", Year(1))
 
-            @test ustrip(u"yr", CompoundPeriod()) === Rational{Int64}(0,1)
+            @static if Sys.WORD_SIZE == 32
+                @test ustrip(u"yr", CompoundPeriod()) === 0.0
+            else
+                @test ustrip(u"yr", CompoundPeriod()) === Rational{Int64}(0,1)
+            end
             @test ustrip(u"μs", CompoundPeriod()) === Rational{Int64}(0,1)
             @test ustrip(u"ns", CompoundPeriod()) === Int64(0)
             @test ustrip(u"ps", CompoundPeriod()) === Int64(0)
-            @test ustrip(u"yr", CompoundPeriod(Day(365),Hour(6))) === Rational{Int64}(1,1)
+            @static if Sys.WORD_SIZE == 32
+                @test ustrip(u"yr", CompoundPeriod(Day(365),Hour(6))) === 1.0
+            else
+                @test ustrip(u"yr", CompoundPeriod(Day(365),Hour(6))) === Rational{Int64}(1,1)
+            end
             @test ustrip(u"μs", CompoundPeriod(Day(365),Hour(6))) === Rational{Int64}(31_557_600_000_000,1)
             @test ustrip(u"ns", CompoundPeriod(Day(365),Hour(6))) === Int64(31_557_600_000_000_000)
             @test ustrip(u"ps", CompoundPeriod(Week(1),Hour(-1))) === Int64(601_200_000_000_000_000)
@@ -348,38 +373,40 @@
         @test_throws DimensionError floor(u"m", Second(1))
 
         @static if VERSION ≥ v"1.2.0"
-            @test round(u"minute", CompoundPeriod(Minute(-1), Second(10))) === Rational{Int64}(-1,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(-2), Second(30))) === Rational{Int64}(-2,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(3), Second(-30))) === Rational{Int64}(2,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(-1), Second(10)), RoundNearest) === Rational{Int64}(-1,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(-2), Second(30)), RoundNearest) === Rational{Int64}(-2,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(3), Second(-30)), RoundNearest) === Rational{Int64}(2,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(-1), Second(10)), RoundNearestTiesAway) === Rational{Int64}(-1,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(-2), Second(30)), RoundNearestTiesAway) === Rational{Int64}(-2,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(3), Second(-30)), RoundNearestTiesAway) === Rational{Int64}(3,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(-1), Second(10)), RoundNearestTiesUp) === Rational{Int64}(-1,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(-2), Second(30)), RoundNearestTiesUp) === Rational{Int64}(-1,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(3), Second(-30)), RoundNearestTiesUp) === Rational{Int64}(3,1)u"minute"
+            T = @static Sys.WORD_SIZE == 32 ? Float64 : Rational{Int64}
+            @test round(u"minute", CompoundPeriod(Minute(-1), Second(10))) === T(-1)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(-2), Second(30))) === T(-2)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(3), Second(-30))) === T(2)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(-1), Second(10)), RoundNearest) === T(-1)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(-2), Second(30)), RoundNearest) === T(-2)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(3), Second(-30)), RoundNearest) === T(2)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(-1), Second(10)), RoundNearestTiesAway) === T(-1)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(-2), Second(30)), RoundNearestTiesAway) === T(-2)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(3), Second(-30)), RoundNearestTiesAway) === T(3)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(-1), Second(10)), RoundNearestTiesUp) === T(-1)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(-2), Second(30)), RoundNearestTiesUp) === T(-1)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(3), Second(-30)), RoundNearestTiesUp) === T(3)u"minute"
         end
         @static if VERSION ≥ v"1.5.0-DEV.742"
-            @test trunc(u"minute", CompoundPeriod(Minute(-1), Second(10))) === Rational{Int64}(0,1)u"minute"
-            @test trunc(u"minute", CompoundPeriod(Minute(-2), Second(30))) === Rational{Int64}(-1,1)u"minute"
-            @test trunc(u"minute", CompoundPeriod(Minute(3), Second(-30))) === Rational{Int64}(2,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(-1), Second(10)), RoundToZero) === Rational{Int64}(0,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(-2), Second(30)), RoundToZero) === Rational{Int64}(-1,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(3), Second(-30)), RoundToZero) === Rational{Int64}(2,1)u"minute"
-            @test ceil(u"minute", CompoundPeriod(Minute(-1), Second(10)))  === Rational{Int64}(0,1)u"minute"
-            @test ceil(u"minute", CompoundPeriod(Minute(-2), Second(30)))  === Rational{Int64}(-1,1)u"minute"
-            @test ceil(u"minute", CompoundPeriod(Minute(3), Second(-30)))  === Rational{Int64}(3,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(-1), Second(10)), RoundUp) === Rational{Int64}(0,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(-2), Second(30)), RoundUp) === Rational{Int64}(-1,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(3), Second(-30)), RoundUp) === Rational{Int64}(3,1)u"minute"
-            @test floor(u"minute", CompoundPeriod(Minute(-1), Second(10))) === Rational{Int64}(-1,1)u"minute"
-            @test floor(u"minute", CompoundPeriod(Minute(-2), Second(30))) === Rational{Int64}(-2,1)u"minute"
-            @test floor(u"minute", CompoundPeriod(Minute(3), Second(-30))) === Rational{Int64}(2,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(-1), Second(10)), RoundDown) === Rational{Int64}(-1,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(-2), Second(30)), RoundDown) === Rational{Int64}(-2,1)u"minute"
-            @test round(u"minute", CompoundPeriod(Minute(3), Second(-30)), RoundDown) === Rational{Int64}(2,1)u"minute"
+            T = @static Sys.WORD_SIZE == 32 ? Float64 : Rational{Int64}
+            @test trunc(u"minute", CompoundPeriod(Minute(-1), Second(10))) === -T(0)u"minute"
+            @test trunc(u"minute", CompoundPeriod(Minute(-2), Second(30))) === T(-1)u"minute"
+            @test trunc(u"minute", CompoundPeriod(Minute(3), Second(-30))) === T(2)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(-1), Second(10)), RoundToZero) === -T(0)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(-2), Second(30)), RoundToZero) === T(-1)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(3), Second(-30)), RoundToZero) === T(2)u"minute"
+            @test ceil(u"minute", CompoundPeriod(Minute(-1), Second(10)))  === -T(0)u"minute"
+            @test ceil(u"minute", CompoundPeriod(Minute(-2), Second(30)))  === T(-1)u"minute"
+            @test ceil(u"minute", CompoundPeriod(Minute(3), Second(-30)))  === T(3)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(-1), Second(10)), RoundUp) === -T(0)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(-2), Second(30)), RoundUp) === T(-1)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(3), Second(-30)), RoundUp) === T(3)u"minute"
+            @test floor(u"minute", CompoundPeriod(Minute(-1), Second(10))) === T(-1)u"minute"
+            @test floor(u"minute", CompoundPeriod(Minute(-2), Second(30))) === T(-2)u"minute"
+            @test floor(u"minute", CompoundPeriod(Minute(3), Second(-30))) === T(2)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(-1), Second(10)), RoundDown) === T(-1)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(-2), Second(30)), RoundDown) === T(-2)u"minute"
+            @test round(u"minute", CompoundPeriod(Minute(3), Second(-30)), RoundDown) === T(2)u"minute"
         end
         @test_throws MethodError round(u"s", CompoundPeriod(Year(1)))
         @test_throws MethodError round(u"s", CompoundPeriod(Year(1)), RoundNearestTiesAway)
