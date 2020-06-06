@@ -29,7 +29,7 @@ julia> whatsit(1u"A" * 2.5u"Ω")
 
 It may be tempting to specify the dimensions of a quantity in a type definition, e.g.
 
-```
+```jl
 struct Person
     height::Unitful.Length
     mass::Unitful.Mass
@@ -39,7 +39,7 @@ end
 However, these are abstract types. If performance is important, it may be better
 just to pick a concrete `Quantity` type:
 
-```
+```jl
 struct Person
     height::typeof(1.0u"m")
     mass::typeof(1.0u"kg")
@@ -70,7 +70,7 @@ in toy calculations for
 [general relativity](https://en.wikipedia.org/wiki/Metric_tensor_(general_relativity))
 where some conventions yield matrices with mixed dimensions:
 
-```
+```jldoctest
 julia> Diagonal([-1.0u"c^2", 1.0, 1.0, 1.0])
 4×4 Diagonal{Unitful.Quantity{Float64,D,U}}:
  -1.0 c^2   ⋅    ⋅    ⋅

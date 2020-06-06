@@ -65,6 +65,7 @@ Example:
 ```jldoctest
 julia> uconvert(u"hr",3602u"s")
 1801//1800 hr
+
 julia> uconvert(u"J",1.0u"N*m")
 1.0 J
 ```
