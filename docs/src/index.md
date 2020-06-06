@@ -20,7 +20,7 @@ that are defined in Julia.
 
 ## Quick start
 
-- This package requires Julia 0.7. Older versions will not be supported.
+- This package requires Julia 1.0. Older versions will not be supported.
 - `] add Unitful`
 - `using Unitful`
 
@@ -50,7 +50,7 @@ retrieve them from Unitful in one of three ways:
 3. `using Unitful.DefaultSymbols` will bring the following symbols into the
    calling namespace:
      - Dimensions `𝐋,𝐌,𝐓,𝐈,𝚯,𝐉,𝐍` for length, mass, time, current, temperature,
-     luminosity, and amount, respectively.
+       luminosity, and amount, respectively.
      - Base and derived SI units, with SI prefixes (except for `cd`, which conflicts
        with `Base.cd`)
      - `°` (degrees)
