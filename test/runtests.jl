@@ -1515,6 +1515,12 @@ end
         end
     end
 
+    @testset "> Comparisons" begin
+        @test 3dB < 5dB
+        @test 3dBm < 5dBm
+        @test_throws MethodError 3dB < 5dBm
+    end
+
     @testset "> zero, one" begin
         @test zero(3dB) === 0dB
         @test zero(3dB_rp) === 0dB_rp
