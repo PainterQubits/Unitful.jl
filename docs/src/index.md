@@ -71,6 +71,7 @@ DocTestSetup = quote
     hr = Unitful.hr
     minute = Unitful.minute
     s = Unitful.s
+    F = Unitful.F
 end
 ```
 
@@ -96,7 +97,7 @@ julia> uconvert(μm/(m*Ra), 9μm/(m*K))
 5//1 μm m^-1 Ra^-1
 
 julia> mod(1hr+3minute+5s, 24s)
-17//1 s
+17 s
 ```
 
 One useful interactive function is being able to convert to preferred (in this case SI) units. 
