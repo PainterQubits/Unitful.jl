@@ -6,7 +6,7 @@ New units or dimensions can be defined from the Julia REPL or from within
 other packages. To avoid duplication of code and effort, it is advised to put
 new unit definitions into a Julia package that is then published for others to
 use. For an example of how to do this, examine the code in
-[`UnitfulUS.jl`](https://github.com/ajkeller34/UnitfulUS.jl), which defines
+[`UnitfulUS.jl`](https://github.com/PainterQubits/UnitfulUS.jl), which defines
 U.S. customary units. It's actually very easy! Just make sure you read all of
 the cautionary notes on this page. If you make a units package for Unitful,
 please submit a pull request so that I can provide a link from Unitful's README!
