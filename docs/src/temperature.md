@@ -96,6 +96,5 @@ Unitful.AffineUnits
 Unitful.AffineQuantity
 Unitful.ScalarUnits
 Unitful.ScalarQuantity
-Unitful.@affineunit
 Unitful.absoluteunit
 ```
