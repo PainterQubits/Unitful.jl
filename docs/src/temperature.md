@@ -83,7 +83,7 @@ using the [`Unitful.@unit`](@ref) macro. Second, use the [`Unitful.@affineunit`]
 to make a corresponding affine unit. As an example, this is how `Ra` and `°F` are
 implemented:
 
-```jl
+```julia
 @unit Ra "Ra" Rankine (5//9)*K false
 @affineunit °F "°F" (45967//100)Ra
 ```

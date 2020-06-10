@@ -6,7 +6,7 @@ registered module. Note that Main is not, so if you define new units at the
 REPL, you will probably want to do `Unitful.register(Main)`.
 
 Example:
-```jl
+```julia
 # somewhere in a custom units package...
 module MyUnitsPackage
 using Unitful
