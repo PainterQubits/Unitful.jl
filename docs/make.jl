@@ -3,6 +3,7 @@ using Documenter, Unitful
 makedocs(
     sitename = "Unitful.jl",
     format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
+    workdir = joinpath(@__DIR__, ".."),
     pages = [
         "Home" => "index.md"
         "Highlighted features" => "highlights.md"
