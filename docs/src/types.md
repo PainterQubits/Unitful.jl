@@ -36,6 +36,7 @@ some subset of `Unitful.Quantity` subtypes.
 
 ### Quantities
 ```@docs
+    Unitful.AbstractQuantity{T,D,U}
     Unitful.Quantity{T,D,U}
     Unitful.DimensionlessQuantity{T,U}
 ```
