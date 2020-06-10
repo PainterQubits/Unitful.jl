@@ -66,9 +66,7 @@ tracker).
 julia> 32u"°F" + 1u"°F"
 ERROR: AffineError: an invalid operation was attempted with affine quantities: 32 °F + 1 °F
 [...]
-```
 
-```jldoctest
 julia> 32u"°F" * 2
 ERROR: AffineError: an invalid operation was attempted with affine quantities: 32 °F*2
 [...]
