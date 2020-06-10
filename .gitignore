@@ -1,7 +1,8 @@
+Manifest.toml
 *.jl.cov
 *.jl.*.cov
 *.jl.mem
 deps/
 docs/build/
-docs/site/
+docs/Manifest.toml
 *~
