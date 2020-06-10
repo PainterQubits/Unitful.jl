@@ -162,8 +162,10 @@ Examples:
 ```jldoctest
 julia> typeof(dimension(1.0))
 Unitful.Dimensions{()}
+
 julia> typeof(dimension(Float64))
 Unitful.Dimensions{()}
+
 julia> dimension(1.0) == NoDims
 true
 ```
