@@ -36,19 +36,19 @@ some subset of `Unitful.Quantity` subtypes.
 
 ### Quantities
 ```@docs
-    Unitful.AbstractQuantity{T,D,U}
-    Unitful.Quantity{T,D,U}
-    Unitful.DimensionlessQuantity{T,U}
+    Unitful.AbstractQuantity
+    Unitful.Quantity
+    Unitful.DimensionlessQuantity
 ```
 
 ### Units and dimensions
 ```@docs
     Unitful.Unitlike
-    Unitful.Units{N,D}
-    Unitful.FreeUnits{N,D}
-    Unitful.ContextUnits{N,D,P}
-    Unitful.FixedUnits{N,D}
-    Unitful.Dimensions{N}
-    Unitful.Unit{U,D}
-    Unitful.Dimension{D}
+    Unitful.Units
+    Unitful.FreeUnits
+    Unitful.ContextUnits
+    Unitful.FixedUnits
+    Unitful.Dimensions
+    Unitful.Unit
+    Unitful.Dimension
 ```

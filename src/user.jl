@@ -600,19 +600,3 @@ ustrcheck_bool(::Units) = true
 ustrcheck_bool(::Dimensions) = true
 ustrcheck_bool(::Quantity) = true
 ustrcheck_bool(::Any) = false
-
-"""
-    basefactor(x::Unit)
-Specifies conversion factors to reference units.
-It returns a tuple. The first value is any irrational part of the conversion,
-and the second value is a rational component. This segregation permits exact
-conversions within unit systems that have no rational conversion to the
-reference units.
-"""
-function basefactor end
-
-"""
-    dimension(x::Unit)
-Returns a [`Unitful.Dimensions`](@ref) object describing the given unit `x`.
-"""
-function dimension end
