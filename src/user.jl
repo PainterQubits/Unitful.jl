@@ -497,7 +497,7 @@ julia> typeof(1.0u"m/s")
 Quantity{Float64,𝐋*𝐓^-1,Unitful.FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}}
 
 julia> u"ħ"
-1.0545718001391127e-34 J s
+1.0545718176461565e-34 J s
 ```
 """
 macro u_str(unit)

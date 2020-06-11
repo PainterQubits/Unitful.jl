@@ -1,8 +1,11 @@
 using Documenter, Unitful
 
+DocMeta.setdocmeta!(Unitful, :DocTestSetup, :(using Unitful))
+
 makedocs(
     sitename = "Unitful.jl",
     format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
+    modules = [Unitful],
     workdir = joinpath(@__DIR__, ".."),
     pages = [
         "Home" => "index.md"
