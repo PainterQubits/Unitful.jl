@@ -6,7 +6,7 @@ registered module. Note that Main is not, so if you define new units at the
 REPL, you will probably want to do `Unitful.register(Main)`.
 
 Example:
-```jl
+```julia
 # somewhere in a custom units package...
 module MyUnitsPackage
 using Unitful
@@ -497,7 +497,7 @@ julia> typeof(1.0u"m/s")
 Quantity{Float64,𝐋*𝐓^-1,Unitful.FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}}
 
 julia> u"ħ"
-1.0545718001391127e-34 J s
+1.0545718176461565e-34 J s
 ```
 """
 macro u_str(unit)
@@ -600,19 +600,3 @@ ustrcheck_bool(::Units) = true
 ustrcheck_bool(::Dimensions) = true
 ustrcheck_bool(::Quantity) = true
 ustrcheck_bool(::Any) = false
-
-"""
-    basefactor(x::Unit)
-Specifies conversion factors to reference units.
-It returns a tuple. The first value is any irrational part of the conversion,
-and the second value is a rational component. This segregation permits exact
-conversions within unit systems that have no rational conversion to the
-reference units.
-"""
-function basefactor end
-
-"""
-    dimension(x::Unit)
-Returns a [`Unitful.Dimensions`](@ref) object describing the given unit `x`.
-"""
-function dimension end

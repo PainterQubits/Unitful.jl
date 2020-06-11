@@ -1,12 +1,26 @@
 using Documenter, Unitful
 
+DocMeta.setdocmeta!(Unitful, :DocTestSetup, :(using Unitful))
+
 makedocs(
-    sitename = "Unitful",
+    sitename = "Unitful.jl",
+    format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
+    modules = [Unitful],
+    workdir = joinpath(@__DIR__, ".."),
+    pages = [
+        "Home" => "index.md"
+        "Highlighted features" => "highlights.md"
+        "Types" => "types.md"
+        "Defining new units" => "newunits.md"
+        "Conversion/promotion" => "conversion.md"
+        "Manipulating units" => "manipulations.md"
+        "How units are displayed" => "display.md"
+        "Logarithmic scales" => "logarithm.md"
+        "Temperature scales" => "temperature.md"
+        "Extending Unitful" => "extending.md"
+        "Troubleshooting" => "trouble.md"
+        "License" => "LICENSE.md"
+    ]
 )
 
-deploydocs(
-    deps   = Deps.pip("Tornado>=4.0.0,<5.0.0", "mkdocs==0.17.5", "mkdocs-material==2.9.4", "python-markdown-math"),
-    julia  = "1.0",
-    osname = "linux",
-    repo   = "github.com/ajkeller34/Unitful.jl.git"
-)
+deploydocs(repo = "github.com/PainterQubits/Unitful.jl.git")

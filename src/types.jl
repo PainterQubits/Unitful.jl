@@ -51,6 +51,11 @@ end
 @inline name(x::Unit{U}) where {U} = U
 @inline tens(x::Unit) = x.tens
 @inline power(x::Unit) = x.power
+
+"""
+    dimension(x::Unit)
+Returns a [`Unitful.Dimensions`](@ref) object describing the given unit `x`.
+"""
 @inline dimension(u::Unit{U,D}) where {U,D} = D^u.power
 
 struct Affine{T} end

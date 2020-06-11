@@ -19,7 +19,7 @@ When creating new units in a precompiled package that need to persist into
 run-time (usually true), it is important that the following make it into your
 code:
 
-```jl
+```julia
 function __init__()
     Unitful.register(YourModule)
 end
@@ -40,7 +40,7 @@ compile time.
 In the unlikely case that you've used `@dimension`, you will also need the
 following incantation:
 
-```jl
+```julia
 const localpromotion = Unitful.promotion
 function __init__()
     Unitful.register(YourModule)

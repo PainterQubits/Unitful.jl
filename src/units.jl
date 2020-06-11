@@ -247,6 +247,14 @@ function basefactor(inex, ex, eq, tens, p)
     end
 end
 
+"""
+    basefactor(x::Unit)
+Specifies conversion factors to reference units.
+It returns a tuple. The first value is any irrational part of the conversion,
+and the second value is a rational component. This segregation permits exact
+conversions within unit systems that have no rational conversion to the
+reference units.
+"""
 @inline basefactor(x::Unit{U}) where {U} = basefactor(basefactors[U]..., 1, 0, power(x))
 
 function basefactor(x::Units{U}) where {U}
