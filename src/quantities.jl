@@ -89,6 +89,27 @@ for f in (:mod, :rem)
     end
 end
 
+_affineerror(f, args...) =
+    throw(AffineError("an invalid operation was attempted with affine quantities: $f($(join(args, ", ")))"))
+
+for f in (:div, :rem, :divrem)
+    for r = (RoundNearest, RoundNearestTiesAway, RoundNearestTiesUp,
+             RoundToZero, RoundUp, RoundDown)
+        @eval begin
+            $f(x::AffineQuantity, y::AffineQuantity, ::typeof($r)) = _affineerror($f, x, y, $r)
+            $f(x::AffineQuantity, y::AbstractQuantity, ::typeof($r)) = _affineerror($f, x, y, $r)
+            $f(x::AbstractQuantity, y::AffineQuantity, ::typeof($r)) = _affineerror($f, x, y, $r)
+        end
+    end
+end
+for f = (:div, :cld, :fld, :rem, :mod, :divrem, :fldmod)
+    @eval begin
+        $f(x::AffineQuantity, y::AffineQuantity) = _affineerror($f, x, y)
+        $f(x::AffineQuantity, y::AbstractQuantity) = _affineerror($f, x, y)
+        $f(x::AbstractQuantity, y::AffineQuantity) = _affineerror($f, x, y)
+    end
+end
+
 Base.mod2pi(x::DimensionlessQuantity) = mod2pi(uconvert(NoUnits, x))
 Base.mod2pi(x::AbstractQuantity{S, NoDims, <:Units{(Unitful.Unit{:Degree, NoDims}(0, 1//1),),
     NoDims}}) where S = mod(x, 360°)

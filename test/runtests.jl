@@ -201,6 +201,7 @@ end
         @test_throws AffineError °C*°C
         @test_throws AffineError °C*K
         @test_throws AffineError (0°C)*(0°C)
+        @test_throws AffineError (1°C)/(1°C)
         @test_throws AffineError °C^2
         let x = 2
             @test_throws AffineError °C^x
@@ -216,6 +217,27 @@ end
         @test_throws AffineError 2 * (32°F)
         @test_throws AffineError (32°F) / 2
         @test_throws AffineError 2 / (32°F)
+
+        for f = (:div, :rem, :divrem)
+            @eval begin
+                @test_throws AffineError $f(32°F, 2°F)
+                @test_throws AffineError $f(32°F, 2K)
+                @test_throws AffineError $f(32K, 2°F)
+                for r = (RoundNearest, RoundNearestTiesAway, RoundNearestTiesUp,
+                         RoundToZero, RoundUp, RoundDown)
+                    @test_throws AffineError $f(32°F, 2°F, r)
+                    @test_throws AffineError $f(32°F, 2K, r)
+                    @test_throws AffineError $f(32K, 2°F, r)
+                end
+            end
+        end
+        for f = (:cld, :fld, :mod, :fldmod)
+            @eval begin
+                @test_throws AffineError $f(32°F, 2°F)
+                @test_throws AffineError $f(32°F, 2K)
+                @test_throws AffineError $f(32K, 2°F)
+            end
+        end
 
         @test zero(100°C) === 0K
         @test zero(typeof(100°C)) === 0K
