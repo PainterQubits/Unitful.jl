@@ -2,7 +2,7 @@
 language: julia
 os:
   - linux
-#  - osx    # locally test on my MacBook Pro; OS X tests take too long on Travis CI
+  - osx
 julia:
   - 1.0
   - 1
