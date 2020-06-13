@@ -71,7 +71,7 @@ a few different methods, since we have `FreeUnits`, `ContextUnits`, and `FixedUn
 
 Collect [`Unitful.Unit`](@ref) objects from the type parameter of the
 [`Unitful.Units`](@ref) objects. For identical units including SI prefixes
-(i.e. cm ≠ m), collect powers and sort uniquely by the name of the `Unit`.
+(i.e. `cm` ≠ `m`), collect powers and sort uniquely by the name of the `Unit`.
 The unique sorting permits easy unit comparisons.
 
 Examples:
