@@ -228,7 +228,7 @@ end
 Not called directly by the user. Given a unit symbol and a unit's name,
 will define units for each possible SI power-of-ten prefix on that unit.
 
-Example: `@prefixed_unit_symbols m Meter 𝐋 (1.0,1)` results in nm, cm, m, km, ...
+Example: `@prefixed_unit_symbols m Meter 𝐋 (1.0,1)` results in `nm`, `cm`, `m`, `km`, ...
 all getting defined in the calling namespace.
 """
 macro prefixed_unit_symbols(symb,name,dimension,basefactor)
@@ -276,10 +276,10 @@ end
 """
     preferunits(u0::Units, u::Units...)
 This function specifies the default fallback units for promotion.
-Units provided to this function must have a pure dimension of power 1, like 𝐋 or 𝐓
-but not 𝐋/𝐓 or 𝐋^2. The function will complain if this is not the case. Additionally,
+Units provided to this function must have a pure dimension of power 1, like `𝐋` or `𝐓`
+but not `𝐋/𝐓` or `𝐋^2`. The function will complain if this is not the case. Additionally,
 the function will complain if you provide two units with the same dimension, as a
-courtesy to the user. Finally, you cannot use affine units such as °C with this function.
+courtesy to the user. Finally, you cannot use affine units such as `°C` with this function.
 
 Once [`Unitful.upreferred`](@ref) has been called or quantities have been promoted,
 this function will appear to have no effect.
@@ -479,7 +479,7 @@ different modules, then the symbol found in the most recently registered module
 will be used.
 
 Note that what goes inside must be parsable as a valid Julia expression.
-In other words, u"N m" will fail if you intended to write u"N*m".
+In other words, `u"N m"` will fail if you intended to write `u"N*m"`.
 
 Examples:
 

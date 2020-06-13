@@ -255,8 +255,8 @@ end
 mdtable(tab, latex=false, head=head, side=side)
 ```
 
-‡: `1/Hz * 3dB` could be allowed, technically, but we throw an error its unclear if a
-quantity is a root-power or power quantity:
+‡: `1/Hz * 3dB` could be allowed, technically, but we throw an error if it's unclear whether
+a quantity is a root-power or power quantity:
 
 ```jldoctest
 julia> u"1/Hz" * u"3dB"
