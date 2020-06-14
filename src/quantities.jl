@@ -1,9 +1,5 @@
-"""
-    Quantity(x::Number, y::Units)
-Outer constructor for `Quantity`s. This is a generated function to avoid
-determining the dimensions of a given set of units each time a new quantity is
-made.
-"""
+# This is a generated function to avoid determining the dimensions of a given
+# set of units each time a new quantity is made.
 @generated function _Quantity(x::Number, y::Units)
     u = y()
     du = dimension(u)
@@ -11,6 +7,12 @@ made.
     d = du*dx
     :(Quantity{typeof(x), $d, typeof($u)}(x))
 end
+
+"""
+    Quantity(x::Number, y::Units)
+
+Create a `Quantity` with numerical value `x` and units `y`.
+"""
 Quantity(x::Number, y::Units) = _Quantity(x, y)
 Quantity(x::Number, y::Units{()}) = x
 
