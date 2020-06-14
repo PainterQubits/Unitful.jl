@@ -102,7 +102,7 @@ for f in (:div, :rem, :divrem)
         end
     end
 end
-for f = (:div, :cld, :fld, :rem, :mod, :divrem, :fldmod)
+for f = (:div, :cld, :fld, :rem, :mod)
     @eval begin
         $f(x::AffineQuantity, y::AffineQuantity) = _affineerror($f, x, y)
         $f(x::AffineQuantity, y::AbstractQuantity) = _affineerror($f, x, y)

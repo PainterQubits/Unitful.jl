@@ -219,19 +219,14 @@ end
         @test_throws AffineError 2 / (32°F)
 
         for f = (:div, :rem, :divrem)
-            @eval begin
-                @test_throws AffineError $f(32°F, 2°F)
-                @test_throws AffineError $f(32°F, 2K)
-                @test_throws AffineError $f(32K, 2°F)
-                for r = (RoundNearest, RoundNearestTiesAway, RoundNearestTiesUp,
-                         RoundToZero, RoundUp, RoundDown)
-                    @test_throws AffineError $f(32°F, 2°F, r)
-                    @test_throws AffineError $f(32°F, 2K, r)
-                    @test_throws AffineError $f(32K, 2°F, r)
-                end
+            @eval for r = (RoundNearest, RoundNearestTiesAway, RoundNearestTiesUp,
+                           RoundToZero, RoundUp, RoundDown)
+                @test_throws AffineError $f(32°F, 2°F, r)
+                @test_throws AffineError $f(32°F, 2K, r)
+                @test_throws AffineError $f(32K, 2°F, r)
             end
         end
-        for f = (:cld, :fld, :mod, :fldmod)
+        for f = (:div, :cld, :fld, :rem, :mod, :divrem, :fldmod)
             @eval begin
                 @test_throws AffineError $f(32°F, 2°F)
                 @test_throws AffineError $f(32°F, 2K)
