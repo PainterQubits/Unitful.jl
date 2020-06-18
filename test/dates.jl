@@ -44,9 +44,9 @@
             @test_throws AffineError Second(1) * 1u"°C"
             @test_throws AffineError 1u"°C" * Second(1)
             # Multiplication with unit
-            Week(5) * u"Hz" === 5.0u"wk*Hz"
-            u"mm" * Millisecond(20) === Int64(20)u"mm*ms"
-            u"ms^-1" * Millisecond(20) === Int64(20)
+            @test Week(5) * u"Hz" === 5.0u"wk*Hz"
+            @test u"mm" * Millisecond(20) === Int64(20)u"mm*ms"
+            @test u"ms^-1" * Millisecond(20) === Int64(20)
             @test_throws AffineError Second(1) * u"°C"
             @test_throws AffineError u"°C" * Second(1)
             # Multiple factors
