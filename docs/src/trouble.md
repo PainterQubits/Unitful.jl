@@ -3,6 +3,8 @@ DocTestSetup = quote
     using Unitful
 end
 ```
+# Troubleshooting
+
 ## Why do unit conversions yield rational numbers sometimes?
 
 We use rational numbers in this package to permit exact conversions

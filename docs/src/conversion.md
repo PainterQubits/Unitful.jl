@@ -3,6 +3,7 @@ DocTestSetup = quote
     using Unitful
 end
 ```
+# Conversion/promotion
 
 ## Converting between units
 

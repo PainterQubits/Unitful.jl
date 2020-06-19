@@ -3,6 +3,7 @@ DocTestSetup = quote
     using Unitful
 end
 ```
+# Highlighted features
 
 ## Dispatch on dimensions
 
