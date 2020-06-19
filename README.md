@@ -4,7 +4,7 @@
 [![codecov.io](https://codecov.io/github/PainterQubits/Unitful.jl/coverage.svg?branch=master)](https://codecov.io/github/PainterQubits/Unitful.jl?branch=master)
 
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://PainterQubits.github.io/Unitful.jl/stable)
-[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://PainterQubits.github.io/Unitful.jl/latest)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://PainterQubits.github.io/Unitful.jl/dev)
 
 # Unitful.jl
 
