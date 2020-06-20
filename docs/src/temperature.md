@@ -4,6 +4,7 @@ DocTestSetup = quote
     using Unitful:AffineError
 end
 ```
+# Temperature scales
 
 Temperatures require some care. Temperature scales like `K` and `Ra` are thermodynamic
 temperature scales, with zero on the scale corresponding to absolute zero. Unit conversions

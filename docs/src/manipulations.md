@@ -3,6 +3,7 @@ DocTestSetup = quote
     using Unitful
 end
 ```
+# Manipulating units
 
 ## Unitful string macro
 

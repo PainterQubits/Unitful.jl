@@ -3,6 +3,8 @@ DocTestSetup = quote
     using Unitful
 end
 ```
+# Types
+
 ## Overview
 We define a [`Unitful.Unit{U,D}`](@ref) type to represent a unit (`U` is a symbol,
 like `:Meter`, and `D` keeps track of dimensional information).

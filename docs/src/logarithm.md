@@ -3,6 +3,7 @@ DocTestSetup = quote
     using Unitful
 end
 ```
+# Logarithmic scales
 
 !!! note
     Logarithmic scales are new to Unitful and should be considered experimental.
