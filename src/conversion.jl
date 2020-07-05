@@ -62,6 +62,9 @@ true
         end
     end
 
+    if ex isa Rational && denominator(ex) == 1
+        ex = numerator(ex)
+    end
     a ≈ 1.0 ? (inex = 1) : (inex = a)
     y = inex * ex
     :($y)
@@ -98,6 +101,7 @@ Example:
 ```jldoctest
 julia> uconvert(u"hr",3602u"s")
 1801//1800 hr
+
 julia> uconvert(u"J",1.0u"N*m")
 1.0 J
 ```

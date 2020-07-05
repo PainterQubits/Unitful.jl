@@ -2,27 +2,23 @@
 language: julia
 os:
   - linux
-#  - osx    # locally test on my MacBook Pro; OS X tests take too long on Travis CI
+  - osx
 julia:
-  - 0.7
   - 1.0
-  - 1.1
-  - 1.2
+  - 1
   - nightly
 notifications:
   email: false
-# matrix:
-#   allow_failures:
-#   - julia: nightly
-# uncomment the following lines to override the default test script
-script:
-  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia -e 'using Pkg; Pkg.build(); Pkg.test(coverage=true)'
-  - julia --compiled-modules=no -e 'using Pkg; Pkg.build(); Pkg.test(coverage=true)'
-after_success:
-  # push coverage results to Coveralls
-  - julia -e 'using Pkg; cd(Pkg.dir("Unitful")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
-  # push coverage results to Codecov
-  - julia -e 'using Pkg; cd(Pkg.dir("Unitful")); using Coverage; Codecov.submit(process_folder())'
-  - julia -e 'using Pkg; ps=PackageSpec(name="Documenter", version="0.19"); Pkg.add(ps); Pkg.pin(ps)'
-  - julia -e 'using Pkg; cd(Pkg.dir("Unitful")); include(joinpath("docs", "make.jl"))'
+codecov: true
+coveralls: true
+jobs:
+  allow_failures:
+    - julia: nightly
+  include:
+    - stage: "Documentation"
+      julia: 1
+      os: linux
+      script:
+        - julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+        - julia --project=docs/ docs/make.jl
+      after_success: skip

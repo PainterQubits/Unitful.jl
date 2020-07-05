@@ -4,6 +4,7 @@ DocTestSetup = quote
     using Unitful:AffineError
 end
 ```
+# Temperature scales
 
 Temperatures require some care. Temperature scales like `K` and `Ra` are thermodynamic
 temperature scales, with zero on the scale corresponding to absolute zero. Unit conversions
@@ -66,9 +67,7 @@ tracker).
 julia> 32u"°F" + 1u"°F"
 ERROR: AffineError: an invalid operation was attempted with affine quantities: 32 °F + 1 °F
 [...]
-```
 
-```jldoctest
 julia> 32u"°F" * 2
 ERROR: AffineError: an invalid operation was attempted with affine quantities: 32 °F*2
 [...]
@@ -85,7 +84,7 @@ using the [`Unitful.@unit`](@ref) macro. Second, use the [`Unitful.@affineunit`]
 to make a corresponding affine unit. As an example, this is how `Ra` and `°F` are
 implemented:
 
-```jl
+```julia
 @unit Ra "Ra" Rankine (5//9)*K false
 @affineunit °F "°F" (45967//100)Ra
 ```
@@ -98,6 +97,5 @@ Unitful.AffineUnits
 Unitful.AffineQuantity
 Unitful.ScalarUnits
 Unitful.ScalarQuantity
-Unitful.@affineunit
 Unitful.absoluteunit
 ```

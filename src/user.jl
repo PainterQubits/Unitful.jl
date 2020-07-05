@@ -1,11 +1,12 @@
 """
     register(unit_module::Module)
-Makes the [`@u_str`](@ref) macro aware of units defined in new unit modules. By default,
-Unitful is itself a registered module. Note that Main is not, so if you define new units
-at the REPL, you will probably want to do `Unitful.register(Main)`.
+Makes Unitful aware of units defined in a new unit module, including making the
+[`@u_str`](@ref) macro work with these units. By default, Unitful is itself a
+registered module. Note that Main is not, so if you define new units at the
+REPL, you will probably want to do `Unitful.register(Main)`.
 
 Example:
-```jl
+```julia
 # somewhere in a custom units package...
 module MyUnitsPackage
 using Unitful
@@ -278,7 +279,7 @@ This function specifies the default fallback units for promotion.
 Units provided to this function must have a pure dimension of power 1, like ᴸ or ᵀ
 but not ᴸ/ᵀ or ᴸ^2. The function will complain if this is not the case. Additionally,
 the function will complain if you provide two units with the same dimension, as a
-courtesy to the user. Finally, you cannot use affine units such as °C with this function.
+courtesy to the user. Finally, you cannot use affine units such as `°C` with this function.
 
 Once [`Unitful.upreferred`](@ref) has been called or quantities have been promoted,
 this function will appear to have no effect.
@@ -478,7 +479,7 @@ different modules, then the symbol found in the most recently registered module
 will be used.
 
 Note that what goes inside must be parsable as a valid Julia expression.
-In other words, u"N m" will fail if you intended to write u"N*m".
+In other words, `u"N m"` will fail if you intended to write `u"N*m"`.
 
 Examples:
 
@@ -496,72 +497,102 @@ julia> typeof(1.0u"m/s")
 Quantity{Float64,ᴸ*ᵀ^-1,Unitful.FreeUnits{(m, s^-1),ᴸ*ᵀ^-1,nothing}}
 
 julia> u"ħ"
-1.0545718001391127e-34 J s
+1.0545718176461565e-34 J s
 ```
 """
 macro u_str(unit)
     ex = Meta.parse(unit)
-    esc(replace_value(__module__, ex))
+    unitmods = [Unitful]
+    for m in Unitful.unitmodules
+        # Find registered unit extension modules which are also loaded by
+        # __module__ (required so that precompilation will work).
+        if isdefined(__module__, nameof(m)) && getfield(__module__, nameof(m)) === m
+            push!(unitmods, m)
+        end
+    end
+    esc(lookup_units(unitmods, ex))
+end
+
+"""
+    uparse(string [; unit_context=ctx])
+
+Parse a string as a unit or quantity. The format for `string` must be a valid
+Julia expression, and any identifiers will be looked up in the context `ctx`,
+which may be a `Module` or a vector of `Module`s. By default
+`unit_context=Unitful`.
+
+Examples:
+
+```jldoctest
+julia> uparse("m/s")
+m s^-1
+
+julia> uparse("1.0*dB")
+1.0 dB
+```
+"""
+function uparse(str; unit_context=Unitful)
+    ex = Meta.parse(str)
+    eval(lookup_units(unit_context, ex))
 end
 
 const allowed_funcs = [:*, :/, :^, :sqrt, :√, :+, :-, ://]
-function replace_value(targetmod, ex::Expr)
+function lookup_units(unitmods, ex::Expr)
     if ex.head == :call
         ex.args[1] in allowed_funcs ||
-            error("""$(ex.args[1]) is not a valid function call when parsing a unit.
-             Only the following functions are allowed: $allowed_funcs""")
+            throw(ArgumentError(
+                  """$(ex.args[1]) is not a valid function call when parsing a unit.
+                   Only the following functions are allowed: $allowed_funcs"""))
         for i=2:length(ex.args)
             if typeof(ex.args[i])==Symbol || typeof(ex.args[i])==Expr
-                ex.args[i]=replace_value(targetmod, ex.args[i])
+                ex.args[i]=lookup_units(unitmods, ex.args[i])
             end
         end
         return ex
     elseif ex.head == :tuple
         for i=1:length(ex.args)
             if typeof(ex.args[i])==Symbol
-                ex.args[i]=replace_value(targetmod, ex.args[i])
+                ex.args[i]=lookup_units(unitmods, ex.args[i])
             else
-                error("only use symbols inside the tuple.")
+                throw(ArgumentError("Only use symbols inside the tuple."))
             end
         end
         return ex
     else
-        error("Expr head $(ex.head) must equal :call or :tuple")
+        throw(ArgumentError("Expr head $(ex.head) must equal :call or :tuple"))
     end
 end
 
-function replace_value(targetmod, sym::Symbol)
-    f = m->()
-    inds = findall(unitmodules) do m
-        # Ensure that both the unit exists in the registered unit module, and
-        # that the target module (the one invoking `u_str`) has loaded it so
-        # that precompilation will work.
-        isdefined(m,sym)             && ustrcheck_bool(getfield(m, sym))  &&
-        isdefined(targetmod, nameof(m)) && getfield(targetmod,nameof(m)) === m
-    end
+function lookup_units(unitmods, sym::Symbol)
+    has_unit = m->(isdefined(m,sym) && ustrcheck_bool(getfield(m, sym)))
+    inds = findall(has_unit, unitmods)
     if isempty(inds)
         # Check whether unit exists in the global list to give an improved
         # error message.
-        f = m->(isdefined(m,sym) && ustrcheck_bool(getfield(m, sym)))
-        hintidx = findfirst(f, unitmodules)
+        hintidx = findfirst(has_unit, unitmodules)
         if hintidx !== nothing
             hintmod = unitmodules[hintidx]
-            error("Symbol `$sym` was found in unit module $hintmod, but was not loaded into $targetmod. Consider `using $hintmod` within `$targetmod`?")
+            throw(ArgumentError(
+                """Symbol `$sym` was found in the globally registered unit module $hintmod
+                   but was not in the provided list of unit modules $(join(unitmods, ", ")).
+
+                   (Consider `using $hintmod` in your module if you are using `@u_str`?)"""))
         else
-            error("Symbol $sym could not be found in registered unit modules.")
+            throw(ArgumentError("Symbol $sym could not be found in unit modules $unitmods"))
         end
     end
 
-    m = unitmodules[inds[end]]
+    m = unitmods[inds[end]]
     u = getfield(m, sym)
 
-    any(u != u1 for u1 in getfield.(unitmodules[inds[1:(end-1)]], sym)) &&
-        @warn(string("Symbol $sym was found in multiple registered unit modules. ",
-         "We will use the one from $m."))
+    any(u != u1 for u1 in getfield.(unitmods[inds[1:(end-1)]], sym)) &&
+        @warn """Symbol $sym was found in multiple registered unit modules.
+                 We will use the one from $m."""
     return u
 end
+lookup_units(unitmod::Module, ex::Symbol) = lookup_units([unitmod], ex)
 
-replace_value(targetmod, literal::Number) = literal
+lookup_units(unitmods, literal::Number) = literal
 
 ustrcheck_bool(::Number) = true
 ustrcheck_bool(::MixedUnits) = true
@@ -569,19 +600,3 @@ ustrcheck_bool(::Units) = true
 ustrcheck_bool(::Dimensions) = true
 ustrcheck_bool(::Quantity) = true
 ustrcheck_bool(::Any) = false
-
-"""
-    basefactor(x::Unit)
-Specifies conversion factors to reference units.
-It returns a tuple. The first value is any irrational part of the conversion,
-and the second value is a rational component. This segregation permits exact
-conversions within unit systems that have no rational conversion to the
-reference units.
-"""
-function basefactor end
-
-"""
-    dimension(x::Unit)
-Returns a [`Unitful.Dimensions`](@ref) object describing the given unit `x`.
-"""
-function dimension end

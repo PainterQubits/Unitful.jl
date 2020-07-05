@@ -3,6 +3,7 @@ DocTestSetup = quote
     using Unitful
 end
 ```
+# Conversion/promotion
 
 ## Converting between units
 
@@ -24,7 +25,7 @@ with a `Number` as an argument, for a unit conversion shorthand:
 
 ```jldoctest
 julia> u"cm"(1u"m")
-100//1 cm
+100 cm
 ```
 
 This syntax is a little confusing, but becomes appealing with the function
@@ -32,7 +33,7 @@ chaining operator `|>`:
 
 ```jldoctest
 julia> 1u"m" |> u"cm"
-100//1 cm
+100 cm
 ```
 
 Note that since [`Unitful.Units`](@ref) objects have no fields, we don't have
@@ -262,10 +263,10 @@ julia> 1mm_fix+2mm_fix
 3 mm
 
 julia> 1mm_fix+2u"cm"  # u"cm" is a FreeUnits object.
-21//1 mm
+21 mm
 
 julia> 1mm_fix+2*Unitful.ContextUnits(u"cm", u"cm")
-21//1 mm
+21 mm
 
 julia> isa(mm_fix*u"cm", Unitful.FixedUnits)
 true

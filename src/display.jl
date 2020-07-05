@@ -46,6 +46,13 @@ end
 
 show(io::IO, x::Unit{N,D}) where {N,D} = show(io, FreeUnits{(x,), D, nothing}())
 
+# Space between numerical value and unit should always be included
+# except for angular degress, minutes and seconds (° ′ ″)
+# See SI 9th edition, section 5.4.3; "Formatting the value of a quantity"
+# https://www.bipm.org/utils/common/pdf/si-brochure/SI-Brochure-9.pdf
+has_unit_spacing(u) = true
+has_unit_spacing(u::Units{(Unit{:Degree, NoDims}(0, 1//1),), NoDims}) = false
+
 """
     show(io::IO, x::Quantity)
 Show a unitful quantity by calling `show` on the numeric value, appending a
@@ -53,12 +60,19 @@ space, and then calling `show` on a units object `U()`.
 """
 function show(io::IO, x::Quantity)
     show(io, x.val)
-    show_unit(io, x)
+    if !isunitless(unit(x))
+        has_unit_spacing(unit(x)) && print(io," ")
+        show_unit(io, x)
+    end
+    nothing
 end
 
 function show(io::IO, mime::MIME"text/plain", x::Quantity)
     show(io, mime, x.val)
-    show(io, mime, unit(x))
+    if !isunitless(unit(x))
+        has_unit_spacing(unit(x)) && print(io," ")
+        show(io, mime, unit(x))
+    end
 end
 
 
@@ -90,6 +104,20 @@ function show(io::IO, x::Type{T}) where T<:Quantity
         ioc = IOContext(io, pa)
         invoke(show, Tuple{IO, typeof(x)}, ioc, x)
     end
+end
+
+function show(io::IO, r::Union{StepRange{T},StepRangeLen{T}}) where T<:Quantity
+    a,s,b = first(r), step(r), last(r)
+    U = unit(a)
+    print(io, '(')
+    if ustrip(U, s) == 1
+        show(io, ustrip(U, a):ustrip(U, b))
+    else
+        show(io, ustrip(U, a):ustrip(U, s):ustrip(U, b))
+    end
+    print(io, ')')
+    has_unit_spacing(U) && print(io,' ')
+    show(io, U)
 end
 
 function show(io::IO, x::typeof(NoDims))
@@ -263,29 +291,28 @@ end
 String representation of exponent.
 """
 function superscript(i::Rational)
-    deno = i.den
-    nume = i.num
-    if deno == 1
-        if nume == 1
-            ""
-        elseif nume == -4
-            "⁻⁴"
-        elseif nume == -3
-            "⁻³"
-        elseif nume == -2
-            "⁻²"
-        elseif nume == -1
-            "⁻¹"
-        elseif nume == 2
-            "²"
-        elseif nume == 3
-            "³"
-        elseif nume == 4
-            "⁴"
-        else
-            "^" * string(i.num)
-        end
+    v = @eval get(ENV, "UNITFUL_FANCY_EXPONENTS", $(Sys.isapple() ? "true" : "false"))
+    t = tryparse(Bool, lowercase(v))
+    k = (t === nothing) ? false : t
+    if k
+        return i.den == 1 ? superscript(i.num) : string(superscript(i.num), '\u141F', superscript(i.den))
     else
-        "^" * replace(string(i), "//" => "/")
+        i.den == 1 ? "^" * string(i.num) : "^" * replace(string(i), "//" => "/")
     end
+end
+
+# Taken from SIUnits.jl
+superscript(i::Integer) = map(repr(i)) do c
+    c == '-' ? '\u207b' :
+    c == '1' ? '\u00b9' :
+    c == '2' ? '\u00b2' :
+    c == '3' ? '\u00b3' :
+    c == '4' ? '\u2074' :
+    c == '5' ? '\u2075' :
+    c == '6' ? '\u2076' :
+    c == '7' ? '\u2077' :
+    c == '8' ? '\u2078' :
+    c == '9' ? '\u2079' :
+    c == '0' ? '\u2070' :
+    error("unexpected character")
 end

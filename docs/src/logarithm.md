@@ -3,6 +3,7 @@ DocTestSetup = quote
     using Unitful
 end
 ```
+# Logarithmic scales
 
 !!! note
     Logarithmic scales are new to Unitful and should be considered experimental.
@@ -235,295 +236,28 @@ The behavior of multiplication is summarized in the following table, with entrie
 † indicate prohibited operations. This table is populated automatically whenever the docs
 are built.
 
-<table>
-<thead>
-<tr>
-<th align="right">\*</th>
-<th align="right">10</th>
-<th align="right">Hz^-1</th>
-<th align="right">dB</th>
-<th align="right">dBm</th>
-<th align="right">1/Hz</th>
-<th align="right">1mW</th>
-<th align="right">3dB</th>
-<th align="right">3dBm</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="right"><strong>10</strong></td>
-<td align="right">
 ```@eval
-using Unitful
-Unitful.@_doctables 10*10
+using Latexify, Unitful
+head = ["10", "Hz^-1", "dB", "dBm", "1/Hz", "1mW", "3dB", "3dBm"]
+side = ["*"; "**" .* head .* "**"]
+quantities = uparse.(head)
+tab = fill("", length(head), length(head))
+for col = eachindex(head), row = 1:col
+    try
+        tab[row, col] = string(quantities[row] * quantities[col])
+    catch e
+        if e isa Union{ArgumentError, MethodError}
+            tab[row, col] = "†"
+        else
+            tab[row, col] = "† ‡"
+        end
+    end
+end
+mdtable(tab, latex=false, head=head, side=side)
 ```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables 10*u"Hz^-1"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables 10*u"dB"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables 10*u"dBm"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables 10*u"1/Hz"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables 10*u"1mW"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables 10*u"3dB"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables 10*u"3dBm"
-```
-</td>
-</tr>
-<tr>
-<td align="right"><strong>Hz^-1</strong></td>
-<td align="right" />
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"Hz^-1"*u"Hz^-1"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"Hz^-1"*u"dB"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"Hz^-1"*u"dBm"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"Hz^-1"*u"1/Hz"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"Hz^-1"*u"1mW"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"Hz^-1"*u"3dB"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"Hz^-1"*u"3dBm"
-```
-</td>
-</tr>
-<tr>
-<td align="right"><strong>dB</strong></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"dB"*u"dB"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"dB"*u"dBm"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"dB"*u"1/Hz"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"dB"*u"1mW"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"dB"*u"3dB"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"dB"*u"3dBm"
-```
-</td>
-</tr>
-<tr>
-<td align="right"><strong>dBm</strong></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"dBm"*u"dBm"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"dBm"*u"1/Hz"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"dBm"*u"1mW"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"dBm"*u"3dB"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"dBm"*u"3dBm"
-```
-</td>
-</tr>
-<tr>
-<td align="right"><strong>1/Hz</strong></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"1/Hz"*u"1/Hz"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"1/Hz"*u"1mW"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"1/Hz"*u"3dB"
-```
-‡
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"1/Hz"*u"3dBm"
-```
-</td>
-</tr>
-<tr>
-<td align="right"><strong>1mW</strong></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"1mW"*u"1mW"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"1mW"*u"3dB"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"1mW"*u"3dBm"
-```
-</td>
-</tr>
-<tr>
-<td align="right"><strong>3dB</strong></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"3dB"*u"3dB"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"3dB"*u"3dBm"
-```
-</td>
-</tr>
-<tr>
-<td align="right"><strong>3dBm</strong></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"3dBm"*u"3dBm"
-```
-</td>
-</tr>
-</tbody>
-</table>
 
-‡: `1/Hz * 3dB` could be allowed, technically, but we throw an error its unclear if a
-quantity is a root-power or power quantity:
+‡: `1/Hz * 3dB` could be allowed, technically, but we throw an error if it's unclear whether
+a quantity is a root-power or power quantity:
 
 ```jldoctest
 julia> u"1/Hz" * u"3dB"
@@ -597,180 +331,21 @@ Rules for addition are summarized in the following table, with entries marked by
 indicating prohibited operations. This table is populated automatically whenever the docs
 are built.
 
-<table>
-<thead>
-<tr>
-<th align="right">+</th>
-<th align="right">100</th>
-<th align="right">20dB</th>
-<th align="right">1Np</th>
-<th align="right">10.0dBm</th>
-<th align="right">10.0dBv</th>
-<th align="right">1mW</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="right"><strong>100</strong></td>
-<td align="right">
 ```@eval
-using Unitful
-Unitful.@_doctables 100+100
+using Latexify, Unitful
+head = ["100", "20dB", "1Np", "10.0dBm", "10.0dBV", "1mW"]
+side = ["+"; "**" .* head .* "**"]
+quantities = uparse.(head)
+tab = fill("", length(head), length(head))
+for col = eachindex(head), row = 1:col
+    try
+        tab[row, col] = string(quantities[row] + quantities[col])
+    catch e
+        tab[row, col] = "†"
+    end
+end
+mdtable(tab, latex=false, head=head, side=side)
 ```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables 100+u"20dB"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables 100+u"1Np"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables 100+u"10.0dBm"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables 100+u"10.0dBV"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables 100+u"1mW"
-```
-</td>
-</tr>
-<tr>
-<td align="right"><strong>20dB</strong></td>
-<td align="right"></td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"20dB"+u"20dB"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"20dB"+u"1Np"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"20dB"+u"10.0dBm"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"20dB"+u"10.0dBV"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"20dB"+u"1mW"
-```
-</td>
-</tr>
-<tr>
-<td align="right"><strong>1Np</strong></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"1Np"+u"1Np"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"1Np"+u"10.0dBm"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"1Np"+u"10.0dBV"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"1Np"+u"1mW"
-```
-</td>
-</tr>
-<tr>
-<td align="right"><strong>10.0dBm</strong></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"10.0dBm"+u"10.0dBm"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"10.0dBm"+u"10.0dBV"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"10.0dBm"+u"1mW"
-```
-</td>
-</tr>
-<tr>
-<td align="right"><strong>10.0dBV</strong></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"10.0dBV"+u"10.0dBV"
-```
-</td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"10.0dBV"+u"1mW"
-```
-</td>
-</tr>
-<tr>
-<td align="right"><strong>1mW</strong></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right"></td>
-<td align="right">
-```@eval
-using Unitful
-Unitful.@_doctables u"1mW"+u"1mW"
-```
-</td>
-</tr>
-</tbody>
-</table>
 
 Notice that we disallow implicit conversions between dimensionless logarithmic quantities
 and real numbers. This is because the results can depend on promotion rules in addition to

@@ -1,9 +1,5 @@
-"""
-    Quantity(x::Number, y::Units)
-Outer constructor for `Quantity`s. This is a generated function to avoid
-determining the dimensions of a given set of units each time a new quantity is
-made.
-"""
+# This is a generated function to avoid determining the dimensions of a given
+# set of units each time a new quantity is made.
 @generated function _Quantity(x::Number, y::Units)
     u = y()
     du = dimension(u)
@@ -11,6 +7,19 @@ made.
     d = du*dx
     :(Quantity{typeof(x), $d, typeof($u)}(x))
 end
+
+"""
+    Quantity(x::Number, y::Units)
+
+Create a `Quantity` with numerical value `x` and units `y`.
+
+# Example
+
+```jldoctest
+julia> Quantity(5, u"m")
+5 m
+```
+"""
 Quantity(x::Number, y::Units) = _Quantity(x, y)
 Quantity(x::Number, y::Units{()}) = x
 
@@ -69,17 +78,57 @@ and can be parsed by Julia.
 # ambiguity resolution
 //(x::AbstractQuantity, y::Complex) = Quantity(//(x.val, y), unit(x))
 
-for f in (:div, :fld, :cld)
-    @eval function ($f)(x::AbstractQuantity, y::AbstractQuantity)
-        z = uconvert(unit(y), x)        # TODO: use promote?
-        ($f)(z.val,y.val)
+for f in (:fld, :cld)
+    @eval begin
+        function ($f)(x::AbstractQuantity, y::AbstractQuantity)
+            z = uconvert(unit(y), x)        # TODO: use promote?
+            ($f)(z.val,y.val)
+        end
+
+        ($f)(x::Number, y::AbstractQuantity) = Quantity(($f)(x, ustrip(y)), unit(x) / unit(y))
+
+        ($f)(x::AbstractQuantity, y::Number) = Quantity(($f)(ustrip(x), y), unit(x))
     end
+end
+
+function div(x::AbstractQuantity, y::AbstractQuantity, r...)
+    z = uconvert(unit(y), x)        # TODO: use promote?
+    div(z.val,y.val, r...)
+end
+
+function div(x::Number, y::AbstractQuantity, r...)
+    Quantity(div(x, ustrip(y), r...), unit(x) / unit(y))
+end
+
+function div(x::AbstractQuantity, y::Number, r...)
+    Quantity(div(ustrip(x), y, r...), unit(x))
 end
 
 for f in (:mod, :rem)
     @eval function ($f)(x::AbstractQuantity, y::AbstractQuantity)
         z = uconvert(unit(y), x)        # TODO: use promote?
         Quantity(($f)(z.val,y.val), unit(y))
+    end
+end
+
+_affineerror(f, args...) =
+    throw(AffineError("an invalid operation was attempted with affine quantities: $f($(join(args, ", ")))"))
+
+for f in (:div, :rem, :divrem)
+    for r = (RoundNearest, RoundNearestTiesAway, RoundNearestTiesUp,
+             RoundToZero, RoundUp, RoundDown)
+        @eval begin
+            $f(x::AffineQuantity, y::AffineQuantity, ::typeof($r)) = _affineerror($f, x, y, $r)
+            $f(x::AffineQuantity, y::AbstractQuantity, ::typeof($r)) = _affineerror($f, x, y, $r)
+            $f(x::AbstractQuantity, y::AffineQuantity, ::typeof($r)) = _affineerror($f, x, y, $r)
+        end
+    end
+end
+for f = (:div, :cld, :fld, :rem, :mod)
+    @eval begin
+        $f(x::AffineQuantity, y::AffineQuantity) = _affineerror($f, x, y)
+        $f(x::AffineQuantity, y::AbstractQuantity) = _affineerror($f, x, y)
+        $f(x::AbstractQuantity, y::AffineQuantity) = _affineerror($f, x, y)
     end
 end
 
@@ -176,10 +225,10 @@ for _y in (:sin, :cos, :tan, :cot, :sec, :csc, :cis)
     @eval ($_y)(x::DimensionlessQuantity) = ($_y)(uconvert(NoUnits, x))
 end
 
-atan(y::AbstractQuantity, x::AbstractQuantity) = atan(promote(y,x)...)
+atan(y::AbstractQuantity{T1,D,U1}, x::AbstractQuantity{T2,D,U2}) where {T1,T2,D,U1,U2} =
+    atan(promote(y,x)...)
 atan(y::AbstractQuantity{T,D,U}, x::AbstractQuantity{T,D,U}) where {T,D,U} = atan(y.val,x.val)
-atan(y::AbstractQuantity{T,D1,U1}, x::AbstractQuantity{T,D2,U2}) where {T,D1,U1,D2,U2} =
-    throw(DimensionError(x,y))
+atan(y::AbstractQuantity, x::AbstractQuantity) = throw(DimensionError(x,y))
 
 for (f, F) in [(:min, :<), (:max, :>)]
     @eval @generated function ($f)(x::AbstractQuantity, y::AbstractQuantity)    #TODO
@@ -293,51 +342,48 @@ isinteger(x::DimensionlessQuantity) = isinteger(uconvert(NoUnits, x))
 _rounderr() = error("specify the type of the quantity to convert to ",
     "when rounding quantities. Example: round(typeof(1u\"m\"), 137u\"cm\").")
 
-if VERSION >= v"1"
-    # convenience methods
-    round(u::Units, q::Quantity, r::RoundingMode=RoundNearest; kwargs...) =
-        round(numtype(q), u, q, r; kwargs...)
-    round(::Type{T}, u::Units, q::Quantity, r::RoundingMode=RoundNearest;
-            kwargs...) where {T<:Number} =
-        round(Quantity{T, dimension(u), typeof(u)}, q, r; kwargs...)
+# convenience methods
+round(u::Units, q::AbstractQuantity, r::RoundingMode=RoundNearest; kwargs...) =
+    Quantity(round(ustrip(u, q), r; kwargs...), u)
+round(::Type{T}, u::Units, q::AbstractQuantity, r::RoundingMode=RoundNearest;
+        kwargs...) where {T<:Number} =
+    round(Quantity{T, dimension(u), typeof(u)}, q, r; kwargs...)
 
-    # workhorse methods
-    round(x::AbstractQuantity, r::RoundingMode=RoundNearest; kwargs...) =
-        _rounderr()
-    round(x::DimensionlessQuantity; kwargs...) = round(uconvert(NoUnits, x); kwargs...)
-    round(x::DimensionlessQuantity, r::RoundingMode; kwargs...) =
-        round(uconvert(NoUnits, x), r; kwargs...)
-    round(::Type{T}, x::AbstractQuantity, r=RoundingMode=RoundNearest;
-        kwargs...) where {T<:Number} = _dimerr(:round)
-    round(::Type{T}, x::DimensionlessQuantity, r::RoundingMode=RoundNearest;
-        kwargs...) where {T<:Number} = round(T, uconvert(NoUnits, x), r; kwargs...)
-    function round(::Type{T}, x::Quantity, r::RoundingMode=RoundNearest;
-            kwargs...) where {S, T <: Quantity{S}}
-        u = unit(T)
-        unitless = ustrip(uconvert(u, x))
-        return Quantity{S, dimension(T), typeof(u)}(round(float(unitless), r; kwargs...))
-    end
-
-    # that should actually be fixed in Base ↓
-    trunc(x::AbstractQuantity; kwargs...) = round(x, RoundToZero; kwargs...)
-    floor(x::AbstractQuantity; kwargs...) = round(x, RoundDown; kwargs...)
-    ceil(x::AbstractQuantity; kwargs...)  = round(x, RoundUp; kwargs...)
-    trunc(::Type{T}, x::AbstractQuantity; kwargs...) where {T<:Number} =
-        round(T, x, RoundToZero; kwargs...)
-    floor(::Type{T}, x::AbstractQuantity; kwargs...) where {T<:Number} =
-        round(T, x, RoundDown; kwargs...)
-    ceil(::Type{T}, x::AbstractQuantity; kwargs...)  where {T<:Number} =
-        round(T, x, RoundUp; kwargs...)
-else
-    for f in (:floor, :ceil, :trunc, :round)
-        @eval ($f)(x::AbstractQuantity; digits=0) = _dimerr($f)
-        @eval ($f)(x::DimensionlessQuantity; digits=0) = ($f)(uconvert(NoUnits, x); digits=digits)
-        @eval ($f)(::Type{T}, x::AbstractQuantity) where {T <: Integer} = _dimerr($f)
-        @eval ($f)(::Type{T}, x::DimensionlessQuantity) where {T <: Integer} = ($f)(T, uconvert(NoUnits, x))
-    end
+# workhorse methods
+round(x::AbstractQuantity, r::RoundingMode=RoundNearest; kwargs...) =
+    _rounderr()
+round(x::DimensionlessQuantity; kwargs...) = round(uconvert(NoUnits, x); kwargs...)
+round(x::DimensionlessQuantity, r::RoundingMode; kwargs...) =
+    round(uconvert(NoUnits, x), r; kwargs...)
+round(::Type{T}, x::AbstractQuantity, r=RoundingMode=RoundNearest;
+    kwargs...) where {T<:Number} = _dimerr(:round)
+round(::Type{T}, x::DimensionlessQuantity, r::RoundingMode=RoundNearest;
+    kwargs...) where {T<:Number} = round(T, uconvert(NoUnits, x), r; kwargs...)
+function round(::Type{T}, x::AbstractQuantity;
+        kwargs...) where {S, T <: Quantity{S}}
+    u = unit(T)
+    unitless = ustrip(u, x)
+    return Quantity{S, dimension(T), typeof(u)}(round(unitless; kwargs...))
 end
+function round(::Type{T}, x::AbstractQuantity, r::RoundingMode;
+        kwargs...) where {S, T <: Quantity{S}}
+    u = unit(T)
+    unitless = ustrip(u, x)
+    return Quantity{S, dimension(T), typeof(u)}(round(unitless, r; kwargs...))
+end
+
+# that should actually be fixed in Base ↓
+for (f,r) = ((:trunc, :RoundToZero), (:floor, :RoundDown), (:ceil, :RoundUp))
+    @eval $f(x::AbstractQuantity; kwargs...) = round(x, $r; kwargs...)
+    @eval $f(::Type{T}, x::AbstractQuantity; kwargs...) where {T<:Number} =
+        round(T, x, $r; kwargs...)
+    @eval $f(u::Units, x::AbstractQuantity; kwargs...) = round(u, x, $r; kwargs...)
+end
+
 zero(x::AbstractQuantity) = Quantity(zero(x.val), unit(x))
 zero(x::AffineQuantity) = Quantity(zero(x.val), absoluteunit(x))
+zero(x::Type{<:AbstractQuantity{T}}) where {T} = throw(ArgumentError("zero($x) not defined."))
+zero(x::Type{<:AbstractQuantity{T,D}}) where {T,D} = zero(T) * upreferred(D)
 zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:ScalarUnits} = zero(T)*U()
 zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:AffineUnits} = zero(T)*absoluteunit(U())
 
@@ -394,13 +440,17 @@ function frexp(x::AbstractQuantity{T}) where {T <: AbstractFloat}
     a*unit(x), b
 end
 
-"""
-    float(x::AbstractQuantity)
-Convert the numeric backing type of `x` to a floating-point representation.
-Returns a `Quantity` with the same units.
-"""
-float(x::AbstractQuantity) = Quantity(float(x.val), unit(x))
-
+for f in (:float, :BigFloat, :Float64, :Float32, :Float16)
+    @eval begin
+    """
+        $($f)(x::AbstractQuantity)
+    Convert the numeric backing type of `x` to a floating-point representation.
+    Returns a `Quantity` with the same units.
+    """
+    (Base.$f)(x::AbstractQuantity) = Quantity($f(x.val), unit(x))
+    end
+end
+   
 """
     Integer(x::AbstractQuantity)
 Convert the numeric backing type of `x` to an integer representation.

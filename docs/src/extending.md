@@ -6,7 +6,7 @@ New units or dimensions can be defined from the Julia REPL or from within
 other packages. To avoid duplication of code and effort, it is advised to put
 new unit definitions into a Julia package that is then published for others to
 use. For an example of how to do this, examine the code in
-[`UnitfulUS.jl`](https://github.com/ajkeller34/UnitfulUS.jl), which defines
+[`UnitfulUS.jl`](https://github.com/PainterQubits/UnitfulUS.jl), which defines
 U.S. customary units. It's actually very easy! Just make sure you read all of
 the cautionary notes on this page. If you make a units package for Unitful,
 please submit a pull request so that I can provide a link from Unitful's README!
@@ -16,39 +16,40 @@ please submit a pull request so that I can provide a link from Unitful's README!
 ### Precompilation
 
 When creating new units in a precompiled package that need to persist into
-run-time (usually true), it is important that the following or something very
-similar make it into your code:
+run-time (usually true), it is important that the following make it into your
+code:
 
-```jl
-const localunits = Unitful.basefactors
-const localpromotion = Unitful.promotion # only if you've used @dimension
+```julia
 function __init__()
-    merge!(Unitful.basefactors, localunits)
-    merge!(Unitful.promotion, localpromotion) # only if you've used @dimension
+    Unitful.register(YourModule)
 end
 ```
 
-The definition of `localunits` (`localpromotion`) must happen
-*after all new units (dimensions) have been defined*.
+By calling [`Unitful.register`](@ref) in your `__init__` function, you tell
+Unitful about some internal data required to make Unit conversions work and
+also make your units accessible to Unitful's [`@u_str`](@ref) macro. Your unit
+symbols should ideally be distinctive to avoid colliding with symbols defined
+in other packages or in Unitful. If there is a collision, the [`@u_str`](@ref)
+macro will still work, but it will use the unit found in whichever package was
+registered most recently, and it will emit a warning every time.
 
-The problem is that the [`@unit`](@ref) macro needs to add some information to
-a dictionary defined in Unitful, regardless of where the macro is executed
-(the use of this dictionary does not lead to run-time penalties, if you were
-wondering). However, because Unitful is precompiled, changes made to it from
-another module at compile-time will not persist.
+If you use the `@u_str` macro with the units defined in your package, you'll
+also need to call `Unitful.register()` at the top level of your package at
+compile time.
 
-The `const localunits = Unitful.basefactors` line makes a copy of the
-compile-time-modified dictionary, which can be precompiled into the module where
-this code appears, and then the dictionary is merged into Unitful's dictionary
-at runtime.
+In the unlikely case that you've used `@dimension`, you will also need the
+following incantation:
 
-If you'd like, you can also consider adding a call to [`Unitful.register`](@ref)
-in your `__init__` function, which will make your units accessible using
-Unitful's [`@u_str`](@ref) macro. Your unit symbols should ideally be distinctive
-to avoid colliding with symbols defined in other packages or in Unitful. If
-there is a collision, the [`@u_str`](@ref) macro will still work, but it will
-use the unit found in whichever package was registered most recently, and it will
-omit a warning every time.
+```julia
+const localpromotion = Unitful.promotion
+function __init__()
+    Unitful.register(YourModule)
+    merge!(Unitful.promotion, localpromotion)
+end
+```
+
+The definition of `localpromotion` must happen *after all new units
+(dimensions) have been defined*.
 
 ### Type uniqueness
 

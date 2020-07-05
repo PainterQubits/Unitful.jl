@@ -51,6 +51,11 @@ end
 @inline name(x::Unit{U}) where {U} = U
 @inline tens(x::Unit) = x.tens
 @inline power(x::Unit) = x.power
+
+"""
+    dimension(x::Unit)
+Returns a [`Unitful.Dimensions`](@ref) object describing the given unit `x`.
+"""
 @inline dimension(u::Unit{U,D}) where {U,D} = D^u.power
 
 struct Affine{T} end
@@ -107,7 +112,7 @@ end
 ContextUnits{N,D,P}() where {N,D,P} = ContextUnits{N,D,P,nothing}()
 ContextUnits(u::Units{N,D,A}) where {N,D,A} =
     ContextUnits{N,D,typeof(FreeUnits(upreferred(u))),A}()
-(y::ContextUnits)(x::Number) = uconvert(y,x)
+(y::ContextUnits)(x) = uconvert(y,x)
 
 """
     struct FixedUnits{N,D,A} <: Units{N,D,A} end
@@ -145,6 +150,12 @@ struct Quantity{T,D,U} <: AbstractQuantity{T,D,U}
     Quantity{T,D,U}(v::Number) where {T,D,U} = new{T,D,U}(v)
     Quantity{T,D,U}(v::Quantity) where {T,D,U} = convert(Quantity{T,D,U}, v)
 end
+
+# Field-only constructor
+Quantity{<:Any,D,U}(val) where {D,U} = Quantity{typeof(val),D,U}(val)
+
+constructorof(::Type{Unitful.Quantity{_,D,U}}) where {_,D,U} =
+    Unitful.Quantity{T,D,U} where T
 
 """
     DimensionlessUnits{U}
@@ -255,7 +266,7 @@ struct MixedUnits{T<:LogScaled, U<:Units}
 end
 MixedUnits{T}() where {T} = MixedUnits{T, typeof(NoUnits)}(NoUnits)
 MixedUnits{T}(u::Units) where {T} = MixedUnits{T,typeof(u)}(u)
-(y::MixedUnits)(x::Number) = uconvert(y,x)
+(y::MixedUnits)(x) = uconvert(y,x)
 
 # For logarithmic quantities
 struct IsRootPowerRatio{S,T}

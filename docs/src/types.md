@@ -3,6 +3,8 @@ DocTestSetup = quote
     using Unitful
 end
 ```
+# Types
+
 ## Overview
 We define a [`Unitful.Unit{U,D}`](@ref) type to represent a unit (`U` is a symbol,
 like `:Meter`, and `D` keeps track of dimensional information).
@@ -36,18 +38,19 @@ some subset of `Unitful.Quantity` subtypes.
 
 ### Quantities
 ```@docs
-    Unitful.Quantity{T,D,U}
-    Unitful.DimensionlessQuantity{T,U}
+    Unitful.AbstractQuantity
+    Unitful.Quantity
+    Unitful.DimensionlessQuantity
 ```
 
 ### Units and dimensions
 ```@docs
     Unitful.Unitlike
-    Unitful.Units{N,D}
-    Unitful.FreeUnits{N,D}
-    Unitful.ContextUnits{N,D,P}
-    Unitful.FixedUnits{N,D}
-    Unitful.Dimensions{N}
-    Unitful.Unit{U,D}
-    Unitful.Dimension{D}
+    Unitful.Units
+    Unitful.FreeUnits
+    Unitful.ContextUnits
+    Unitful.FixedUnits
+    Unitful.Dimensions
+    Unitful.Unit
+    Unitful.Dimension
 ```

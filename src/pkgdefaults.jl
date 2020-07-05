@@ -49,6 +49,9 @@ const AbsoluteScaleTemperature = Quantity{T, ᶿ, <:ScalarUnits} where T
 @derived_dimension MagneticDipoleMoment     ᴸ^2 * ᴵ
 @derived_dimension Molarity                 ᴺ / ᴸ^3
 @derived_dimension Molality                 ᴺ / ᴹ
+@derived_dimension MassFlow                 ᴹ/ᵀ
+@derived_dimension MolarFlow                ᴺ/ᵀ
+@derived_dimension VolumeFlow               ᴸ^3/ᵀ
 
 # Define base units. This is not to imply g is the base SI unit instead of kg.
 # See the documentation for further details.
@@ -74,27 +77,28 @@ for (_x,_y) in ((:sin,:sind), (:cos,:cosd), (:tan,:tand),
 end
 
 # SI and related units
-@unit Hz     "Hz"       Hertz       1/s                     true
-@unit N      "N"        Newton      1kg*m/s^2               true
-@unit Pa     "Pa"       Pascal      1N/m^2                  true
-@unit J      "J"        Joule       1N*m                    true
-@unit W      "W"        Watt        1J/s                    true
-@unit C      "C"        Coulomb     1A*s                    true
-@unit V      "V"        Volt        1W/A                    true
-@unit Ω      "Ω"        Ohm         1V/A                    true
-@unit S      "S"        Siemens     1/Ω                     true
-@unit F      "F"        Farad       1s^4*A^2/(kg*m^2)       true
-@unit H      "H"        Henry       1J/(A^2)                true
-@unit T      "T"        Tesla       1kg/(A*s^2)             true
-@unit Wb     "Wb"       Weber       1kg*m^2/(A*s^2)         true
-@unit lm     "lm"       Lumen       1cd*sr                  true
-@unit lx     "lx"       Lux         1lm/m^2                 true
-@unit Bq     "Bq"       Becquerel   1/s                     true
-@unit Gy     "Gy"       Gray        1J/kg                   true
-@unit Sv     "Sv"       Sievert     1J/kg                   true
-@unit kat    "kat"      Katal       1mol/s                  true
-@unit percent "%"       Percent     1//100                  false
-@unit permille "‰"      Permille    1//1000                 false
+@unit Hz              "Hz"   Hertz           1/s                true
+@unit N               "N"    Newton          1kg*m/s^2          true
+@unit Pa              "Pa"   Pascal          1N/m^2             true
+@unit J               "J"    Joule           1N*m               true
+@unit W               "W"    Watt            1J/s               true
+@unit C               "C"    Coulomb         1A*s               true
+@unit V               "V"    Volt            1W/A               true
+@unit Ω               "Ω"    Ohm             1V/A               true
+@unit S               "S"    Siemens         1/Ω                true
+@unit F               "F"    Farad           1s^4*A^2/(kg*m^2)  true
+@unit H               "H"    Henry           1J/(A^2)           true
+@unit T               "T"    Tesla           1kg/(A*s^2)        true
+@unit Wb              "Wb"   Weber           1kg*m^2/(A*s^2)    true
+@unit lm              "lm"   Lumen           1cd*sr             true
+@unit lx              "lx"   Lux             1lm/m^2            true
+@unit Bq              "Bq"   Becquerel       1/s                true
+@unit Gy              "Gy"   Gray            1J/kg              true
+@unit Sv              "Sv"   Sievert         1J/kg              true
+@unit kat             "kat"  Katal           1mol/s             true
+@unit percent         "%"    Percent         1//100             false
+@unit permille        "‰"    Permille        1//1000            false
+@unit pertenthousand  "‱"    Pertenthousand  1//10000           false
 
 # Temperature
 @affineunit °C "°C"     (27315//100)K
@@ -104,8 +108,9 @@ end
 @unit hr     "hr"       Hour                  3600s         false
 @unit d      "d"        Day                   86400s        false
 @unit wk     "wk"       Week                  604800s       false
-@unit rps    "rps"      RevolutionsPerSecond  1/s           false
-@unit rpm    "rpm"      RevolutionsPerMinute  1/minute      false
+@unit yr     "yr"       Year                  31557600s     true
+@unit rps    "rps"      RevolutionsPerSecond  2π*rad/s      false
+@unit rpm    "rpm"      RevolutionsPerMinute  2π*rad/minute false
 
 # Area
 # The hectare is used more frequently than any other power-of-ten of an are.
@@ -120,6 +125,9 @@ for p in (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
     Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
     Core.eval(Unitful, :(const $(Symbol(p,:l)) = $(Symbol(p,:L))))
 end
+
+# Molarity
+@unit M      "M"        Molar       1mol/L                  true
 
 # Energy
 const q = 1.602_176_634e-19*C        # CODATA 2018; `e` means 2.718...
@@ -179,6 +187,9 @@ const R∞ = 10_973_731.568_160/m     # (21) Rydberg constant
 @unit ft        "ft"       Foot                 12inch                  false
 @unit yd        "yd"       Yard                 3ft                     false
 @unit mi        "mi"       Mile                 1760yd                  false
+@unit angstrom  "Å"        Angstrom             (1//10)*nm      false
+# U+00c5 (opt-shift-A on macOS) and U+212b ('\Angstrom' in REPL) look identical:
+const Å = Å = angstrom
 
 # Area
 @unit ac        "ac"       Acre                 (316160658//78125)*m^2  false
@@ -232,10 +243,12 @@ isrootpower_dim(::typeof(dimension(A)))         = true
 isrootpower_dim(::typeof(dimension(Pa)))        = true
 isrootpower_dim(::typeof(dimension(W/m^2/Hz)))  = false     # spectral flux dens.
 isrootpower_dim(::typeof(dimension(W/m^2)))     = false     # intensity
+isrootpower_dim(::typeof(dimension(W/m^2/m)))   = false
 isrootpower_dim(::typeof(ᴸ^3))                  = false     # reflectivity
 isrootpower_dim(::typeof(dimension(Ω)))         = true
 isrootpower_dim(::typeof(dimension(S)))         = true
 isrootpower_dim(::typeof(dimension(Hz)))        = false
+isrootpower_dim(::typeof(dimension(J)))         = false
 
 #########
 

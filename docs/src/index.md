@@ -6,7 +6,7 @@ end
 # Unitful.jl
 
 A Julia package for physical units. Available
-[here](https://github.com/ajkeller34/Unitful.jl). Inspired by:
+[here](https://github.com/PainterQubits/Unitful.jl). Inspired by:
 
 - [SIUnits.jl](https://github.com/keno/SIUnits.jl)
 - [EngUnits.jl](https://github.com/dhoegh/EngUnits.jl)
@@ -20,7 +20,7 @@ that are defined in Julia.
 
 ## Quick start
 
-- This package requires Julia 0.7. Older versions will not be supported.
+- This package requires Julia 1.0. Older versions will not be supported.
 - `] add Unitful`
 - `using Unitful`
 
@@ -71,6 +71,7 @@ DocTestSetup = quote
     hr = Unitful.hr
     minute = Unitful.minute
     s = Unitful.s
+    F = Unitful.F
 end
 ```
 
@@ -96,7 +97,14 @@ julia> uconvert(μm/(m*Ra), 9μm/(m*K))
 5//1 μm m^-1 Ra^-1
 
 julia> mod(1hr+3minute+5s, 24s)
-17//1 s
+17 s
+```
+
+One useful interactive function is being able to convert to preferred (in this case SI) units. 
+
+```jldoctest
+julia> upreferred(F/m)
+A^2 s^4 kg^-1 m^-3
 ```
 
 !!! note

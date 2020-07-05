@@ -35,7 +35,7 @@
 - v0.6.1
   - Permit symbols that are bound to `Number`s to be used in `u_str` macro, such that
     π and other non-literal numbers can be used.
-  - Add some cgs units and a few dimensions [#115](https://github.com/ajkeller34/Unitful.jl/pull/115).
+  - Add some cgs units and a few dimensions [#115](https://github.com/PainterQubits/Unitful.jl/pull/115).
   - Fix a comparison / promotion bug introduced in v0.6.0.
 - v0.6.0
   - Restore compatibility with 0.7.0-DEV.
@@ -64,26 +64,26 @@
     affect user code. The generic fallback `ustrip(x::Number)` remains unchanged.
   - `isapprox(1.0u"m",5)` returns `false` instead of throwing a `DimensionError`,
     in keeping with the behavior of an equality check (`==`).
-  - Display of some units has changed to match their symbols [#104](https://github.com/ajkeller34/Unitful.jl/issues/104).
-  - Don't export `cd` from Unitful.DefaultSymbols in order to avoid conflicts [#102](https://github.com/ajkeller34/Unitful.jl/issues/102).
+  - Display of some units has changed to match their symbols [#104](https://github.com/PainterQubits/Unitful.jl/issues/104).
+  - Don't export `cd` from Unitful.DefaultSymbols in order to avoid conflicts [#102](https://github.com/PainterQubits/Unitful.jl/issues/102).
   - Deprecated `dimension(x::AbstractArray{T}) where T<:Number`, use broadcasting instead.
   - Deprecated `dimension(x::AbstractArray{T}) where T<:Units`, use broadcasting instead.
   - Deprecated `ustrip(A::AbstractArray{T}) where T<:Number`, use broadcasting instead.
   - Deprecated `ustrip(A::AbstractArray{T}) where T<:Quantity`, use broadcasting instead.
 - v0.3.0
   - Require Julia 0.6
-  - Adds overloads for `rand` and `ones` [#96](https://github.com/ajkeller34/Unitful.jl/issues/96).
-  - Improve symbol resolution in `u_str` macro [#98](https://github.com/ajkeller34/Unitful.jl/pull/98).
+  - Adds overloads for `rand` and `ones` [#96](https://github.com/PainterQubits/Unitful.jl/issues/96).
+  - Improve symbol resolution in `u_str` macro [#98](https://github.com/PainterQubits/Unitful.jl/pull/98).
   - More work is done inside the `u_str` macro, such that the macro returns units, dimensions,
     numbers (quantities), or tuples rather than expressions.
 - v0.2.6
-  - Fix and close [#52](https://github.com/ajkeller34/Unitful.jl/issues/52).
+  - Fix and close [#52](https://github.com/PainterQubits/Unitful.jl/issues/52).
   - Implement `Base.rtoldefault` for Quantity types
     (needed for AxisArrays [#52](https://github.com/JuliaArrays/AxisArrays.jl/pull/52)).
 - v0.2.5
-  - Fix and close [#79](https://github.com/ajkeller34/Unitful.jl/issues/79).
+  - Fix and close [#79](https://github.com/PainterQubits/Unitful.jl/issues/79).
   - Add support for `round(T, ::DimensionlessQuantity)` where `T <: Integer`
-    (also `floor`, `ceil`, `trunc`) [#90](https://github.com/ajkeller34/Unitful.jl/pull/90).
+    (also `floor`, `ceil`, `trunc`) [#90](https://github.com/PainterQubits/Unitful.jl/pull/90).
 - v0.2.4
   - Bug fix: avoid four-argument `promote_type`
   - Bug fix: define method for `*(::Base.TwicePrecision, ::Quantity)`
@@ -92,20 +92,20 @@
   - Dimensionful quantities are no longer accepted for `floor`, `ceil`, `trunc`, `round`,
     `isinteger`. The choice of units can yield physically different results.
     The functions are defined for dimensionless quantities, and return unitless numbers.
-    Closes [#78](https://github.com/ajkeller34/Unitful.jl/issues/78).
+    Closes [#78](https://github.com/PainterQubits/Unitful.jl/issues/78).
   - Added `gn`, a constant quantity for the gravitational acceleration on earth
-    [#75](https://github.com/ajkeller34/Unitful.jl/pull/75).
+    [#75](https://github.com/PainterQubits/Unitful.jl/pull/75).
   - Added `ge`, the gravitational acceleration on earth as a unit
-    [#75](https://github.com/ajkeller34/Unitful.jl/pull/75).
+    [#75](https://github.com/PainterQubits/Unitful.jl/pull/75).
   - Added `lbf`, pounds-force unit
-    [#75](https://github.com/ajkeller34/Unitful.jl/pull/75).
+    [#75](https://github.com/PainterQubits/Unitful.jl/pull/75).
 - v0.2.2
   - Fixed a bug in promotion involving `ContextUnits` where the promotion context might
     not be properly retained.
 - v0.2.1
-  - Fixed `isapprox` bug [#74](https://github.com/ajkeller34/Unitful.jl/pull/74).
+  - Fixed `isapprox` bug [#74](https://github.com/PainterQubits/Unitful.jl/pull/74).
   - Added `DimensionlessQuantity` methods for `exp`, `exp10`, `exp2`, `expm1`, `log1p`,
-    `log2` [#71](https://github.com/ajkeller34/Unitful.jl/pull/71).
+    `log2` [#71](https://github.com/PainterQubits/Unitful.jl/pull/71).
 - v0.2.0
   - `Units{N,D}` is now an abstract type. Different concrete types for units give different
    behavior under conversion and promotion. The currently implemented concrete types are:
@@ -120,23 +120,23 @@
     of `...Unit` in this release as the old names will be removed in a future release.
   - `c` is now a unit, to permit converting mass into `MeV/c^2`, for example. `c0` is
     still a quantity equal to the speed of light in vacuum, in units of `m/s`
-    [#67](https://github.com/ajkeller34/Unitful.jl/issues/67).
+    [#67](https://github.com/PainterQubits/Unitful.jl/issues/67).
 - v0.1.5
   - Patch for Julia PR [#20889](https://github.com/JuliaLang/julia/pull/20889), which
     changes how lowering is done for exponentiation of integer literals.
   - Bug fix to enable registering Main as a module for `u_str` (fixes
-    [#61](https://github.com/ajkeller34/Unitful.jl/issues/61)).
+    [#61](https://github.com/PainterQubits/Unitful.jl/issues/61)).
   - Implement readable message for `DimensionError`
-    [#62](https://github.com/ajkeller34/Unitful.jl/pull/62).
+    [#62](https://github.com/PainterQubits/Unitful.jl/pull/62).
 - v0.1.4
   - Critical bug fix owing to `mod_fast` changes.
 - v0.1.3
-  - Fix symmetry of `==` [#56](https://github.com/ajkeller34/Unitful.jl/issues/56).
+  - Fix symmetry of `==` [#56](https://github.com/PainterQubits/Unitful.jl/issues/56).
   - Using `@refunit` will implicitly specify the ref. unit as the default for promotion.
     This will not change behavior for most people; it just ensures promotion won't
     fail for quantities with user-defined dimensions.
   - Remove `mod_fast` in anticipation of Julia PR [#20859](https://github.com/JuliaLang/julia/pull/20859).
-  - Allow tolerance args for `isapprox` [#57](https://github.com/ajkeller34/Unitful.jl/pull/57)
+  - Allow tolerance args for `isapprox` [#57](https://github.com/PainterQubits/Unitful.jl/pull/57)
 - v0.1.2
   - On Julia 0.6, exponentiation by a literal is now type stable for integers.
 - v0.1.1
@@ -147,13 +147,13 @@
   - On Julia 0.6, exponentiation by a literal is now type stable for
     common integer powers: -3, -2, -1, 0, 1, 2, 3.
   - Added missing methods for dot operators `.<` and `.<=` (Julia 0.5, fix
-    [#55](https://github.com/ajkeller34/Unitful.jl/issues/55)).
-  - Fix [#45](https://github.com/ajkeller34/Unitful.jl/issues/45). Ranges should
+    [#55](https://github.com/PainterQubits/Unitful.jl/issues/55)).
+  - Fix [#45](https://github.com/PainterQubits/Unitful.jl/issues/45). Ranges should
     work as expected on Julia 0.6. On Julia 0.5, [Ranges.jl](https://github.com/JuliaArrays/Ranges.jl)
     is used to make ranges work as well as possible given limitations in Base.
-  - Fix [#33](https://github.com/ajkeller34/Unitful.jl/issues/33),
-    [#42](https://github.com/ajkeller34/Unitful.jl/issues/42),
-    and [#50](https://github.com/ajkeller34/Unitful.jl/issues/50).
+  - Fix [#33](https://github.com/PainterQubits/Unitful.jl/issues/33),
+    [#42](https://github.com/PainterQubits/Unitful.jl/issues/42),
+    and [#50](https://github.com/PainterQubits/Unitful.jl/issues/50).
     `deps/Defaults.jl` is dead. Long live `deps/Defaults.jl`. To define your own
     units, dimensions, and so on, you should now put them in a module, or ideally
     a package so that others can use the definitions too. You can override default
@@ -170,8 +170,8 @@
   - Add `lb`, `oz`, `dr`, `gr` to Unitful (international Avoirdupois mass units).
 - v0.0.4
   - Be aware, breaking changes to `deps/Defaults.jl` caused by some of the following!
-  - Fix [#40](https://github.com/ajkeller34/Unitful.jl/issues/40).
-  - Fix [#30](https://github.com/ajkeller34/Unitful.jl/issues/30).
+  - Fix [#40](https://github.com/PainterQubits/Unitful.jl/issues/40).
+  - Fix [#30](https://github.com/PainterQubits/Unitful.jl/issues/30).
   - Support relevant `@fastmath` operations for `Quantity`s.
   - Implement `fma`, `atan2` for `Quantity`s.
   - Implement `cis` for dimensionless `Quantity`s.
@@ -207,13 +207,13 @@
   - Added remaining SI units to the factory defaults: `sr` (steradian), `lm`
     (luminous flux), `lx` (illuminance), `Bq` (becquerel), `Gy` (gray),
     `Sv` (sievert), `kat` (katal).
-  - Simplify array creation, as in `[1, 2]u"km"` [#29](https://github.com/ajkeller34/Unitful.jl/pull/29)
-  - Support multiplying ranges by units, as in `(1:3)*mm` [#28](https://github.com/ajkeller34/Unitful.jl/pull/28)
-  - Bug fix [#26](https://github.com/ajkeller34/Unitful.jl/issues/26)
+  - Simplify array creation, as in `[1, 2]u"km"` [#29](https://github.com/PainterQubits/Unitful.jl/pull/29)
+  - Support multiplying ranges by units, as in `(1:3)*mm` [#28](https://github.com/PainterQubits/Unitful.jl/pull/28)
+  - Bug fix [#26](https://github.com/PainterQubits/Unitful.jl/issues/26)
   - Promoting `Quantity`s with different dimensions now returns quantities with
     the same numeric backing type, e.g. `Quantity{Float64}`. Ideally, this would
     also be true if you mixed unitless and unitful numbers during promotion, but
-    that is not yet the case. See [#24](https://github.com/ajkeller34/Unitful.jl/issues/24)
+    that is not yet the case. See [#24](https://github.com/PainterQubits/Unitful.jl/issues/24)
     for motivation.
 - v0.0.2
   - Bug fixes (`[1.0m, 2.0m] ./ 3` would throw a `Unitful.DimensionError()`).

@@ -8,7 +8,7 @@ import Base: complex, widen, reim # handled in complex.jl
 import Base: exp, exp10, exp2, expm1, log, log10, log1p, log2
 import Base: sin, cos, tan, cot, sec, csc, atan, cis
 
-import Base: eps, mod, rem, div, fld, cld, trunc, round, sign, signbit
+import Base: eps, mod, rem, div, fld, cld, divrem, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isinf, isfinite, isnan
 import Base: copysign, flipsign
 import Base: prevfloat, nextfloat, maxintfloat, rat, step
@@ -28,6 +28,7 @@ export Quantity, DimensionlessQuantity, NoUnits, NoDims
 export uconvertp, uconvertrp, reflevel, linear
 export @logscale, @logunit, @dB, @B, @cNp, @Np
 export Level, Gain
+export uparse
 
 const unitmodules = Vector{Module}()
 
@@ -61,10 +62,5 @@ include("fastmath.jl")
 include("logarithm.jl")
 include("complex.jl")
 include("pkgdefaults.jl")
-
-function __init__()
-    # @u_str should be aware of units defined in module Unitful
-    Unitful.register(Unitful)
-end
 
 end

@@ -1,5 +1,5 @@
 using Unitful
-using Test, LinearAlgebra, Random
+using Test, LinearAlgebra, Random, ConstructionBase
 import Unitful: DimensionError, AffineError
 import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
 import Unitful: FreeUnits, ContextUnits, FixedUnits, AffineUnits, AffineQuantity
@@ -10,7 +10,7 @@ import Unitful:
     mg, g, kg,
     Ra, °F, °C, K,
     rad, °,
-    ms, s, minute, hr, Hz,
+    ms, s, minute, hr, d, yr, Hz,
     J, A, N, mol, V,
     mW, W,
     dB, dB_rp, dB_p, dBm, dBV, dBSPL, Decibel,
@@ -26,7 +26,10 @@ import Unitful:
     Current,
     Temperature, AbsoluteScaleTemperature, RelativeScaleTemperature,
     Action,
-    Power
+    Power,
+    MassFlow,
+    MolarFlow,
+    VolumeFlow
 
 import Unitful: LengthUnits, AreaUnits, MassUnits, TemperatureUnits
 
@@ -72,6 +75,7 @@ const colon = Base.:(:)
     @test ContextUnits(m, FixedUnits(mm)) === ContextUnits(m, mm)
     @test ContextUnits(m, ContextUnits(mm, mm)) === ContextUnits(m, mm)
     @test_throws DimensionError ContextUnits(m,kg)
+    @test ConstructionBase.constructorof(typeof(1.0m))(2) === 2m
 end
 
 @testset "Types" begin
@@ -122,10 +126,13 @@ end
         # Issue 26
         @unit altL "altL" altLiter 1000*cm^3 true
         @test convert(Float64, 1altL/cm^3) === 1000.0
+        # Issue 327
+        @test uconvert(u"√cm", 1u"√m") == 10u"√cm"
     end
     @testset "> Unitful ↔ unitful conversion" begin
         @testset ">> Numeric conversion" begin
             @test @inferred(float(3m)) === 3.0m
+            @test @inferred(Float32(3m)) === 3.0f0m
             @test @inferred(Integer(3.0A)) === 3A
             @test Rational(3.0m) === (Int64(3)//1)*m
             @test typeof(convert(typeof(0.0°), 90°)) == typeof(0.0°)
@@ -160,6 +167,10 @@ end
             @test 1inch == (254//100)*cm
             @test 1ft == 12inch
             @test 1/mi == 1//(5280ft)
+            @test 1minute == 60s
+            @test 1hr == 60minute
+            @test 1d == 24hr
+            @test 1yr == 365.25d
             @test 1J == 1kg*m^2/s^2
             @test typeof(1cm)(1m) === 100cm
             @test (3V+4V*im) != (3m+4m*im)
@@ -168,8 +179,14 @@ end
             @test_throws DimensionError uconvert(ContextUnits(m,mm), 1kg)
             @test_throws DimensionError uconvert(m, 1*FixedUnits(kg))
             @test uconvert(g, 1*FixedUnits(kg)) == 1000g         # manual conversion okay
+            @test (1kg, 2g, 3mg, missing) .|> g === (1000g, 2g, (3//1000)g, missing)
             # Issue 79:
             @test isapprox(upreferred(Unitful.ɛ0), 8.85e-12u"F/m", atol=0.01e-12u"F/m")
+            # Issue 261:
+            @test 1u"rps" == 360°/s
+            @test 1u"rps" == 2π/s
+            @test 1u"rpm" == 360°/minute
+            @test 1u"rpm" == 2π/minute
         end
     end
 end
@@ -184,6 +201,7 @@ end
         @test_throws AffineError °C*°C
         @test_throws AffineError °C*K
         @test_throws AffineError (0°C)*(0°C)
+        @test_throws AffineError (1°C)/(1°C)
         @test_throws AffineError °C^2
         let x = 2
             @test_throws AffineError °C^x
@@ -199,6 +217,22 @@ end
         @test_throws AffineError 2 * (32°F)
         @test_throws AffineError (32°F) / 2
         @test_throws AffineError 2 / (32°F)
+
+        for f = (:div, :rem, :divrem)
+            @eval for r = (RoundNearest, RoundNearestTiesAway, RoundNearestTiesUp,
+                           RoundToZero, RoundUp, RoundDown)
+                @test_throws AffineError $f(32°F, 2°F, r)
+                @test_throws AffineError $f(32°F, 2K, r)
+                @test_throws AffineError $f(32K, 2°F, r)
+            end
+        end
+        for f = (:div, :cld, :fld, :rem, :mod, :divrem, :fldmod)
+            @eval begin
+                @test_throws AffineError $f(32°F, 2°F)
+                @test_throws AffineError $f(32°F, 2K)
+                @test_throws AffineError $f(32K, 2°F)
+            end
+        end
 
         @test zero(100°C) === 0K
         @test zero(typeof(100°C)) === 0K
@@ -282,7 +316,7 @@ end
         @test @inferred(upreferred(unit(1g |> ContextUnits(g,mg)))) === ContextUnits(mg,mg)
         @test @inferred(upreferred(1g |> ContextUnits(g,mg))) == 1000mg
 
-        @test @inferred(upreferred(1N)) === (1//1)*kg*m/s^2
+        @test @inferred(upreferred(1N)) === 1*kg*m/s^2
         @test ismissing(upreferred(missing))
     end
     @testset "> promote_unit" begin
@@ -376,22 +410,28 @@ end
     end
 end
 
-@testset "Unit string macro" begin
-    @test u"m" == m
-    @test u"m,s" == (m,s)
-    @test u"1.0" == 1.0
-    @test u"m/s" == m/s
-    @test u"1.0m/s" == 1.0m/s
-    @test u"m^-1" == m^-1
-    @test u"dB/Hz" == dB/Hz
-    @test u"3.0dB/Hz" == 3.0dB/Hz
-    @test_throws LoadError macroexpand(@__MODULE__, :(u"N m"))
-    @test_throws LoadError macroexpand(@__MODULE__, :(u"abs(2)"))
-    @test_throws LoadError @eval u"basefactor"
+@testset "Unit string parsing" begin
+    @test uparse("m") == m
+    @test uparse("m,s") == (m,s)
+    @test uparse("1.0") == 1.0
+    @test uparse("m/s") == m/s
+    @test uparse("N*m") == N*m
+    @test uparse("1.0m/s") == 1.0m/s
+    @test uparse("m^-1") == m^-1
+    @test uparse("dB/Hz") == dB/Hz
+    @test uparse("3.0dB/Hz") == 3.0dB/Hz
 
-    # test ustrcheck(::Quantity)
-    @test u"h" == Unitful.h
-    @test u"π" == π              # issue 112
+    # Invalid unit strings
+    @test_throws Meta.ParseError uparse("N m")
+    @test_throws ArgumentError uparse("abs(2)")
+    @test_throws ArgumentError uparse("(1,2)")
+    @test_throws ArgumentError uparse("begin end")
+
+    # test ustrcheck_bool
+    @test_throws ArgumentError uparse("basefactor") # non-Unit symbols
+    # ustrcheck_bool(::Quantity)
+    @test uparse("h") == Unitful.h
+    @test uparse("π") == π              # issue 112
 end
 
 @testset "Unit and dimensional analysis" begin
@@ -445,7 +485,9 @@ end
     @test isa(u"h", Action)
     @test isa(3u"dBm", Power)
     @test isa(3u"dBm*Hz*s", Power)
-
+    @test isa(1kg/s, MassFlow)
+    @test isa(1mol/s, MolarFlow)
+    @test isa(1m^3/s, VolumeFlow)
 end
 
 @testset "Mathematics" begin
@@ -499,6 +541,9 @@ end
         @test @inferred(zero(1m)) === 0m                # Additive identity
         @test @inferred(zero(typeof(1m))) === 0m
         @test @inferred(zero(typeof(1.0m))) === 0.0m
+        @test_throws ArgumentError zero(Quantity{Int})
+        @test zero(Quantity{Int, 𝐋}) == 0m
+        @test zero(Quantity{Int, 𝐋}) isa Quantity{Int}
         @test @inferred(π/2*u"rad" + 90u"°") ≈ π        # Dimless quantities
         @test @inferred(π/2*u"rad" - 90u"°") ≈ 0        # Dimless quantities
         @test_throws DimensionError 1+1m                # Dim mismatched
@@ -535,7 +580,13 @@ end
         @test m / missing === missing        # Unit / missing
         @test missing / m === missing        # Missing / Unit (// is not defined for Missing)
         @test @inferred(div(10m, -3cm)) === -333
+        @test @inferred(div(10m, 3)) === 3m
+        @test @inferred(div(10, 3m)) === 3/m
         @test @inferred(fld(10m, -3cm)) === -334
+        @test @inferred(fld(10m, 3)) === 3m
+        @test @inferred(fld(10, 3m)) === 3/m
+        @test @inferred(cld(10m, 3)) === 4m
+        @test @inferred(cld(10, 3m)) === 4/m
         @test rem(10m, -3cm) == 1.0cm
         @test mod(10m, -3cm) == -2.0cm
         @test mod(1hr+3minute+5s, 24s) == 17s
@@ -596,6 +647,10 @@ end
         @test @inferred(sec(0°)) == 1
         @test @inferred(cot(45°)) == 1
         @test @inferred(atan(m*sqrt(3),1m)) ≈ 60°
+        @test @inferred(atan(m*sqrt(3),1.0m)) ≈ 60°
+        @test @inferred(atan(m*sqrt(3),1000mm)) ≈ 60°
+        @test @inferred(atan(m*sqrt(3),1e+3mm)) ≈ 60°
+        @test_throws DimensionError atan(m*sqrt(3),1e+3s)
         @test @inferred(angle((3im)*V)) ≈ 90°
     end
     @testset "> Exponentials and logarithms" begin
@@ -888,24 +943,32 @@ end
     @test ceil(Int16, 1.0314m/mm) === Int16(1032.0)
     @test trunc(Int16, -1.0314m/mm) === Int16(-1031.0)
     @test round(Int16, 1.0314m/mm) === Int16(1031.0)
-    if VERSION >= v"1"
-        @test floor(typeof(1mm), 1.0314m) === 1031mm
-        @test floor(typeof(1.0mm), 1.0314m) === 1031.0mm
-        @test floor(typeof(1.0mm), 1.0314m; digits=1) === 1031.4mm
-        @test ceil(typeof(1mm), 1.0314m) === 1032mm
-        @test ceil(typeof(1.0mm), 1.0314m) === 1032.0mm
-        @test ceil(typeof(1.0mm), 1.0314m; digits=1) === 1031.4mm
-        @test trunc(typeof(1mm), -1.0314m) === -1031mm
-        @test trunc(typeof(1.0mm), -1.0314m) === -1031.0mm
-        @test trunc(typeof(1.0mm), -1.0314m; digits=1) === -1031.4mm
-        @test round(typeof(1mm), 1.0314m) === 1031mm
-        @test round(typeof(1.0mm), 1.0314m) === 1031.0mm
-        @test round(typeof(1.0mm), 1.0314m; digits=1) === 1031.4mm
-        @test round(u"inch", 1.0314m) === 41.0u"inch"
-        @test round(Int, u"inch", 1.0314m) === 41u"inch"
-        @test round(typeof(1m), 137cm) === 1m
-        @test round(137cm/m) === 1//1
-    end
+    @test floor(typeof(1mm), 1.0314m) === 1031mm
+    @test floor(typeof(1.0mm), 1.0314m) === 1031.0mm
+    @test floor(typeof(1.0mm), 1.0314m; digits=1) === 1031.4mm
+    @test ceil(typeof(1mm), 1.0314m) === 1032mm
+    @test ceil(typeof(1.0mm), 1.0314m) === 1032.0mm
+    @test ceil(typeof(1.0mm), 1.0314m; digits=1) === 1031.4mm
+    @test trunc(typeof(1mm), -1.0314m) === -1031mm
+    @test trunc(typeof(1.0mm), -1.0314m) === -1031.0mm
+    @test trunc(typeof(1.0mm), -1.0314m; digits=1) === -1031.4mm
+    @test round(typeof(1mm), 1.0314m) === 1031mm
+    @test round(typeof(1.0mm), 1.0314m) === 1031.0mm
+    @test round(typeof(1.0mm), 1.0314m; digits=1) === 1031.4mm
+    @test round(u"inch", 1.0314m) === 41.0u"inch"
+    @test round(Int, u"inch", 1.0314m) === 41u"inch"
+    @test round(typeof(1m), 137cm) === 1m
+    @test round(137cm/m) === 1//1
+    @test round(u"m", -125u"cm", sigdigits=2) === -1.2u"m"
+    @test round(u"m", (125//1)u"cm", sigdigits=2) === 1.2u"m"
+    @test round(u"m", -125u"cm", RoundNearestTiesUp, sigdigits=2) === -1.2u"m"
+    @test round(u"m", (125//1)u"cm", RoundNearestTiesUp, sigdigits=2) === 1.3u"m"
+    @test floor(u"m", -125u"cm", sigdigits=2) === -1.3u"m"
+    @test floor(u"m", (125//1)u"cm", sigdigits=2) === 1.2u"m"
+    @test ceil(u"m", -125u"cm", sigdigits=2) === -1.2u"m"
+    @test ceil(u"m", (125//1)u"cm", sigdigits=2) === 1.3u"m"
+    @test trunc(u"m", -125u"cm", sigdigits=2) === -1.2u"m"
+    @test trunc(u"m", (125//1)u"cm", sigdigits=2) === 1.2u"m"
 end
 
 @testset "Sgn, abs, &c." begin
@@ -1163,17 +1226,21 @@ end
             @test size(rand(Q, 2)) == (2,)
             @test size(rand(Q, 2, 3)) == (2,3)
             @test eltype(@inferred(rand(Q, 2))) == Q
+            @test_throws ArgumentError zero([1u"m", 1u"s"])
+            @test zero(Quantity{Int,𝐋}[1u"m", 1u"mm"]) == [0, 0]u"m"
         end
     end
 end
 
 @testset "Display" begin
-    @test string(typeof(1.0m/s)) ==
-          "Quantity{Float64, ᴸ* ᵀ^-1,FreeUnits{(m, s^-1), ᴸ* ᵀ^-1,nothing}}"
-    @test string(typeof(m/s)) ==
-        "FreeUnits{(m, s^-1), ᴸ* ᵀ^-1,nothing}"
-    @test string(dimension(1u"m/s")) == " ᴸ  ᵀ^-1"
-    @test string(NoDims) == "NoDims"
+    withenv("UNITFUL_FANCY_EXPONENTS" => false) do
+        @test string(typeof(1.0m/s)) ==
+            "Quantity{Float64,𝐋 𝐓^-1,FreeUnits{(m, s^-1),𝐋 𝐓^-1,nothing}}"
+        @test string(typeof(m/s)) ==
+            "FreeUnits{(m, s^-1),𝐋 𝐓^-1,nothing}"
+        @test string(dimension(1u"m/s")) == "𝐋 𝐓^-1"
+        @test string(NoDims) == "NoDims"
+    end
 end
 
 struct Foo <: Number end
@@ -1181,10 +1248,28 @@ Base.show(io::IO, x::Foo) = print(io, "1")
 Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
 
 @testset "Show quantities" begin
-    @test repr(1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
-    @test repr("text/plain", 1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
-    @test repr(Foo() * u"m * s * kg^-1") == "1 m s kg^-1"
-    @test repr("text/plain", Foo() * u"m * s * kg^-1") == "42.0 m s kg^-1"
+    withenv("UNITFUL_FANCY_EXPONENTS" => false) do
+        @test repr(1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
+        @test repr("text/plain", 1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
+        @test repr(Foo() * u"m * s * kg^-1") == "1 m s kg^-1"
+        @test repr("text/plain", Foo() * u"m * s * kg^-1") == "42.0 m s kg^-1"
+
+        # Angular degree printing #253
+        @test sprint(show, 1.0°)       == "1.0°"
+        @test repr("text/plain", 1.0°) == "1.0°"
+
+        # Concise printing of ranges
+        @test repr((1:10)*u"kg/m^3") == "(1:10) kg m^-3"
+        @test repr((1.0:0.1:10.0)*u"kg/m^3") == "(1.0:0.1:10.0) kg m^-3"
+        @test repr((1:10)*°) == "(1:10)°"
+    end
+    withenv("UNITFUL_FANCY_EXPONENTS" => true) do
+        @test repr(1.0 * u"m * s * kg^(-1//2)") == "1.0 m s kg⁻¹ᐟ²"
+    end
+    withenv("UNITFUL_FANCY_EXPONENTS" => nothing) do
+        @test repr(1.0 * u"m * s * kg^(-1//2)") ==
+            (Sys.isapple() ? "1.0 m s kg⁻¹ᐟ²" : "1.0 m s kg^-1/2")
+    end
 end
 
 @testset "DimensionError message" begin
@@ -1433,6 +1518,8 @@ end
             @test false * 3dB == 0*dB
             @test 1V * 20dB == 10V
             @test 20dB * 1V == 10V
+            @test 10J * 10dB == 100J
+            @test 10W/m^3 * 10dB == 100W/m^3
         end
 
         @testset ">> MixedUnits" begin
@@ -1443,6 +1530,12 @@ end
             @test m*dB === dB*m
             @test [1,2,3]u"dB" == u"dB"*[1,2,3]
         end
+    end
+
+    @testset "> Comparisons" begin
+        @test 3dB < 5dB
+        @test 3dBm < 5dBm
+        @test_throws MethodError 3dB < 5dBm
     end
 
     @testset "> zero, one" begin
@@ -1527,6 +1620,19 @@ module DoesUseFooUnits
 end
 @test DoesUseFooUnits.foo() === 1u"foo"
 
+# Tests for unit extension modules in unit parsing
+@test_throws ArgumentError uparse("foo", unit_context=Unitful)
+@test uparse("foo", unit_context=FooUnits) === u"foo"
+@test uparse("foo", unit_context=[Unitful, FooUnits]) === u"foo"
+@test uparse("foo", unit_context=[FooUnits, Unitful]) === u"foo"
+
+# Test for #272
+module OnlyUstrImported
+    import Unitful: @u_str
+    u = u"m"
+end
+@test OnlyUstrImported.u === m
+
 # Test to make sure user macros are working properly
 module TUM
     using Unitful
@@ -1551,14 +1657,14 @@ end
 struct Num <: Real
    x::Float64
 end
-Base.:+(a::Num, b::Num) = Num(a.x - b.x)
+Base.:+(a::Num, b::Num) = Num(a.x + b.x)
 Base.:-(a::Num, b::Num) = Num(a.x - b.x)
 Base.:*(a::Num, b::Num) = Num(a.x * b.x)
 Base.promote_rule(::Type{Num}, ::Type{<:Real}) = Num
 
 @testset "Custom types" begin
     # Test that @generated functions work with Quantities + custom types (#231)
-    @test uconvert(u"°C", Num(100)u"K") == Num(373.15)u"°C"
+    @test uconvert(u"°C", Num(373.15)u"K") == Num(100)u"°C"
 end
 
 # Test precompiled Unitful extension modules
@@ -1570,7 +1676,7 @@ try
           module ExampleExtension
           using Unitful
 
-          @unit yr "yr" JulianYear 365.25u"d" true
+          @unit year "year" JulianYear 365u"d" true
 
           function __init__()
               Unitful.register(ExampleExtension)
@@ -1580,10 +1686,9 @@ try
     pushfirst!(LOAD_PATH, load_path)
     pushfirst!(DEPOT_PATH, load_cache_path)
     @eval using ExampleExtension
-    # Delay u"yr" expansion until test time
-    @eval @test uconvert(u"d", 1u"yr") == 365.25u"d"
+    # Delay u"year" expansion until test time
+    @eval @test uconvert(u"d", 1u"year") == 365u"d"
 finally
     rm(load_path, recursive=true)
     rm(load_cache_path, recursive=true)
 end
-
