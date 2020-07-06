@@ -245,11 +245,11 @@ tab = fill("", length(head), length(head))
 for col = eachindex(head), row = 1:col
     try
         tab[row, col] = string(quantities[row] * quantities[col])
-    catch e
-        if e isa Union{ArgumentError, MethodError}
-            tab[row, col] = "†"
-        else
+    catch
+        if quantities[row] === u"1/Hz" && quantities[col] === u"3dB"
             tab[row, col] = "† ‡"
+        else
+            tab[row, col] = "†"
         end
     end
 end
@@ -340,7 +340,7 @@ tab = fill("", length(head), length(head))
 for col = eachindex(head), row = 1:col
     try
         tab[row, col] = string(quantities[row] + quantities[col])
-    catch e
+    catch
         tab[row, col] = "†"
     end
 end
