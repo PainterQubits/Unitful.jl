@@ -317,7 +317,7 @@ function Base.show(io::IO, x::Quantity{<:Union{Level,Gain},D,U}) where {D,U}
     show(io, x.val)
     print(io, "]")
     if !isunitless(U())
-        print(io," ")
+        has_unit_spacing(unit(x)) && print(io, " ")
         show(io, U())
     end
     nothing
@@ -328,7 +328,7 @@ function Base.show(io::IO, mime::MIME"text/plain", x::Quantity{<:Union{Level,Gai
     show(io, mime, x.val)
     print(io, "]")
     if !isunitless(unit(x))
-        print(io," ")
+        has_unit_spacing(unit(x)) && print(io, " ")
         show(io, mime, unit(x))
     end
 end

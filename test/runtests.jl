@@ -1564,7 +1564,9 @@ end
 
     @testset "> Display" begin
         @test sprint(show, 0u"dB/Hz") == "[0 dB] Hz^-1"
+        @test sprint(show, 0u"dB*°") == "[0 dB]°"
         @test sprint(show, MIME"text/plain"(), 0u"dB/Hz") == "[0 dB] Hz^-1"
+        @test sprint(show, MIME"text/plain"(), 0u"dB*°") == "[0 dB]°"
         @test Unitful.abbr(3u"dBm") == "dBm"
         @test Unitful.abbr(@dB 3V/1.241V) == "dB (1.241 V)"
         @test string(360°) == "360°"
