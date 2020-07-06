@@ -323,6 +323,16 @@ function Base.show(io::IO, x::Quantity{<:Union{Level,Gain},D,U}) where {D,U}
     nothing
 end
 
+function Base.show(io::IO, mime::MIME"text/plain", x::Quantity{<:Union{Level,Gain}})
+    print(io, "[")
+    show(io, mime, x.val)
+    print(io, "]")
+    if !isunitless(unit(x))
+        print(io," ")
+        show(io, mime, unit(x))
+    end
+end
+
 """
     uconvertp(u::Units, x)
     uconvertp(u::MixedUnits, x)
