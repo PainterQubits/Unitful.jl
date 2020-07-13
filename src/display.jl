@@ -190,7 +190,7 @@ end
 """
     showrep(io::IO, x::Unit)
 Show the unit, prefixing with any decimal prefix and appending the exponent as
-formatted by `superscript`.
+formatted by [`Unitful.superscript`](@ref).
 Also prints with color when allowed by io.
 Pass in
     IOContext(..., :showconstructor=>true)
@@ -213,7 +213,8 @@ end
 
 """
     showrep(io::IO, x::Dimension)
-Show the dimension, appending any exponent as formatted by `superscript`.
+    Show the dimension, appending any exponent as formatted by
+    [`Unitful.superscript`](@ref).
 """
 function showrep(io::IO, x::Dimension)
     print(io, abbr(x))
@@ -288,6 +289,7 @@ function show_unit(io::IO, x)
 end
 
 """
+superscript(i::Rational)
 String representation of exponent.
 """
 function superscript(i::Rational)
