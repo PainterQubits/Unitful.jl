@@ -1254,6 +1254,10 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
         @test repr(Foo() * u"m * s * kg^-1") == "1 m s kg^-1"
         @test repr("text/plain", Foo() * u"m * s * kg^-1") == "42.0 m s kg^-1"
 
+        # Complex quantities
+        @test repr((1+2im) * u"m/s") == "(1 + 2im) m s^-1"
+        @test repr("text/plain", (1+2im) * u"m/s") == "(1 + 2im) m s^-1"
+
         # Angular degree printing #253
         @test sprint(show, 1.0°)       == "1.0°"
         @test repr("text/plain", 1.0°) == "1.0°"
@@ -1563,6 +1567,10 @@ end
     end
 
     @testset "> Display" begin
+        withenv("UNITFUL_FANCY_EXPONENTS" => false) do
+            @test repr(3u"dB/Hz") == "[3 dB] Hz^-1"
+            @test repr("text/plain", 3u"dB/Hz") == "[3 dB] Hz^-1"
+        end
         @test Unitful.abbr(3u"dBm") == "dBm"
         @test Unitful.abbr(@dB 3V/1.241V) == "dB (1.241 V)"
         @test string(360°) == "360°"

@@ -6,10 +6,12 @@ variable `UNITFUL_FANCY_EXPONENTS` to either `true` or `false` to force using or
 the exponents.
 
 ```@docs
+Unitful.BracketStyle
 Unitful.abbr
 Unitful.prefix
 Unitful.show(::IO, ::Quantity)
 Unitful.show(::IO, ::Unitful.Unitlike)
 Unitful.showrep
+Unitful.showval
 Unitful.superscript
 ```
