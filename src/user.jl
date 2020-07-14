@@ -494,7 +494,7 @@ julia> u"m,kg,s"
 (m, kg, s)
 
 julia> typeof(1.0u"m/s")
-Quantity{Float64,ᴸ*ᵀ^-1,Unitful.FreeUnits{(m, s^-1),ᴸ*ᵀ^-1,nothing}}
+Quantity{Float64,ᴸ*ᵀ^-1,Unitful.FreeUnits{(m, s^-1),ᴸ ᵀ^-1,nothing}}
 
 julia> u"ħ"
 1.0545718176461565e-34 J s

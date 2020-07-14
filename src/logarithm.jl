@@ -443,18 +443,4 @@ _isapprox(x::Gain{L,S,T}, y::Gain{L,S,T}; atol = Gain{L}(oneunit(T)), kwargs...)
 *(A::MixedUnits, B::AbstractArray) = broadcast(*, A, B)
 *(A::AbstractArray, B::MixedUnits) = broadcast(*, A, B)
 
-# For documentation generation...
-struct InvalidOp end
-Base.show(io::IO, ::InvalidOp) = print(io, "†")
-macro _doctables(x)
-    return esc(quote
-        sprint(show,
-        try
-            $x
-        catch
-            Unitful.InvalidOp()
-        end)
-    end)
-end
-
 Base.broadcastable(x::MixedUnits) = Ref(x)

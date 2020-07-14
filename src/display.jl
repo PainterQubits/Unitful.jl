@@ -44,13 +44,18 @@ function prefix(x::Unit)
     end
 end
 
-show(io::IO, x::Unit{N,D}) where {N,D} = show(io, FreeUnits{(x,), D, nothing}())
+function show(io::IO, x::Unit{N,D}) where {N,D}
+    show(io, FreeUnits{(x,), D, nothing}())
+end
 
 # Space between numerical value and unit should always be included
 # except for angular degress, minutes and seconds (° ′ ″)
 # See SI 9th edition, section 5.4.3; "Formatting the value of a quantity"
 # https://www.bipm.org/utils/common/pdf/si-brochure/SI-Brochure-9.pdf
-has_unit_spacing(u) = true
+#
+# This clone of Unitful overrides the default spacing, in order to allow reproduction
+# of output quantities by copy-paste. This is a Julia convention.
+has_unit_spacing(u) = false
 has_unit_spacing(u::Units{(Unit{:Degree, NoDims}(0, 1//1),), NoDims}) = false
 
 """
@@ -198,8 +203,7 @@ to show a longer more formal form of the unit type, which can be used as a const
 This is done internally when the output of vanilla Julia types would also double as constructor.
 """
 function showrep(io::IO, x::Unit)
-    p = power(x)
-    supers = superscript(p)
+    supers = power(x) == 1//1 ? "" : superscript(power(x))
     if get(io, :showconstructor, false)
         # Print a longer, more formal definition which can be used as a constructor or inform the interested user.
         print(io, typeof(x), "(", tens(x), ", ", power(x), ")")
@@ -293,7 +297,7 @@ superscript(i::Rational)
 String representation of exponent.
 """
 function superscript(i::Rational)
-    v = @eval get(ENV, "UNITFUL_FANCY_EXPONENTS", $(Sys.isapple() ? "true" : "false"))
+    v = @eval get(ENV, "UNITFUL_FANCY_EXPONENTS", $(Sys.isapple() || Sys.iswindows() ? "true" : "false"))
     t = tryparse(Bool, lowercase(v))
     k = (t === nothing) ? false : t
     if k

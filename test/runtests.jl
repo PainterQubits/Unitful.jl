@@ -174,6 +174,13 @@ end
             @test 1J == 1kg*m^2/s^2
             @test typeof(1cm)(1m) === 100cm
             @test (3V+4V*im) != (3m+4m*im)
+            #==
+            We intentionally don't want to throw DimensionError in this clone. Instead,
+            wanted behaviour is to mulitiply by units as required for a consistent answer.
+            
+            julia> 1.0N |> kg
+                1.0kg∙m∙s⁻²
+            ==#
             # @test_throws DimensionError uconvert(m, 1kg)
             # @test_throws DimensionError uconvert(m, 1*ContextUnits(kg,g))
             # @test_throws DimensionError uconvert(ContextUnits(m,mm), 1kg)
@@ -1025,7 +1032,7 @@ end
             @test r[5]==1m
 
             @test length(.1m:.1m:.3m) == 3
-            # @test length(1.1m:1.1m:3.3m) == 3
+            @test length(1.1m:1.1m:3.3m) == 3
             @test @inferred(length(1.1m:1.3m:3m)) == 2
             @test length(1m:1m:1.8m) == 1
 
@@ -1234,11 +1241,12 @@ end
 
 @testset "Display" begin
     withenv("UNITFUL_FANCY_EXPONENTS" => false) do
-        # @test string(typeof(1.0m/s)) ==
+        # TODO: Fix behaviour
+        #@test string(typeof(1.0m/s)) ==
         #    "Quantity{Float64,ᴸ ᵀ^-1,FreeUnits{(m, s^-1),ᴸ ᵀ^-1,nothing}}"
-        # @test string(typeof(m/s)) ==
-        #     "FreeUnits{(m, s^-1),ᴸ ᵀ^-1,nothing}"
-        # @test string(dimension(1u"m/s")) == "ᴸ ᵀ^-1"
+        @test string(typeof(m/s)) ==
+            "FreeUnits{(m, s^-1), ᴸ∙ ᵀ^-1,nothing}"
+        @test string(dimension(1u"m/s")) == " ᴸ∙ ᵀ^-1"
         @test string(NoDims) == "NoDims"
     end
 end
@@ -1249,26 +1257,26 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
 
 @testset "Show quantities" begin
     withenv("UNITFUL_FANCY_EXPONENTS" => false) do
-        # @test repr(1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
-        # @test repr("text/plain", 1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
-        # @test repr(Foo() * u"m * s * kg^-1") == "1 m s kg^-1"
-        # @test repr("text/plain", Foo() * u"m * s * kg^-1") == "42.0 m s kg^-1"
+        @test repr(1.0 * u"m * s * kg^-1") == "1.0m∙s∙kg^-1"
+        @test repr("text/plain", 1.0 * u"m * s * kg^-1") == "1.0m∙s∙kg^-1"
+        @test repr(Foo() * u"m * s * kg^-1") == "1m∙s∙kg^-1"
+        @test repr("text/plain", Foo() * u"m * s * kg^-1") == "42.0m∙s∙kg^-1"
 
         # Angular degree printing #253
-        # @test sprint(show, 1.0°)       == "1.0°"
-        # @test repr("text/plain", 1.0°) == "1.0°"
+        @test sprint(show, 1.0°)       == "1.0°"
+        @test repr("text/plain", 1.0°) == "1.0°"
 
         # Concise printing of ranges
-        # @test repr((1:10)*u"kg/m^3") == "(1:10) kg m^-3"
-        # @test repr((1.0:0.1:10.0)*u"kg/m^3") == "(1.0:0.1:10.0) kg m^-3"
-        # @test repr((1:10)*°) == "(1:10)°"
+        @test repr((1:10)*u"kg/m^3") == "(1:10)kg∙m^-3"
+        @test repr((1.0:0.1:10.0)*u"kg/m^3") == "(1.0:0.1:10.0)kg∙m^-3"
+        @test repr((1:10)*°) == "(1:10)°"
     end
     withenv("UNITFUL_FANCY_EXPONENTS" => true) do
-        # @test repr(1.0 * u"m * s * kg^(-1//2)") == "1.0 m s kg⁻¹ᐟ²"
+        @test repr(1.0 * u"m * s * kg^(-1//2)") == "1.0m∙s∙kg⁻¹ᐟ²"
     end
     withenv("UNITFUL_FANCY_EXPONENTS" => nothing) do
-        # @test repr(1.0 * u"m * s * kg^(-1//2)") ==
-        #     (Sys.isapple() ? "1.0 m s kg⁻¹ᐟ²" : "1.0 m s kg^-1/2")
+        @test repr(1.0 * u"m * s * kg^(-1//2)") ==
+            (Sys.isapple() || Sys.iswindows() ? "1.0m∙s∙kg⁻¹ᐟ²" : "1.0∙m∙s∙kg^-1/2")
     end
 end
 
@@ -1563,9 +1571,9 @@ end
     end
 
     @testset "> Display" begin
-        # @test Unitful.abbr(3u"dBm") == "dBm"
-        # @test Unitful.abbr(@dB 3V/1.241V) == "dB (1.241 V)"
-        # @test string(360°) == "360°"
+        @test Unitful.abbr(3u"dBm") == "dBm"
+        @test Unitful.abbr(@dB 3V/1.241V) == "dB (1.241V)"
+        @test string(360°) == "360°"
     end
 
     @testset "> Thanks for signing up for Log Facts!" begin
