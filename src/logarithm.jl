@@ -312,16 +312,7 @@ function Base.show(io::IO, x::Level)
     nothing
 end
 
-function Base.show(io::IO, x::Quantity{<:Union{Level,Gain},D,U}) where {D,U}
-    print(io, "[")
-    show(io, x.val)
-    print(io, "]")
-    if !isunitless(U())
-        print(io," ")
-        show(io, U())
-    end
-    nothing
-end
+BracketStyle(::Type{<:Union{Level,Gain}}) = SquareBrackets()
 
 """
     uconvertp(u::Units, x)
