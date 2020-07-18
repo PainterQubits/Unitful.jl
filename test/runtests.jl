@@ -1241,10 +1241,9 @@ end
 
 @testset "Display" begin
     withenv("UNITFUL_FANCY_EXPONENTS" => false) do
-        # TODO: Fix behaviour
-        #@test string(typeof(1.0m/s)) ==
-        #    "Quantity{Float64,ᴸ ᵀ^-1,FreeUnits{(m, s^-1),ᴸ ᵀ^-1,nothing}}"
-        @test string(typeof(m/s)) ==
+        @test string(typeof(1.0m/s)) ==
+            "Quantity{Float64, ᴸ∙ ᵀ^-1,FreeUnits{(m, s^-1), ᴸ∙ ᵀ^-1,nothing}}"
+          @test string(typeof(m/s)) ==
             "FreeUnits{(m, s^-1), ᴸ∙ ᵀ^-1,nothing}"
         @test string(dimension(1u"m/s")) == " ᴸ∙ ᵀ^-1"
         @test string(NoDims) == "NoDims"

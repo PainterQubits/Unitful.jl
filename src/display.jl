@@ -137,8 +137,8 @@ variable of a [`Unitful.Units`](@ref) or [`Unitful.Dimensions`](@ref) object.
 function show(io::IO, x::Unitlike)
     first = ""
     foreach(sortexp(typeof(x).parameters[1])) do y
-        print(io,first)
-        showrep(io,y)
+        print(io, first)
+        showrep(io, y)
         first = "∙"
     end
     nothing
@@ -150,7 +150,7 @@ end
 Print the unit of an AbstractArray outside and after the array. Output can
 be used to define a full copy.
 """
-function show(io::IO, x::AbstractArray{Quantity{T,D,U}, N})  where {T,D,U,N} # short form
+function ___show(io::IO, x::AbstractArray{Quantity{T,D,U}, N})  where {T,D,U,N} # short form
     ioc = IOContext(io, :typeinfo => T)
     show(ioc, ustrip.(x))
     show_unit(io, first(x))
@@ -225,7 +225,7 @@ function showrep(io::IO, x::Dimension)
     print(io, (power(x) == 1//1 ? "" : superscript(power(x))))
 end
 
-function showrep(io::IO, x::FreeUnits{N,D,A}) where {N, D, A<:Affine}
+function ___showrep(io::IO, x::FreeUnits{N,D,A}) where {N, D, A<:Affine}
     if get(io, :showconstructor, false)
         # Print a longer, more formal definition which can be used as a constructor or inform the interested user.
         print(io, "FreeUnits{", N, ",", D, ",", A, "}")
