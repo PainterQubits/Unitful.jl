@@ -33,7 +33,14 @@ import Unitful:
 
 import Unitful: LengthUnits, AreaUnits, MassUnits, TemperatureUnits
 
+  
+Sys.iswindows() && push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
+Sys.isapple() && push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
+
 const colon = Base.:(:)
+
+Sys.iswindows() && push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
+Sys.isapple() && push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
 
 @testset "Construction" begin
     @test isa(NoUnits, FreeUnits)
@@ -177,7 +184,7 @@ end
             #==
             We intentionally don't want to throw DimensionError in this clone. Instead,
             wanted behaviour is to mulitiply by units as required for a consistent answer.
-            
+
             julia> 1.0N |> kg
                 1.0kg∙m∙s⁻²
             ==#

@@ -2,6 +2,7 @@ module Unitful
 
 import Base: ==, <, <=, +, -, *, /, //, ^, isequal
 import Base: show, convert
+import Base: typeinfo_implicit, _show_nonempty, show_delim_array
 import Base: abs, abs2, angle, float, fma, muladd, inv, sqrt, cbrt
 import Base: min, max, floor, ceil, real, imag, conj
 import Base: complex, widen, reim # handled in complex.jl
@@ -23,7 +24,7 @@ import Random
 
 export logunit, unit, absoluteunit, dimension, uconvert, ustrip, upreferred, ∙
 export @dimension, @derived_dimension, @refunit, @unit, @affineunit, @u_str
-export Quantity, DimensionlessQuantity, NoUnits, NoDims
+export Quantity, DimensionlessQuantity, NoUnits, NoDims, FreeUnits
 
 export uconvertp, uconvertrp, reflevel, linear
 export @logscale, @logunit, @dB, @B, @cNp, @Np
