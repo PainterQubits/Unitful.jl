@@ -33,7 +33,7 @@ import Unitful:
 
 import Unitful: LengthUnits, AreaUnits, MassUnits, TemperatureUnits
 
-  
+
 Sys.iswindows() && push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
 Sys.isapple() && push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
 
@@ -1269,8 +1269,8 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
         @test repr("text/plain", Foo() * u"m * s * kg^-1") == "42.0m∙s∙kg^-1"
 
         # Complex quantities
-        @test repr((1+2im) * u"m/s") == "(1 + 2im) m s^-1"
-        @test repr("text/plain", (1+2im) * u"m/s") == "(1 + 2im) m s^-1"
+        @test repr((1+2im) * u"m/s") == "(1 + 2im)m∙s^-1"
+        @test repr("text/plain", (1+2im) * u"m/s") == "(1 + 2im)m∙s^-1"
 
         # Angular degree printing #253
         @test sprint(show, 1.0°)       == "1.0°"
@@ -1286,7 +1286,7 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
     end
     withenv("UNITFUL_FANCY_EXPONENTS" => nothing) do
         @test repr(1.0 * u"m * s * kg^(-1//2)") ==
-            (Sys.isapple() || Sys.iswindows() ? "1.0m∙s∙kg⁻¹ᐟ²" : "1.0∙m∙s∙kg^-1/2")
+            (Sys.isapple() ? "1.0m∙s∙kg⁻¹ᐟ²" : "1.0m∙s∙kg^-1/2")
     end
 end
 
@@ -1296,12 +1296,12 @@ end
         Base.showerror(b,e)
         String(take!(b))
     end
-    # @test errorstr(DimensionError(1u"m",2)) ==
-    #     "DimensionError: 1 m and 2 are not dimensionally compatible."
-    # @test errorstr(DimensionError(1u"m",NoDims)) ==
-    #     "DimensionError: 1 m and NoDims are not dimensionally compatible."
-    # @test errorstr(DimensionError(u"m",2)) ==
-    #     "DimensionError: m and 2 are not dimensionally compatible."
+    @test errorstr(DimensionError(1u"m",2)) ==
+        "DimensionError: 1m and 2 are not dimensionally compatible."
+    @test errorstr(DimensionError(1u"m",NoDims)) ==
+        "DimensionError: 1m and NoDims are not dimensionally compatible."
+    @test errorstr(DimensionError(u"m",2)) ==
+        "DimensionError: m and 2 are not dimensionally compatible."
 end
 
 @testset "Logarithmic quantities" begin
@@ -1582,11 +1582,11 @@ end
 
     @testset "> Display" begin
         withenv("UNITFUL_FANCY_EXPONENTS" => false) do
-            @test repr(3u"dB/Hz") == "[3 dB] Hz^-1"
-            @test repr("text/plain", 3u"dB/Hz") == "[3 dB] Hz^-1"
+            @test repr(3u"dB/Hz") == "[3dB]Hz^-1"
+            @test repr("text/plain", 3u"dB/Hz") == "[3dB]Hz^-1"
         end
         @test Unitful.abbr(3u"dBm") == "dBm"
-        @test Unitful.abbr(@dB 3V/1.241V) == "dB (1.241V)"
+        @test Unitful.abbr(@dB 3V/1.241V) == "dB(1.241V)"
         @test string(360°) == "360°"
     end
 

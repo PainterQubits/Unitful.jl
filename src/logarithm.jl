@@ -11,7 +11,7 @@ end
 logunit(x::Level{L,S}) where {L,S} = MixedUnits{Level{L,S}}()
 logunit(x::Type{T}) where {L,S,T<:Level{L,S}} = MixedUnits{Level{L,S}}()
 
-abbr(x::Level{L,S}) where {L,S} = join([abbr(L()), " (", S, ")"])
+abbr(x::Level{L,S}) where {L,S} = join([abbr(L()), "(", S, ")"])
 
 Base.convert(::Type{LogScaled{L1}}, x::Level{L2,S}) where {L1,L2,S} = Level{L1,S}(x.val)
 Base.convert(T::Type{<:Level}, x::Level) = T(x.val)
@@ -84,13 +84,7 @@ tolog(L,x) = (1+isrootpower(L)) * prefactor(L()) * (logfn(L()))(x)
 fromlog(L,S,x) = unwrap(S) * expfn(L())( x / ((1+isrootpower(S))*prefactor(L())) )
 fromlog(L,x) = expfn(L())( x / ((1+isrootpower(L))*prefactor(L())) )
 
-function Base.show(io::IO, x::MixedUnits{T,U}) where {T,U}
-    print(io, abbr(x))
-    if x.units != NoUnits
-        print(io, " ")
-        show(io, x.units)
-    end
-end
+
 
 abbr(::MixedUnits{L}) where {L <: Level} = abbr(L(reflevel(L)))
 abbr(::MixedUnits{L}) where {L <: Gain} = abbr(L(1))
@@ -303,14 +297,6 @@ function Base.promote_rule(::Type{G}, ::Type{N}) where {L,S,T1, G<:Gain{L,S,T1},
 end
 Base.promote_rule(A::Type{G}, B::Type{L}) where {G<:Gain, L2, L<:Level{L2}} = LogScaled{L2}
 
-function Base.show(io::IO, x::Gain)
-    print(io, x.val, " ", abbr(x))
-    nothing
-end
-function Base.show(io::IO, x::Level)
-    print(io, ustrip(x), " ", abbr(x))
-    nothing
-end
 
 BracketStyle(::Type{<:Union{Level,Gain}}) = SquareBrackets()
 

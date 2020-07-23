@@ -80,6 +80,7 @@ print_closing_bracket(io::IO, x) = print_closing_bracket(io, BracketStyle(x))
 BracketStyle(x) = BracketStyle(typeof(x))
 BracketStyle(::Type) = NoBrackets()
 BracketStyle(::Type{<:Complex}) = RoundBrackets()
+BracketStyle(::Type{<:Rational}) = RoundBrackets()
 
 """
     showval(io::IO, x::Number, brackets::Bool=true)
@@ -113,71 +114,103 @@ has_unit_spacing(u::Units{(Unit{:Degree, NoDims}(0, 1//1),), NoDims}) = false
 # This clone of Unitful overrides the default spacing, in order to allow reproduction
 # of output quantities from their undecorated representations.
 # This means that the output from show(X) can used to construct a new X.
-# This is by Julia convention, but we are not able to simultaneously follow the
+# This is by Julia convention ("rule of thumb"), but we are not able to simultaneously follow the
 # SI convention of typing space between value and unit in a quantity.
+# https://docs.julialang.org/en/v1/manual/types/#man-custom-pretty-printing-1
 has_unit_spacing(u) = false
+
+
+#=
+The context has info on what has been shown (or has been deemed implicit) already.
+It may or may not actually have been shown on screen.
+
+For example:
+- if called via the long output form, typeinfo, if existing,
+  has been shown (in 'summary'). The long form is shown when:
+    show(io, MIME("text/plain", x))
+
+- if called via show |> Base._show_nonempty (the short form)
+  it has not been shown, because we defined
+      typeinfo_implicit(::Type{<:Quantity}) = true
+
+When the unit has not been shown - yet - we do not show it here.
+This was the latter example.
+We want the calling context to add the unit at the end of the context, e.g.
+    [1,2,3]mm
+Therefore, we define specialized calling contexts, e.g.
+    Base._show_nonempty(io, ::Array{<:Quantity})
+
+Note that as a consequence, we need to be able to parse
+    X = [1 2; 3 4]mm
+...which may contradict other Julia conventions.
+=#
 
 """
     show(io::IO, x::Quantity)
-Show a unitful quantity by calling [`showval`](@ref) on the numeric value, appending a
-space, and then calling `show` on a units object `U()`.
+Show a unitful quantity. If the unit is declared as known by the calling context,
+drop units and decorations. If not, decorate the value with brackets if
+needed, by a space if needed, and color the unit if the display has that
+capability.
 """
 function show(io::IO, x::Quantity)
-    #=
-    The context has info on what has been shown (or has been deemed implicit) already.
-    It may or may not actually have been shown on screen.
-
-    For example:
-    - if called via the long output form, typeinfo, if existing,
-      has been shown (in 'summary'). The long form is shown when:
-        show(io, MIME("text/plain", x))
-
-    - if called via show |> Base._show_nonempty (the short form)
-      it has not been shown, because we defined
-          typeinfo_implicit(::Type{<:Quantity}) = true
-
-    When the unit has not been shown - yet - we do not show it here.
-    This was the latter example.
-    We want the calling context to add the unit at the end of the context, e.g.
-        [1,2,3]mm
-    Therefore, we define specialized calling contexts, e.g.
-        Base._show_nonempty(io, ::Array{<:Quantity})
-
-    Note that as a consequence, we need to be able to parse
-        X = [1 2; 3 4]mm
-    ...which may contradict other Julia conventions.
-    =#
-    typeinfo = get(io, :typeinfo, Any)::Type
-    if isunitless(unit(x)) || x isa typeinfo
-        # TODO Wrong logic here when printing non-container quantities.
-        # Fix it by reinstating the mime function below!
-        # But it just possible that this is called mistakenly for 'unitless' quantities
+    # This is the undecorated form.
+    if isunitless(unit(x))
+        # No units to show, no need for potential brackets
         showval(io, x.val, false)
     else
-        showval(io, x.val, true)
-        showunit(io, x)
+        typeinfo = get(io, :typeinfo, Nothing)::Type
+        if isa(x, typeinfo)
+            # No need to show the unit twice, no need for potential brackets
+            showval(io, x.val, false)
+        else
+            # For some types, brackets are needed around the value.
+            showval(io, x.val, true)
+            showunit(io, x)
+        end
     end
 end
 
-function ___show(io::IO, mime::MIME"text/plain", x::Quantity)
 
+function show(io::IO, mime::MIME"text/plain", x::Quantity)
+    # This is the decorated form.
     if isunitless(unit(x))
+        # No units to show, no need for potential brackets
         showval(io, mime, x.val, false)
     else
-        showval(io, mime, x.val, true)
-        has_unit_spacing(unit(x)) && print(io, ' ')
-        show(io, mime, unit(x))
+        typeinfo = get(io, :typeinfo, Nothing)::Type
+        if isa(x, typeinfo)
+            # No need to show the unit twice, no need for potential brackets
+            showval(io, mime, x.val, false)
+        else
+            # For some types, brackets are needed around the value.
+            showval(io, mime, x.val, true)
+            showunit(io, mime, x)
+        end
     end
 end
 
+function show(io::IO, x::MixedUnits{T,U}) where {T,U}
+    print(io, abbr(x))
+    if x.units != NoUnits
+        show(io, x.units)
+    end
+    nothing
+end
 
-function ___show(io::IO, mime::MIME"text/html", x::Quantity)
-    ioc = IOContext(io, :unitsymbolcolor=>:yellow)
-    show(ioc, x)
+function show(io::IO, x::Gain)
+    print(io, x.val, abbr(x))
+    nothing
+end
+function Base.show(io::IO, x::Level)
+    print(io, ustrip(x), abbr(x))
+    nothing
 end
 
 
-function show(io::IO, x::Quantity{S, NoDims, <:Units{
+
+
+
+function ___show(io::IO, x::Quantity{S, NoDims, <:Units{
     (Unitful.Unit{:Degree, NoDims}(0, 1//1),), NoDims}}) where S
     show(io, x.val)
     showunit(io, x)
@@ -237,17 +270,6 @@ end
 
 
 """
-    show(io::IO, x::AbstractArray{Quantity{T,D,U}, N})  where {T,D,U,N}
-Print the unit of an AbstractArray outside and after the array. Output can
-be used to define a full copy.
-"""
-function ___show(io::IO, x::AbstractArray{Quantity{T,D,U}, N})  where {T,D,U,N} # short form
-    ioc = IOContext(io, :typeinfo => T)
-    show(ioc, ustrip.(x))
-    showunit(io, first(x))
-end
-
-"""
     show(io::IO, mime::MIME"text/plain", x::AbstractArray{Quantity{T,D,U}, N}) where {T,D,U,N}
 Show the type information only in the header for AbstractArrays.
 The type information header is formatted for readability and the output can't be used as a constructor, just
@@ -293,7 +315,7 @@ Pass in
 to show a longer more formal form of the unit type, which can be used as a constructor.
 This is done internally when the output of vanilla Julia types would also double as constructor.
 """
-function showrep(io::IO, x::Unit)
+function ____showrep(io::IO, x::Unit)
     supers = power(x) == 1//1 ? "" : superscript(power(x))
     if get(io, :showconstructor, false)
         # Print a longer, more formal definition which can be used as a constructor or inform the interested user.
@@ -306,6 +328,11 @@ function showrep(io::IO, x::Unit)
     end
 end
 
+function showrep(io::IO, x::Unit)
+    col = get(io, :unitsymbolcolor, :cyan)
+    printstyled(io, color = col, prefix(x), abbr(x), power(x) == 1//1 ? "" : superscript(power(x)))
+    nothing
+end
 """
     showrep(io::IO, x::Dimension)
     Show the dimension, appending any exponent as formatted by
@@ -316,7 +343,7 @@ function showrep(io::IO, x::Dimension)
     print(io, (power(x) == 1//1 ? "" : superscript(power(x))))
 end
 
-function ___showrep(io::IO, x::FreeUnits{N,D,A}) where {N, D, A<:Affine}
+function ____showrep(io::IO, x::FreeUnits{N,D,A}) where {N, D, A<:Affine}
     if get(io, :showconstructor, false)
         # Print a longer, more formal definition which can be used as a constructor or inform the interested user.
         print(io, "FreeUnits{", N, ",", D, ",", A, "}")
@@ -328,7 +355,7 @@ function ___showrep(io::IO, x::FreeUnits{N,D,A}) where {N, D, A<:Affine}
     end
 end
 
-function show(io::IO, x::Quantity{T,D,U}) where {T<:Rational, D, U}
+function ___show(io::IO, x::Quantity{T,D,U}) where {T<:Rational, D, U}
     # Add paranthesis: 1//1000m² -> (1//1000)m²
     print(io, "(")
     show(io, x.val)
@@ -336,7 +363,7 @@ function show(io::IO, x::Quantity{T,D,U}) where {T<:Rational, D, U}
     showunit(io, x)
 end
 
-function show(io::IO, mime::MIME"text/plain", x::Quantity{T,D,U}) where {T<:Rational, D, U}
+function ____show(io::IO, mime::MIME"text/plain", x::Quantity{T,D,U}) where {T<:Rational, D, U}
     # Add paranthesis: 1//1000m² -> (1//1000)m²
     print(io, "(")
     show(io, mime, x.val)
@@ -344,7 +371,7 @@ function show(io::IO, mime::MIME"text/plain", x::Quantity{T,D,U}) where {T<:Rati
     show(io, mime, unit(x))
 end
 
-function show(io::IO, mime::MIME"text/html", x::Quantity{T,D,U}) where {T<:Rational, D, U}
+function ____show(io::IO, mime::MIME"text/html", x::Quantity{T,D,U}) where {T<:Rational, D, U}
     # Add paranthesis: 1//1000m² -> (1//1000)m²
     ioc = IOContext(io, :unitsymbolcolor=>:yellow)
     print(ioc, "(")
@@ -354,7 +381,7 @@ function show(io::IO, mime::MIME"text/html", x::Quantity{T,D,U}) where {T<:Ratio
 end
 
 
-function show(io::IO, x::FreeUnits{N,D,A}) where {N, D, A<:Affine}
+function ________show(io::IO, x::FreeUnits{N,D,A}) where {N, D, A<:Affine}
     showrep(io, x)
 end
 """
@@ -362,8 +389,17 @@ end
 Show the unit of x, prefixed by space depending on the unit.
 """
 function showunit(io::IO, x)
+    # This is the undecorated form, which by rule-of thumb should be reproducable
+    # from REPL output.
     has_unit_spacing(unit(x)) && print(io, ' ')
     show(io, unit(x))
+end
+function showunit(io::IO, mime::MIME, x)
+    # This is the decorated form, or sometimes called multi-line form.
+    # We could add spacing  in these cases, or even use the full
+    # type definition of the unit.
+    has_unit_spacing(unit(x)) && print(io, ' ')
+    show(io, mime, unit(x))
 end
 
 """
