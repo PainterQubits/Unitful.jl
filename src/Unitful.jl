@@ -2,7 +2,7 @@ module Unitful
 
 import Base: ==, <, <=, +, -, *, /, //, ^, isequal
 import Base: show, convert
-import Base: typeinfo_implicit, _show_nonempty, show_delim_array
+import Base: typeinfo_implicit, _show_nonempty, show_delim_array, show_circular
 import Base: abs, abs2, angle, float, fma, muladd, inv, sqrt, cbrt
 import Base: min, max, floor, ceil, real, imag, conj
 import Base: complex, widen, reim # handled in complex.jl

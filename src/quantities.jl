@@ -44,6 +44,11 @@ end
 *(A::Units, B::AbstractArray) = broadcast(*, A, B)
 *(A::AbstractArray, B::Units) = broadcast(*, A, B)
 
+# In order to allow reconstructing output like e.g. (1,2)m:
+*(A::Units, B::Tuple) = broadcast(*, A, B)
+*(A::Tuple, B::Units) = broadcast(*, A, B)
+
+
 """
 Unitful defines the bullet operator `∙` (Unicode U+2219, \vysmblkcircle + tab in Julia).
 
@@ -450,7 +455,7 @@ for f in (:float, :BigFloat, :Float64, :Float32, :Float16)
     (Base.$f)(x::AbstractQuantity) = Quantity($f(x.val), unit(x))
     end
 end
-   
+
 """
     Integer(x::AbstractQuantity)
 Convert the numeric backing type of `x` to an integer representation.

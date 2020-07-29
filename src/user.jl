@@ -205,7 +205,11 @@ macro affineunit(symb, abbr, offset)
     s = Symbol(symb)
     return esc(quote
         const global $s = Unitful.affineunit($offset)
-        Base.show(io::IO, ::Unitful.genericunit($s)) = print(io, $abbr)
+        Base.show(io::IO, ::Unitful.genericunit($s)) = begin
+            col = get(io, :unitsymbolcolor, :cyan)
+            printstyled(io, color = col, $abbr)
+            nothing
+        end
     end)
 end
 

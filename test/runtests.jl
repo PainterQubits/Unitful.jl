@@ -185,10 +185,18 @@ end
             We intentionally don't want to throw DimensionError in this clone. Instead,
             wanted behaviour is to mulitiply by units as required for a consistent answer.
 
+            This more lenient behaviour does not produce incorrect output, and if there is
+            a reasonable interpretation of the conversion, the output units can give a hint
+            as to what is missing, e.g. have you forgot to multiply by some physical quantity?
+
             julia> 1.0N |> kg
                 1.0kg∙m∙s⁻²
+            julia> 1.0kg |> cm
+                100.0kg∙cm∙m⁻¹
             ==#
             # @test_throws DimensionError uconvert(m, 1kg)
+            @test  uconvert(m, 1kg) == 1kg
+            @test  uconvert(cm, 1kg) == 100kg*cm/m
             # @test_throws DimensionError uconvert(m, 1*ContextUnits(kg,g))
             # @test_throws DimensionError uconvert(ContextUnits(m,mm), 1kg)
             # @test_throws DimensionError uconvert(m, 1*FixedUnits(kg))
@@ -255,7 +263,7 @@ end
         @test_throws AffineError one(100°C)
         @test_throws AffineError one(typeof(100°C))
 
-        @test 0°C isa AffineQuantity{T, ᶿ} where T    # is "relative temperature"
+        @test 0°C isa AffineQuantity{T, ᶿ} where T            # is "relative temperature"
         @test 0°C isa Temperature                             # dimensional correctness
         @test °C isa AffineUnits{N, ᶿ} where N
         @test °C isa TemperatureUnits
@@ -1244,8 +1252,49 @@ end
             @test zero(Quantity{Int,ᴸ}[1u"m", 1u"mm"]) == [0, 0]u"m"
         end
     end
-end
+    @testset "> Tuples and NTuples" begin
+        @testset ">> Element-wise multiplication" begin
+            @test @inferred((1m, 2m, 3m) .* 5m)          == (5m^2, 10m^2, 15m^2)
+            @test @inferred(5m .* (1m, 2m, 3m))          == (5m^2, 10m^2, 15m^2)
+            @test @inferred(5m .* (1m, 2m))              isa NTuple
+            @test @inferred(5m .* (1m, 2m))              isa NTuple{N, T} where {N, T}
+            @test @inferred(5m .* (1m, ))                isa Tuple{Area}
+            @test @inferred(5m .* (1m, 2m))              isa NTuple{2, Area}
+            @test @inferred((1m, 2m) .* 5m)              isa NTuple{2, Area}
 
+            @test @inferred((1, 2)kg)                  == (1, 2) * kg
+            @test @inferred((1, 2)kg .* (2, 3)kg^-1)   == (2, 6)
+         end
+         @testset ">> Tuple addition" begin
+
+            # Dimensionless quantities
+            @test @inferred((1mm/m) .+ (1.0cm/m))     == (0.011)
+            @test typeof((1mm/m,) .+ (1.0cm/m,))        == Tuple{Float64}
+            @test @inferred((1mm/m,) .+ (1cm/m,))       == (11//1000,)
+            @test typeof((1mm/m,) .+ (1cm/m,))          == Tuple{Rational{Int}}
+            @test @inferred((1mm/m,) .+ (2,))           == (2001//1000,)
+            @test typeof((1mm/m,) .+ (2,))              == Tuple{Rational{Int}}
+            @test_throws DimensionError (1m,) .+ (2V,)
+            @test_throws DimensionError (1,) .+ (1m,)
+        end
+        @testset ">> Element-wise addition" begin
+            @test @inferred(5m .+ (1m, 2m, 3m))      == (6m, 7m, 8m)
+        end
+        @testset ">> Element-wise comparison" begin
+            @test @inferred((0.0m, 2.0m) .< (3.0m, 2.0μm)) == (true,false)
+            @test @inferred((0.0m, 2.0m) .> (3.0m, 2.0μm)) == (false,true)
+            @test @inferred((0.0m, 0.0μm) .<= (0.0mm, 0.0mm)) == (true, true)
+            @test @inferred((0.0m, 0.0μm) .>= (0.0mm, 0.0mm)) == (true, true)
+            @test @inferred((0.0m, 0.0μm) .== (0.0mm, 0.0mm)) == (true, true)
+
+        end
+        @testset ">> isapprox on tuples" begin
+            @test !isapprox((1.0m), (1.0V))
+            @test isapprox((1.0μm/m), (1e-6))
+            @test isapprox.((1cm, 200cm,), (0.01m, 2.0m,)) == (true, true)
+        end
+    end
+end
 @testset "Display" begin
     withenv("UNITFUL_FANCY_EXPONENTS" => false) do
         @test string(typeof(1.0m/s)) ==
@@ -1266,7 +1315,11 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
         @test repr(1.0 * u"m * s * kg^-1") == "1.0m∙s∙kg^-1"
         @test repr("text/plain", 1.0 * u"m * s * kg^-1") == "1.0m∙s∙kg^-1"
         @test repr(Foo() * u"m * s * kg^-1") == "1m∙s∙kg^-1"
-        @test repr("text/plain", Foo() * u"m * s * kg^-1") == "42.0m∙s∙kg^-1"
+        # Note that this clone of Unitful changes the bevaviour.
+        # Below, we are trying to show the decorated form of a
+        # Quantity{Foo, ᴸ∙ ᵀ∙ ᴹ⁻¹,FreeUnits{(kg⁻¹, m, s), ᴸ∙ ᵀ∙ ᴹ⁻¹,nothing}}.
+        # This overrules the 'show' method we defined above, as should be fine
+        @test repr("text/plain", Foo() * u"m * s * kg^-1") == "1m∙s∙kg^-1"
 
         # Complex quantities
         @test repr((1+2im) * u"m/s") == "(1 + 2im)m∙s^-1"
@@ -1283,10 +1336,82 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
     end
     withenv("UNITFUL_FANCY_EXPONENTS" => true) do
         @test repr(1.0 * u"m * s * kg^(-1//2)") == "1.0m∙s∙kg⁻¹ᐟ²"
+        @test repr("text/plain", [1m 2m; 3m 4m])== "2×2 Array{Quantity{Int64, ᴸ,FreeUnits{(m,), ᴸ,nothing}},2}:\n 1  2\n 3  4"
     end
     withenv("UNITFUL_FANCY_EXPONENTS" => nothing) do
         @test repr(1.0 * u"m * s * kg^(-1//2)") ==
             (Sys.isapple() ? "1.0m∙s∙kg⁻¹ᐟ²" : "1.0m∙s∙kg^-1/2")
+    end
+end
+
+@testset "Show quantities in collection" begin
+    shortp(x) = begin
+        show(stderr, repr(x, context = :color=>true))
+        print(stderr, "\n")
+        repr(x, context = :color=>true)
+    end
+    longp(x) = begin
+        show(stderr, repr(:"text/plain", x, context = :color=>true))
+        print(stderr, "\n")
+        repr(:"text/plain", x, context = :color=>true)
+    end
+    shortp_bw(x) = begin
+        show(stderr, repr(x))
+        print(stderr, "\n")
+        repr(x)
+    end
+    longp_bw(x) = begin
+        show(stderr, repr(:"text/plain", x))
+        print(stderr, "\n")
+        repr(:"text/plain", x)
+    end
+    qma = [1m 2m; 3m 4m]
+    qmami = [1m 2; 3m 4]
+    qve = [1m 2m]
+    qvemi = [1m 2]
+    qntuple = (1m, 2m)
+    qtuple = (1m, 2)
+    # Colorless
+    withenv("UNITFUL_FANCY_EXPONENTS" => true) do
+        x = qma
+        @test shortp_bw(x) == "[1 2; 3 4]m"
+        @test longp_bw(x) == "2×2 Array{Quantity{Int64, ᴸ,FreeUnits{(m,), ᴸ,nothing}},2}:\n 1  2\n 3  4"
+        x = qmami
+        @test shortp_bw(x) == "[1m 2; 3m 4]"
+        @test longp_bw(x) == "2×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1m  2\n 3m  4"
+        x = qve
+        @test shortp_bw(x) == "[1 2]m"
+        @test longp_bw(x) == "1×2 Array{Quantity{Int64, ᴸ,FreeUnits{(m,), ᴸ,nothing}},2}:\n 1  2"
+        x = qvemi
+        @test shortp_bw(x) == "[1m 2]"
+        @test longp_bw(x) == "1×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1m  2"
+        x = qntuple
+        @test shortp_bw(x) == "(1, 2)m"
+        @test longp_bw(x) == "(1, 2)m"
+        x = qtuple
+        @test shortp_bw(x) == "(1m, 2)"
+        @test longp_bw(x) == "(1m, 2)"
+    end
+    # Colorful
+    withenv("UNITFUL_FANCY_EXPONENTS" => true) do
+        x = qma
+        shortp(x) == "[1 2; 3 4]\e[36mm\e[39m"
+        longp(x) == "2×2 Array{Quantity{Int64, ᴸ,FreeUnits{(\e[36mm\e[39m,), ᴸ,nothing}},2}:\n 1  2\n 3  4"
+        x = qmami
+        shortp(x) == "[1\e[36mm\e[39m 2; 3\e[36mm\e[39m 4]"
+        longp(x) == "2×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1\e[36mm\e[39m  2\n 3\e[36mm\e[39m  4"
+        x = qve
+        shortp(x) == "[1 2]\e[36mm\e[39m"
+        longp(x) == "1×2 Array{Quantity{Int64, ᴸ,FreeUnits{(\e[36mm\e[39m,), ᴸ,nothing}},2}:\n 1  2"
+        x = qvemi
+        shortp(x) == "[1\e[36mm\e[39m 2]"
+        longp(x) == "1×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1\e[36mm\e[39m  2"
+        x = qntuple
+        shortp(x) == "(1, 2)\e[36mm\e[39m"
+        longp(x) == "(1, 2)\e[36mm\e[39m"
+        x = qtuple
+        shortp(x) == "(1\e[36mm\e[39m, 2)"
+        longp(x) == "(1\e[36mm\e[39m, 2)"
     end
 end
 

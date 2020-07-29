@@ -158,33 +158,37 @@ function show(io::IO, x::Quantity)
         # No units to show, no need for potential brackets
         showval(io, x.val, false)
     else
-        typeinfo = get(io, :typeinfo, Nothing)::Type
-        if isa(x, typeinfo)
+        Typeinfo = get(io, :typeinfo, Nothing)::Type
+        if isconcretetype(Typeinfo) && isa(x, Typeinfo)
             # No need to show the unit twice, no need for potential brackets
             showval(io, x.val, false)
         else
-            # For some types, brackets are needed around the value.
+            # If TypeInfo covers more than one type, it can mean that the
+            # calling context is a mixed collection. We need to
+            # show units per element.
             showval(io, x.val, true)
             showunit(io, x)
         end
     end
 end
 
-
 function show(io::IO, mime::MIME"text/plain", x::Quantity)
-    # This is the decorated form.
+    # This is the decorated form. Users may want to specialize on this
+    # for specific units.
     if isunitless(unit(x))
         # No units to show, no need for potential brackets
-        showval(io, mime, x.val, false)
+        showval(io, x.val, false)
     else
-        typeinfo = get(io, :typeinfo, Nothing)::Type
-        if isa(x, typeinfo)
+        Typeinfo = get(io, :typeinfo, Nothing)::Type
+        if isconcretetype(Typeinfo) && isa(x, Typeinfo)
             # No need to show the unit twice, no need for potential brackets
-            showval(io, mime, x.val, false)
+            showval(io, x.val, false)
         else
-            # For some types, brackets are needed around the value.
-            showval(io, mime, x.val, true)
-            showunit(io, mime, x)
+            # If TypeInfo covers more than one type, it can mean that the
+            # calling context is a mixed collection. We need to
+            # show units per element.
+            showval(io, x.val, true)
+            showunit(io, x)
         end
     end
 end
@@ -201,40 +205,12 @@ function show(io::IO, x::Gain)
     print(io, x.val, abbr(x))
     nothing
 end
+
 function Base.show(io::IO, x::Level)
     print(io, ustrip(x), abbr(x))
     nothing
 end
 
-
-
-
-
-function ___show(io::IO, x::Quantity{S, NoDims, <:Units{
-    (Unitful.Unit{:Degree, NoDims}(0, 1//1),), NoDims}}) where S
-    show(io, x.val)
-    showunit(io, x)
-end
-
-function ___show(io::IO, x::Type{T}) where T<:Quantity
-    if get(io, :shorttype, false)
-        # Given the shorttype context argument (as in an array of quanities description),
-        # the numeric type and unit symbol is enough info to superficially represent the type.
-        print(io, numtype(x),"{")
-        ioc = IOContext(io, :dontshowlocalunits=>false)
-        showunit(ioc, T)
-        print(io, "}")
-    else
-        # We show a complete or partial description.
-        # This pair in IOContext specifies as fallback a full formal type representation,
-        # provided the opposite is not already specified by the caller:
-        pa = Pair(:showconstructor, get(io, :showconstructor, true))
-        ioc = IOContext(io, pa)
-        invoke(show, Tuple{IO, typeof(x)}, ioc, x)
-    end
-end
-
-# TODO treat the same way as arrays, by extending show_nonempty or the similar function
 function show(io::IO, r::Union{StepRange{T},StepRangeLen{T}}) where T<:Quantity
     a,s,b = first(r), step(r), last(r)
     U = unit(a)
@@ -270,33 +246,6 @@ end
 
 
 """
-    show(io::IO, mime::MIME"text/plain", x::AbstractArray{Quantity{T,D,U}, N}) where {T,D,U,N}
-Show the type information only in the header for AbstractArrays.
-The type information header is formatted for readability and the output can't be used as a constructor, just
-as with any AbstractArray.
-"""
-function __show(io::IO, mime::MIME"text/plain", x::AbstractArray{Quantity{T,D,U}, N}) where {T,D,U,N} # long form
-    # For abstract arrays, the REPL output can't normally be used to make a new and identical instance of
-    # the array. So we don't bother to do that either, in this context.
-    # This pair in IOContext specifies an informal type representation,
-    # if the opposite is not already specified from upstream.
-    pai = Pair(:shorttype, get(io, :shorttype, true))
-    ioc = IOContext(io, pai, :dontshowlocalunits=>true)
-    # Now call the method which would normally have been called if we didn't slightly interfere here.
-    invoke(show, Tuple{IO, MIME{Symbol("text/plain")}, AbstractArray}, ioc, mime, x)
-end
-
-function __show(io::IO, mime::MIME"application/prs.juno.inline", x::AbstractArray{Quantity{T,D,U}, N}) where {T,D,U,N} # long form
-    # For abstract arrays, the REPL output can't normally be used to make a new and identical instance of
-    # the array. So we don't bother to do that either, in this context.
-    # This pair in IOContext specifies an informal type representation,
-    # if the opposite is not already specified from upstream.
-    ioc = IOContext(io, :unitsymbolcolor=>:yellow)
-    show(ioc, MIME("text/plain"), x)
-end
-
-
-"""
     sortexp(xs)
 Sort units to show positive exponents first.
 """
@@ -310,24 +259,7 @@ end
 Show the unit, prefixing with any decimal prefix and appending the exponent as
 formatted by [`Unitful.superscript`](@ref).
 Also prints with color when allowed by io.
-Pass in
-    IOContext(..., :showconstructor=>true)
-to show a longer more formal form of the unit type, which can be used as a constructor.
-This is done internally when the output of vanilla Julia types would also double as constructor.
 """
-function ____showrep(io::IO, x::Unit)
-    supers = power(x) == 1//1 ? "" : superscript(power(x))
-    if get(io, :showconstructor, false)
-        # Print a longer, more formal definition which can be used as a constructor or inform the interested user.
-        print(io, typeof(x), "(", tens(x), ", ", power(x), ")")
-    else
-        # Print the shortest representation of the unit (of a number), i.e. prefix, unit symbol, superscript.
-        # Color output is context-aware.
-        col = get(io, :unitsymbolcolor, :cyan)
-        printstyled(io, color = col, prefix(x), abbr(x), supers)
-    end
-end
-
 function showrep(io::IO, x::Unit)
     col = get(io, :unitsymbolcolor, :cyan)
     printstyled(io, color = col, prefix(x), abbr(x), power(x) == 1//1 ? "" : superscript(power(x)))
@@ -343,64 +275,16 @@ function showrep(io::IO, x::Dimension)
     print(io, (power(x) == 1//1 ? "" : superscript(power(x))))
 end
 
-function ____showrep(io::IO, x::FreeUnits{N,D,A}) where {N, D, A<:Affine}
-    if get(io, :showconstructor, false)
-        # Print a longer, more formal definition which can be used as a constructor or inform the interested user.
-        print(io, "FreeUnits{", N, ",", D, ",", A, "}")
-    else
-        # Print the shortest representation of the affine unit.
-        # Color output is context-aware.
-        col = get(io, :unitsymbolcolor, :cyan)
-        printstyled(io, color = col, abbr(x))
-    end
-end
 
-function ___show(io::IO, x::Quantity{T,D,U}) where {T<:Rational, D, U}
-    # Add paranthesis: 1//1000m² -> (1//1000)m²
-    print(io, "(")
-    show(io, x.val)
-    print(io, ")")
-    showunit(io, x)
-end
-
-function ____show(io::IO, mime::MIME"text/plain", x::Quantity{T,D,U}) where {T<:Rational, D, U}
-    # Add paranthesis: 1//1000m² -> (1//1000)m²
-    print(io, "(")
-    show(io, mime, x.val)
-    print(io, ")")
-    show(io, mime, unit(x))
-end
-
-function ____show(io::IO, mime::MIME"text/html", x::Quantity{T,D,U}) where {T<:Rational, D, U}
-    # Add paranthesis: 1//1000m² -> (1//1000)m²
-    ioc = IOContext(io, :unitsymbolcolor=>:yellow)
-    print(ioc, "(")
-    show(ioc, mime, x.val)
-    print(ioc, ")")
-    showunit(ioc, mime, unit(x))
-end
-
-
-function ________show(io::IO, x::FreeUnits{N,D,A}) where {N, D, A<:Affine}
-    showrep(io, x)
-end
 """
     showunit(io::IO, x)
 Show the unit of x, prefixed by space depending on the unit.
 """
 function showunit(io::IO, x)
-    # This is the undecorated form, which by rule-of thumb should be reproducable
-    # from REPL output.
     has_unit_spacing(unit(x)) && print(io, ' ')
     show(io, unit(x))
 end
-function showunit(io::IO, mime::MIME, x)
-    # This is the decorated form, or sometimes called multi-line form.
-    # We could add spacing  in these cases, or even use the full
-    # type definition of the unit.
-    has_unit_spacing(unit(x)) && print(io, ' ')
-    show(io, mime, unit(x))
-end
+showunit(io::IO, ::MIME, x) = showunit(io, x)
 
 """
 superscript(i::Rational)
@@ -435,13 +319,13 @@ end
 
 
 #=
-  Quantities can be parsed back accurately from their un-decorated representations
-  We define the necessary functions for doing that with arrays as well.
-  This tells arrayshow.jl about the fact, which is used when showing
+  This tells arrayshow.jl about the fact  that Quantities can be parsed back
+  accurately from their un-decorated representations.
+  We define the necessary functions for doing that with arrays and tuples as well.
+  , which is used when showing
   such arrays. Prefixes to Array{Quantity} will not be printed.
 =#
 Base.typeinfo_implicit(::Type{<:Quantity}) = true
-
 
 #=
  We reluctantly (ref.
@@ -452,13 +336,13 @@ Base.typeinfo_implicit(::Type{<:Quantity}) = true
    1) Show summary
    2) modify io to inform the following function calls that types are already known.
    3) call _show_nonempty(io, X) or show_delim_array
+
  We want to follow this logic, but also move units out of the matrix (if all units are similar)
 
   The only modification here is to show the unit in short form
   after closing brackets.
-  TODO consider @nospecialize, test compile + run time.
 =#
-function Base._show_nonempty(io::IO, X::AbstractArray{Quantity{T,D,U}, 2}, prefix::String)  where {T<:Number,D,U,N}
+function Base._show_nonempty(io::IO, X::AbstractMatrix{Quantity{T,D,U}}, prefix::String)  where {T,D,U}
     ulX = ustrip(X)
     Unitlesstype = AbstractMatrix{T}
     invoke(_show_nonempty,
@@ -468,17 +352,57 @@ function Base._show_nonempty(io::IO, X::AbstractArray{Quantity{T,D,U}, 2}, prefi
 end
 
 function Base.show_delim_array(io::IO,
-                               itr::AbstractArray{Quantity{T,D,U}, 1},
+                               itr::AbstractVector{Quantity{T, D, U}},
                                op,
                                delim,
                                cl,
                                delim_one,
                                i1=first(LinearIndices(itr)),
-                               l=last(LinearIndices(itr)))  where {T<:Number,D,U,N}
+                               l=last(LinearIndices(itr)))  where {T, D, U}
     ulitr = ustrip(itr)
-    Unitlesstype = AbstractVector{T}
-    invoke(show_delim_array,
-                   Tuple{IO, Unitlesstype, Char, String, Char, Bool, Int, Int},
-                   io, ulitr, op, delim, cl, delim_one, i1, l)
+    UnitlessContainerType = AbstractVector{T}
     showunit(io, eltype(itr))
+end
+
+function Base.show_delim_array(io::IO,
+                               itr:: NTuple{N, <:Quantity},
+                               op,
+                               delim,
+                               cl,
+                               delim_one,
+                               i1=1,
+                               n=typemax(Int)) where {N}
+   print(io, op)
+   if !show_circular(io, itr)
+       recur_io = IOContext(io, :SHOWN_SET => itr)
+       ulitr = ustrip.(itr)
+       y = iterate(ulitr)
+       first = true
+       i0 = i1-1
+       while i1 > 1 && y !== nothing
+           y = iterate(ulitr, y[2])
+           i1 -= 1
+       end
+       if y !== nothing
+           typeinfo = get(io, :typeinfo, Any)
+           while true
+               x = y[1]
+               y = iterate(ulitr, y[2])
+               show(IOContext(recur_io, :typeinfo => ulitr isa typeinfo <: Tuple ?
+                                            fieldtype(typeinfo, i1+i0) :
+                                            typeinfo),
+                    x)
+               i1 += 1
+               if y === nothing || i1 > n
+                   delim_one && first && print(io, delim)
+                   break
+               end
+               first = false
+               print(io, delim)
+               print(io, ' ')
+           end
+       end
+   end
+   print(io, cl)
+   showunit(io, eltype(itr))
 end

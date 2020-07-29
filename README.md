@@ -8,6 +8,64 @@
 
 # Unitful.jl
 
+## About this clone / fork
+We intend to keep pulling in further improvements from Unitful, and some of these changes might be
+accepted in Unitful as well.
+
+This is a minor adaption of the original. The changes were previously made
+through type piracy in dependent packages, i.e. changing how types defined by Unitful were dislayed and used. 
+Type piracy tends to destroy pre-compilation and is bad for you.
+
+A more useful implementation of this clones is 'MechanicalUnits.jl', which defines some more specific user friendliness. Use 
+'pkg> instantiate' to use this clone instead of the original PainterQubits/Unitful. 
+
+The changes are:
+* All 'show' methods are moved into 'display.jl'
+* Additional testing for output
+* Dimension symbols can be displayed on Windows terminals
+* No space between value and unit.
+```julia
+julia> import Unitful.m
+julia> print([1 2]m)   # Un-decorated output can be copied and pasted as output
+[1 2]m
+julia> [1 2]m          # Decorated output 
+1×2 Array{Unitful.Quantity{Int64, ᴸ,Unitful.FreeUnits{(m,), ᴸ,nothing}},2}:
+ 1  2
+```
+* Units are printed with color
+* '*' => '∙', also allowed in input:
+
+```julia
+julia> import Unitful: m, s, kg, ∙
+
+julia> push!(ENV, "UNITFUL_FANCY_EXPONENTS" => true)
+
+julia> 0.5m∙s/kg
+0.5m∙s∙kg⁻¹
+```
+
+* Tuples, NTuples, mixed collections:
+```julia
+julia> (1,2,3)m*s^-1
+(1, 2, 3)m∙s⁻¹
+
+julia> (1,2m,3)m*s^-1
+(1m∙s⁻¹, 2m²∙s⁻¹, 3m∙s⁻¹)
+```
+
+* Conversions are leniently allowed, as it's only another representation of the same quanity:
+```
+julia> import Unitful: μm, GPa, MPa
+
+julia> ϵ = 0.002 |> μm/m  # Strain is a unitless quantity, yet this is common:
+2000.0μm∙m⁻¹
+
+julia> σ = ϵ * 206GPa |> MPa  # Hooke's law, Young's modulus
+412.00000000000006MPa
+```
+
+
+## Unitful.jl
 Unitful is a Julia package for physical units. We want to support not only
 SI units but also any other unit system. We also want to minimize or in some
 cases eliminate the run-time penalty of units. There should be facilities
