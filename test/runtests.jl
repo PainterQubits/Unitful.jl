@@ -1345,26 +1345,10 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
 end
 
 @testset "Show quantities in collection" begin
-    shortp(x) = begin
-        show(stderr, repr(x, context = :color=>true))
-        print(stderr, "\n")
-        repr(x, context = :color=>true)
-    end
-    longp(x) = begin
-        show(stderr, repr(:"text/plain", x, context = :color=>true))
-        print(stderr, "\n")
-        repr(:"text/plain", x, context = :color=>true)
-    end
-    shortp_bw(x) = begin
-        show(stderr, repr(x))
-        print(stderr, "\n")
-        repr(x)
-    end
-    longp_bw(x) = begin
-        show(stderr, repr(:"text/plain", x))
-        print(stderr, "\n")
-        repr(:"text/plain", x)
-    end
+    shortp(x) = repr(x, context = :color=>true)
+    longp(x) = repr(:"text/plain", x, context = :color=>true)
+    shortp_bw(x) = repr(x)
+    longp_bw(x) = repr(:"text/plain", x)
     qma = [1m 2m; 3m 4m]
     qmami = [1m 2; 3m 4]
     qve = [1m 2m]
