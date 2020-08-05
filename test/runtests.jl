@@ -126,6 +126,8 @@ end
         # Issue 26
         @unit altL "altL" altLiter 1000*cm^3 true
         @test convert(Float64, 1altL/cm^3) === 1000.0
+        # Issue 327
+        @test uconvert(u"√cm", 1u"√m") == 10u"√cm"
     end
     @testset "> Unitful ↔ unitful conversion" begin
         @testset ">> Numeric conversion" begin
@@ -199,6 +201,7 @@ end
         @test_throws AffineError °C*°C
         @test_throws AffineError °C*K
         @test_throws AffineError (0°C)*(0°C)
+        @test_throws AffineError (1°C)/(1°C)
         @test_throws AffineError °C^2
         let x = 2
             @test_throws AffineError °C^x
@@ -214,6 +217,22 @@ end
         @test_throws AffineError 2 * (32°F)
         @test_throws AffineError (32°F) / 2
         @test_throws AffineError 2 / (32°F)
+
+        for f = (:div, :rem, :divrem)
+            @eval for r = (RoundNearest, RoundNearestTiesAway, RoundNearestTiesUp,
+                           RoundToZero, RoundUp, RoundDown)
+                @test_throws AffineError $f(32°F, 2°F, r)
+                @test_throws AffineError $f(32°F, 2K, r)
+                @test_throws AffineError $f(32K, 2°F, r)
+            end
+        end
+        for f = (:div, :cld, :fld, :rem, :mod, :divrem, :fldmod)
+            @eval begin
+                @test_throws AffineError $f(32°F, 2°F)
+                @test_throws AffineError $f(32°F, 2K)
+                @test_throws AffineError $f(32K, 2°F)
+            end
+        end
 
         @test zero(100°C) === 0K
         @test zero(typeof(100°C)) === 0K
@@ -1216,9 +1235,9 @@ end
 @testset "Display" begin
     withenv("UNITFUL_FANCY_EXPONENTS" => false) do
         @test string(typeof(1.0m/s)) ==
-            "Quantity{Float64,𝐋*𝐓^-1,FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}}"
+            "Quantity{Float64,𝐋 𝐓^-1,FreeUnits{(m, s^-1),𝐋 𝐓^-1,nothing}}"
         @test string(typeof(m/s)) ==
-            "FreeUnits{(m, s^-1),𝐋*𝐓^-1,nothing}"
+            "FreeUnits{(m, s^-1),𝐋 𝐓^-1,nothing}"
         @test string(dimension(1u"m/s")) == "𝐋 𝐓^-1"
         @test string(NoDims) == "NoDims"
     end
@@ -1234,6 +1253,10 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
         @test repr("text/plain", 1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
         @test repr(Foo() * u"m * s * kg^-1") == "1 m s kg^-1"
         @test repr("text/plain", Foo() * u"m * s * kg^-1") == "42.0 m s kg^-1"
+
+        # Complex quantities
+        @test repr((1+2im) * u"m/s") == "(1 + 2im) m s^-1"
+        @test repr("text/plain", (1+2im) * u"m/s") == "(1 + 2im) m s^-1"
 
         # Angular degree printing #253
         @test sprint(show, 1.0°)       == "1.0°"
@@ -1513,6 +1536,12 @@ end
         end
     end
 
+    @testset "> Comparisons" begin
+        @test 3dB < 5dB
+        @test 3dBm < 5dBm
+        @test_throws MethodError 3dB < 5dBm
+    end
+
     @testset "> zero, one" begin
         @test zero(3dB) === 0dB
         @test zero(3dB_rp) === 0dB_rp
@@ -1538,6 +1567,10 @@ end
     end
 
     @testset "> Display" begin
+        withenv("UNITFUL_FANCY_EXPONENTS" => false) do
+            @test repr(3u"dB/Hz") == "[3 dB] Hz^-1"
+            @test repr("text/plain", 3u"dB/Hz") == "[3 dB] Hz^-1"
+        end
         @test Unitful.abbr(3u"dBm") == "dBm"
         @test Unitful.abbr(@dB 3V/1.241V) == "dB (1.241 V)"
         @test string(360°) == "360°"

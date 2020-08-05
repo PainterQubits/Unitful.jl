@@ -38,10 +38,9 @@ Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.0
         end
     end
 
-    if denominator(ex) == 1 # Use an integer for conversion if the ratio is whole
-        ex = numerator(ex)  # so that, e.g., uconvert(s, 1minute) = 60s
+    if ex isa Rational && denominator(ex) == 1
+        ex = numerator(ex)
     end
-
     a ≈ 1.0 ? (inex = 1) : (inex = a)
     y = inex * ex
     :($y)
@@ -65,6 +64,7 @@ Example:
 ```jldoctest
 julia> uconvert(u"hr",3602u"s")
 1801//1800 hr
+
 julia> uconvert(u"J",1.0u"N*m")
 1.0 J
 ```

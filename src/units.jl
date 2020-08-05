@@ -71,7 +71,7 @@ a few different methods, since we have `FreeUnits`, `ContextUnits`, and `FixedUn
 
 Collect [`Unitful.Unit`](@ref) objects from the type parameter of the
 [`Unitful.Units`](@ref) objects. For identical units including SI prefixes
-(i.e. cm ≠ m), collect powers and sort uniquely by the name of the `Unit`.
+(i.e. `cm` ≠ `m`), collect powers and sort uniquely by the name of the `Unit`.
 The unique sorting permits easy unit comparisons.
 
 Examples:
@@ -247,6 +247,14 @@ function basefactor(inex, ex, eq, tens, p)
     end
 end
 
+"""
+    basefactor(x::Unit)
+Specifies conversion factors to reference units.
+It returns a tuple. The first value is any irrational part of the conversion,
+and the second value is a rational component. This segregation permits exact
+conversions within unit systems that have no rational conversion to the
+reference units.
+"""
 @inline basefactor(x::Unit{U}) where {U} = basefactor(basefactors[U]..., 1, 0, power(x))
 
 function basefactor(x::Units{U}) where {U}

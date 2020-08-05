@@ -3,6 +3,7 @@ DocTestSetup = quote
     using Unitful
 end
 ```
+# Manipulating units
 
 ## Unitful string macro
 
@@ -23,10 +24,7 @@ You can then query whether the units are `FreeUnits`, `FixedUnits`, etc.
 
 ```@docs
 Unitful.unit
-Unitful.dimension(::Number)
-Unitful.dimension(::Unitful.Units{U,D}) where {U,D}
-Unitful.dimension(x::Quantity{T,D,U}) where {T,D,U}
-Unitful.dimension(x::AbstractArray{T}) where {T<:Unitful.Units}
+Unitful.dimension
 ```
 
 ## Unit stripping

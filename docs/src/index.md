@@ -6,7 +6,7 @@ end
 # Unitful.jl
 
 A Julia package for physical units. Available
-[here](https://github.com/ajkeller34/Unitful.jl). Inspired by:
+[here](https://github.com/PainterQubits/Unitful.jl). Inspired by:
 
 - [SIUnits.jl](https://github.com/keno/SIUnits.jl)
 - [EngUnits.jl](https://github.com/dhoegh/EngUnits.jl)
@@ -20,7 +20,7 @@ that are defined in Julia.
 
 ## Quick start
 
-- This package requires Julia 0.7. Older versions will not be supported.
+- This package requires Julia 1.0. Older versions will not be supported.
 - `] add Unitful`
 - `using Unitful`
 
@@ -50,7 +50,7 @@ retrieve them from Unitful in one of three ways:
 3. `using Unitful.DefaultSymbols` will bring the following symbols into the
    calling namespace:
      - Dimensions `𝐋,𝐌,𝐓,𝐈,𝚯,𝐉,𝐍` for length, mass, time, current, temperature,
-     luminosity, and amount, respectively.
+       luminosity, and amount, respectively.
      - Base and derived SI units, with SI prefixes (except for `cd`, which conflicts
        with `Base.cd`)
      - `°` (degrees)
@@ -71,6 +71,7 @@ DocTestSetup = quote
     hr = Unitful.hr
     minute = Unitful.minute
     s = Unitful.s
+    F = Unitful.F
 end
 ```
 
@@ -96,7 +97,7 @@ julia> uconvert(μm/(m*Ra), 9μm/(m*K))
 5//1 μm m^-1 Ra^-1
 
 julia> mod(1hr+3minute+5s, 24s)
-17//1 s
+17 s
 ```
 
 One useful interactive function is being able to convert to preferred (in this case SI) units. 

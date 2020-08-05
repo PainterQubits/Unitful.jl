@@ -3,7 +3,6 @@ DocTestSetup = quote
     using Unitful
 end
 ```
-
 # Defining new units
 
 !!! note
@@ -21,18 +20,16 @@ available to the [`@u_str`](@ref) string macro.
 
 An example of defining units in a module:
 
-```jldoctest register
+```jldoctest
 julia> module MyUnits; using Unitful; @unit myMeter "m" MyMeter 1u"m" false; end
 MyUnits
 
 julia> using Unitful
 
 julia> u"myMeter"
-ERROR: LoadError: Symbol myMeter could not be found in registered unit modules.
+ERROR: LoadError: ArgumentError: Symbol myMeter could not be found in unit modules Module[Unitful]
 [...]
-```
 
-```jldoctest register
 julia> Unitful.register(MyUnits)
 2-element Array{Module,1}:
  Unitful

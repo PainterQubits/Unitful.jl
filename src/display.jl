@@ -48,6 +48,57 @@ function show(io::IO, x::Unit{N,D}) where {N,D}
     show(io, FreeUnits{(x,), D, nothing}())
 end
 
+abstract type BracketStyle end
+
+struct NoBrackets <: BracketStyle end
+print_opening_bracket(io::IO, ::NoBrackets) = nothing
+print_closing_bracket(io::IO, ::NoBrackets) = nothing
+
+struct RoundBrackets <: BracketStyle end
+print_opening_bracket(io::IO, ::RoundBrackets) = print(io, '(')
+print_closing_bracket(io::IO, ::RoundBrackets) = print(io, ')')
+
+struct SquareBrackets <: BracketStyle end
+print_opening_bracket(io::IO, ::SquareBrackets) = print(io, '[')
+print_closing_bracket(io::IO, ::SquareBrackets) = print(io, ']')
+
+print_opening_bracket(io::IO, x) = print_opening_bracket(io, BracketStyle(x))
+print_closing_bracket(io::IO, x) = print_closing_bracket(io, BracketStyle(x))
+
+"""
+    BracketStyle(x)
+    BracketStyle(typeof(x))
+
+`BracketStyle` specifies whether the numeric value of a `Quantity` is printed in brackets
+(and what kind of brackets). Three styles are defined:
+
+* `NoBrackets()`: this is the default, for example used for real numbers: `1.2 m`
+* `RoundBrackets()`: used for complex numbers: `(2.5 + 1.0im) V`
+* `SquareBrackets()`: used for [`Level`](@ref)/[`Gain`](@ref): `[3 dB] Hz^-1`
+"""
+BracketStyle(x) = BracketStyle(typeof(x))
+BracketStyle(::Type) = NoBrackets()
+BracketStyle(::Type{<:Complex}) = RoundBrackets()
+
+"""
+    showval(io::IO, x::Number, brackets::Bool=true)
+
+Show the numeric value `x` of a quantity. Depending on the type of `x`, the value may be
+enclosed in brackets (see [`BracketStyle`](@ref)). If `brackets` is set to `false`, the
+brackets are not printed.
+"""
+function showval(io::IO, x::Number, brackets::Bool=true)
+    brackets && print_opening_bracket(io, x)
+    show(io, x)
+    brackets && print_closing_bracket(io, x)
+end
+
+function showval(io::IO, mime::MIME, x::Number, brackets::Bool=true)
+    brackets && print_opening_bracket(io, x)
+    show(io, mime, x)
+    brackets && print_closing_bracket(io, x)
+end
+
 # Space between numerical value and unit should always be included
 # except for angular degress, minutes and seconds (° ′ ″)
 # See SI 9th edition, section 5.4.3; "Formatting the value of a quantity"
@@ -57,31 +108,27 @@ has_unit_spacing(u::Units{(Unit{:Degree, NoDims}(0, 1//1),), NoDims}) = false
 
 """
     show(io::IO, x::Quantity)
-Show a unitful quantity by calling `show` on the numeric value, appending a
+Show a unitful quantity by calling [`showval`](@ref) on the numeric value, appending a
 space, and then calling `show` on a units object `U()`.
 """
 function show(io::IO, x::Quantity)
-    show(io,x.val)
-    if !isunitless(unit(x))
-        has_unit_spacing(unit(x)) && print(io," ")
+    if isunitless(unit(x))
+        showval(io, x.val, false)
+    else
+        showval(io, x.val, true)
+        has_unit_spacing(unit(x)) && print(io, ' ')
         show(io, unit(x))
     end
-    nothing
 end
 
 function show(io::IO, mime::MIME"text/plain", x::Quantity)
-    show(io, mime, x.val)
-    if !isunitless(unit(x))
-        has_unit_spacing(unit(x)) && print(io," ")
+    if isunitless(unit(x))
+        showval(io, mime, x.val, false)
+    else
+        showval(io, mime, x.val, true)
+        has_unit_spacing(unit(x)) && print(io, ' ')
         show(io, mime, unit(x))
     end
-end
-
-function show(io::IO, x::Type{T}) where T<:Quantity
-    invoke(show, Tuple{IO, typeof(x)}, IOContext(io, :showoperators=>true), x)
-end
-function show(io::IO, x::Type{T}) where T<:Unitlike
-    invoke(show, Tuple{IO, typeof(x)}, IOContext(io, :showoperators=>true), x)
 end
 
 function show(io::IO, r::Union{StepRange{T},StepRangeLen{T}}) where T<:Quantity

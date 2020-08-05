@@ -6,7 +6,7 @@ New units or dimensions can be defined from the Julia REPL or from within
 other packages. To avoid duplication of code and effort, it is advised to put
 new unit definitions into a Julia package that is then published for others to
 use. For an example of how to do this, examine the code in
-[`UnitfulUS.jl`](https://github.com/ajkeller34/UnitfulUS.jl), which defines
+[`UnitfulUS.jl`](https://github.com/PainterQubits/UnitfulUS.jl), which defines
 U.S. customary units. It's actually very easy! Just make sure you read all of
 the cautionary notes on this page. If you make a units package for Unitful,
 please submit a pull request so that I can provide a link from Unitful's README!
@@ -19,7 +19,7 @@ When creating new units in a precompiled package that need to persist into
 run-time (usually true), it is important that the following make it into your
 code:
 
-```jl
+```julia
 function __init__()
     Unitful.register(YourModule)
 end
@@ -40,7 +40,7 @@ compile time.
 In the unlikely case that you've used `@dimension`, you will also need the
 following incantation:
 
-```jl
+```julia
 const localpromotion = Unitful.promotion
 function __init__()
     Unitful.register(YourModule)
@@ -82,7 +82,7 @@ explicitly forbid any attempt to convert to SI units.
 
 One can achieve this by defining new dimensions with the [`@dimension`](@ref) or
 [`@derived_dimension`](@ref) macros. The trick is to define dimensions that display
-suggestively like physical dimensions, like 𝐋*, 𝐓* etc., but are distinct as far
+suggestively like physical dimensions, like `𝐋*`, `𝐓*` etc., but are distinct as far
 as Julia's type system is concerned. Then, you can use [`@refunit`](@ref) to
 base units for these new dimensions without reference to SI. The result will be
 that attempted conversion between the hypothetical unit system and SI will fail
@@ -90,4 +90,4 @@ with a `DimensionError`, so be sure you provide some hints in how your
 new dimensions are displayed to avoid confusing users. It would be confusing
 to throw a `DimensionError` when attempting to convert between lengths which are
 incompatible in the sense of the previous paragraph, when both lengths display their
-dimension as 𝐋.
+dimension as `𝐋`.

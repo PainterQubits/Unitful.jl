@@ -252,6 +252,8 @@ Base. //(x::Units, y::Level) = x//linear(y)
 Base. //(x::Gain, y::Units) = x/y
 Base. //(x::Units, y::Gain) = x//linear(y)
 
+Base. isless(x::T, y::T) where {T<:LogScaled} = isless(x.val, y.val)
+
 function (Base.promote_rule(::Type{Level{L1,S1,T1}}, ::Type{Level{L2,S2,T2}})
         where {L1,L2,S1,S2,T1,T2})
     if L1 == L2
@@ -310,16 +312,7 @@ function Base.show(io::IO, x::Level)
     nothing
 end
 
-function Base.show(io::IO, x::Quantity{<:Union{Level,Gain},D,U}) where {D,U}
-    print(io, "[")
-    show(io, x.val)
-    print(io, "]")
-    if !isunitless(U())
-        print(io," ")
-        show(io, U())
-    end
-    nothing
-end
+BracketStyle(::Type{<:Union{Level,Gain}}) = SquareBrackets()
 
 """
     uconvertp(u::Units, x)
@@ -440,19 +433,5 @@ _isapprox(x::Gain{L,S,T}, y::Gain{L,S,T}; atol = Gain{L}(oneunit(T)), kwargs...)
 
 *(A::MixedUnits, B::AbstractArray) = broadcast(*, A, B)
 *(A::AbstractArray, B::MixedUnits) = broadcast(*, A, B)
-
-# For documentation generation...
-struct InvalidOp end
-Base.show(io::IO, ::InvalidOp) = print(io, "†")
-macro _doctables(x)
-    return esc(quote
-        sprint(show,
-        try
-            $x
-        catch
-            Unitful.InvalidOp()
-        end)
-    end)
-end
 
 Base.broadcastable(x::MixedUnits) = Ref(x)
