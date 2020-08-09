@@ -1352,6 +1352,7 @@ end
     qma = [1m 2m; 3m 4m]
     qmami = [1m 2; 3m 4]
     qve = [1m 2m]
+    qveve = [1m, 2m]
     qvemi = [1m 2]
     qntuple = (1m, 2m)
     qtuple = (1m, 2)
@@ -1366,6 +1367,9 @@ end
         x = qve
         @test shortp_bw(x) == "[1 2]m"
         @test longp_bw(x) == "1×2 Array{Quantity{Int64, ᴸ,FreeUnits{(m,), ᴸ,nothing}},2}:\n 1  2"
+        x = qveve
+        @test shortp_bw(x) == "[1, 2]m"
+        @test longp_bw(x) == "2-element Array{Quantity{Int64, ᴸ,FreeUnits{(m,), ᴸ,nothing}},1}:\n 1\n 2"
         x = qvemi
         @test shortp_bw(x) == "[1m 2]"
         @test longp_bw(x) == "1×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1m  2"
@@ -1387,6 +1391,9 @@ end
         x = qve
         shortp(x) == "[1 2]\e[36mm\e[39m"
         longp(x) == "1×2 Array{Quantity{Int64, ᴸ,FreeUnits{(\e[36mm\e[39m,), ᴸ,nothing}},2}:\n 1  2"
+        x = qveve
+        @test shortp(x) == "[1, 2]\e[36mm\e[39m"
+        @test longp(x) == "2-element Array{Quantity{Int64, ᴸ,FreeUnits{(\e[36mm\e[39m,), ᴸ,nothing}},1}:\n 1\n 2"
         x = qvemi
         shortp(x) == "[1\e[36mm\e[39m 2]"
         longp(x) == "1×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1\e[36mm\e[39m  2"

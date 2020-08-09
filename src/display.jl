@@ -351,19 +351,49 @@ function Base._show_nonempty(io::IO, X::AbstractMatrix{Quantity{T,D,U}}, prefix:
     showunit(io, eltype(X))
 end
 
-function Base.show_delim_array(io::IO,
-                               itr::AbstractVector{Quantity{T, D, U}},
-                               op,
-                               delim,
-                               cl,
-                               delim_one,
-                               i1=first(LinearIndices(itr)),
-                               l=last(LinearIndices(itr)))  where {T, D, U}
-    ulitr = ustrip(itr)
-    UnitlessContainerType = AbstractVector{T}
+#=
+  Target collections shown as abstract vectors where all elements are of the same quanity type (unit and numeric type).
+  The method is unchanged from the method for itr::Union{AbstractArray,SimpleVector}, from Julia 1.4.0, but attaches
+  units after closing brackets.
+  Units for individual elements are not shown because the io context is used to convey that they are shown by the calling
+  context - at the end.
+ =#
+function Base.show_delim_array(io::IO, itr::AbstractArray{<:Quantity}, op, delim, cl,
+                          delim_one, i1=first(LinearIndices(itr)), l=last(LinearIndices(itr)))
+    print(io, op)
+    if !show_circular(io, itr)
+        recur_io = IOContext(io, :SHOWN_SET => itr)
+        first = true
+        i = i1
+        if l >= i1
+            while true
+                if !isassigned(itr, i)
+                    print(io, undef_ref_str)
+                else
+                    x = itr[i]
+                    show(recur_io, x)
+                end
+                i += 1
+                if i > l
+                    delim_one && first && print(io, delim)
+                    break
+                end
+                first = false
+                print(io, delim)
+                print(io, ' ')
+            end
+        end
+    end
+    print(io, cl)
+    # This is the only line added to Julia 1.4.0 Base.show_delim_array for itr::Union(AbstractArray, SimpleVector)...
     showunit(io, eltype(itr))
 end
 
+#=
+  Target tuples of quantities where all elements of the tuple are of the same (numeric and unit) type.
+  This is closely based to the non-typed method of the function, from Julia 1.4.0, but strips units from the
+  inside of brackets and shows units after the bracket.
+=#
 function Base.show_delim_array(io::IO,
                                itr:: NTuple{N, <:Quantity},
                                op,

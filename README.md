@@ -9,22 +9,20 @@
 # Unitful.jl
 
 ## About this clone / fork
-We intend to keep pulling in further improvements from Unitful, and some of these changes might be
+We intend to keep pulling in further improvements from PainterQubits/Unitful.jl, and some of the ideas might be
 accepted in Unitful as well.
 
-This is a minor adaption of the original. The changes were previously made
-through type piracy in dependent packages, i.e. changing how types defined by Unitful were dislayed and used. 
-Type piracy tends to destroy pre-compilation and is bad for you.
+This is a minor adaption of the original, affecting parsing, display and constructors / conversion only. The changes 
+were previously made through type piracy in dependent packages, e.g. [MechanicalUnits.jl](https://github.com/hustf/MechanicalUnits.jl) was 
+changing how types defined by Unitful were dislayed and parsed.
+Type piracy tends to destroy pre-compilation, hence forking Unitful is a cleaner solution.
 
-A more directly useful implementation of this clone is 'MechanicalUnits.jl'. To use MechanicalUnits (or other 
-Unitful-dependant packages): 'pkg.instantiate' will read 'Manifest.toml', which points to this clone.
-
-The changes are:
+The changes in this fork are:
 * All 'show' methods are moved into 'display.jl'
 * Additional testing
 * Units are printed with color
 * Dimension symbols can be displayed on Windows terminals
-* No space between value and unit.
+* No space between value and unit. Useful for:
 ```julia
 julia> import Unitful.m
 julia> print([1 2]m)   # Un-decorated output can be parsed as input (copy to reproduce)
@@ -33,18 +31,8 @@ julia> [1 2]m          # Decorated output (using this format as a generator is n
 1×2 Array{Unitful.Quantity{Int64, ᴸ,Unitful.FreeUnits{(m,), ᴸ,nothing}},2}:
  1  2
 ```
-* '*' == '∙', also allowed in input:
+* Collections (tuples, arrays, vectors) with identical elements are printed with units outside of brackets
 
-```julia
-julia> import Unitful: m, s, kg, ∙
-
-julia> push!(ENV, "UNITFUL_FANCY_EXPONENTS" => true)
-
-julia> 0.5m∙s/kg
-0.5m∙s∙kg⁻¹      # The 'fancy exponents' can not be parsed as input. This is implemented in 'MechanicalUnits'
-```
-
-* Tuples, NTuples, mixed collections:
 ```julia
 julia> (1,2,3)m*s^-1
 (1, 2, 3)m∙s⁻¹
@@ -53,19 +41,43 @@ julia> (1,2m,3)m*s^-1
 (1m∙s⁻¹, 2m²∙s⁻¹, 3m∙s⁻¹)
 ```
 
-* Conversions are leniently allowed, as the result is only another representation of the same quanity and
-thus always correct. In deed, unexpected output from a conversion often hints towards what's gone wrong.
-```
-julia> import Unitful: μm, GPa, MPa
+* Unit conversions are more freely allowed, since an unexpected result is still a correct representation of the input quantity. 
+Unexpected output from a conversion often hints towards what dimension (mass, length...) is missing before the conversion. 
+We trigger such conversions by calling the wanted output unit, which may be considered dirty programming practice. We just consider it 
+too useful to disallow for that reason. Type stability in functions is a separate concern to physical correctness, and can be ensured 
+in other ways. Brief example, which would trigger an error in PainterQubits/Unitful:
+´´´
+julia> import Unitful: mg, dyn
 
-julia> ϵ = 0.002 |> μm/m  # Strain is a unitless quantity, yet this is common:
-2000.0μm∙m⁻¹
+julia> 1dyn |> mg
+10mg∙m∙s⁻²
+´´´
 
-julia> σ = ϵ * 206GPa |> MPa  # Hooke's law, Young's modulus
-412.00000000000006MPa
-```
+## Installing this clone / fork
+If you have already installed Unitful, you may have to remove it first:
+´´´
+(@v1.5) pkg> rm Unitful
+Updating `C:\Users\F\.julia\environments\v1.5\Project.toml`
+  [1986cc42] - Unitful v1.3.0
+Updating `C:\Users\F\.julia\environments\v1.5\Manifest.toml`
+  [187b0558] - ConstructionBase v1.0.0
+  [1986cc42] - Unitful v1.3.0
+  [37e2e46d] - LinearAlgebra
 
+(@v1.5) pkg> add https://github.com/hustf/Unitful.jl
+   Updating git-repo `https://github.com/hustf/Unitful.jl`
+  Resolving package versions...
+Updating `C:\Users\F\.julia\environments\v1.5\Project.toml`
+  [1986cc42] + Unitful v1.3.0 `https://github.com/hustf/Unitful.jl#master`
+Updating `C:\Users\F\.julia\environments\v1.5\Manifest.toml`
+  [187b0558] + ConstructionBase v1.0.0
+  [1986cc42] + Unitful v1.3.0 `https://github.com/hustf/Unitful.jl#master`
+  [37e2e46d] + LinearAlgebra
 
+julia> using Unitful
+
+julia>
+´´´
 
 ## Unitful.jl
 Unitful is a Julia package for physical units. We want to support not only
