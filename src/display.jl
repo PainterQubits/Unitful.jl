@@ -354,12 +354,15 @@ end
 #=
   Target collections shown as abstract vectors where all elements are of the same quanity type (unit and numeric type).
   The method is unchanged from the method for itr::Union{AbstractArray,SimpleVector}, from Julia 1.4.0, but attaches
-  units after closing brackets.
+  unit context before displaying elements, and show units after closing brackets.
   Units for individual elements are not shown because the io context is used to convey that they are shown by the calling
   context - at the end.
  =#
 function Base.show_delim_array(io::IO, itr::AbstractArray{<:Quantity}, op, delim, cl,
                           delim_one, i1=first(LinearIndices(itr)), l=last(LinearIndices(itr)))
+    # Since we are going to show the quanity type afterwards, let's inform the functions which show individual elements
+    io = IOContext(io, :typeinfo => eltype(itr))
+    # What follows, until the last line, is a direct copy of the less specialized function.
     print(io, op)
     if !show_circular(io, itr)
         recur_io = IOContext(io, :SHOWN_SET => itr)
@@ -385,14 +388,21 @@ function Base.show_delim_array(io::IO, itr::AbstractArray{<:Quantity}, op, delim
         end
     end
     print(io, cl)
-    # This is the only line added to Julia 1.4.0 Base.show_delim_array for itr::Union(AbstractArray, SimpleVector)...
+    # This is  added to Julia 1.4.0 Base.show_delim_array for itr::Union(AbstractArray, SimpleVector)...
     showunit(io, eltype(itr))
 end
 
 #=
-  Target tuples of quantities where all elements of the tuple are of the same (numeric and unit) type.
+  Target
   This is closely based to the non-typed method of the function, from Julia 1.4.0, but strips units from the
   inside of brackets and shows units after the bracket.
+
+  Target tuples of quantities where all elements of the tuple are of the same (numeric and unit) type.
+  The method is unchanged from the method for itr::Union{AbstractArray,SimpleVector}, from Julia 1.4.0, but attaches
+  unit context before displaying elements, and show units after closing brackets.
+  Units for individual elements are not shown because the io context is used to convey that they are shown by the calling
+  context - at the end.
+
 =#
 function Base.show_delim_array(io::IO,
                                itr:: NTuple{N, <:Quantity},
@@ -402,37 +412,40 @@ function Base.show_delim_array(io::IO,
                                delim_one,
                                i1=1,
                                n=typemax(Int)) where {N}
-   print(io, op)
-   if !show_circular(io, itr)
-       recur_io = IOContext(io, :SHOWN_SET => itr)
-       ulitr = ustrip.(itr)
-       y = iterate(ulitr)
-       first = true
-       i0 = i1-1
-       while i1 > 1 && y !== nothing
-           y = iterate(ulitr, y[2])
-           i1 -= 1
-       end
-       if y !== nothing
-           typeinfo = get(io, :typeinfo, Any)
-           while true
-               x = y[1]
-               y = iterate(ulitr, y[2])
-               show(IOContext(recur_io, :typeinfo => ulitr isa typeinfo <: Tuple ?
-                                            fieldtype(typeinfo, i1+i0) :
-                                            typeinfo),
-                    x)
-               i1 += 1
-               if y === nothing || i1 > n
-                   delim_one && first && print(io, delim)
-                   break
-               end
-               first = false
-               print(io, delim)
-               print(io, ' ')
-           end
-       end
-   end
-   print(io, cl)
-   showunit(io, eltype(itr))
+    # Since we are going to show the quanity type afterwards, let's inform the functions which show individual elements
+    io = IOContext(io, :typeinfo => eltype(itr))
+    # What follows, until the last line, is a direct copy of the less specialized function.
+    print(io, op)
+    if !show_circular(io, itr)
+        recur_io = IOContext(io, :SHOWN_SET => itr)
+        y = iterate(itr)
+        first = true
+        i0 = i1-1
+        while i1 > 1 && y !== nothing
+            y = iterate(itr, y[2])
+            i1 -= 1
+        end
+        if y !== nothing
+            typeinfo = get(io, :typeinfo, Any)
+            while true
+                x = y[1]
+                y = iterate(itr, y[2])
+                show(IOContext(recur_io, :typeinfo => itr isa typeinfo <: Tuple ?
+                                             fieldtype(typeinfo, i1+i0) :
+                                             typeinfo),
+                     x)
+                i1 += 1
+                if y === nothing || i1 > n
+                    delim_one && first && print(io, delim)
+                    break
+                end
+                first = false
+                print(io, delim)
+                print(io, ' ')
+            end
+        end
+    end
+    print(io, cl)
+    # This is added to Julia 1.4.0 Base.show_delim_array (duck-typed)
+    showunit(io, eltype(itr))
 end
