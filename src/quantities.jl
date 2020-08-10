@@ -44,6 +44,8 @@ end
 *(A::Units, B::AbstractArray) = broadcast(*, A, B)
 *(A::AbstractArray, B::Units) = broadcast(*, A, B)
 
+/(A::AbstractArray, B::Units) = broadcast(/, A, B)
+
 # Division (units)
 /(x::AbstractQuantity, y::Units) = Quantity(x.val, unit(x) / y)
 /(x::Units, y::AbstractQuantity) = Quantity(1/y.val, x / unit(y))
