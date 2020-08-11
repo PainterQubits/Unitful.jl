@@ -5,8 +5,8 @@
 
 Given however many dimensions, multiply them together.
 
-Collect [`Unitful.Dimension`](@ref) objects from the type parameter of the
-[`Unitful.Dimensions`](@ref) objects. For identical dimensions, collect powers
+Collect [`Unitfu.Dimension`](@ref) objects from the type parameter of the
+[`Unitfu.Dimensions`](@ref) objects. For identical dimensions, collect powers
 and sort uniquely by the name of the `Dimension`.
 
 Examples:

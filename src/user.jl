@@ -1,51 +1,51 @@
 """
     register(unit_module::Module)
-Makes Unitful aware of units defined in a new unit module, including making the
-[`@u_str`](@ref) macro work with these units. By default, Unitful is itself a
+Makes Unitfu aware of units defined in a new unit module, including making the
+[`@u_str`](@ref) macro work with these units. By default, Unitfu is itself a
 registered module. Note that Main is not, so if you define new units at the
-REPL, you will probably want to do `Unitful.register(Main)`.
+REPL, you will probably want to do `Unitfu.register(Main)`.
 
 Example:
 ```julia
 # somewhere in a custom units package...
 module MyUnitsPackage
-using Unitful
+using Unitfu
 
 function __init__()
     ...
-    Unitful.register(MyUnitsPackage)
+    Unitfu.register(MyUnitsPackage)
 end
 end #module
 ```
 """
 function register(unit_module::Module)
-    push!(Unitful.unitmodules, unit_module)
-    if unit_module !== Unitful
-        merge!(Unitful.basefactors, _basefactors(unit_module))
+    push!(Unitfu.unitmodules, unit_module)
+    if unit_module !== Unitfu
+        merge!(Unitfu.basefactors, _basefactors(unit_module))
     end
 end
 
 """
     @dimension(symb, abbr, name)
 Creates new dimensions. `name` will be used like an identifier in the type
-parameter for a [`Unitful.Dimension`](@ref) object. `symb` will be a symbol
+parameter for a [`Unitfu.Dimension`](@ref) object. `symb` will be a symbol
 defined in the namespace from which this macro is called that is bound to a
-[`Unitful.Dimensions`](@ref) object. For most intents and purposes it is this
+[`Unitfu.Dimensions`](@ref) object. For most intents and purposes it is this
 object that the user would manipulate in doing dimensional analysis. The symbol
 is not exported.
 
-This macro extends [`Unitful.abbr`](@ref) to display the new dimension in an
+This macro extends [`Unitfu.abbr`](@ref) to display the new dimension in an
 abbreviated format using the string `abbr`.
 
 Type aliases are created that allow the user to dispatch on
-[`Unitful.Quantity`](@ref), [`Unitful.Level`](@ref) and [`Unitful.Units`](@ref) objects
+[`Unitfu.Quantity`](@ref), [`Unitfu.Level`](@ref) and [`Unitfu.Units`](@ref) objects
 of the newly defined dimension. The type alias for quantities or levels is simply given by
 `name`, and the type alias for units is given by `name*"Units"`, e.g. `LengthUnits`.
 Note that there is also `LengthFreeUnits`, for example, which is an alias for
 dispatching on `FreeUnits` with length dimensions. The aliases are not exported.
 
 Finally, if you define new dimensions with [`@dimension`](@ref) you will need
-to specify a preferred unit for that dimension with [`Unitful.preferunits`](@ref),
+to specify a preferred unit for that dimension with [`Unitfu.preferunits`](@ref),
 otherwise promotion will not work with that dimension. This is done automatically
 in the [`@refunit`](@ref) macro.
 
@@ -59,24 +59,24 @@ macro dimension(symb, abbr, name)
     uname = Symbol(name,"Units")
     funame = Symbol(name,"FreeUnits")
     esc(quote
-        Unitful.abbr(::Unitful.Dimension{$x}) = $abbr
-        const global $s = Unitful.Dimensions{(Unitful.Dimension{$x}(1),)}()
+        Unitfu.abbr(::Unitfu.Dimension{$x}) = $abbr
+        const global $s = Unitfu.Dimensions{(Unitfu.Dimension{$x}(1),)}()
         const global ($name){T,U} = Union{
-            Unitful.Quantity{T,$s,U},
-            Unitful.Level{L,S,Unitful.Quantity{T,$s,U}} where {L,S}}
-        const global ($uname){U} = Unitful.Units{U,$s}
-        const global ($funame){U} = Unitful.FreeUnits{U,$s}
+            Unitfu.Quantity{T,$s,U},
+            Unitfu.Level{L,S,Unitfu.Quantity{T,$s,U}} where {L,S}}
+        const global ($uname){U} = Unitfu.Units{U,$s}
+        const global ($funame){U} = Unitfu.FreeUnits{U,$s}
         $s
     end)
 end
 
 """
     @derived_dimension(name, dims)
-Creates type aliases to allow dispatch on [`Unitful.Quantity`](@ref),
-[`Unitful.Level`](@ref), and [`Unitful.Units`](@ref) objects of a derived dimension,
+Creates type aliases to allow dispatch on [`Unitfu.Quantity`](@ref),
+[`Unitfu.Level`](@ref), and [`Unitfu.Units`](@ref) objects of a derived dimension,
 like area, which is just length squared. The type aliases are not exported.
 
-`dims` is a [`Unitful.Dimensions`](@ref) object.
+`dims` is a [`Unitfu.Dimensions`](@ref) object.
 
 Returns `nothing`.
 
@@ -90,10 +90,10 @@ macro derived_dimension(name, dims)
     funame = Symbol(name,"FreeUnits")
     esc(quote
         const global ($name){T,U} = Union{
-            Unitful.Quantity{T,$dims,U},
-            Unitful.Level{L,S,Unitful.Quantity{T,$dims,U}} where {L,S}}
-        const global ($uname){U} = Unitful.Units{U,$dims}
-        const global ($funame){U} = Unitful.FreeUnits{U,$dims}
+            Unitfu.Quantity{T,$dims,U},
+            Unitfu.Level{L,S,Unitfu.Quantity{T,$dims,U}} where {L,S}}
+        const global ($uname){U} = Unitfu.Units{U,$dims}
+        const global ($funame){U} = Unitfu.FreeUnits{U,$dims}
         nothing
     end)
 end
@@ -105,10 +105,10 @@ Define a reference unit, typically SI. Rather than define
 conversion factors between each and every unit of a given dimension, conversion
 factors are given between each unit and a reference unit, defined by this macro.
 
-This macro extends [`Unitful.abbr`](@ref) so that the reference unit can be
+This macro extends [`Unitfu.abbr`](@ref) so that the reference unit can be
 displayed in an abbreviated format. If `tf == true`, this macro generates symbols
 for every power of ten of the unit, using the standard SI prefixes. A `dimension`
-must be given ([`Unitful.Dimensions`](@ref) object) that specifies the dimension
+must be given ([`Unitfu.Dimensions`](@ref) object) that specifies the dimension
 of the reference unit.
 
 In principle, users can use this macro, but it probably does not make much sense
@@ -122,7 +122,7 @@ hypothetical unit system, which could yield unexpected results.
 Note that this macro will also choose the new unit (no power-of-ten prefix) as
 the default unit for promotion given this dimension.
 
-Returns the [`Unitful.FreeUnits`](@ref) object to which `symb` is bound.
+Returns the [`Unitfu.FreeUnits`](@ref) object to which `symb` is bound.
 
 Usage example: `@refunit m "m" Meter ᴸ true`
 
@@ -133,21 +133,21 @@ macro refunit(symb, abbr, name, dimension, tf)
     n = Meta.quot(Symbol(name))
 
     push!(expr.args, quote
-        Unitful.abbr(::Unitful.Unit{$n, $dimension}) = $abbr
+        Unitfu.abbr(::Unitfu.Unit{$n, $dimension}) = $abbr
     end)
 
     if tf
         push!(expr.args, quote
-            Unitful.@prefixed_unit_symbols $symb $name $dimension (1.0, 1)
+            Unitfu.@prefixed_unit_symbols $symb $name $dimension (1.0, 1)
         end)
     else
         push!(expr.args, quote
-            Unitful.@unit_symbols $symb $name $dimension (1.0, 1)
+            Unitfu.@unit_symbols $symb $name $dimension (1.0, 1)
         end)
     end
 
     push!(expr.args, quote
-        Unitful.preferunits($symb)
+        Unitfu.preferunits($symb)
         $symb
     end)
 
@@ -157,10 +157,10 @@ end
 """
     @unit(symb,abbr,name,equals,tf)
 Define a unit. Rather than specifying a dimension like in [`@refunit`](@ref),
-`equals` should be a [`Unitful.Quantity`](@ref) equal to one of the unit being
+`equals` should be a [`Unitfu.Quantity`](@ref) equal to one of the unit being
 defined. If `tf == true`, symbols will be made for each power-of-ten prefix.
 
-Returns the [`Unitful.FreeUnits`](@ref) object to which `symb` is bound.
+Returns the [`Unitfu.FreeUnits`](@ref) object to which `symb` is bound.
 
 Usage example: `@unit mi "mi" Mile (201168//125)*m false`
 
@@ -170,21 +170,21 @@ macro unit(symb,abbr,name,equals,tf)
     expr = Expr(:block)
     n = Meta.quot(Symbol(name))
 
-    d = :(Unitful.dimension($equals))
-    basef = :(Unitful.basefactor(Unitful.basefactor(Unitful.unit($equals))...,
-                                 ($equals)/Unitful.unit($equals),
-                                 Unitful.tensfactor(Unitful.unit($equals)), 1))
+    d = :(Unitfu.dimension($equals))
+    basef = :(Unitfu.basefactor(Unitfu.basefactor(Unitfu.unit($equals))...,
+                                 ($equals)/Unitfu.unit($equals),
+                                 Unitfu.tensfactor(Unitfu.unit($equals)), 1))
     push!(expr.args, quote
-        Unitful.abbr(::Unitful.Unit{$n, $d}) = $abbr
+        Unitfu.abbr(::Unitfu.Unit{$n, $d}) = $abbr
     end)
 
     if tf
         push!(expr.args, quote
-            Unitful.@prefixed_unit_symbols $symb $name $d $basef
+            Unitfu.@prefixed_unit_symbols $symb $name $d $basef
         end)
     else
         push!(expr.args, quote
-            Unitful.@unit_symbols $symb $name $d $basef
+            Unitfu.@unit_symbols $symb $name $d $basef
         end)
     end
 
@@ -204,8 +204,8 @@ in terms of an absolute scale; the scaling is the same as the absolute scale. Ex
 macro affineunit(symb, abbr, offset)
     s = Symbol(symb)
     return esc(quote
-        const global $s = Unitful.affineunit($offset)
-        Base.show(io::IO, ::Unitful.genericunit($s)) = begin
+        const global $s = Unitfu.affineunit($offset)
+        Base.show(io::IO, ::Unitfu.genericunit($s)) = begin
             col = get(io, :unitsymbolcolor, :cyan)
             printstyled(io, color = col, $abbr)
             nothing
@@ -214,15 +214,15 @@ macro affineunit(symb, abbr, offset)
 end
 
 function basefactors_expr(m::Module, n, basefactor)
-    if m === Unitful
-        :($(_basefactors(Unitful))[$n] = $basefactor)
+    if m === Unitfu
+        :($(_basefactors(Unitfu))[$n] = $basefactor)
     else
-        # We add the base factor to dictionaries both in Unitful and the other
+        # We add the base factor to dictionaries both in Unitfu and the other
         # module so that the factor is available both interactively and with
         # precompilation.
         quote
             $(_basefactors(m))[$n] = $basefactor
-            $(_basefactors(Unitful))[$n] = $basefactor
+            $(_basefactors(Unitfu))[$n] = $basefactor
         end
     end
 end
@@ -241,20 +241,20 @@ macro prefixed_unit_symbols(symb,name,dimension,basefactor)
 
     for (k,v) in prefixdict
         s = Symbol(v,symb)
-        u = :(Unitful.Unit{$n, $dimension}($k,1//1))
+        u = :(Unitfu.Unit{$n, $dimension}($k,1//1))
         ea = quote
             $(basefactors_expr(__module__, n, basefactor))
-            const global $s = Unitful.FreeUnits{($u,), Unitful.dimension($u), nothing}()
+            const global $s = Unitfu.FreeUnits{($u,), Unitfu.dimension($u), nothing}()
         end
         push!(expr.args, ea)
     end
 
     # These lines allow for μ to be typed with option-m on a Mac.
     s = Symbol(:µ, symb)
-    u = :(Unitful.Unit{$n, $dimension}(-6,1//1))
+    u = :(Unitfu.Unit{$n, $dimension}(-6,1//1))
     push!(expr.args, quote
         $(basefactors_expr(__module__, n, basefactor))
-        const global $s = Unitful.FreeUnits{($u,), Unitful.dimension($u), nothing}()
+        const global $s = Unitfu.FreeUnits{($u,), Unitfu.dimension($u), nothing}()
     end)
 
     esc(expr)
@@ -270,10 +270,10 @@ Example: `@unit_symbols ft Foot ᴸ` results in `ft` getting defined but not `kf
 macro unit_symbols(symb,name,dimension,basefactor)
     s = Symbol(symb)
     n = Meta.quot(Symbol(name))
-    u = :(Unitful.Unit{$n, $dimension}(0,1//1))
+    u = :(Unitfu.Unit{$n, $dimension}(0,1//1))
     esc(quote
         $(basefactors_expr(__module__, n, basefactor))
-        const global $s = Unitful.FreeUnits{($u,), Unitful.dimension($u), nothing}()
+        const global $s = Unitfu.FreeUnits{($u,), Unitfu.dimension($u), nothing}()
     end)
 end
 
@@ -285,7 +285,7 @@ but not ᴸ/ᵀ or ᴸ^2. The function will complain if this is not the case. Ad
 the function will complain if you provide two units with the same dimension, as a
 courtesy to the user. Finally, you cannot use affine units such as `°C` with this function.
 
-Once [`Unitful.upreferred`](@ref) has been called or quantities have been promoted,
+Once [`Unitfu.upreferred`](@ref) has been called or quantities have been promoted,
 this function will appear to have no effect.
 
 Usage example: `preferunits(u"m,s,A,K,cd,kg,mol"...)`
@@ -294,7 +294,7 @@ function preferunits(u0::Units, u::Units...)
 
     units = (u0, u...)
     any(x->x isa AffineUnits, units) &&
-        error("cannot use `Unitful.preferunits` with affine units; try `Unitful.ContextUnits`.")
+        error("cannot use `Unitfu.preferunits` with affine units; try `Unitfu.ContextUnits`.")
 
     dims = map(dimension, units)
     if length(union(dims)) != length(dims)
@@ -326,7 +326,7 @@ end
 Unit-convert `x` to units which are preferred for the dimensions of `x`.
 If you are using the factory defaults, this function will unit-convert to a
 product of powers of base SI units. If quantity `x` has
-[`Unitful.ContextUnits`](@ref)`(y,z)`, the resulting quantity will have
+[`Unitfu.ContextUnits`](@ref)`(y,z)`, the resulting quantity will have
 units `ContextUnits(z,z)`.
 """
 @inline upreferred(x::Number) = x
@@ -372,7 +372,7 @@ is decibel-like, or `true` if your scale is neper-like.
 
 Examples:
 ```jldoctest
-julia> using Unitful: V, W
+julia> using Unitfu: V, W
 
 julia> @logscale dΠ "dΠ" Decipies π 10 false
 dΠ
@@ -392,14 +392,14 @@ julia> @dΠ π*W/1W
 """
 macro logscale(symb,abbr,name,base,prefactor,irp)
     quote
-        Unitful.abbr(::Unitful.LogInfo{$(QuoteNode(name))}) = $abbr
+        Unitfu.abbr(::Unitfu.LogInfo{$(QuoteNode(name))}) = $abbr
 
-        const global $(esc(name)) = Unitful.LogInfo{$(QuoteNode(name)), $base, $prefactor}
-        Unitful.isrootpower(::Type{$(esc(name))}) = $irp
+        const global $(esc(name)) = Unitfu.LogInfo{$(QuoteNode(name)), $base, $prefactor}
+        Unitfu.isrootpower(::Type{$(esc(name))}) = $irp
 
-        const global $(esc(symb)) = Unitful.MixedUnits{Unitful.Gain{$(esc(name)), :?}}()
-        const global $(esc(Symbol(symb,"_rp"))) = Unitful.MixedUnits{Unitful.Gain{$(esc(name)), :rp}}()
-        const global $(esc(Symbol(symb,"_p"))) = Unitful.MixedUnits{Unitful.Gain{$(esc(name)), :p}}()
+        const global $(esc(symb)) = Unitfu.MixedUnits{Unitfu.Gain{$(esc(name)), :?}}()
+        const global $(esc(Symbol(symb,"_rp"))) = Unitfu.MixedUnits{Unitfu.Gain{$(esc(name)), :rp}}()
+        const global $(esc(Symbol(symb,"_p"))) = Unitfu.MixedUnits{Unitfu.Gain{$(esc(name)), :p}}()
 
         macro $(esc(symb))(::Union{Real,Symbol})
             throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
@@ -457,15 +457,15 @@ Defines a logarithmic unit. For examples see `src/pkgdefaults.jl`.
 """
 macro logunit(symb, abbr, logscale, reflevel)
     quote
-        Unitful.abbr(::Unitful.Level{$(esc(logscale)), $(esc(reflevel))}) = $abbr
+        Unitfu.abbr(::Unitfu.Level{$(esc(logscale)), $(esc(reflevel))}) = $abbr
         const global $(esc(symb)) =
-            Unitful.MixedUnits{Unitful.Level{$(esc(logscale)), $(esc(reflevel))}}()
+            Unitfu.MixedUnits{Unitfu.Level{$(esc(logscale)), $(esc(reflevel))}}()
     end
 end
 
 """
     affineunit(x::Quantity)
-Returns a [`Unitful.Units`](@ref) object that can be used to construct affine quantities.
+Returns a [`Unitfu.Units`](@ref) object that can be used to construct affine quantities.
 Primarily, this is for relative temperatures (as opposed to absolute temperatures,
 which transform as usual under unit conversion). To use this function, pass the scale offset,
 e.g. `affineunit(273.15K)` yields a Celsius unit.
@@ -476,9 +476,9 @@ affineunit(x::Quantity{T,D,FreeUnits{N,D,nothing}}) where {N,D,T} =
 """
     @u_str(unit)
 String macro to easily recall units, dimensions, or quantities defined in
-unit modules that have been registered with [`Unitful.register`](@ref).
+unit modules that have been registered with [`Unitfu.register`](@ref).
 
-If the same symbol is used for a [`Unitful.Units`](@ref) object defined in
+If the same symbol is used for a [`Unitfu.Units`](@ref) object defined in
 different modules, then the symbol found in the most recently registered module
 will be used.
 
@@ -498,7 +498,7 @@ julia> u"m,kg,s"
 (m, kg, s)
 
 julia> typeof(1.0u"m/s")
-Quantity{Float64,ᴸ*ᵀ^-1,Unitful.FreeUnits{(m, s^-1),ᴸ ᵀ^-1,nothing}}
+Quantity{Float64,ᴸ*ᵀ^-1,Unitfu.FreeUnits{(m, s^-1),ᴸ ᵀ^-1,nothing}}
 
 julia> u"ħ"
 1.0545718176461565e-34 J s
@@ -506,8 +506,8 @@ julia> u"ħ"
 """
 macro u_str(unit)
     ex = Meta.parse(unit)
-    unitmods = [Unitful]
-    for m in Unitful.unitmodules
+    unitmods = [Unitfu]
+    for m in Unitfu.unitmodules
         # Find registered unit extension modules which are also loaded by
         # __module__ (required so that precompilation will work).
         if isdefined(__module__, nameof(m)) && getfield(__module__, nameof(m)) === m
@@ -523,7 +523,7 @@ end
 Parse a string as a unit or quantity. The format for `string` must be a valid
 Julia expression, and any identifiers will be looked up in the context `ctx`,
 which may be a `Module` or a vector of `Module`s. By default
-`unit_context=Unitful`.
+`unit_context=Unitfu`.
 
 Examples:
 
@@ -535,7 +535,7 @@ julia> uparse("1.0*dB")
 1.0 dB
 ```
 """
-function uparse(str; unit_context=Unitful)
+function uparse(str; unit_context=Unitfu)
     ex = Meta.parse(str)
     eval(lookup_units(unit_context, ex))
 end

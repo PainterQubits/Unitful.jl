@@ -303,7 +303,7 @@ BracketStyle(::Type{<:Union{Level,Gain}}) = SquareBrackets()
 """
     uconvertp(u::Units, x)
     uconvertp(u::MixedUnits, x)
-Generically, this is the same as [`Unitful.uconvert`](@ref). In cases where unit conversion
+Generically, this is the same as [`Unitfu.uconvert`](@ref). In cases where unit conversion
 would be ambiguous without further information (e.g. `uconvert(dB, 10)`), `uconvertp`
 presumes ratios are of root-power quantities.
 
@@ -314,7 +314,7 @@ happens when you try to compute exponential attenuation by multiplying `0.1/m` b
 
 Examples:
 ```jldoctest
-julia> using Unitful
+julia> using Unitfu
 
 julia> uconvertp(u"dB", 10)
 10.0 dB
@@ -337,7 +337,7 @@ uconvertp(u::T, x::Real) where {L, G <: Gain{L}, T <: MixedUnits{G, <:Units{()}}
 """
     uconvertrp(u::Units, x)
     uconvertrp(u::MixedUnits, x)
-In most cases, this is the same as [`Unitful.uconvert`](@ref). In cases where unit conversion
+In most cases, this is the same as [`Unitfu.uconvert`](@ref). In cases where unit conversion
 would be ambiguous without further information (e.g. `uconvert(dB, 10)`), `uconvertp`
 presumes ratios are of power quantities.
 

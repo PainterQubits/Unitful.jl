@@ -3,7 +3,7 @@
 Given `Units` objects as arguments, this function returns a `Units` object appropriate
 for the result of promoting quantities which have these units. This function is kind
 of like `promote_rule`, except that it doesn't take types. It also does not return a tuple,
-but rather just a [`Unitful.Units`](@ref) object (or it throws an error).
+but rather just a [`Unitfu.Units`](@ref) object (or it throws an error).
 
 Although we had used `promote_rule` for `Units` objects in prior versions of Unitful,
 this was always kind of a hack; it doesn't make sense to promote units directly for

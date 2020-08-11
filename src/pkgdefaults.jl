@@ -115,7 +115,7 @@ end
 # Area
 # The hectare is used more frequently than any other power-of-ten of an are.
 @unit a      "a"        Are         100m^2                  false
-const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, ᴸ^2}(2, 1//1),), ᴸ^2}()
+const ha = Unitfu.FreeUnits{(Unitfu.Unit{:Are, ᴸ^2}(2, 1//1),), ᴸ^2}()
 @unit b      "b"        Barn        100fm^2                 true
 
 # Volume
@@ -123,7 +123,7 @@ const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, ᴸ^2}(2, 1//1),), ᴸ^2}()
 @unit L      "L"        Liter       m^3//1000                true
 for p in (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
     Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
-    Core.eval(Unitful, :(const $(Symbol(p,:l)) = $(Symbol(p,:L))))
+    Core.eval(Unitfu, :(const $(Symbol(p,:l)) = $(Symbol(p,:L))))
 end
 
 # Molarity
@@ -252,7 +252,7 @@ isrootpower_dim(::typeof(dimension(J)))         = false
 
 #########
 
-# `using Unitful.DefaultSymbols` will bring the following into the calling namespace:
+# `using Unitfu.DefaultSymbols` will bring the following into the calling namespace:
 # - Dimensions ᴸ,ᴹ,ᵀ,ᴵ,ᶿ,ᴶ,ᴺ
 # - Base and derived SI units, with SI prefixes
 #   - Candela conflicts with `Base.cd` so it is not brought in (issue #102)
@@ -266,24 +266,24 @@ const si_no_prefix = (:m, :s, :A, :K, :g, :mol, :rad, :sr, :Hz, :N, :Pa, #:cd,
     :J, :W, :C, :V, :F, :Ω, :S, :Wb, :T, :H, :lm, :lx, :Bq, :Gy, :Sv, :kat)
 
 baremodule DefaultSymbols
-    import Unitful
+    import Unitfu
 
     for u in (:ᴸ,:ᴹ,:ᵀ,:ᴵ,:ᶿ,:ᴶ,:ᴺ)
-        Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, u)))
+        Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitfu, u)))
         Core.eval(DefaultSymbols, Expr(:export, u))
     end
 
-    for p in Unitful.si_prefixes
-        for u in Unitful.si_no_prefix
-            Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, Symbol(p,u))))
+    for p in Unitfu.si_prefixes
+        for u in Unitfu.si_no_prefix
+            Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitfu, Symbol(p,u))))
             Core.eval(DefaultSymbols, Expr(:export, Symbol(p,u)))
         end
     end
 
-    Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, :°C)))
+    Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitfu, :°C)))
     Core.eval(DefaultSymbols, Expr(:export, :°C))
 
-    Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, :°)))
+    Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitfu, :°)))
     Core.eval(DefaultSymbols, Expr(:export, :°))
 end
 
@@ -292,7 +292,7 @@ end
 preferunits(kg) # others done in @refunit
 
 """
-    Unitful.promote_to_derived()
+    Unitfu.promote_to_derived()
 Defines promotion rules to use derived SI units in promotion for common dimensions
 of quantities:
 
@@ -315,30 +315,30 @@ you open Julia. This function is not exported.
 """
 function promote_to_derived()
     eval(quote
-         Unitful.promote_unit(::S, ::T) where
-         {S<:EnergyFreeUnits, T<:EnergyFreeUnits} = Unitful.J
-         Unitful.promote_unit(::S, ::T) where
-         {S<:ForceFreeUnits, T<:ForceFreeUnits} = Unitful.N
-         Unitful.promote_unit(::S, ::T) where
-         {S<:PowerFreeUnits, T<:PowerFreeUnits} = Unitful.W
-         Unitful.promote_unit(::S, ::T) where
-         {S<:PressureFreeUnits, T<:PressureFreeUnits} = Unitful.Pa
-         Unitful.promote_unit(::S, ::T) where
-         {S<:ChargeFreeUnits, T<:ChargeFreeUnits} = Unitful.C
-         Unitful.promote_unit(::S, ::T) where
-         {S<:VoltageFreeUnits, T<:VoltageFreeUnits} = Unitful.V
-         Unitful.promote_unit(::S, ::T) where
-         {S<:ElectricalResistanceFreeUnits, T<:ElectricalResistanceFreeUnits} = Unitful.Ω
-         Unitful.promote_unit(::S, ::T) where
-         {S<:CapacitanceFreeUnits, T<:CapacitanceFreeUnits} = Unitful.F
-         Unitful.promote_unit(::S, ::T) where
-         {S<:InductanceFreeUnits, T<:InductanceFreeUnits} = Unitful.H
-         Unitful.promote_unit(::S, ::T) where
-         {S<:MagneticFluxFreeUnits, T<:MagneticFluxFreeUnits} = Unitful.Wb
-         Unitful.promote_unit(::S, ::T) where
-         {S<:BFieldFreeUnits, T<:BFieldFreeUnits} = Unitful.T
-         Unitful.promote_unit(::S, ::T) where
-         {S<:ActionFreeUnits, T<:ActionFreeUnits} = Unitful.J * Unitful.s
+         Unitfu.promote_unit(::S, ::T) where
+         {S<:EnergyFreeUnits, T<:EnergyFreeUnits} = Unitfu.J
+         Unitfu.promote_unit(::S, ::T) where
+         {S<:ForceFreeUnits, T<:ForceFreeUnits} = Unitfu.N
+         Unitfu.promote_unit(::S, ::T) where
+         {S<:PowerFreeUnits, T<:PowerFreeUnits} = Unitfu.W
+         Unitfu.promote_unit(::S, ::T) where
+         {S<:PressureFreeUnits, T<:PressureFreeUnits} = Unitfu.Pa
+         Unitfu.promote_unit(::S, ::T) where
+         {S<:ChargeFreeUnits, T<:ChargeFreeUnits} = Unitfu.C
+         Unitfu.promote_unit(::S, ::T) where
+         {S<:VoltageFreeUnits, T<:VoltageFreeUnits} = Unitfu.V
+         Unitfu.promote_unit(::S, ::T) where
+         {S<:ElectricalResistanceFreeUnits, T<:ElectricalResistanceFreeUnits} = Unitfu.Ω
+         Unitfu.promote_unit(::S, ::T) where
+         {S<:CapacitanceFreeUnits, T<:CapacitanceFreeUnits} = Unitfu.F
+         Unitfu.promote_unit(::S, ::T) where
+         {S<:InductanceFreeUnits, T<:InductanceFreeUnits} = Unitfu.H
+         Unitfu.promote_unit(::S, ::T) where
+         {S<:MagneticFluxFreeUnits, T<:MagneticFluxFreeUnits} = Unitfu.Wb
+         Unitfu.promote_unit(::S, ::T) where
+         {S<:BFieldFreeUnits, T<:BFieldFreeUnits} = Unitfu.T
+         Unitfu.promote_unit(::S, ::T) where
+         {S<:ActionFreeUnits, T<:ActionFreeUnits} = Unitfu.J * Unitfu.s
         end)
     nothing
 end

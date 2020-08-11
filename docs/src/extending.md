@@ -21,30 +21,30 @@ code:
 
 ```julia
 function __init__()
-    Unitful.register(YourModule)
+    Unitfu.register(YourModule)
 end
 ```
 
-By calling [`Unitful.register`](@ref) in your `__init__` function, you tell
-Unitful about some internal data required to make Unit conversions work and
-also make your units accessible to Unitful's [`@u_str`](@ref) macro. Your unit
+By calling [`Unitfu.register`](@ref) in your `__init__` function, you tell
+Unitfu about some internal data required to make Unit conversions work and
+also make your units accessible to Unitfu's [`@u_str`](@ref) macro. Your unit
 symbols should ideally be distinctive to avoid colliding with symbols defined
-in other packages or in Unitful. If there is a collision, the [`@u_str`](@ref)
+in other packages or in Unitfu. If there is a collision, the [`@u_str`](@ref)
 macro will still work, but it will use the unit found in whichever package was
 registered most recently, and it will emit a warning every time.
 
 If you use the `@u_str` macro with the units defined in your package, you'll
-also need to call `Unitful.register()` at the top level of your package at
+also need to call `Unitfu.register()` at the top level of your package at
 compile time.
 
 In the unlikely case that you've used `@dimension`, you will also need the
 following incantation:
 
 ```julia
-const localpromotion = Unitful.promotion
+const localpromotion = Unitfu.promotion
 function __init__()
-    Unitful.register(YourModule)
-    merge!(Unitful.promotion, localpromotion)
+    Unitfu.register(YourModule)
+    merge!(Unitfu.promotion, localpromotion)
 end
 ```
 

@@ -50,7 +50,7 @@ end
 
 
 """
-Unitful defines the bullet operator `∙` (Unicode U+2219, \vysmblkcircle + tab in Julia).
+Unitfu defines the bullet operator `∙` (Unicode U+2219, \vysmblkcircle + tab in Julia).
 
 In the context of units, the appearance of the `*` symbol is dominating, hence it is often
 dropped in favour of a short space. By allowing `∙`, REPL output with units is easily readable
@@ -138,7 +138,7 @@ for f = (:div, :cld, :fld, :rem, :mod)
 end
 
 Base.mod2pi(x::DimensionlessQuantity) = mod2pi(uconvert(NoUnits, x))
-Base.mod2pi(x::AbstractQuantity{S, NoDims, <:Units{(Unitful.Unit{:Degree, NoDims}(0, 1//1),),
+Base.mod2pi(x::AbstractQuantity{S, NoDims, <:Units{(Unitfu.Unit{:Degree, NoDims}(0, 1//1),),
     NoDims}}) where S = mod(x, 360°)
 
 # Addition / subtraction
@@ -410,7 +410,7 @@ isinf(x::AbstractQuantity) = isinf(x.val)
 isnan(x::AbstractQuantity) = isnan(x.val)
 
 eps(x::T) where {T<:AbstractQuantity} = T(eps(x.val))
-eps(x::Type{T}) where {T<:AbstractQuantity} = eps(Unitful.numtype(T))
+eps(x::Type{T}) where {T<:AbstractQuantity} = eps(Unitfu.numtype(T))
 
 unsigned(x::AbstractQuantity) = Quantity(unsigned(x.val), unit(x))
 

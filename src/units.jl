@@ -69,8 +69,8 @@ FreeOrContextUnits = Union{FreeUnits, ContextUnits}
 Given however many units, multiply them together. This is actually handled by
 a few different methods, since we have `FreeUnits`, `ContextUnits`, and `FixedUnits`.
 
-Collect [`Unitful.Unit`](@ref) objects from the type parameter of the
-[`Unitful.Units`](@ref) objects. For identical units including SI prefixes
+Collect [`Unitfu.Unit`](@ref) objects from the type parameter of the
+[`Unitfu.Units`](@ref) objects. For identical units including SI prefixes
 (i.e. `cm` ≠ `m`), collect powers and sort uniquely by the name of the `Unit`.
 The unique sorting permits easy unit comparisons.
 
@@ -299,9 +299,9 @@ Base.mul12(x::Real, y::Quantity)     = Base.mul12(x, ustrip(y)) .* unit(y)
     upreferred(x::Dimensions)
 Return units which are preferred for dimensions `x`. If you are using the
 factory defaults, this function will return a product of powers of base SI units
-(as [`Unitful.FreeUnits`](@ref)).
+(as [`Unitfu.FreeUnits`](@ref)).
 """
 @generated function upreferred(x::Dimensions{D}) where {D}
-    u = *(FreeUnits{((Unitful.promotion[name(z)]^z.power for z in D)...,),()}())
+    u = *(FreeUnits{((Unitfu.promotion[name(z)]^z.power for z in D)...,),()}())
     :($u)
 end

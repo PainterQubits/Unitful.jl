@@ -60,17 +60,17 @@ the result to PyPlot, for example.
 
 ```jldoctest
 julia> a = [1u"m", 2u"m"]
-2-element Array{Quantity{Int64,ᴸ,Unitful.FreeUnits{(m,),ᴸ,nothing}},1}:
+2-element Array{Quantity{Int64,ᴸ,Unitfu.FreeUnits{(m,),ᴸ,nothing}},1}:
  1 m
  2 m
 
 julia> b = ustrip(a)
-2-element reinterpret(Int64, ::Array{Quantity{Int64,ᴸ,Unitful.FreeUnits{(m,),ᴸ,nothing}},1}):
+2-element reinterpret(Int64, ::Array{Quantity{Int64,ᴸ,Unitfu.FreeUnits{(m,),ᴸ,nothing}},1}):
  1
  2
 
 julia> a[1] = 3u"m"; b
-2-element reinterpret(Int64, ::Array{Quantity{Int64,ᴸ,Unitful.FreeUnits{(m,),ᴸ,nothing}},1}):
+2-element reinterpret(Int64, ::Array{Quantity{Int64,ᴸ,Unitfu.FreeUnits{(m,),ᴸ,nothing}},1}):
  3
  2
 ```
@@ -113,7 +113,7 @@ true
 
 """
     unit(x::Number)
-Returns a `Unitful.FreeUnits{(), NoDims}` object to indicate that ordinary
+Returns a `Unitfu.FreeUnits{(), NoDims}` object to indicate that ordinary
 numbers have no units. This is a singleton, which we export as `NoUnits`.
 The unit is displayed as an empty string.
 
@@ -121,10 +121,10 @@ Examples:
 
 ```jldoctest
 julia> typeof(unit(1.0))
-Unitful.FreeUnits{(),NoDims,nothing}
+Unitfu.FreeUnits{(),NoDims,nothing}
 
 julia> typeof(unit(Float64))
-Unitful.FreeUnits{(),NoDims,nothing}
+Unitfu.FreeUnits{(),NoDims,nothing}
 
 julia> unit(1.0) == NoUnits
 true
@@ -141,7 +141,7 @@ true
     absoluteunit(::Quantity)
 Given a unit or quantity, which may or may not be affine (e.g. `°C`), return the
 corresponding unit on the absolute temperature scale (e.g. `K`). Passing a
-[`Unitful.ContextUnits`](@ref) object will return another `ContextUnits` object with
+[`Unitfu.ContextUnits`](@ref) object will return another `ContextUnits` object with
 the same promotion unit, which may be an affine unit, so take care.
 """
 function absoluteunit end
@@ -154,7 +154,7 @@ absoluteunit(::FixedUnits{N,D,A}) where {N,D,A} = FixedUnits{N,D}()
 """
     dimension(x::Number)
     dimension(x::Type{T}) where {T<:Number}
-Returns a `Unitful.Dimensions{()}` object to indicate that ordinary
+Returns a `Unitfu.Dimensions{()}` object to indicate that ordinary
 numbers are dimensionless. This is a singleton, which we export as `NoDims`.
 The dimension is displayed as an empty string.
 
@@ -162,10 +162,10 @@ Examples:
 
 ```jldoctest
 julia> typeof(dimension(1.0))
-Unitful.Dimensions{()}
+Unitfu.Dimensions{()}
 
 julia> typeof(dimension(Float64))
-Unitful.Dimensions{()}
+Unitfu.Dimensions{()}
 
 julia> dimension(1.0) == NoDims
 true
@@ -185,9 +185,9 @@ dimension(a::MixedUnits{L}) where {L} = dimension(L) * dimension(a.units)
 
 """
     dimension(u::Units{U,D}) where {U,D}
-Returns a [`Unitful.Dimensions`](@ref) object corresponding to the dimensions
+Returns a [`Unitfu.Dimensions`](@ref) object corresponding to the dimensions
 of the units, `D`. For a dimensionless combination of units, a
-`Unitful.Dimensions{()}` object is returned (`NoDims`).
+`Unitfu.Dimensions{()}` object is returned (`NoDims`).
 
 Examples:
 
@@ -196,7 +196,7 @@ julia> dimension(u"m")
 ᴸ
 
 julia> typeof(dimension(u"m"))
-Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}
+Unitfu.Dimensions{(Unitfu.Dimension{:Length}(1//1),)}
 
 julia> dimension(u"m/km")
 NoDims
@@ -207,9 +207,9 @@ NoDims
 """
     dimension(x::Quantity{T,D}) where {T,D}
     dimension(::Type{Quantity{T,D,U}}) where {T,D,U}
-Returns a [`Unitful.Dimensions`](@ref) object `D` corresponding to the
-dimensions of quantity `x`. For a dimensionless [`Unitful.Quantity`](@ref), a
-`Unitful.Dimensions{()}` object is returned (`NoDims`).
+Returns a [`Unitfu.Dimensions`](@ref) object `D` corresponding to the
+dimensions of quantity `x`. For a dimensionless [`Unitfu.Quantity`](@ref), a
+`Unitfu.Dimensions{()}` object is returned (`NoDims`).
 
 Examples:
 
@@ -218,7 +218,7 @@ julia> dimension(1.0u"m")
 ᴸ
 
 julia> typeof(dimension(1.0u"m/μm"))
-Unitful.Dimensions{()}
+Unitfu.Dimensions{()}
 ```
 """
 @inline dimension(x::Quantity{T,D}) where {T,D} = D

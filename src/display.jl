@@ -231,8 +231,8 @@ end
 
 """
     show(io::IO, x::Unitlike)
-Call [`Unitful.showrep`](@ref) on each object in the tuple that is the type
-variable of a [`Unitful.Units`](@ref) or [`Unitful.Dimensions`](@ref) object.
+Call [`Unitfu.showrep`](@ref) on each object in the tuple that is the type
+variable of a [`Unitfu.Units`](@ref) or [`Unitfu.Dimensions`](@ref) object.
 """
 function show(io::IO, x::Unitlike)
     first = ""
@@ -257,7 +257,7 @@ end
 """
     showrep(io::IO, x::Unit)
 Show the unit, prefixing with any decimal prefix and appending the exponent as
-formatted by [`Unitful.superscript`](@ref).
+formatted by [`Unitfu.superscript`](@ref).
 Also prints with color when allowed by io.
 """
 function showrep(io::IO, x::Unit)
@@ -268,7 +268,7 @@ end
 """
     showrep(io::IO, x::Dimension)
     Show the dimension, appending any exponent as formatted by
-    [`Unitful.superscript`](@ref).
+    [`Unitfu.superscript`](@ref).
 """
 function showrep(io::IO, x::Dimension)
     print(io, abbr(x))

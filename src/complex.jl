@@ -13,7 +13,7 @@ end
 complex(::Type{Quantity{T,D,U}}) where {T,D,U} =
     Quantity{complex(T),D,U}
 
-# implement Base.widen for real and complex quantities because Unitful
+# implement Base.widen for real and complex quantities because Unitfu
 # does not have an implementation for widen yet
 Base.widen(::Type{Quantity{T,D,U}}) where {T,D,U} =
     Quantity{widen(T),D,U}
@@ -27,9 +27,9 @@ Base.reim(z::Quantity{T,D,U}) where {T<:Complex,D,U} =
 # Base.real for types has a general implementation in julia; a faster
 # method could be provided but is not strictly required.
 
-# Base.isreal, etc., are already implemented in Unitful.
+# Base.isreal, etc., are already implemented in Unitfu.
 
-# Base.flipsign is already implemented in Unitful.
+# Base.flipsign is already implemented in Unitfu.
 
 # To Do: Check if Base.show, Base.read, Base.write, etc. need any
 #        attention

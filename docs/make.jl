@@ -1,11 +1,11 @@
-using Documenter, Unitful
+using Documenter, Unitfu
 
-DocMeta.setdocmeta!(Unitful, :DocTestSetup, :(using Unitful))
+DocMeta.setdocmeta!(Unitfu, :DocTestSetup, :(using Unitfu))
 
 makedocs(
-    sitename = "Unitful.jl",
+    sitename = "Unitfu.jl",
     format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
-    modules = [Unitful],
+    modules = [Unitfu],
     workdir = joinpath(@__DIR__, ".."),
     pages = [
         "Home" => "index.md"
@@ -17,10 +17,10 @@ makedocs(
         "How units are displayed" => "display.md"
         "Logarithmic scales" => "logarithm.md"
         "Temperature scales" => "temperature.md"
-        "Extending Unitful" => "extending.md"
+        "Extending Unitfu" => "extending.md"
         "Troubleshooting" => "trouble.md"
         "License" => "LICENSE.md"
     ]
 )
 
-deploydocs(repo = "github.com/PainterQubits/Unitful.jl.git")
+deploydocs(repo = "github.com/hustf/Unitfu.jl.git")

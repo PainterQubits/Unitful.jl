@@ -1,10 +1,10 @@
-using Unitful
+using Unitfu
 using Test, LinearAlgebra, Random, ConstructionBase
-import Unitful: DimensionError, AffineError
-import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
-import Unitful: FreeUnits, ContextUnits, FixedUnits, AffineUnits, AffineQuantity
+import Unitfu: DimensionError, AffineError
+import Unitfu: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
+import Unitfu: FreeUnits, ContextUnits, FixedUnits, AffineUnits, AffineQuantity
 
-import Unitful:
+import Unitfu:
     nm, μm, mm, cm, m, km, inch, ft, mi,
     ac,
     mg, g, kg,
@@ -16,9 +16,9 @@ import Unitful:
     dB, dB_rp, dB_p, dBm, dBV, dBSPL, Decibel,
     Np, Np_rp, Np_p, Neper
 
-import Unitful: ᴸ, ᵀ, ᴺ, ᶿ
+import Unitfu: ᴸ, ᵀ, ᴺ, ᶿ
 
-import Unitful:
+import Unitfu:
     Length, Area, Volume,
     Luminosity,
     Time, Frequency,
@@ -31,7 +31,7 @@ import Unitful:
     MolarFlow,
     VolumeFlow
 
-import Unitful: LengthUnits, AreaUnits, MassUnits, TemperatureUnits
+import Unitfu: LengthUnits, AreaUnits, MassUnits, TemperatureUnits
 
 
 Sys.iswindows() && push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
@@ -44,20 +44,20 @@ Sys.isapple() && push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
 
 @testset "Construction" begin
     @test isa(NoUnits, FreeUnits)
-    @test typeof(ᴸ) === Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
+    @test typeof(ᴸ) === Unitfu.Dimensions{(Unitfu.Dimension{:Length}(1),)}
     @test ᴸ * ᴸ === ᴸ^2
-    @test typeof(1.0m) === Unitful.Quantity{Float64, ᴸ,
-        Unitful.FreeUnits{(Unitful.Unit{:Meter, ᴸ}(0,1),), ᴸ, nothing}}
-    @test typeof(1m^2) === Unitful.Quantity{Int, ᴸ^2,
-            Unitful.FreeUnits{(Unitful.Unit{:Meter, ᴸ}(0,2),), ᴸ^2, nothing}}
-    @test typeof(1ac) === Unitful.Quantity{Int, ᴸ^2,
-            Unitful.FreeUnits{(Unitful.Unit{:Acre, ᴸ^2}(0,1),), ᴸ^2, nothing}}
+    @test typeof(1.0m) === Unitfu.Quantity{Float64, ᴸ,
+        Unitfu.FreeUnits{(Unitfu.Unit{:Meter, ᴸ}(0,1),), ᴸ, nothing}}
+    @test typeof(1m^2) === Unitfu.Quantity{Int, ᴸ^2,
+            Unitfu.FreeUnits{(Unitfu.Unit{:Meter, ᴸ}(0,2),), ᴸ^2, nothing}}
+    @test typeof(1ac) === Unitfu.Quantity{Int, ᴸ^2,
+            Unitfu.FreeUnits{(Unitfu.Unit{:Acre, ᴸ^2}(0,1),), ᴸ^2, nothing}}
     @test typeof(ContextUnits(m,μm)) ===
-        ContextUnits{(Unitful.Unit{:Meter, ᴸ}(0,1),), ᴸ, typeof(μm), nothing}
-    @test typeof(1.0*ContextUnits(m,μm)) === Unitful.Quantity{Float64, ᴸ,
-        ContextUnits{(Unitful.Unit{:Meter, ᴸ}(0,1),), ᴸ, typeof(μm), nothing}}
-    @test typeof(1.0*FixedUnits(m)) === Unitful.Quantity{Float64, ᴸ,
-        FixedUnits{(Unitful.Unit{:Meter, ᴸ}(0,1),), ᴸ, nothing}}
+        ContextUnits{(Unitfu.Unit{:Meter, ᴸ}(0,1),), ᴸ, typeof(μm), nothing}
+    @test typeof(1.0*ContextUnits(m,μm)) === Unitfu.Quantity{Float64, ᴸ,
+        ContextUnits{(Unitfu.Unit{:Meter, ᴸ}(0,1),), ᴸ, typeof(μm), nothing}}
+    @test typeof(1.0*FixedUnits(m)) === Unitfu.Quantity{Float64, ᴸ,
+        FixedUnits{(Unitfu.Unit{:Meter, ᴸ}(0,1),), ᴸ, nothing}}
     @test 3mm != 3*(m*m)                        # mm not interpreted as m*m
     @test (3+4im)*V === V*(3+4im) === (3V+4V*im)  # Complex quantity construction
     @test !isreal(Base.complex(3.0/m, 4.0/m))
@@ -136,7 +136,7 @@ end
         # Issue 327
         @test uconvert(u"√cm", 1u"√m") == 10u"√cm"
     end
-    @testset "> Unitful ↔ unitful conversion" begin
+    @testset "> Unitfu ↔ unitful conversion" begin
         @testset ">> Numeric conversion" begin
             @test @inferred(float(3m)) === 3.0m
             @test @inferred(Float32(3m)) === 3.0f0m
@@ -203,7 +203,7 @@ end
             @test uconvert(g, 1*FixedUnits(kg)) == 1000g         # manual conversion okay
             # @test (1kg, 2g, 3mg, missing) .|> g === (1000g, 2g, (3//1000)g, missing)
             # Issue 79:
-            @test isapprox(upreferred(Unitful.ɛ0), 8.85e-12u"F/m", atol=0.01e-12u"F/m")
+            @test isapprox(upreferred(Unitfu.ɛ0), 8.85e-12u"F/m", atol=0.01e-12u"F/m")
             # Issue 261:
             @test 1u"rps" == 360°/s
             @test 1u"rps" == 2π/s
@@ -275,7 +275,7 @@ end
 
         # The next test is a little funky but checks the `affineunit` functionality
         @test @inferred(uconvert(°F,
-            0*Unitful.affineunit(27315K//100 + 5K//9))) === (33//1)°F
+            0*Unitfu.affineunit(27315K//100 + 5K//9))) === (33//1)°F
     end
     @testset "Temperature differences" begin
         @test @inferred(uconvert(Ra, 0K)) === 0Ra//1
@@ -306,7 +306,7 @@ end
         end
     end
     @testset "Promotion" begin
-        @test_throws ErrorException Unitful.preferunits(°C)
+        @test_throws ErrorException Unitfu.preferunits(°C)
         @test @inferred(eltype([1°C, 1K])) <: Quantity{Rational{Int}, ᶿ, typeof(K)}
         @test @inferred(eltype([1.0°C, 1K])) <: Quantity{Float64, ᶿ, typeof(K)}
         @test @inferred(eltype([1°C, 1°F])) <: Quantity{Rational{Int}, ᶿ, typeof(K)}
@@ -342,26 +342,26 @@ end
         @test ismissing(upreferred(missing))
     end
     @testset "> promote_unit" begin
-        @test Unitful.promote_unit(FreeUnits(m)) === FreeUnits(m)
-        @test Unitful.promote_unit(ContextUnits(m,mm)) === ContextUnits(m,mm)
-        @test Unitful.promote_unit(FixedUnits(kg)) === FixedUnits(kg)
-        @test Unitful.promote_unit(ContextUnits(m,mm), ContextUnits(km,mm)) ===
+        @test Unitfu.promote_unit(FreeUnits(m)) === FreeUnits(m)
+        @test Unitfu.promote_unit(ContextUnits(m,mm)) === ContextUnits(m,mm)
+        @test Unitfu.promote_unit(FixedUnits(kg)) === FixedUnits(kg)
+        @test Unitfu.promote_unit(ContextUnits(m,mm), ContextUnits(km,mm)) ===
             ContextUnits(mm,mm)
-        @test Unitful.promote_unit(FreeUnits(m), ContextUnits(mm,km)) ===
+        @test Unitfu.promote_unit(FreeUnits(m), ContextUnits(mm,km)) ===
             ContextUnits(km,km)
-        @test Unitful.promote_unit(FixedUnits(kg), ContextUnits(g,g)) === FixedUnits(kg)
-        @test Unitful.promote_unit(ContextUnits(g,g), FixedUnits(kg)) === FixedUnits(kg)
-        @test Unitful.promote_unit(FixedUnits(kg), FreeUnits(g)) === FixedUnits(kg)
-        @test Unitful.promote_unit(FreeUnits(g), FixedUnits(kg)) === FixedUnits(kg)
-        @test_throws DimensionError Unitful.promote_unit(m,kg)
+        @test Unitfu.promote_unit(FixedUnits(kg), ContextUnits(g,g)) === FixedUnits(kg)
+        @test Unitfu.promote_unit(ContextUnits(g,g), FixedUnits(kg)) === FixedUnits(kg)
+        @test Unitfu.promote_unit(FixedUnits(kg), FreeUnits(g)) === FixedUnits(kg)
+        @test Unitfu.promote_unit(FreeUnits(g), FixedUnits(kg)) === FixedUnits(kg)
+        @test_throws DimensionError Unitfu.promote_unit(m,kg)
 
         # FixedUnits throw a promotion error
-        @test_throws ErrorException Unitful.promote_unit(FixedUnits(m), FixedUnits(mm))
+        @test_throws ErrorException Unitfu.promote_unit(FixedUnits(m), FixedUnits(mm))
 
         # Only because we favor SI, we have the following:
-        @test Unitful.promote_unit(m,km) === m
-        @test Unitful.promote_unit(m,km,cm) === m
-        @test Unitful.promote_unit(ContextUnits(m,mm), ContextUnits(km,cm)) ===
+        @test Unitfu.promote_unit(m,km) === m
+        @test Unitfu.promote_unit(m,km,cm) === m
+        @test Unitfu.promote_unit(ContextUnits(m,mm), ContextUnits(km,cm)) ===
             FreeUnits(m)
     end
     @testset "> Simple promotion" begin
@@ -425,10 +425,10 @@ end
     end
     @testset "> Some internal behaviors" begin
         # quantities
-        @test Unitful.numtype(Quantity{Float64}) <: Float64
-        @test Unitful.numtype(Quantity{Float64, ᴸ}) <: Float64
-        @test Unitful.numtype(typeof(1.0kg)) <: Float64
-        @test Unitful.numtype(1.0kg) <: Float64
+        @test Unitfu.numtype(Quantity{Float64}) <: Float64
+        @test Unitfu.numtype(Quantity{Float64, ᴸ}) <: Float64
+        @test Unitfu.numtype(typeof(1.0kg)) <: Float64
+        @test Unitfu.numtype(1.0kg) <: Float64
     end
 end
 
@@ -452,7 +452,7 @@ end
     # test ustrcheck_bool
     @test_throws ArgumentError uparse("basefactor") # non-Unit symbols
     # ustrcheck_bool(::Quantity)
-    @test uparse("h") == Unitful.h
+    @test uparse("h") == Unitfu.h
     @test uparse("π") == π              # issue 112
 end
 
@@ -1101,8 +1101,8 @@ end
                 StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
             @test isa(@inferred(range(1m, stop=10m, length=5)),
                 StepRangeLen{typeof(1.0m), Base.TwicePrecision{typeof(1.0m)}})
-            @test_throws Unitful.DimensionError range(1m, stop=10, length=5)
-            @test_throws Unitful.DimensionError range(1, stop=10m, length=5)
+            @test_throws Unitfu.DimensionError range(1m, stop=10, length=5)
+            @test_throws Unitfu.DimensionError range(1, stop=10m, length=5)
             r = range(1m, stop=3m, length=3)
             @test r[1:2:end] == range(1m, stop=3m, length=2)
         end
@@ -1701,8 +1701,8 @@ end
             @test repr(3u"dB/Hz") == "[3dB]Hz^-1"
             @test repr("text/plain", 3u"dB/Hz") == "[3dB]Hz^-1"
         end
-        @test Unitful.abbr(3u"dBm") == "dBm"
-        @test Unitful.abbr(@dB 3V/1.241V) == "dB(1.241V)"
+        @test Unitfu.abbr(3u"dBm") == "dBm"
+        @test Unitfu.abbr(@dB 3V/1.241V) == "dB(1.241V)"
         @test string(360°) == "360°"
     end
 
@@ -1718,62 +1718,62 @@ end
 end
 
 @testset "Output ordered by unit exponent" begin
-    ordered = Unitful.sortexp(typeof(u"J*mol^-1*K^-1").parameters[1])
-    @test typeof(ordered[1]) <: Unitful.Unit{:Joule,<:Any}
-    @test typeof(ordered[2]) <: Unitful.Unit{:Kelvin,<:Any}
-    @test typeof(ordered[3]) <: Unitful.Unit{:Mole,<:Any}
+    ordered = Unitfu.sortexp(typeof(u"J*mol^-1*K^-1").parameters[1])
+    @test typeof(ordered[1]) <: Unitfu.Unit{:Joule,<:Any}
+    @test typeof(ordered[2]) <: Unitfu.Unit{:Kelvin,<:Any}
+    @test typeof(ordered[3]) <: Unitfu.Unit{:Mole,<:Any}
 
-    ordered = Unitful.sortexp(typeof(u"mol*J^-1*K^-1").parameters[1])
-    @test typeof(ordered[1]) <: Unitful.Unit{:Mole,<:Any}
-    @test typeof(ordered[2]) <: Unitful.Unit{:Joule,<:Any}
-    @test typeof(ordered[3]) <: Unitful.Unit{:Kelvin,<:Any}
+    ordered = Unitfu.sortexp(typeof(u"mol*J^-1*K^-1").parameters[1])
+    @test typeof(ordered[1]) <: Unitfu.Unit{:Mole,<:Any}
+    @test typeof(ordered[2]) <: Unitfu.Unit{:Joule,<:Any}
+    @test typeof(ordered[3]) <: Unitfu.Unit{:Kelvin,<:Any}
 end
 
 # Test that the @u_str macro will find units in other modules.
 module ShadowUnits
-    using Unitful
+    using Unitfu
     @unit m "m" MyMeter 1u"m" false
-    Unitful.register(ShadowUnits)
+    Unitfu.register(ShadowUnits)
 end
 
 @test (@test_logs (:warn, r"found in multiple") eval(:(typeof(u"m")))) ==
-    Unitful.FreeUnits{(Unitful.Unit{:MyMeter, ᴸ}(0, 1//1),), ᴸ, nothing}
+    Unitfu.FreeUnits{(Unitfu.Unit{:MyMeter, ᴸ}(0, 1//1),), ᴸ, nothing}
 
 # Test that the @u_str macro will not find units in modules which are
 # not loaded before the u_str invocation.
 module FooUnits
-    using Unitful
+    using Unitfu
     @unit foo "foo" MyFoo 1u"m" false
-    Unitful.register(FooUnits)
+    Unitfu.register(FooUnits)
 end
 # NB: The following is LoadError in 1.0 but an ErrorException in 0.7.
 @test_throws Exception eval(:(module ShouldUseFooUnits
-                                  using Unitful
+                                  using Unitfu
                                   foo() = 1u"foo"
                               end))
 # Test that u_str works when FooUnits is correctly loaded.
 module DoesUseFooUnits
-    using Unitful, ..FooUnits
+    using Unitfu, ..FooUnits
     foo() = 1u"foo"
 end
 @test DoesUseFooUnits.foo() === 1u"foo"
 
 # Tests for unit extension modules in unit parsing
-@test_throws ArgumentError uparse("foo", unit_context=Unitful)
+@test_throws ArgumentError uparse("foo", unit_context=Unitfu)
 @test uparse("foo", unit_context=FooUnits) === u"foo"
-@test uparse("foo", unit_context=[Unitful, FooUnits]) === u"foo"
-@test uparse("foo", unit_context=[FooUnits, Unitful]) === u"foo"
+@test uparse("foo", unit_context=[Unitfu, FooUnits]) === u"foo"
+@test uparse("foo", unit_context=[FooUnits, Unitfu]) === u"foo"
 
 # Test for #272
 module OnlyUstrImported
-    import Unitful: @u_str
+    import Unitfu: @u_str
     u = u"m"
 end
 @test OnlyUstrImported.u === m
 
 # Test to make sure user macros are working properly
 module TUM
-    using Unitful
+    using Unitfu
     using Test
 
     @dimension f "f" FakeDim12345
@@ -1783,7 +1783,7 @@ module TUM
 end
 
 @testset "User macros" begin
-    @test typeof(TUM.f) == Unitful.Dimensions{(Unitful.Dimension{:FakeDim12345}(1//1),)}
+    @test typeof(TUM.f) == Unitfu.Dimensions{(Unitfu.Dimension{:FakeDim12345}(1//1),)}
     @test 1(TUM.fu) == 1(TUM.fu2)
     @test isa(1(TUM.fu), TUM.FakeDim12345)
     @test isa(TUM.fu, TUM.FakeDim12345Units)
@@ -1805,19 +1805,19 @@ Base.promote_rule(::Type{Num}, ::Type{<:Real}) = Num
     @test uconvert(u"°C", Num(373.15)u"K") == Num(100)u"°C"
 end
 
-# Test precompiled Unitful extension modules
+# Test precompiled Unitfu extension modules
 load_path = mktempdir()
 load_cache_path = mktempdir()
 try
     write(joinpath(load_path, "ExampleExtension.jl"),
           """
           module ExampleExtension
-          using Unitful
+          using Unitfu
 
           @unit year "year" JulianYear 365u"d" true
 
           function __init__()
-              Unitful.register(ExampleExtension)
+              Unitfu.register(ExampleExtension)
           end
           end
           """)

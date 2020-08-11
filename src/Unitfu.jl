@@ -35,9 +35,9 @@ const unitmodules = Vector{Module}()
 
 function _basefactors(m::Module)
     # A hidden symbol which will be automatically attached to any module
-    # defining units, allowing `Unitful.register()` to merge in the units from
+    # defining units, allowing `Unitfu.register()` to merge in the units from
     # that module.
-    basefactors_name = Symbol("#Unitful_basefactors")
+    basefactors_name = Symbol("#Unitfu_basefactors")
     if isdefined(m, basefactors_name)
         getproperty(m, basefactors_name)
     else
@@ -45,7 +45,7 @@ function _basefactors(m::Module)
     end
 end
 
-const basefactors = _basefactors(Unitful)
+const basefactors = _basefactors(Unitfu)
 
 include("types.jl")
 const promotion = Dict{Symbol,Unit}()

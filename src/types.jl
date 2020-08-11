@@ -54,7 +54,7 @@ end
 
 """
     dimension(x::Unit)
-Returns a [`Unitful.Dimensions`](@ref) object describing the given unit `x`.
+Returns a [`Unitfu.Dimensions`](@ref) object describing the given unit `x`.
 """
 @inline dimension(u::Unit{U,D}) where {U,D} = D^u.power
 
@@ -85,9 +85,9 @@ functionality that should be acceptable to most users. See
 [Basic promotion mechanisms](@ref) in the docs for details.
 
 Example: the unit `m` is actually a singleton of type
-`Unitful.FreeUnits{(Unitful.Unit{:Meter, ᴸ}(0, 1//1),), ᴸ, nothing}`.
+`Unitfu.FreeUnits{(Unitfu.Unit{:Meter, ᴸ}(0, 1//1),), ᴸ, nothing}`.
 After dividing by `s`, a singleton of type
-`Unitful.FreeUnits{(Unitful.Unit{:Meter, ᴸ}(0, 1//1), Unitful.Unit{:Second, ᵀ}(0, -1//1)), ᴸ/ᵀ, nothing}` is returned.
+`Unitfu.FreeUnits{(Unitfu.Unit{:Meter, ᴸ}(0, 1//1), Unitfu.Unit{:Second, ᵀ}(0, -1//1)), ᴸ/ᵀ, nothing}` is returned.
 """
 struct FreeUnits{N,D,A} <: Units{N,D,A} end
 FreeUnits{N,D}() where {N,D} = FreeUnits{N,D,nothing}()
@@ -132,7 +132,7 @@ the type signature.  The dimensions and units are allowed to be the empty set,
 in which case a dimensionless, unitless number results.
 
 The type parameter `T` represents the numeric backing type. The type parameters
-`D :: ` [`Unitful.Dimensions`](@ref) and `U <: ` [`Unitful.Units`](@ref).
+`D :: ` [`Unitfu.Dimensions`](@ref) and `U <: ` [`Unitfu.Units`](@ref).
 Of course, the dimensions follow from the units, but the type parameters are
 kept separate to permit convenient dispatch on dimensions.
 """
@@ -140,10 +140,10 @@ abstract type AbstractQuantity{T,D,U} <: Number end
 
 """
     struct Quantity{T,D,U} <: AbstractQuantity{T,D,U}
-A concrete subtype of [`Unitful.AbstractQuantity`](@ref).
+A concrete subtype of [`Unitfu.AbstractQuantity`](@ref).
 
 The type parameter `T` represents the numeric backing type. The type parameters
-`D :: ` [`Unitful.Dimensions`](@ref) and `U <: ` [`Unitful.Units`](@ref).
+`D :: ` [`Unitfu.Dimensions`](@ref) and `U <: ` [`Unitfu.Units`](@ref).
 """
 struct Quantity{T,D,U} <: AbstractQuantity{T,D,U}
     val::T
@@ -154,16 +154,16 @@ end
 # Field-only constructor
 Quantity{<:Any,D,U}(val) where {D,U} = Quantity{typeof(val),D,U}(val)
 
-constructorof(::Type{Unitful.Quantity{_,D,U}}) where {_,D,U} =
-    Unitful.Quantity{T,D,U} where T
+constructorof(::Type{Unitfu.Quantity{_,D,U}}) where {_,D,U} =
+    Unitfu.Quantity{T,D,U} where T
 
 """
     DimensionlessUnits{U}
-Useful for dispatching on [`Unitful.Units`](@ref) types that have no dimensions.
+Useful for dispatching on [`Unitfu.Units`](@ref) types that have no dimensions.
 
 Example:
 ```jldoctest
-julia> isa(Unitful.rad, DimensionlessUnits)
+julia> isa(Unitfu.rad, DimensionlessUnits)
 true
 """
 const DimensionlessUnits{U} = Units{U, NoDims}
@@ -184,7 +184,7 @@ const ScalarUnits{N,D} = Units{N,D,nothing}
 
 """
     DimensionlessQuantity{T,U} = AbstractQuantity{T, NoDims, U}
-Useful for dispatching on [`Unitful.Quantity`](@ref) types that may have units
+Useful for dispatching on [`Unitfu.Quantity`](@ref) types that may have units
 but no dimensions. (Units with differing power-of-ten prefixes are not canceled
 out.)
 
@@ -221,7 +221,7 @@ struct LogInfo{N,B,P} end
 
 """
     abstract type LogScaled{L<:LogInfo} <: Number end
-Abstract supertype of [`Unitful.Level`](@ref) and [`Unitful.Gain`](@ref). It is only
+Abstract supertype of [`Unitfu.Level`](@ref) and [`Unitfu.Gain`](@ref). It is only
 used in promotion to put levels and gains onto a common log scale.
 """
 abstract type LogScaled{L<:LogInfo} <: Number end
@@ -231,7 +231,7 @@ abstract type LogScaled{L<:LogInfo} <: Number end
 A logarithmic scale-based level. Details about the logarithmic scale are encoded in
 `L <: LogInfo`. `S` is a reference quantity for the level, not a type. This type has one
 field, `val::T`, and the log of the ratio `val/S` is taken. This type differs from
-[`Unitful.Gain`](@ref) in that `val` is a linear quantity.
+[`Unitfu.Gain`](@ref) in that `val` is a linear quantity.
 """
 struct Level{L, S, T<:Number} <: LogScaled{L}
     val::T
@@ -249,7 +249,7 @@ end
     struct Gain{L, S, T<:Real} <: LogScaled{L}
 A logarithmic scale-based gain or attenuation factor. This type has one field, `val::T`.
 For example, given a gain of `20dB`, we have `val===20`. This type differs from
-[`Unitful.Level`](@ref) in that `val` is stored after computing the logarithm.
+[`Unitfu.Level`](@ref) in that `val` is stored after computing the logarithm.
 """
 struct Gain{L, S, T<:Real} <: LogScaled{L}
     val::T
