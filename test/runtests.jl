@@ -1151,6 +1151,7 @@ end
 
             @test @inferred([1, 2]kg)                  == [1, 2] * kg
             @test @inferred([1, 2]kg .* [2, 3]kg^-1)   == [2, 6]
+            @test @inferred([1, 2]/kg)                 == [1/kg, 2/kg]
         end
         @testset ">> Array addition" begin
             @test @inferred([1m, 2m] + [3m, 4m])     == [4m, 6m]
