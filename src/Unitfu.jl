@@ -1,4 +1,4 @@
-module Unitful
+module Unitfu
 
 import Base: ==, <, <=, +, -, *, /, //, ^, isequal
 import Base: show, convert
