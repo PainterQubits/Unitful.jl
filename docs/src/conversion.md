@@ -92,10 +92,10 @@ julia> promote(2.0u"J", 1.0u"kg*m^2/s^2")
 (2.0 J, 1.0 J)
 ```
 
-If you're wondering where `Unitful.EnergyUnit` comes from, it is defined in
+If you're wondering where `Unitful.EnergyUnits` comes from, it is defined in
 `src/pkgdefaults.jl` by the [`@derived_dimension`](@ref) macro. Similarly,
-the calls to the [`@dimension`](@ref) macro define `Unitful.LengthUnit`,
-`Unitful.MassUnit`, etc. None of these are exported.
+the calls to the [`@dimension`](@ref) macro define `Unitful.LengthUnits`,
+`Unitful.MassUnits`, etc. None of these are exported.
 
 Existing users of Unitful may want to call [`Unitful.promote_to_derived`](@ref)
 after Unitful loads to give similar behavior to Unitful 0.0.4 and below. It is
