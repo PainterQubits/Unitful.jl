@@ -646,6 +646,31 @@ end
         @test @inferred(csc(90°)) == 1
         @test @inferred(sec(0°)) == 1
         @test @inferred(cot(45°)) == 1
+        @test @inferred(asin(1m/1000mm)) == 90°
+        @test @inferred(acos(-1mm/1000μm)) == π*rad
+        @test @inferred(atan(2000sqrt(3)ms/2.0s)) == 60°
+        @test @inferred(acsc(5.0Hz*0.2s)) == π/2
+        @test @inferred(asec(1m/1nm)) ≈ π/2
+        @test @inferred(acot(2sqrt(3)s/2000ms)) ≈ 30°
+
+        @test @inferred(sinh(0.0rad)) == 0.0
+        @test @inferred(sinh(1J/N/m) + cosh(1rad)) ≈ MathConstants.e
+        @test @inferred(tanh(1m/1µm)) == 1
+        @test @inferred(csch(0.0°)) == Inf
+        @test @inferred(sech(0K/Ra)) == 1
+        @test @inferred(coth(1e3m*mm^-1)) == 1
+        @test @inferred(asinh(0.0mg/kg)) == 0
+        @test @inferred(acosh(1mm/1000μm)) == 0
+        @test @inferred(atanh(0W*s/J)) == 0
+        @test @inferred(acsch(hr/yr * 0)) == Inf
+        @test @inferred(asech(1.0m/1000.0mm)) == 0
+        @test @inferred(acoth(1km/1000m)) == Inf
+
+        @test @inferred(sinpi(rad/2)) == 1
+        @test @inferred(cospi(1rad)) == -1
+        @test @inferred(sinc(1rad)) === 0
+        @test @inferred(cosc(1ft/3inch)) === 0.25
+
         @test @inferred(atan(m*sqrt(3),1m)) ≈ 60°
         @test @inferred(atan(m*sqrt(3),1.0m)) ≈ 60°
         @test @inferred(atan(m*sqrt(3),1000mm)) ≈ 60°
