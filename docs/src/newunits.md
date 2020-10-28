@@ -30,10 +30,7 @@ julia> u"myMeter"
 ERROR: LoadError: ArgumentError: Symbol myMeter could not be found in unit modules Module[Unitful]
 [...]
 
-julia> Unitful.register(MyUnits)
-2-element Array{Module,1}:
- Unitful
- MyUnits
+julia> Unitful.register(MyUnits);
 
 julia> u"myMeter"
 m
