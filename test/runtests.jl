@@ -169,6 +169,12 @@ end
             @test @inferred(float(3m)) === 3.0m
             @test @inferred(Float32(3m)) === 3.0f0m
             @test @inferred(Integer(3.0A)) === 3A
+            @test @inferred(big(3m)) == big(3)m
+            @test @inferred(big(3.0m)) == big(3.0)m
+            @test @inferred(big((3//1)m)) == big(3//1)m
+            @test big(3m) isa Quantity{BigInt}
+            @test big(3.0m) isa Quantity{BigFloat}
+            @test big((3//1)m) isa Quantity{Rational{BigInt}}
             @test Rational(3.0m) === (Int64(3)//1)*m
             @test typeof(convert(typeof(0.0°), 90°)) == typeof(0.0°)
             @test (3.0+4.0im)*V == (3+4im)*V
@@ -1845,6 +1851,19 @@ end
     @testset "> Conversion" begin
         @test float(3dB) == 3.0dB
         @test float(@dB 3V/1V) === @dB 3.0V/1V
+
+        @test big(3dB) == big(3)dB
+        @test big(3.0dB) == big(3.0)dB
+        @test big((3//1)dB) == big(3//1)dB
+        @test big(3dB).val isa BigInt
+        @test big(3.0dB).val isa BigFloat
+        @test big((3//1)dB).val isa Rational{BigInt}
+        @test big(@dB 3V/1V) == @dB big(3)V/1V
+        @test big(@dB 3.0V/1V) == @dB big(3.0)V/1V
+        @test big(@dB (3//1)V/1V) == @dB big(3//1)V/1V
+        @test big(@dB 3V/1V).val.val isa BigInt
+        @test big(@dB 3.0V/1V).val.val isa BigFloat
+        @test big(@dB (3//1)V/1V).val.val isa Rational{BigInt}
 
         @test uconvert(V, (@dB 3V/2.14V)) === 3V
         @test uconvert(V, (@dB 3V/1V)) === 3V

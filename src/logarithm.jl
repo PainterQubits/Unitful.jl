@@ -8,6 +8,7 @@ function Base.float(x::Level{L,S}) where {L,S}
     v = float(x.val)
     return Level{L,S,typeof(v)}(v)
 end
+big(x::Level{L,S}) where {L,S} = Level{L,S}(big(x.val))
 logunit(x::Level{L,S}) where {L,S} = MixedUnits{Level{L,S}}()
 logunit(x::Type{T}) where {L,S,T<:Level{L,S}} = MixedUnits{Level{L,S}}()
 
@@ -25,6 +26,7 @@ function Base.float(x::Gain{L,S}) where {L,S}
     v = float(x.val)
     return Gain{L,S,typeof(v)}(v)
 end
+big(x::Gain{L,S}) where {L,S} = Gain{L,S}(big(x.val))
 logunit(x::Gain{L,S}) where {L,S} = MixedUnits{Gain{L,S}}()
 logunit(x::Type{T}) where {L,S, T<:Gain{L,S}} = MixedUnits{Gain{L,S}}()
 abbr(x::Gain{L}) where {L} = abbr(L())
