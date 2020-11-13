@@ -172,6 +172,9 @@ const R∞ = 10_973_731.568_160/m     # (21) Rydberg constant
 @unit Ba     "Ba"       Barye       1g/cm/s^2               true
 @unit P      "P"        Poise       1g/cm/s                 true
 @unit St     "St"       Stokes      1cm^2/s                 true
+@unit Gauss  "Gauss"    Gauss       (1//10_000)*T           true
+@unit Oe     "Oe"       Oersted     (1_000/4π)*A/m          true
+@unit Mx     "Mx"       Maxwell     (1//100_000_000)*Wb     true
 
 
 #########
