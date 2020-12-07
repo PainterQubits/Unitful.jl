@@ -21,9 +21,9 @@ import LinearAlgebra: Diagonal, Bidiagonal, Tridiagonal, SymTridiagonal
 import LinearAlgebra: istril, istriu, norm
 import Random
 
-import ConstructionBase: constructorof
+import Requires: @require
 
-using Latexify,LaTeXStrings
+import ConstructionBase: constructorof
 
 export logunit, unit, absoluteunit, dimension, uconvert, ustrip, upreferred
 export @dimension, @derived_dimension, @refunit, @unit, @affineunit, @u_str
@@ -67,5 +67,11 @@ include("fastmath.jl")
 include("logarithm.jl")
 include("complex.jl")
 include("pkgdefaults.jl")
+
+function __init__()
+    @require Latexify = "23fbe1c1-3f47-55db-b15f-69d7ec21a316" begin
+        @require LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f" include("latexify.jl")
+    end
+end
 
 end

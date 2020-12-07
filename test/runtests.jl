@@ -35,13 +35,6 @@ import Unitful: LengthUnits, AreaUnits, MassUnits, TemperatureUnits
 
 const colon = Base.:(:)
 
-@testset "Latexify" begin
-    @test latexify(u"J/kg",unitformat=:mathrm) == L"\mathrm{J}\mathrm{kg}^{-1}"
-    @test latexify(u"J/kg",unitformat=:siunitx) == LaTeXString("\\si{\\joule\\per\\kilo\\gram}")
-    @test latexify(0.2u"nm/s^2",unitformat=:mathrm) == L"0.2\;\mathrm{nm}\mathrm{s}^{-2}"
-    @test latexify(0.2u"nm/s^2",unitformat=:siunitx) == LaTeXString("\\SI{0.2}{\\nano\\meter\\per\\second\\tothe{2}}")
-end
-
 @testset "Construction" begin
     @test isa(NoUnits, FreeUnits)
     @test typeof(𝐋) === Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
@@ -1713,6 +1706,13 @@ Base.promote_rule(::Type{Num}, ::Type{<:Real}) = Num
 @testset "Custom types" begin
     # Test that @generated functions work with Quantities + custom types (#231)
     @test uconvert(u"°C", Num(373.15)u"K") == Num(100)u"°C"
+end
+
+@testset "Latexify" begin
+    @test latexify(u"J/kg",unitformat=:mathrm) == L"\mathrm{J}\mathrm{kg}^{-1}"
+    @test latexify(u"J/kg",unitformat=:siunitx) == LaTeXString("\\si{\\joule\\per\\kilo\\gram}")
+    @test latexify(0.2u"nm/s^2",unitformat=:mathrm) == L"0.2\;\mathrm{nm}\mathrm{s}^{-2}"
+    @test latexify(0.2u"nm/s^2",unitformat=:siunitx) == LaTeXString("\\SI{0.2}{\\nano\\meter\\per\\second\\tothe{2}}")
 end
 
 # Test precompiled Unitful extension modules
