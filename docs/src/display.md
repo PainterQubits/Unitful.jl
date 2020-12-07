@@ -14,4 +14,5 @@ Unitful.show(::IO, ::Unitful.Unitlike)
 Unitful.showrep
 Unitful.showval
 Unitful.superscript
+Unitful.latexify(::Quantity)
 ```

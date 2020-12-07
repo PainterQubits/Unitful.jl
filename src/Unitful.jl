@@ -23,6 +23,8 @@ import Random
 
 import ConstructionBase: constructorof
 
+using Latexify,LaTeXStrings
+
 export logunit, unit, absoluteunit, dimension, uconvert, ustrip, upreferred
 export @dimension, @derived_dimension, @refunit, @unit, @affineunit, @u_str
 export Quantity, DimensionlessQuantity, NoUnits, NoDims
@@ -51,6 +53,7 @@ const basefactors = _basefactors(Unitful)
 include("types.jl")
 const promotion = Dict{Symbol,Unit}()
 
+include("prefixes.jl")
 include("user.jl")
 include("utils.jl")
 include("dimensions.jl")

@@ -1,28 +1,3 @@
-# Convenient dictionary for mapping powers of ten to an SI prefix.
-const prefixdict = Dict(
-    -24 => "y",
-    -21 => "z",
-    -18 => "a",
-    -15 => "f",
-    -12 => "p",
-    -9  => "n",
-    -6  => "μ",     # tab-complete \mu, not option-m on a Mac!
-    -3  => "m",
-    -2  => "c",
-    -1  => "d",
-    0   => "",
-    1   => "da",
-    2   => "h",
-    3   => "k",
-    6   => "M",
-    9   => "G",
-    12  => "T",
-    15  => "P",
-    18  => "E",
-    21  => "Z",
-    24  => "Y"
-)
-
 """
 `abbr(x)` provides abbreviations for units or dimensions. Since a method should
 always be defined for each unit and dimension type, absence of a method for a
@@ -172,7 +147,7 @@ Sort units to show positive exponents first.
 """
 function sortexp(xs)
     vcat([x for x in xs if power(x) >= 0],
-         [x for x in xs if power(x) < 0])
+        [x for x in xs if power(x) < 0])
 end
 
 """
@@ -227,3 +202,68 @@ superscript(i::Integer) = map(repr(i)) do c
     c == '0' ? '\u2070' :
     error("unexpected character")
 end
+
+"""
+    latexify(x::Quantity)
+    latexify(x::FreeUnits)
+    latexify(x::Unit)
+Return a LaTeXString representation of `x`. Accepts keyword argument
+`unitformat=:mathrm` or `:siunitx`, which selects between the more basic
+`3\\;\\mathrm{m}` or `\\SI{3}{\\meter}` (which requires the siunitx package to
+render).
+"""
+latexify(::Quantity)
+
+@latexrecipe function f(p::T;unitformat=:mathrm) where T <: Unit
+    pref = latexprefixdict[unitformat,tens(p)]
+    pow = power(p)
+    if unitformat == :mathrm
+        env --> :inline
+        unitname = abbr(p)
+        if pow == 1//1
+            expo = ""
+        else
+            expo = "^{$(latexify(pow;env=:raw))}"
+        end
+        return LaTeXString("\\mathrm{$pref$unitname}$expo")
+    end
+    env --> :raw
+    unitname = "\\$(lowercase(String(name(p))))"
+    per = pow<0 ? "\\per" : ""
+    pow = abs(pow)
+    expo = pow==1//1 ? "" : "\\tothe{$(latexify(pow;env=:raw))}"
+    return LaTeXString("$per$pref$unitname$expo")
+end
+
+function listunits(::T;unitformat) where T <: FreeUnits
+    return prod(latexify.(sortexp(T.parameters[1]);unitformat,env=:raw))
+end
+
+@latexrecipe function f(u::T;unitformat=:mathrm) where T <: FreeUnits
+    if unitformat == :mathrm
+        env --> :inline
+        return LaTeXString(listunits(u;unitformat))
+    end
+    env --> :raw
+    return LaTeXString("\\si{$(listunits(u;unitformat))}")
+end
+
+@latexrecipe function f(q::T;unitformat=:mathrm) where T <: Quantity
+    if unitformat == :mathrm
+        env --> :inline
+        fmt --> FancyNumberFormatter()
+        return LaTeXString("$(
+                              latexify(q.val,env=:raw)
+                             )\\;$(
+                                   listunits(unit(q);unitformat)
+                                  )")
+    end
+    env --> :raw
+    return LaTeXString("\\SI{$(
+                               latexify(q.val,env=:raw)
+                              )}{$(
+                                   listunits(unit(q);unitformat)
+                                  )}")
+end
+
+
