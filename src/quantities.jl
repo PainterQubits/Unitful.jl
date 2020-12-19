@@ -393,6 +393,9 @@ isreal(x::AbstractQuantity) = isreal(x.val)
 isfinite(x::AbstractQuantity) = isfinite(x.val)
 isinf(x::AbstractQuantity) = isinf(x.val)
 isnan(x::AbstractQuantity) = isnan(x.val)
+@static if VERSION ≥ v"1.7.0-DEV.119"
+    isunordered(x::AbstractQuantity) = isunordered(x.val)
+end
 
 eps(x::T) where {T<:AbstractQuantity} = T(eps(x.val))
 eps(x::Type{T}) where {T<:AbstractQuantity} = eps(Unitful.numtype(T))
