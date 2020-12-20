@@ -694,6 +694,11 @@ end
         @test !isfinite(Inf*m)
         @test isnan(NaN*m)
         @test !isnan(1.0m)
+        @static if VERSION ≥ v"1.7.0-DEV.119"
+            @test isunordered(NaN*m)
+            @test !isunordered(Inf*m)
+            @test !isunordered(1.0*m)
+        end
     end
     @testset "> Floating point tests" begin
         @test isapprox(1.0u"m",(1.0+eps(1.0))u"m")
