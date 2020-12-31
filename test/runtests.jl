@@ -1070,8 +1070,11 @@ end
             @test @inferred(length(r)) === 5
             @test @inferred(step(r)) === 1m
             @test @inferred(first(range(1mm, step=2m, length=4))) === 1mm
-            @test @inferred(step(range(1mm, step=2m, length=4))) === 2m
+            @test @inferred(step(range(1mm, step=2m, length=4))) === 2000mm
             @test @inferred(last(range(1mm, step=2m, length=4))) === 6001mm
+            @test @inferred(first(range(1m, step=2mm, length=4))) === (1//1)m
+            @test @inferred(step(range(1m, step=2mm, length=4))) === (1//500)m
+            @test @inferred(last(range(1m, step=2mm, length=4))) === (503//500)m
             @test_throws DimensionError(1m, 2V) range(1m, step=2V, length=5)
             @test_throws ArgumentError 1m:0m:5m
         end
@@ -1087,6 +1090,12 @@ end
             @test @inferred(last(range(0, step=10°, length=37))) == 2pi
             @test @inferred(last(range(0°, step=2pi/36, length=37))) == 2pi
             @test step(range(1.0m, step=1m, length=5)) === 1.0m
+            @test @inferred(first(range(1.0mm, step=2.0m, length=4))) === 1.0mm
+            @test @inferred(step(range(1.0mm, step=2.0m, length=4))) === 2000.0mm
+            @test @inferred(last(range(1.0mm, step=2.0m, length=4))) === 6001.0mm
+            @test @inferred(first(range(1.0m, step=2.0mm, length=4))) === 1.0m
+            @test @inferred(step(range(1.0m, step=2.0mm, length=4))) === 0.002m
+            @test @inferred(last(range(1.0m, step=2.0mm, length=4))) === 1.006m
             @test_throws DimensionError range(1.0m, step=1.0V, length=5)
             @test_throws ArgumentError 1.0m:0.0m:5.0m
             @test (-2.0Hz:1.0Hz:2.0Hz)/1.0Hz == -2.0:1.0:2.0  # issue 160
