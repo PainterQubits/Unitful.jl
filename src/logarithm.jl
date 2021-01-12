@@ -170,6 +170,15 @@ isrootpower_dim(y) =
 ==(x::Gain, y::Level) = ==(y,x)
 ==(x::Level, y::Gain) = false
 
+for op in (:(==), :isequal)
+    @eval Base.$op(x::Level, y::Level) = $op(x.val, y.val)
+    @eval Base.$op(x::Gain{L,S}, y::Gain{L,S}) where {L,S} = $op(x.val, y.val)
+end
+
+# A consistent `hash` method for `Gain` is impossible with the current promotion rules
+# (https://github.com/PainterQubits/Unitful.jl/issues/402), therefore we don't define one.
+Base.hash(x::Level, h::UInt) = hash(x.val, h)
+
 # Addition and subtraction
 for op in (:+, :-)
     @eval Base. $op(x::Level{L,S}, y::Level{L,S}) where {L,S} = Level{L,S}(($op)(x.val, y.val))

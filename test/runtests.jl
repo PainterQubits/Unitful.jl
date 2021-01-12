@@ -1449,8 +1449,34 @@ end
     end
 
     @testset "> Equality" begin
+        @testset ">> Level" begin
+            @test big(3.0)dBm == big(3.0)dBm
+            @test isequal(big(3.0)dBm, big(3.0)dBm)
+            @test_broken hash(big(3.0)dBm) == hash(big(3.0)dBm)
+
+            @test @dB(3.0V/2.0V) == @dB(3V/V)
+            @test isequal(@dB(3.0V/2.0V), @dB(3V/V))
+            @test_broken hash(@dB(3.0V/2.0V)) == hash(@dB(3V/V))
+        end
+
+        @testset ">> Gain" begin
+            @test 3dB == (3//1)dB
+            @test isequal(3dB, (3//1)dB)
+            @test_broken hash(3dB) == hash((3//1)dB)
+
+            @test big(3)dB == big(3)dB
+            @test isequal(big(3)dB, big(3)dB)
+            @test_broken hash(big(3)dB) == hash(big(3)dB)
+
+            @test 0.0dB == -0.0dB
+            @test !isequal(0.0dB, -0.0dB)
+            @test hash(0.0dB) != hash(-0.0dB)
+        end
+
         @test !(20dBm == 20dB)
         @test !(20dB == 20dBm)
+        @test !(20dBm == 20dBV)
+        @test !(20dBV == 20dBm)
     end
 
     @testset "> Addition and subtraction" begin
