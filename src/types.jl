@@ -228,7 +228,7 @@ abstract type LogScaled{L<:LogInfo} <: Number end
 const RealQuantity = Union{Real, AbstractQuantity{<:Real}}
 
 """
-    struct Level{L, S, T<:Number} <: LogScaled{L}
+    struct Level{L, S, T<:Union{Real, AbstractQuantity{<:Real}}} <: LogScaled{L}
 A logarithmic scale-based level. Details about the logarithmic scale are encoded in
 `L <: LogInfo`. `S` is a reference quantity for the level, not a type. This type has one
 field, `val::T`, and the log of the ratio `val/S` is taken. This type differs from
