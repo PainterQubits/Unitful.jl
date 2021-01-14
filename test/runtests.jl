@@ -1337,9 +1337,22 @@ end
             # Outer constructor
             @test Level{Decibel,1}(2) isa Level{Decibel,1,Int}
             @test_throws DimensionError Level{Decibel,1}(2V)
+            @test_throws DimensionError Level{Decibel,1V}(2)
+            @test_throws InexactError Level{Decibel,1}(1+1im)
+            @test_throws DomainError Level{Decibel,1+0im}(2)
+            @test_throws DomainError Level{Decibel,(1+0im)V}(2V)
+            @test_throws DomainError Level{Decibel,(1+1im)V}(2V)
 
             # Inner constructor
             @test Level{Decibel,1,Int}(2) === Level{Decibel,1}(2)
+            @test Level{Decibel,1,Int}(2) === Level{Decibel,1,Int}(2.0)
+            @test Level{Decibel,1,Int}(2) === Level{Decibel,1,Int}(2+0im)
+            @test_throws DimensionError Level{Decibel,1,typeof(2V)}(2V)
+            @test_throws DimensionError Level{Decibel,1V,Int}(2)
+            @test_throws TypeError Level{Decibel,1,Complex{Int}}(1+1im)
+            @test_throws TypeError Level{Decibel,1V,typeof((1+1im)V)}((1+1im)V)
+            @test_throws DomainError Level{Decibel,1+0im,Int}(2)
+            @test_throws DomainError Level{Decibel,(1+0im)V,typeof(2V)}(2V)
         end
 
         @testset ">> Gain" begin
