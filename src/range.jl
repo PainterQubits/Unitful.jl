@@ -66,9 +66,8 @@ function colon(start::A, step::B, stop::A) where A<:Quantity{<:Real} where B<:Qu
     colon(promote(start, step, stop)...)
 end
 
-OrderStyle(::Type{<:Quantity{<:Real}}) = Ordered()
-ArithmeticStyle(::Type{<:Quantity{<:AbstractFloat}}) = ArithmeticRounds()
-ArithmeticStyle(::Type{<:Quantity{<:Integer}}) = ArithmeticWraps()
+OrderStyle(::Type{<:AbstractQuantity{T}}) where T = OrderStyle(T)
+ArithmeticStyle(::Type{<:AbstractQuantity{T}}) where T = ArithmeticStyle(T)
 
 (colon(start::T, step::T, stop::T) where T <: Quantity{<:Real}) =
     _colon(OrderStyle(T), ArithmeticStyle(T), start, step, stop)

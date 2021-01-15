@@ -1749,10 +1749,27 @@ Base.:+(a::Num, b::Num) = Num(a.x + b.x)
 Base.:-(a::Num, b::Num) = Num(a.x - b.x)
 Base.:*(a::Num, b::Num) = Num(a.x * b.x)
 Base.promote_rule(::Type{Num}, ::Type{<:Real}) = Num
+Base.ArithmeticStyle(::Type{Num}) = Base.ArithmeticRounds()
+Base.OrderStyle(::Type{Num}) = Base.Unordered()
 
 @testset "Custom types" begin
     # Test that @generated functions work with Quantities + custom types (#231)
     @test uconvert(u"°C", Num(373.15)u"K") == Num(100)u"°C"
+end
+
+@testset "Traits" begin
+    @testset "> ArithmeticStyle" begin
+        @test Base.ArithmeticStyle(1m) === Base.ArithmeticWraps()
+        @test Base.ArithmeticStyle(1.0m) === Base.ArithmeticRounds()
+        @test Base.ArithmeticStyle((1//1)m) === Base.ArithmeticUnknown()
+        @test Base.ArithmeticStyle(Num(1)m) === Base.ArithmeticRounds()
+    end
+
+    @testset "> OrderStyle" begin
+        @test Base.OrderStyle(1m) === Base.Ordered()
+        @test Base.OrderStyle((1+1im)m) === Base.Unordered()
+        @test Base.OrderStyle(Num(1)m) === Base.Unordered()
+    end
 end
 
 # Test precompiled Unitful extension modules
