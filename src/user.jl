@@ -203,9 +203,13 @@ in terms of an absolute scale; the scaling is the same as the absolute scale. Ex
 """
 macro affineunit(symb, abbr, offset)
     s = Symbol(symb)
+    d = Symbol(string("Δ", symb))
+    dabbr = string("Δ", abbr)
     return esc(quote
         const global $s = $affineunit($offset)
+        const global $d = $differenceunit($s)
         $Base.show(io::$IO, ::$genericunit($s)) = $print(io, $abbr)
+        $Base.show(io::$IO, ::$genericunit($d)) = $print(io, $dabbr)
     end)
 end
 

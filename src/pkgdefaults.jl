@@ -283,6 +283,9 @@ baremodule DefaultSymbols
     Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, :°C)))
     Core.eval(DefaultSymbols, Expr(:export, :°C))
 
+    Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, :Δ°C)))
+    Core.eval(DefaultSymbols, Expr(:export, :Δ°C))
+
     Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, :°)))
     Core.eval(DefaultSymbols, Expr(:export, :°))
 end

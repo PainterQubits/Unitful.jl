@@ -150,6 +150,13 @@ absoluteunit(::FreeUnits{N,D,A}) where {N,D,A} = FreeUnits{N,D}()
 absoluteunit(::ContextUnits{N,D,P,A}) where {N,D,P,A} = ContextUnits{N,D,P}()
 absoluteunit(::FixedUnits{N,D,A}) where {N,D,A} = FixedUnits{N,D}()
 
+function differenceunit end
+differenceunit(x::Quantity{T, D, U} where {T,D}) where U = differenceunit(U())
+differenceunit(::FreeUnits{N,D,A}) where {N,D,A} = FreeUnits{N,D,Difference{A}}()
+differenceunit(::ContextUnits{N,D,P,A}) where {N,D,P,A} = ContextUnits{N,D,P,Difference{A}}()
+differenceunit(::FixedUnits{N,D,A}) where {N,D,A} = FixedUnits{N,D,Difference{A}}()
+
+
 """
     dimension(x::Number)
     dimension(x::Type{T}) where {T<:Number}

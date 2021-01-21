@@ -154,6 +154,32 @@ function +(x::AffineQuantity{S,D}, y::AbstractQuantity{T,D}) where {S,T,D}
 end
 +(x::AbstractQuantity, y::AffineQuantity) = +(y,x)
 
+function +(x::AbstractQuantity{S, D, FreeUnits{U, B, A}},
+           y::AbstractQuantity{S, D, FreeUnits{U, B, Difference{A}}}) where {S, D, U, B, A}
+    Quantity(x.val + y.val, unit(x))
+end
+
+function +(x::AbstractQuantity{S, D, FreeUnits{U, B, Difference{A}}},
+           y::AbstractQuantity{S, D, FreeUnits{U, B, A}}) where {S, D, U, B, A}
+    Quantity(x.val + y.val, unit(y))
+end
+
+function -(x::AbstractQuantity{S, D, FreeUnits{U, B, A}},
+           y::AbstractQuantity{S, D, FreeUnits{U, B, Difference{A}}}) where {S, D, U, B, A}
+    Quantity(x.val - y.val, unit(x))
+end
+
+function +(x::AbstractQuantity, b::DifferenceQuantity)
+    # Non-difference unit wins over difference unit
+    x + uconvert(differenceunit(unit(x)), b)
+end
++(x::DifferenceQuantity, b::AbstractQuantity) = b + x
+
+function -(x::AbstractQuantity, b::DifferenceQuantity)
+    # Non-difference unit wins over difference unit
+    x - uconvert(differenceunit(unit(x)), b)
+end
+
 # Disallow addition of affine quantities
 +(x::AffineQuantity, y::AffineQuantity) = throw(AffineError(
    "an invalid operation was attempted with affine quantities: $x + $y"))
@@ -161,7 +187,7 @@ end
 # Specialize subtraction of affine quantities
 -(x::AffineQuantity, y::AffineQuantity) = -(promote(x,y)...)
 function -(x::T, y::T) where T <: AffineQuantity
-    return Quantity(x.val - y.val, absoluteunit(unit(x)))
+    return Quantity(x.val - y.val, differenceunit(unit(x)))
 end
 
 # Disallow subtracting an affine quantity from a quantity
@@ -443,7 +469,7 @@ for f in (:float, :BigFloat, :Float64, :Float32, :Float16)
     (Base.$f)(x::AbstractQuantity) = Quantity($f(x.val), unit(x))
     end
 end
-   
+
 """
     Integer(x::AbstractQuantity)
 Convert the numeric backing type of `x` to an integer representation.

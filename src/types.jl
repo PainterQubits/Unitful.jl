@@ -59,6 +59,7 @@ Returns a [`Unitful.Dimensions`](@ref) object describing the given unit `x`.
 @inline dimension(u::Unit{U,D}) where {U,D} = D^u.power
 
 struct Affine{T} end
+struct Difference{T}; end
 
 """
     abstract type Units{N,D,A} <: Unitlike end
@@ -175,6 +176,13 @@ under unit conversion, like absolute temperatures. Not exported.
 const AffineUnits{N,D,A} = Units{N,D,A} where A<:Affine
 
 """
+    AffineUnits{N,D,A} = Units{N,D,DD} where DD<:Difference
+Useful for dispatching on unit objects that indicate a quantity behave as a
+difference between quantities of the absolute base unit.
+"""
+const DifferenceUnit{N,D,A} = Units{N,D,DD} where DD<:Difference
+
+"""
     ScalarUnits{N,D} = Units{N,D,nothing}
 Useful for dispatching on unit objects that indicate a quantity should transform in the
 usual scalar way under unit conversion. Not exported.
@@ -201,6 +209,13 @@ Useful for dispatching on quantities that affine-transform under unit conversion
 absolute temperatures. Not exported.
 """
 const AffineQuantity{T,D,U} = AbstractQuantity{T,D,U} where U<:AffineUnits
+
+"""
+    AffineQuantity{T,D,U} = AbstractQuantity{T,D,U} where U<:AffineUnits
+Useful for dispatching on quantities that affine-transform under unit conversion, like
+absolute temperatures. Not exported.
+"""
+const DifferenceQuantity{T,D,U} = AbstractQuantity{T,D,U} where U<:DifferenceUnit
 
 """
     ScalarQuantity{T,D,U} = AbstractQuantity{T,D,U} where U<:ScalarUnits
