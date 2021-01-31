@@ -224,15 +224,14 @@ const Å = Å = angstrom
 # Instead define all units in common use
 # Overflow warning:
 #  Gigascale and above likely exceed Int32
-#  Exascale and above likely exceed Int64
-@unit      kB   "kB"     KiloByte          8_000b      false
-@unit      MB   "MB"     MegaByte          8_000_000b     false
-@unit      GB   "GB"     GigaByte          8_000_000_000b     false
-@unit      TB   "TB"     TeraByte          8_000_000_000_000b    false
-@unit      PB   "PB"     PetaByte          8_000_000_000_000_000b    false
-@unit      EB   "EB"     ExaByte           8_000_000_000_000_000_000b    false
-@unit      ZB   "ZB"     ZettaByte         8_000_000_000_000_000_000_000b    false
-@unit      YB   "YB"     YottaByte         8_000_000_000_000_000_000_000_000b    false
+#  Exascale likely exceeds Int64
+# Omitting ZB and YB: Julia interprets literal as Float64, which causes rounding errors
+@unit      kB   "kB"       KiloByte          8_000b      false
+@unit      MB   "MB"       MegaByte          8_000_000b     false
+@unit      GB   "GB"       GigaByte          8_000_000_000b     false
+@unit      TB   "TB"       TeraByte          8_000_000_000_000b    false
+@unit      PB   "PB"       PetaByte          8_000_000_000_000_000b    false
+@unit      EB   "EB"       ExaByte           8_000_000_000_000_000_000b    false
 # Data rate
 @unit      bps  "bps"      BitPerSecond      1b/s         true
 @unit      Bps  "Bps"      BytePerSecond     8b/s         true
