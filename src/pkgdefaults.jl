@@ -9,6 +9,7 @@
 @dimension 𝚯 "𝚯" Temperature    # This one is \bfTheta
 @dimension 𝐉 "𝐉" Luminosity
 @dimension 𝐍 "𝐍" Amount
+@dimension 𝐛 "𝐛" Information
 const RelativeScaleTemperature = Quantity{T, 𝚯, <:AffineUnits} where T
 const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 
@@ -60,6 +61,7 @@ const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 @refunit  cd      "cd"     Candela   𝐉            true
 @refunit  g       "g"      Gram      𝐌           true
 @refunit  mol     "mol"    Mole      𝐍           true
+@refunit  b       "b"      Bit       𝐛           false
 
 # Angles and solid angles
 @unit sr      "sr"      Steradian   1                       true
@@ -113,7 +115,7 @@ end
 # The hectare is used more frequently than any other power-of-ten of an are.
 @unit a      "a"        Are         100m^2                  false
 const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, 𝐋^2}(2, 1//1),), 𝐋^2}()
-@unit b      "b"        Barn        100fm^2                 true
+@unit bn     "bn"       Barn        100fm^2                 true
 
 # Volume
 # `l` is also an acceptable symbol for liters
@@ -216,11 +218,30 @@ const Å = Å = angstrom
 # Pressure
 @unit psi       "psi"      PoundsPerSquareInch  1lbf/inch^2             false
 
+# Data
+@unit      B    "B"        Byte              8b          false
+# deciBytes can be a problem with deciBels, and we don't actually care about orders < 1
+# Instead define all units in common use
+# Overflow warning:
+#  Gigascale and above likely exceed Int32
+#  Exascale and above likely exceed Int64
+@unit      kB   "kB"     KiloByte          8_000b      false
+@unit      MB   "MB"     MegaByte          8_000_000b     false
+@unit      GB   "GB"     GigaByte          8_000_000_000b     false
+@unit      TB   "TB"     TeraByte          8_000_000_000_000b    false
+@unit      PB   "PB"     PetaByte          8_000_000_000_000_000b    false
+@unit      EB   "EB"     ExaByte           8_000_000_000_000_000_000b    false
+@unit      ZB   "ZB"     ZettaByte         8_000_000_000_000_000_000_000b    false
+@unit      YB   "YB"     YottaByte         8_000_000_000_000_000_000_000_000b    false
+# Data rate
+@unit      bps  "bps"      BitPerSecond      1b/s         true
+@unit      Bps  "Bps"      BytePerSecond     8b/s         true
+
 #########
 # Logarithmic scales and units
 
 @logscale dB    "dB"       Decibel      10      10      false
-@logscale B     "B"        Bel          10      1       false
+@logscale bel   "Bel"      Bel          10      1       false
 @logscale Np    "Np"       Neper        ℯ       1//2    true
 @logscale cNp   "cNp"      Centineper   ℯ       50      true
 
