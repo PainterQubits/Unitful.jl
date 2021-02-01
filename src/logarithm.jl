@@ -328,7 +328,7 @@ BracketStyle(::Type{<:Union{Level,Gain}}) = SquareBrackets()
     uconvertp(u::MixedUnits, x)
 Generically, this is the same as [`Unitful.uconvert`](@ref). In cases where unit conversion
 would be ambiguous without further information (e.g. `uconvert(dB, 10)`), `uconvertp`
-presumes ratios are of root-power quantities.
+presumes ratios are of power quantities.
 
 It is important to note that careless use of this function can lead to erroneous calculations.
 Consider `Quantity{<:Gain}` types: it is tempting to use this to transform `-20dB/m` into
@@ -361,8 +361,8 @@ uconvertp(u::T, x::Real) where {L, G <: Gain{L}, T <: MixedUnits{G, <:Units{()}}
     uconvertrp(u::Units, x)
     uconvertrp(u::MixedUnits, x)
 In most cases, this is the same as [`Unitful.uconvert`](@ref). In cases where unit conversion
-would be ambiguous without further information (e.g. `uconvert(dB, 10)`), `uconvertp`
-presumes ratios are of power quantities.
+would be ambiguous without further information (e.g. `uconvert(dB, 10)`), `uconvertrp`
+presumes ratios are of root-power quantities.
 
 It is important to note that careless use of this function can lead to erroneous calculations.
 Consider `Quantity{<:Gain}` types: it is tempting to use this to transform `-20dB/m` into
