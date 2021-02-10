@@ -225,7 +225,7 @@ used in promotion to put levels and gains onto a common log scale.
 """
 abstract type LogScaled{L<:LogInfo} <: Number end
 
-const RealQuantity = Union{Real, AbstractQuantity{<:Real}}
+const RealOrRealQuantity = Union{Real, AbstractQuantity{<:Real}}
 
 """
     struct Level{L, S, T<:Union{Real, AbstractQuantity{<:Real}}} <: LogScaled{L}
@@ -234,7 +234,7 @@ A logarithmic scale-based level. Details about the logarithmic scale are encoded
 field, `val::T`, and the log of the ratio `val/S` is taken. This type differs from
 [`Unitful.Gain`](@ref) in that `val` is a linear quantity.
 """
-struct Level{L, S, T<:RealQuantity} <: LogScaled{L}
+struct Level{L, S, T<:RealOrRealQuantity} <: LogScaled{L}
     val::T
     function Level{L,S,T}(x) where {L,S,T}
         S isa ReferenceQuantity || throw(DomainError(S, "Reference quantity must be real."))
@@ -243,7 +243,7 @@ struct Level{L, S, T<:RealQuantity} <: LogScaled{L}
     end
 end
 Level{L,S}(val::Number) where {L,S} = Level{L,S,real(typeof(val))}(val)
-Level{L,S}(val::RealQuantity) where {L,S} = Level{L,S,typeof(val)}(val)
+Level{L,S}(val::RealOrRealQuantity) where {L,S} = Level{L,S,typeof(val)}(val)
 
 """
     struct Gain{L, S, T<:Real} <: LogScaled{L}
@@ -280,7 +280,8 @@ const RootPowerRatio{T} = IsRootPowerRatio{true,T}
 @inline unwrap(x::IsRootPowerRatio) = x.val
 @inline unwrap(x) = x
 
-const ReferenceQuantity = Union{RealQuantity, IsRootPowerRatio{S,<:RealQuantity} where S}
+const ReferenceQuantity =
+    Union{RealOrRealQuantity, IsRootPowerRatio{S, <:RealOrRealQuantity} where S}
 
 """
     reflevel(x::Level{L,S})
