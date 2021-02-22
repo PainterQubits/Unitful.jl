@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/PainterQubits/Unitful.jl.svg?branch=master)](https://travis-ci.org/PainterQubits/Unitful.jl)
-[![Build Status](https://ci.appveyor.com/api/projects/status/d0usn4eqx23uownr?svg=true)](https://ci.appveyor.com/project/ajkeller34/unitful-jl-1w7vc)
+[![CI](https://github.com/PainterQubits/Unitful.jl/workflows/CI/badge.svg)](https://github.com/PainterQubits/Unitful.jl/actions?query=workflow%3ACI)
 [![Coverage Status](https://coveralls.io/repos/github/PainterQubits/Unitful.jl/badge.svg?branch=master)](https://coveralls.io/github/PainterQubits/Unitful.jl?branch=master)
 [![codecov.io](https://codecov.io/github/PainterQubits/Unitful.jl/coverage.svg?branch=master)](https://codecov.io/github/PainterQubits/Unitful.jl?branch=master)
 
