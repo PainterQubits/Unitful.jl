@@ -20,6 +20,7 @@ import Base: steprange_last, unsigned
     import Base: isunordered
 end
 
+import Dates
 import LinearAlgebra: Diagonal, Bidiagonal, Tridiagonal, SymTridiagonal
 import LinearAlgebra: istril, istriu, norm
 import Random
@@ -67,5 +68,6 @@ include("fastmath.jl")
 include("logarithm.jl")
 include("complex.jl")
 include("pkgdefaults.jl")
+include("dates.jl")
 
 end
