@@ -13,6 +13,7 @@ import Unitful:
     ms, s, minute, hr, d, yr, Hz,
     J, A, N, mol, V,
     mW, W,
+    B, kB, MB, GB, TB, PB, EB,
     dB, dB_rp, dB_p, dBm, dBV, dBSPL, Decibel,
     Np, Np_rp, Np_p, Neper
 
@@ -306,6 +307,16 @@ include("dates.jl")
             @test @inferred(eltype([1cc, 1°C])) <: Quantity{Rational{Int}, 𝚯, typeof(cc)}
         end
     end
+end
+
+@testset "Data prefixes" begin
+    # Ensure manually setting the SI prefixes was consistent
+    @test 1kB/B  == 1_000
+    @test 1MB/kB == 1_000
+    @test 1GB/MB == 1_000
+    @test 1TB/GB == 1_000
+    @test 1PB/TB == 1_000
+    @test 1EB/PB == 1_000
 end
 
 @testset "Promotion" begin
