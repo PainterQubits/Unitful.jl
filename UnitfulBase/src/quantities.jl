@@ -122,7 +122,7 @@ for f = (:div, :cld, :fld, :rem, :mod)
 end
 
 Base.mod2pi(x::DimensionlessQuantity) = mod2pi(uconvert(NoUnits, x))
-Base.mod2pi(x::AbstractQuantity{S, NoDims, <:Units{(Unitful.Unit{:Degree, NoDims}(0, 1//1),),
+Base.mod2pi(x::AbstractQuantity{S, NoDims, <:Units{(UnitfulBase.Unit{:Degree, NoDims}(0, 1//1),),
     NoDims}}) where S = mod(x, 360°)
 
 # Addition / subtraction
@@ -398,7 +398,7 @@ isnan(x::AbstractQuantity) = isnan(x.val)
 end
 
 eps(x::T) where {T<:AbstractQuantity} = T(eps(x.val))
-eps(x::Type{T}) where {T<:AbstractQuantity} = eps(Unitful.numtype(T))
+eps(x::Type{T}) where {T<:AbstractQuantity} = eps(UnitfulBase.numtype(T))
 
 unsigned(x::AbstractQuantity) = Quantity(unsigned(x.val), unit(x))
 

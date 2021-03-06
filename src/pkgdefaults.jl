@@ -9,8 +9,8 @@
 @dimension 𝚯 "𝚯" Temperature    # This one is \bfTheta
 @dimension 𝐉 "𝐉" Luminosity
 @dimension 𝐍 "𝐍" Amount
-const RelativeScaleTemperature = Quantity{T, 𝚯, <:AffineUnits} where T
-const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
+const RelativeScaleTemperature = Quantity{T, 𝚯, <:UnitfulBase.AffineUnits} where T
+const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:UnitfulBase.ScalarUnits} where T
 
 # Define derived dimensions.
 @derived_dimension Area                     𝐋^2
@@ -61,17 +61,7 @@ const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 @refunit  g       "g"      Gram      𝐌           true
 @refunit  mol     "mol"    Mole      𝐍           true
 
-# Angles and solid angles
-@unit sr      "sr"      Steradian   1                       true
-@unit rad     "rad"     Radian      1                       true
-@unit °       "°"       Degree      pi/180                  false
-# For numerical accuracy, specific to the degree
-import Base: sind, cosd, tand, secd, cscd, cotd
-for (_x,_y) in ((:sin,:sind), (:cos,:cosd), (:tan,:tand),
-        (:sec,:secd), (:csc,:cscd), (:cot,:cotd))
-    @eval ($_x)(x::Quantity{T, NoDims, typeof(°)}) where {T} = ($_y)(ustrip(x))
-    @eval ($_y)(x::Quantity{T, NoDims, typeof(°)}) where {T} = ($_y)(ustrip(x))
-end
+using UnitfulBase: sr, rad, °
 
 # SI and related units
 @unit Hz              "Hz"   Hertz           1/s                true
@@ -112,7 +102,7 @@ end
 # Area
 # The hectare is used more frequently than any other power-of-ten of an are.
 @unit a      "a"        Are         100m^2                  false
-const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, 𝐋^2}(2, 1//1),), 𝐋^2}()
+const ha = UnitfulBase.FreeUnits{(UnitfulBase.Unit{:Are, 𝐋^2}(2, 1//1),), 𝐋^2}()
 @unit b      "b"        Barn        100fm^2                 true
 
 # Volume
@@ -230,7 +220,7 @@ const Å = Å = angstrom
 @logunit  dBu   "dBu"      Decibel      sqrt(0.6)V
 @logunit  dBμV  "dBμV"     Decibel      1μV
 @logunit  dBSPL "dBSPL"    Decibel      20μPa
-@logunit  dBFS  "dBFS"     Decibel      RootPowerRatio(1)
+@logunit  dBFS  "dBFS"     Decibel      UnitfulBase.RootPowerRatio(1)
 @logunit  dBΩ   "dBΩ"      Decibel      1Ω
 @logunit  dBS   "dBS"      Decibel      1S
 
@@ -262,7 +252,7 @@ isrootpower_dim(::typeof(dimension(J)))         = false
 const si_prefixes = (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
     Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
 
-const si_no_prefix = (:m, :s, :A, :K, :g, :mol, :rad, :sr, :Hz, :N, :Pa, #:cd,
+const si_no_prefix = (:m, :s, :A, :K, :g, :mol, :Hz, :N, :Pa, #:cd,
     :J, :W, :C, :V, :F, :Ω, :S, :Wb, :T, :H, :lm, :lx, :Bq, :Gy, :Sv, :kat)
 
 baremodule DefaultSymbols
@@ -278,18 +268,22 @@ baremodule DefaultSymbols
             Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, Symbol(p,u))))
             Core.eval(DefaultSymbols, Expr(:export, Symbol(p,u)))
         end
+        for u in (:rad, :sr)
+            Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :UnitfulBase, Symbol(p,u))))
+            Core.eval(DefaultSymbols, Expr(:export, Symbol(p,u)))
+        end
     end
 
     Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, :°C)))
     Core.eval(DefaultSymbols, Expr(:export, :°C))
 
-    Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :Unitful, :°)))
+    Core.eval(DefaultSymbols, Expr(:import, Expr(:(.), :UnitfulBase, :°)))
     Core.eval(DefaultSymbols, Expr(:export, :°))
 end
 
 #########
 
-preferunits(kg) # others done in @refunit
+UnitfulBase.preferunits(kg) # others done in @refunit
 
 """
     Unitful.promote_to_derived()
