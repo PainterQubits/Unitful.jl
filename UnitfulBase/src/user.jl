@@ -19,9 +19,9 @@ end #module
 ```
 """
 function register(unit_module::Module)
-    push!(Unitful.unitmodules, unit_module)
-    if unit_module !== Unitful
-        merge!(Unitful.basefactors, _basefactors(unit_module))
+    push!(UnitfulBase.unitmodules, unit_module)
+    if unit_module !== UnitfulBase
+        merge!(UnitfulBase.basefactors, _basefactors(unit_module))
     end
 end
 
@@ -59,7 +59,7 @@ macro dimension(symb, abbr, name)
     uname = Symbol(name,"Units")
     funame = Symbol(name,"FreeUnits")
     esc(quote
-        $Unitful.abbr(::$Dimension{$x}) = $abbr
+        $UnitfulBase.abbr(::$Dimension{$x}) = $abbr
         const global $s = $Dimensions{($Dimension{$x}(1),)}()
         const global ($name){T,U} = Union{
             $Quantity{T,$s,U},
@@ -133,16 +133,16 @@ macro refunit(symb, abbr, name, dimension, tf)
     n = Meta.quot(Symbol(name))
 
     push!(expr.args, quote
-        $Unitful.abbr(::$Unit{$n, $dimension}) = $abbr
+        $UnitfulBase.abbr(::$Unit{$n, $dimension}) = $abbr
     end)
 
     if tf
         push!(expr.args, quote
-            $Unitful.@prefixed_unit_symbols $symb $name $dimension (1.0, 1)
+            $UnitfulBase.@prefixed_unit_symbols $symb $name $dimension (1.0, 1)
         end)
     else
         push!(expr.args, quote
-            $Unitful.@unit_symbols $symb $name $dimension (1.0, 1)
+            $UnitfulBase.@unit_symbols $symb $name $dimension (1.0, 1)
         end)
     end
 
@@ -175,16 +175,16 @@ macro unit(symb,abbr,name,equals,tf)
                                  ($equals)/$unit($equals),
                                  $tensfactor($unit($equals)), 1))
     push!(expr.args, quote
-        $Unitful.abbr(::$Unit{$n, $d}) = $abbr
+        $UnitfulBase.abbr(::$Unit{$n, $d}) = $abbr
     end)
 
     if tf
         push!(expr.args, quote
-            $Unitful.@prefixed_unit_symbols $symb $name $d $basef
+            $UnitfulBase.@prefixed_unit_symbols $symb $name $d $basef
         end)
     else
         push!(expr.args, quote
-            $Unitful.@unit_symbols $symb $name $d $basef
+            $UnitfulBase.@unit_symbols $symb $name $d $basef
         end)
     end
 
@@ -210,15 +210,15 @@ macro affineunit(symb, abbr, offset)
 end
 
 function basefactors_expr(m::Module, n, basefactor)
-    if m === Unitful
-        :($(_basefactors(Unitful))[$n] = $basefactor)
+    if m === UnitfulBase
+        :($(_basefactors(UnitfulBase))[$n] = $basefactor)
     else
         # We add the base factor to dictionaries both in Unitful and the other
         # module so that the factor is available both interactively and with
         # precompilation.
         quote
             $(_basefactors(m))[$n] = $basefactor
-            $(_basefactors(Unitful))[$n] = $basefactor
+            $(_basefactors(UnitfulBase))[$n] = $basefactor
         end
     end
 end
@@ -290,7 +290,7 @@ function preferunits(u0::Units, u::Units...)
 
     units = (u0, u...)
     any(x->x isa AffineUnits, units) &&
-        error("cannot use `Unitful.preferunits` with affine units; try `Unitful.ContextUnits`.")
+        error("cannot use `UnitfulBase.preferunits` with affine units; try `UnitfulBase.ContextUnits`.")
 
     dims = map(dimension, units)
     if length(union(dims)) != length(dims)
@@ -388,10 +388,10 @@ julia> @dΠ π*W/1W
 """
 macro logscale(symb,abbr,name,base,prefactor,irp)
     quote
-        $Unitful.abbr(::LogInfo{$(QuoteNode(name))}) = $abbr
+        $UnitfulBase.abbr(::LogInfo{$(QuoteNode(name))}) = $abbr
 
         const global $(esc(name)) = LogInfo{$(QuoteNode(name)), $base, $prefactor}
-        $Unitful.isrootpower(::Type{$(esc(name))}) = $irp
+        $UnitfulBase.isrootpower(::Type{$(esc(name))}) = $irp
 
         const global $(esc(symb)) = MixedUnits{Gain{$(esc(name)), :?}}()
         const global $(esc(Symbol(symb,"_rp"))) = MixedUnits{Gain{$(esc(name)), :rp}}()
@@ -453,7 +453,7 @@ Defines a logarithmic unit. For examples see `src/pkgdefaults.jl`.
 """
 macro logunit(symb, abbr, logscale, reflevel)
     quote
-        $Unitful.abbr(::Level{$(esc(logscale)), $(esc(reflevel))}) = $abbr
+        $UnitfulBase.abbr(::Level{$(esc(logscale)), $(esc(reflevel))}) = $abbr
         const global $(esc(symb)) =
             MixedUnits{Level{$(esc(logscale)), $(esc(reflevel))}}()
     end
@@ -502,8 +502,8 @@ julia> u"ħ"
 """
 macro u_str(unit)
     ex = Meta.parse(unit)
-    unitmods = [Unitful]
-    for m in Unitful.unitmodules
+    unitmods = [UnitfulBase]
+    for m in UnitfulBase.unitmodules
         # Find registered unit extension modules which are also loaded by
         # __module__ (required so that precompilation will work).
         if isdefined(__module__, nameof(m)) && getfield(__module__, nameof(m)) === m
@@ -531,7 +531,7 @@ julia> uparse("1.0*dB")
 1.0 dB
 ```
 """
-function uparse(str; unit_context=Unitful)
+function uparse(str, unit_context)
     ex = Meta.parse(str)
     eval(lookup_units(unit_context, ex))
 end

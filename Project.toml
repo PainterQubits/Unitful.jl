@@ -3,19 +3,18 @@ uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
 version = "1.6.0"
 
 [deps]
-ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
-LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+UnitfulBase = "66b8c3f9-6ee5-42bf-afc1-12298118d236"
 
 [compat]
-ConstructionBase = "1"
 julia = "1"
 
 [extras]
+ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["LinearAlgebra", "Test", "Random"]
+test = ["LinearAlgebra", "Test", "Random", "ConstructionBase"]
