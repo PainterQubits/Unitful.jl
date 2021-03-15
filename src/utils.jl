@@ -1,8 +1,8 @@
 @inline isunitless(::Units) = false
 @inline isunitless(::Units{()}) = true
 
-@inline numtype(::Quantity{T}) where {T} = T
-@inline numtype(::Type{Q}) where {T, Q<:Quantity{T}} = T
+@inline numtype(::AbstractQuantity{T}) where {T} = T
+@inline numtype(::Type{Q}) where {T, Q<:AbstractQuantity{T}} = T
 
 @inline dimtype(u::Unit{U,D}) where {U,D} = D
 
@@ -106,8 +106,8 @@ julia> unit(typeof(1.0u"m")) == u"m"
 true
 ```
 """
-@inline unit(x::Quantity{T,D,U}) where {T,D,U} = U()
-@inline unit(::Type{Quantity{T,D,U}}) where {T,D,U} = U()
+@inline unit(x::AbstractQuantity{T,D,U}) where {T,D,U} = U()
+@inline unit(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = U()
 
 
 """
@@ -145,7 +145,7 @@ the same promotion unit, which may be an affine unit, so take care.
 """
 function absoluteunit end
 
-absoluteunit(x::Quantity{T,D,U}) where {T,D,U} = absoluteunit(U())
+absoluteunit(x::AbstractQuantity{T,D,U}) where {T,D,U} = absoluteunit(U())
 absoluteunit(::FreeUnits{N,D,A}) where {N,D,A} = FreeUnits{N,D}()
 absoluteunit(::ContextUnits{N,D,P,A}) where {N,D,P,A} = ContextUnits{N,D,P}()
 absoluteunit(::FixedUnits{N,D,A}) where {N,D,A} = FixedUnits{N,D}()
@@ -220,8 +220,8 @@ julia> typeof(dimension(1.0u"m/μm"))
 Unitful.Dimensions{()}
 ```
 """
-@inline dimension(x::Quantity{T,D}) where {T,D} = D
-@inline dimension(::Type{Quantity{T,D,U}}) where {T,D,U} = D
+@inline dimension(x::AbstractQuantity{T,D}) where {T,D} = D
+@inline dimension(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = D
 
 @deprecate(dimension(x::AbstractArray{T}) where {T<:Number}, dimension.(x))
 @deprecate(dimension(x::AbstractArray{T}) where {T<:Units}, dimension.(x))

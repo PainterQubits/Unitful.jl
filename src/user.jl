@@ -326,7 +326,7 @@ product of powers of base SI units. If quantity `x` has
 units `ContextUnits(z,z)`.
 """
 @inline upreferred(x::Number) = x
-@inline upreferred(x::Quantity) = uconvert(upreferred(unit(x)), x)
+@inline upreferred(x::AbstractQuantity) = uconvert(upreferred(unit(x)), x)
 @inline upreferred(::Missing) = missing
 
 """
