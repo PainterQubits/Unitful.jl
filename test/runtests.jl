@@ -308,6 +308,12 @@ include("dates.jl")
     end
 end
 
+# preferred units work on AbstractQuantity
+struct QQQ <: Unitful.AbstractQuantity{Float64,𝐋,typeof(cm)}
+    val::Float64
+end
+Unitful.uconvert(U::Unitful.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
+
 @testset "Promotion" begin
     @testset "> Unit preferences" begin
         # Only because we favor SI, we have the following:
@@ -326,6 +332,9 @@ end
 
         @test @inferred(upreferred(1N)) === 1*kg*m/s^2
         @test ismissing(upreferred(missing))
+
+        # preferred units work on AbstractQuantity
+        @test @inferred(upreferred(QQQ(10))) == 0.1m
     end
     @testset "> promote_unit" begin
         @test Unitful.promote_unit(FreeUnits(m)) === FreeUnits(m)
