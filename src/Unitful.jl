@@ -69,5 +69,6 @@ include("logarithm.jl")
 include("complex.jl")
 include("pkgdefaults.jl")
 include("dates.jl")
+include("linearalgebra.jl")
 
 end

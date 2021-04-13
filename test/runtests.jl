@@ -94,6 +94,40 @@ end
     @test ConstructionBase.constructorof(typeof(1.0m))(2) === 2m
 end
 
+@testset "LinearAlgebra functions" begin
+    CNT = Ref(0)
+    Unitful.linearalgebra_count() = (CNT[] += 1; nothing)
+    @testset "> Matrix multiplication: *" begin
+        M = rand(3,3) .* u"m"
+        M_ = view(M,:,1:3)
+        v = rand(3) .* u"V"
+        v_ = view(v, 1:3)
+
+        CNT[] = 0
+
+        @test unit(first(M * M)) == u"m*m"
+        @test M * M == M_ * M == M * M_ == M_ * M_
+
+        @test unit(first(M * v)) == u"m*V"
+        @test M * v == M_ * v == M * v_ == M_ * v_
+
+        @test CNT[] == 10
+
+        @test unit(first(v' * M)) == u"m*V"
+        @test v' * M == v_' * M == v_' * M == v_' * M_
+
+        @test CNT[] == 15
+
+        @test unit(v' * v) == u"V*V"
+        @test v' * v == v_' * v == v_' * v == v_' * v_
+
+        @test CNT[] == 20
+    end
+    @testset "> Matrix multiplication: mul!" begin
+
+    end
+end
+
 @testset "Types" begin
     @test Base.complex(Quantity{Float64,NoDims,NoUnits}) ==
         Quantity{Complex{Float64},NoDims,NoUnits}
