@@ -111,20 +111,46 @@ end
         @test unit(first(M * v)) == u"m*V"
         @test M * v == M_ * v == M * v_ == M_ * v_
 
-        @test CNT[] == 10
+        VERSION >= v"1.3" && @test CNT[] == 10
 
         @test unit(first(v' * M)) == u"m*V"
         @test v' * M == v_' * M == v_' * M == v_' * M_
 
-        @test CNT[] == 15
+        VERSION >= v"1.3" && @test CNT[] == 15
 
         @test unit(v' * v) == u"V*V"
         @test v' * v == v_' * v == v_' * v == v_' * v_
 
-        @test CNT[] == 20
+        VERSION >= v"1.3" && @test CNT[] == 20
+
+        # Mixed with & without units
+        N = rand(3,3)
+        w = rand(3)
+
+        CNT[] = 0
+        
+        @test unit(first(M * N)) == u"m"
+        @test unit(first(N * M)) == u"m"
+
+        @test unit(first(M * w)) == u"m"
+        @test unit(first(N * v)) == u"V"
+
+        @show CNT[] # not specialised yet
+
     end
     @testset "> Matrix multiplication: mul!" begin
+        A = rand(3,3) .* u"m"
+        B = rand(3,3) .* u"m"
+        C = fill(zero(eltype(A*B)), 3, 3)
+        CNT[] = 0
 
+        mul!(C, A, B)
+        if VERSION >= v"1.3" # the 5-arm mul! exists
+            mul!(C, A, B, true, true)
+            mul!(C, A, B, 3, 7) # not specialised yet
+
+            @show CNT[]
+        end
     end
 end
 
