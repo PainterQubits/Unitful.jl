@@ -96,7 +96,7 @@ end
 
 @testset "LinearAlgebra functions" begin
     CNT = Ref(0)
-    Unitful.linearalgebra_count() = (CNT[] += 1; nothing)
+    Unitful._linearalgebra_count() = (CNT[] += 1; nothing)
     @testset "> Matrix multiplication: *" begin
         M = rand(3,3) .* u"m"
         M_ = view(M,:,1:3)

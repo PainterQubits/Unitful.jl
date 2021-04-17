@@ -50,7 +50,8 @@ true
 @inline ustrip(x::Missing) = missing
 
 """
-    ustrip(x::Array{Q}) where {Q <: Quantity}
+    ustrip(x::Array{Q}) where {Q <: Quantity{T}}}
+
 Strip units from an `Array` by reinterpreting to type `T`. The resulting
 `Array` is a not a copy, but rather a unit-stripped view into array `x`. Because the units
 are removed, information may be lost and this should be used with some care.
@@ -90,6 +91,9 @@ ustrip(A::Diagonal) = Diagonal(ustrip(A.diag))
 ustrip(A::Bidiagonal) = Bidiagonal(ustrip(A.dv), ustrip(A.ev), ifelse(istriu(A), :U, :L))
 ustrip(A::Tridiagonal) = Tridiagonal(ustrip(A.dl), ustrip(A.d), ustrip(A.du))
 ustrip(A::SymTridiagonal) = SymTridiagonal(ustrip(A.dv), ustrip(A.ev))
+
+ustrip(A::Adjoint) = adjoint(ustrip(parent(A)))
+ustrip(A::Transpose) = transpose(ustrip(parent(A)))
 
 """
     unit(x::Quantity{T,D,U}) where {T,D,U}
