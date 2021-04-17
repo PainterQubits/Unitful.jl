@@ -29,6 +29,27 @@ true
 @inline ustrip(T::Type, u::Units, x) = convert(T, ustrip(u, x))
 
 """
+    ustrip(u::Units, xs::AbstractArray{<:Quantity})
+
+This broadcasts `ustrip.(u, xs)`, unless `xs isa StridedArray` whose units match `u`,
+in which case it reinterprets, which saves making a copy.
+
+```jldoctest
+julia> ustrip(u"m", [1, 2, 3]u"m") isa Base.ReinterpretArray{Int}  # fast path
+true
+
+julia> ustrip(u"m", [1, 2, 3]u"mm") == [1//1000, 2//1000, 3//1000]  # mismatch requires slow path
+true
+```
+"""
+ustrip(u::Units, xs::AbstractArray) = ustrip.(u, xs)
+function ustrip(u::Units, xs::StridedArray{T}) where {T}
+    dimension(u) == dimension(T) || return ustrip.(u, xs)
+    isequal(promote(true * u, oneunit(T))...) || return ustrip.(u, xs)
+    return reinterpret(numtype(T), xs)
+end
+
+"""
     ustrip(x::Number)
     ustrip(x::Quantity)
 
@@ -91,9 +112,15 @@ ustrip(A::Diagonal) = Diagonal(ustrip(A.diag))
 ustrip(A::Bidiagonal) = Bidiagonal(ustrip(A.dv), ustrip(A.ev), ifelse(istriu(A), :U, :L))
 ustrip(A::Tridiagonal) = Tridiagonal(ustrip(A.dl), ustrip(A.d), ustrip(A.du))
 ustrip(A::SymTridiagonal) = SymTridiagonal(ustrip(A.dv), ustrip(A.ev))
-
 ustrip(A::Adjoint) = adjoint(ustrip(parent(A)))
 ustrip(A::Transpose) = transpose(ustrip(parent(A)))
+
+ustrip(u::Units, A::Diagonal) = Diagonal(ustrip(u, A.diag))
+ustrip(u::Units, A::Bidiagonal) = Bidiagonal(ustrip(u, A.dv), ustrip(u, A.ev), ifelse(istriu(A), :U, :L))
+ustrip(u::Units, A::Tridiagonal) = Tridiagonal(ustrip(u, A.dl), ustrip(u, A.d), ustrip(u, A.du))
+ustrip(u::Units, A::SymTridiagonal) = SymTridiagonal(ustrip(u, A.dv), ustrip(u, A.ev))
+ustrip(u::Units, A::Adjoint) = adjoint(ustrip(u, parent(A)))
+ustrip(u::Units, A::Transpose) = transpose(ustrip(u, parent(A)))
 
 """
     unit(x::Quantity{T,D,U}) where {T,D,U}

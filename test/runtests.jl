@@ -1311,6 +1311,16 @@ end
             @test_deprecated ustrip([1,2])
             @test ustrip.([1,2]) == [1,2]
             @test typeof(ustrip([1u"m", 2u"m"])) <: Base.ReinterpretArray{Int,1}
+
+            # With target type
+            @test @inferred(ustrip(u"m", [1, 2]u"m")) == [1,2]
+            @test @inferred(ustrip(u"km", [1, 2]u"m")) == [1//1000, 2//1000]
+            @test typeof(ustrip(u"m", [1, 2]u"m")) <: Base.ReinterpretArray{Int,1}
+            @test typeof(ustrip(u"m/ms", [1, 2]*(u"km/s"))) <: Base.ReinterpretArray{Int,1}
+
+            # Structured matrices
+            @test typeof(ustrip(adjoint([1,2]u"m"))) <: Adjoint{Int}
+            @test typeof(ustrip(transpose([1 2; 3 4]u"m"))) <: Transpose{Int}
             @test typeof(ustrip(Diagonal([1,2]u"m"))) <: Diagonal{Int}
             @test typeof(ustrip(Bidiagonal([1,2,3]u"m", [1,2]u"m", :U))) <:
                 Bidiagonal{Int}
@@ -1318,6 +1328,9 @@ end
                 Tridiagonal{Int}
             @test typeof(ustrip(SymTridiagonal([1,2,3]u"m", [4,5]u"m"))) <:
                 SymTridiagonal{Int}
+
+            @test typeof(ustrip(u"m", adjoint([1,2]u"m"))) <: Adjoint{Int}
+            @test typeof(ustrip(u"m", Diagonal([1,2]u"m"))) <: Diagonal{Int}
         end
         @testset ">> Linear algebra" begin
             @test istril([1 1; 0 1]u"m") == false
