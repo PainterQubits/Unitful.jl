@@ -94,8 +94,8 @@ julia> promote(2.0u"J", 1.0u"kg*m^2/s^2")
 
 If you're wondering where `Unitfu.EnergyUnit` comes from, it is defined in
 `src/pkgdefaults.jl` by the [`@derived_dimension`](@ref) macro. Similarly,
-the calls to the [`@dimension`](@ref) macro define `Unitfu.LengthUnit`,
-`Unitfu.MassUnit`, etc. None of these are exported.
+the calls to the [`@dimension`](@ref) macro define `Unitfu.LengthUnits`,
+`Unitfu.MassUnits`, etc. None of these are exported.
 
 Existing users of Unitfu may want to call [`Unitfu.promote_to_derived`](@ref)
 after Unitfu loads to give similar behavior to Unitfu 0.0.4 and below. It is

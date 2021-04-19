@@ -34,16 +34,17 @@ Base._range(a::Quantity{<:AbstractFloat}, st::Quantity{<:Real}, ::Nothing, len::
     Base._range(a, float(st), nothing, len)
 function Base._range(a::Quantity{<:AbstractFloat}, st::Quantity{<:AbstractFloat}, ::Nothing, len::Integer)
     dimension(a) != dimension(st) && throw(DimensionError(a, st))
-    Base._range(promote(a, st)..., nothing, len)
+    Base._range(promote(a, uconvert(unit(a), st))..., nothing, len)
 end
 Base._range(a::Quantity, st::Real, ::Nothing, len::Integer) =
-    Base._range(promote(a, st)..., nothing, len)
+    Base._range(promote(a, uconvert(unit(a), st))..., nothing, len)
 Base._range(a::Real, st::Quantity, ::Nothing, len::Integer) =
-    Base._range(promote(a, st)..., nothing, len)
+    Base._range(promote(a, uconvert(unit(a), st))..., nothing, len)
 # the following is needed to give sane error messages when doing e.g. range(1°, 2V, 5)
-function Base._range(a::T, step, ::Nothing, len::Integer) where {T<:Quantity}
+function Base._range(a::Quantity, step, ::Nothing, len::Integer)
     dimension(a) != dimension(step) && throw(DimensionError(a,step))
-    return Base._rangestyle(OrderStyle(T), ArithmeticStyle(T), a, step, len)
+    _a, _step = promote(a, uconvert(unit(a), step))
+    return Base._rangestyle(OrderStyle(_a), ArithmeticStyle(_a), _a, _step, len)
 end
 *(r::AbstractRange, y::Units) = range(first(r)*y, step=step(r)*y, length=length(r))
 
@@ -65,9 +66,8 @@ function colon(start::A, step::B, stop::A) where A<:Quantity{<:Real} where B<:Qu
     colon(promote(start, step, stop)...)
 end
 
-OrderStyle(::Type{<:Quantity{<:Real}}) = Ordered()
-ArithmeticStyle(::Type{<:Quantity{<:AbstractFloat}}) = ArithmeticRounds()
-ArithmeticStyle(::Type{<:Quantity{<:Integer}}) = ArithmeticWraps()
+OrderStyle(::Type{<:AbstractQuantity{T}}) where T = OrderStyle(T)
+ArithmeticStyle(::Type{<:AbstractQuantity{T}}) where T = ArithmeticStyle(T)
 
 (colon(start::T, step::T, stop::T) where T <: Quantity{<:Real}) =
     _colon(OrderStyle(T), ArithmeticStyle(T), start, step, stop)

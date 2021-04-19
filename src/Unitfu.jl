@@ -7,8 +7,8 @@ import Base: abs, abs2, angle, float, fma, muladd, inv, sqrt, cbrt
 import Base: min, max, floor, ceil, real, imag, conj
 import Base: complex, widen, reim # handled in complex.jl
 import Base: exp, exp10, exp2, expm1, log, log10, log1p, log2
-import Base: sin, cos, tan, cot, sec, csc, atan, cis
-
+import Base: sin, cos, tan, asin, acos, atan, sinh, cosh, tanh, asinh, acosh, atanh,
+             sinpi, cospi, sinc, cosc, cis
 import Base: eps, mod, rem, div, fld, cld, divrem, trunc, round, sign, signbit
 import Base: isless, isapprox, isinteger, isreal, isinf, isfinite, isnan
 import Base: copysign, flipsign
@@ -17,7 +17,11 @@ import Base: length, float, last, one, oneunit, zero, range
 import Base: getindex, eltype, step, last, first, frexp
 import Base: Integer, Rational, typemin, typemax
 import Base: steprange_last, unsigned
+@static if VERSION ≥ v"1.7.0-DEV.119"
+    import Base: isunordered
+end
 
+import Dates
 import LinearAlgebra: Diagonal, Bidiagonal, Tridiagonal, SymTridiagonal
 import LinearAlgebra: istril, istriu, norm
 import Random
@@ -63,5 +67,6 @@ include("fastmath.jl")
 include("logarithm.jl")
 include("complex.jl")
 include("pkgdefaults.jl")
+include("dates.jl")
 
 end

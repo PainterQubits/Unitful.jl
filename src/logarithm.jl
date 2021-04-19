@@ -164,6 +164,15 @@ isrootpower_dim(y) =
 ==(x::Gain, y::Level) = ==(y,x)
 ==(x::Level, y::Gain) = false
 
+for op in (:(==), :isequal)
+    @eval Base.$op(x::Level, y::Level) = $op(x.val, y.val)
+    @eval Base.$op(x::Gain{L,S}, y::Gain{L,S}) where {L,S} = $op(x.val, y.val)
+end
+
+# A consistent `hash` method for `Gain` is impossible with the current promotion rules
+# (https://github.com/PainterQubits/Unitful.jl/issues/402), therefore we don't define one.
+Base.hash(x::Level, h::UInt) = hash(x.val, h)
+
 # Addition and subtraction
 for op in (:+, :-)
     @eval Base. $op(x::Level{L,S}, y::Level{L,S}) where {L,S} = Level{L,S}(($op)(x.val, y.val))
@@ -305,7 +314,7 @@ BracketStyle(::Type{<:Union{Level,Gain}}) = SquareBrackets()
     uconvertp(u::MixedUnits, x)
 Generically, this is the same as [`Unitfu.uconvert`](@ref). In cases where unit conversion
 would be ambiguous without further information (e.g. `uconvert(dB, 10)`), `uconvertp`
-presumes ratios are of root-power quantities.
+presumes ratios are of power quantities.
 
 It is important to note that careless use of this function can lead to erroneous calculations.
 Consider `Quantity{<:Gain}` types: it is tempting to use this to transform `-20dB/m` into
@@ -339,7 +348,7 @@ uconvertp(u::T, x::Real) where {L, G <: Gain{L}, T <: MixedUnits{G, <:Units{()}}
     uconvertrp(u::MixedUnits, x)
 In most cases, this is the same as [`Unitfu.uconvert`](@ref). In cases where unit conversion
 would be ambiguous without further information (e.g. `uconvert(dB, 10)`), `uconvertp`
-presumes ratios are of power quantities.
+presumes ratios are of root-power quantities.
 
 It is important to note that careless use of this function can lead to erroneous calculations.
 Consider `Quantity{<:Gain}` types: it is tempting to use this to transform `-20dB/m` into

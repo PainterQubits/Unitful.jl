@@ -59,13 +59,13 @@ macro dimension(symb, abbr, name)
     uname = Symbol(name,"Units")
     funame = Symbol(name,"FreeUnits")
     esc(quote
-        Unitfu.abbr(::Unitfu.Dimension{$x}) = $abbr
-        const global $s = Unitfu.Dimensions{(Unitfu.Dimension{$x}(1),)}()
+        $Unitful.abbr(::$Dimension{$x}) = $abbr
+        const global $s = $Dimensions{($Dimension{$x}(1),)}()
         const global ($name){T,U} = Union{
-            Unitfu.Quantity{T,$s,U},
-            Unitfu.Level{L,S,Unitfu.Quantity{T,$s,U}} where {L,S}}
-        const global ($uname){U} = Unitfu.Units{U,$s}
-        const global ($funame){U} = Unitfu.FreeUnits{U,$s}
+            $Quantity{T,$s,U},
+            $Level{L,S,$Quantity{T,$s,U}} where {L,S}}
+        const global ($uname){U} = $Units{U,$s}
+        const global ($funame){U} = $FreeUnits{U,$s}
         $s
     end)
 end
@@ -90,10 +90,10 @@ macro derived_dimension(name, dims)
     funame = Symbol(name,"FreeUnits")
     esc(quote
         const global ($name){T,U} = Union{
-            Unitfu.Quantity{T,$dims,U},
-            Unitfu.Level{L,S,Unitfu.Quantity{T,$dims,U}} where {L,S}}
-        const global ($uname){U} = Unitfu.Units{U,$dims}
-        const global ($funame){U} = Unitfu.FreeUnits{U,$dims}
+            $Quantity{T,$dims,U},
+            $Level{L,S,$Quantity{T,$dims,U}} where {L,S}}
+        const global ($uname){U} = $Units{U,$dims}
+        const global ($funame){U} = $FreeUnits{U,$dims}
         nothing
     end)
 end
@@ -147,7 +147,7 @@ macro refunit(symb, abbr, name, dimension, tf)
     end
 
     push!(expr.args, quote
-        Unitfu.preferunits($symb)
+        $preferunits($symb)
         $symb
     end)
 
@@ -170,12 +170,12 @@ macro unit(symb,abbr,name,equals,tf)
     expr = Expr(:block)
     n = Meta.quot(Symbol(name))
 
-    d = :(Unitfu.dimension($equals))
-    basef = :(Unitfu.basefactor(Unitfu.basefactor(Unitfu.unit($equals))...,
-                                 ($equals)/Unitfu.unit($equals),
-                                 Unitfu.tensfactor(Unitfu.unit($equals)), 1))
+    d = :($dimension($equals))
+    basef = :($basefactor($basefactor($unit($equals))...,
+                                 ($equals)/$unit($equals),
+                                 $tensfactor($unit($equals)), 1))
     push!(expr.args, quote
-        Unitfu.abbr(::Unitfu.Unit{$n, $d}) = $abbr
+        $Unitful.abbr(::$Unit{$n, $d}) = $abbr
     end)
 
     if tf
@@ -204,8 +204,8 @@ in terms of an absolute scale; the scaling is the same as the absolute scale. Ex
 macro affineunit(symb, abbr, offset)
     s = Symbol(symb)
     return esc(quote
-        const global $s = Unitfu.affineunit($offset)
-        Base.show(io::IO, ::Unitfu.genericunit($s)) = begin
+        const global $s = affineunit($offset)
+        Base.show(io::IO, ::genericunit($s)) = begin
             col = get(io, :unitsymbolcolor, :cyan)
             printstyled(io, color = col, $abbr)
             nothing
@@ -235,26 +235,26 @@ will define units for each possible SI power-of-ten prefix on that unit.
 Example: `@prefixed_unit_symbols m Meter ᴸ (1.0,1)` results in nm, cm, m, km, ...
 all getting defined in the calling namespace.
 """
-macro prefixed_unit_symbols(symb,name,dimension,basefactor)
+macro prefixed_unit_symbols(symb,name,user_dimension,basefactor)
     expr = Expr(:block)
     n = Meta.quot(Symbol(name))
 
     for (k,v) in prefixdict
         s = Symbol(v,symb)
-        u = :(Unitfu.Unit{$n, $dimension}($k,1//1))
+        u = :($Unit{$n, $user_dimension}($k,1//1))
         ea = quote
             $(basefactors_expr(__module__, n, basefactor))
-            const global $s = Unitfu.FreeUnits{($u,), Unitfu.dimension($u), nothing}()
+            const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
         end
         push!(expr.args, ea)
     end
 
     # These lines allow for μ to be typed with option-m on a Mac.
     s = Symbol(:µ, symb)
-    u = :(Unitfu.Unit{$n, $dimension}(-6,1//1))
+    u = :($Unit{$n, $user_dimension}(-6,1//1))
     push!(expr.args, quote
         $(basefactors_expr(__module__, n, basefactor))
-        const global $s = Unitfu.FreeUnits{($u,), Unitfu.dimension($u), nothing}()
+        const global $s = $FreeUnits{($u,), $dimension($u), nothing}()
     end)
 
     esc(expr)
@@ -267,13 +267,13 @@ will define units without SI power-of-ten prefixes.
 
 Example: `@unit_symbols ft Foot ᴸ` results in `ft` getting defined but not `kft`.
 """
-macro unit_symbols(symb,name,dimension,basefactor)
+macro unit_symbols(symb,name,user_dimension,basefactor)
     s = Symbol(symb)
     n = Meta.quot(Symbol(name))
-    u = :(Unitfu.Unit{$n, $dimension}(0,1//1))
+    u = :($Unit{$n, $user_dimension}(0,1//1))
     esc(quote
         $(basefactors_expr(__module__, n, basefactor))
-        const global $s = Unitfu.FreeUnits{($u,), Unitfu.dimension($u), nothing}()
+        const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
     end)
 end
 
@@ -330,7 +330,7 @@ product of powers of base SI units. If quantity `x` has
 units `ContextUnits(z,z)`.
 """
 @inline upreferred(x::Number) = x
-@inline upreferred(x::Quantity) = uconvert(upreferred(unit(x)), x)
+@inline upreferred(x::AbstractQuantity) = uconvert(upreferred(unit(x)), x)
 @inline upreferred(::Missing) = missing
 
 """
@@ -392,14 +392,14 @@ julia> @dΠ π*W/1W
 """
 macro logscale(symb,abbr,name,base,prefactor,irp)
     quote
-        Unitfu.abbr(::Unitfu.LogInfo{$(QuoteNode(name))}) = $abbr
+        $Unitfu.abbr(::LogInfo{$(QuoteNode(name))}) = $abbr
 
-        const global $(esc(name)) = Unitfu.LogInfo{$(QuoteNode(name)), $base, $prefactor}
-        Unitfu.isrootpower(::Type{$(esc(name))}) = $irp
+        const global $(esc(name)) = LogInfo{$(QuoteNode(name)), $base, $prefactor}
+        $Unitfu.isrootpower(::Type{$(esc(name))}) = $irp
 
-        const global $(esc(symb)) = Unitfu.MixedUnits{Unitfu.Gain{$(esc(name)), :?}}()
-        const global $(esc(Symbol(symb,"_rp"))) = Unitfu.MixedUnits{Unitfu.Gain{$(esc(name)), :rp}}()
-        const global $(esc(Symbol(symb,"_p"))) = Unitfu.MixedUnits{Unitfu.Gain{$(esc(name)), :p}}()
+        const global $(esc(symb)) = MixedUnits{Gain{$(esc(name)), :?}}()
+        const global $(esc(Symbol(symb,"_rp"))) = MixedUnits{Gain{$(esc(name)), :rp}}()
+        const global $(esc(Symbol(symb,"_p"))) = MixedUnits{Gain{$(esc(name)), :p}}()
 
         macro $(esc(symb))(::Union{Real,Symbol})
             throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
@@ -457,9 +457,9 @@ Defines a logarithmic unit. For examples see `src/pkgdefaults.jl`.
 """
 macro logunit(symb, abbr, logscale, reflevel)
     quote
-        Unitfu.abbr(::Unitfu.Level{$(esc(logscale)), $(esc(reflevel))}) = $abbr
+        $Unitfu.abbr(::Level{$(esc(logscale)), $(esc(reflevel))}) = $abbr
         const global $(esc(symb)) =
-            Unitfu.MixedUnits{Unitfu.Level{$(esc(logscale)), $(esc(reflevel))}}()
+            MixedUnits{Level{$(esc(logscale)), $(esc(reflevel))}}()
     end
 end
 

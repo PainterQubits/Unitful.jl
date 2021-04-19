@@ -37,6 +37,12 @@ import Unitfu: LengthUnits, AreaUnits, MassUnits, TemperatureUnits
 Sys.iswindows() && push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
 Sys.isapple() && push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
 
+using Dates:
+    Dates,
+    Nanosecond, Microsecond, Millisecond, Second, Minute, Hour, Day, Week,
+    Month, Year,
+    CompoundPeriod
+
 const colon = Base.:(:)
 
 Sys.iswindows() && push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
@@ -213,6 +219,8 @@ end
     end
 end
 
+include("dates.jl")
+
 @testset "Temperature and affine quantities" begin
     @testset "Affine transforms and quantities" begin
         @test 1°C isa RelativeScaleTemperature
@@ -322,6 +330,12 @@ end
     end
 end
 
+# preferred units work on AbstractQuantity
+struct QQQ <: Unitful.AbstractQuantity{Float64,𝐋,typeof(cm)}
+    val::Float64
+end
+Unitful.uconvert(U::Unitful.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
+
 @testset "Promotion" begin
     @testset "> Unit preferences" begin
         # Only because we favor SI, we have the following:
@@ -340,6 +354,9 @@ end
 
         @test @inferred(upreferred(1N)) === 1*kg*m/s^2
         @test ismissing(upreferred(missing))
+
+        # preferred units work on AbstractQuantity
+        @test @inferred(upreferred(QQQ(10))) == 0.1m
     end
     @testset "> promote_unit" begin
         @test Unitfu.promote_unit(FreeUnits(m)) === FreeUnits(m)
@@ -668,6 +685,31 @@ end
         @test @inferred(csc(90°)) == 1
         @test @inferred(sec(0°)) == 1
         @test @inferred(cot(45°)) == 1
+        @test @inferred(asin(1m/1000mm)) == 90°
+        @test @inferred(acos(-1mm/1000μm)) == π*rad
+        @test @inferred(atan(2000sqrt(3)ms/2.0s)) == 60°
+        @test @inferred(acsc(5.0Hz*0.2s)) == π/2
+        @test @inferred(asec(1m/1nm)) ≈ π/2
+        @test @inferred(acot(2sqrt(3)s/2000ms)) ≈ 30°
+
+        @test @inferred(sinh(0.0rad)) == 0.0
+        @test @inferred(sinh(1J/N/m) + cosh(1rad)) ≈ MathConstants.e
+        @test @inferred(tanh(1m/1µm)) == 1
+        @test @inferred(csch(0.0°)) == Inf
+        @test @inferred(sech(0K/Ra)) == 1
+        @test @inferred(coth(1e3m*mm^-1)) == 1
+        @test @inferred(asinh(0.0mg/kg)) == 0
+        @test @inferred(acosh(1mm/1000μm)) == 0
+        @test @inferred(atanh(0W*s/J)) == 0
+        @test @inferred(acsch(hr/yr * 0)) == Inf
+        @test @inferred(asech(1.0m/1000.0mm)) == 0
+        @test @inferred(acoth(1km/1000m)) == Inf
+
+        @test @inferred(sinpi(rad/2)) == 1
+        @test @inferred(cospi(1rad)) == -1
+        @test @inferred(sinc(1rad)) === 0
+        @test @inferred(cosc(1ft/3inch)) === 0.25
+
         @test @inferred(atan(m*sqrt(3),1m)) ≈ 60°
         @test @inferred(atan(m*sqrt(3),1.0m)) ≈ 60°
         @test @inferred(atan(m*sqrt(3),1000mm)) ≈ 60°
@@ -691,6 +733,11 @@ end
         @test !isfinite(Inf*m)
         @test isnan(NaN*m)
         @test !isnan(1.0m)
+        @static if VERSION ≥ v"1.7.0-DEV.119"
+            @test isunordered(NaN*m)
+            @test !isunordered(Inf*m)
+            @test !isunordered(1.0*m)
+        end
     end
     @testset "> Floating point tests" begin
         @test isapprox(1.0u"m",(1.0+eps(1.0))u"m")
@@ -1062,15 +1109,12 @@ end
             @test @inferred(length(r)) === 5
             @test @inferred(step(r)) === 1m
             @test @inferred(first(range(1mm, step=2m, length=4))) === 1mm
-            @test @inferred(step(range(1mm, step=2m, length=4))) === 2m
+            @test @inferred(step(range(1mm, step=2m, length=4))) === 2000mm
             @test @inferred(last(range(1mm, step=2m, length=4))) === 6001mm
-            @test_throws DimensionError range(1m, step=2V, length=5)
-            try
-                range(1m, step=2V, length=5)
-            catch e
-                @test e.x == 1m
-                @test e.y == 2V
-            end
+            @test @inferred(first(range(1m, step=2mm, length=4))) === (1//1)m
+            @test @inferred(step(range(1m, step=2mm, length=4))) === (1//500)m
+            @test @inferred(last(range(1m, step=2mm, length=4))) === (503//500)m
+            @test_throws DimensionError(1m, 2V) range(1m, step=2V, length=5)
             @test_throws ArgumentError 1m:0m:5m
         end
         @testset ">> StepRangeLen" begin
@@ -1085,6 +1129,12 @@ end
             @test @inferred(last(range(0, step=10°, length=37))) == 2pi
             @test @inferred(last(range(0°, step=2pi/36, length=37))) == 2pi
             @test step(range(1.0m, step=1m, length=5)) === 1.0m
+            @test @inferred(first(range(1.0mm, step=2.0m, length=4))) === 1.0mm
+            @test @inferred(step(range(1.0mm, step=2.0m, length=4))) === 2000.0mm
+            @test @inferred(last(range(1.0mm, step=2.0m, length=4))) === 6001.0mm
+            @test @inferred(first(range(1.0m, step=2.0mm, length=4))) === 1.0m
+            @test @inferred(step(range(1.0m, step=2.0mm, length=4))) === 0.002m
+            @test @inferred(last(range(1.0m, step=2.0mm, length=4))) === 1.006m
             @test_throws DimensionError range(1.0m, step=1.0V, length=5)
             @test_throws ArgumentError 1.0m:0.0m:5.0m
             @test (-2.0Hz:1.0Hz:2.0Hz)/1.0Hz == -2.0:1.0:2.0  # issue 160
@@ -1173,6 +1223,7 @@ end
 
             @test @inferred([1, 2]kg)                  == [1, 2] * kg
             @test @inferred([1, 2]kg .* [2, 3]kg^-1)   == [2, 6]
+            @test @inferred([1, 2]/kg)                 == [1/kg, 2/kg]
         end
         @testset ">> Array addition" begin
             @test @inferred([1m, 2m] + [3m, 4m])     == [4m, 6m]
@@ -1426,9 +1477,22 @@ end
             # Outer constructor
             @test Level{Decibel,1}(2) isa Level{Decibel,1,Int}
             @test_throws DimensionError Level{Decibel,1}(2V)
+            @test_throws DimensionError Level{Decibel,1V}(2)
+            @test_throws InexactError Level{Decibel,1}(1+1im)
+            @test_throws DomainError Level{Decibel,1+0im}(2)
+            @test_throws DomainError Level{Decibel,(1+0im)V}(2V)
+            @test_throws DomainError Level{Decibel,(1+1im)V}(2V)
 
             # Inner constructor
             @test Level{Decibel,1,Int}(2) === Level{Decibel,1}(2)
+            @test Level{Decibel,1,Int}(2) === Level{Decibel,1,Int}(2.0)
+            @test Level{Decibel,1,Int}(2) === Level{Decibel,1,Int}(2+0im)
+            @test_throws DimensionError Level{Decibel,1,typeof(2V)}(2V)
+            @test_throws DimensionError Level{Decibel,1V,Int}(2)
+            @test_throws TypeError Level{Decibel,1,Complex{Int}}(1+1im)
+            @test_throws TypeError Level{Decibel,1V,typeof((1+1im)V)}((1+1im)V)
+            @test_throws DomainError Level{Decibel,1+0im,Int}(2)
+            @test_throws DomainError Level{Decibel,(1+0im)V,typeof(2V)}(2V)
         end
 
         @testset ">> Gain" begin
@@ -1538,8 +1602,34 @@ end
     end
 
     @testset "> Equality" begin
+        @testset ">> Level" begin
+            @test big(3.0)dBm == big(3.0)dBm
+            @test isequal(big(3.0)dBm, big(3.0)dBm)
+            @test_broken hash(big(3.0)dBm) == hash(big(3.0)dBm)
+
+            @test @dB(3.0V/2.0V) == @dB(3V/V)
+            @test isequal(@dB(3.0V/2.0V), @dB(3V/V))
+            @test_broken hash(@dB(3.0V/2.0V)) == hash(@dB(3V/V))
+        end
+
+        @testset ">> Gain" begin
+            @test 3dB == (3//1)dB
+            @test isequal(3dB, (3//1)dB)
+            @test_broken hash(3dB) == hash((3//1)dB)
+
+            @test big(3)dB == big(3)dB
+            @test isequal(big(3)dB, big(3)dB)
+            @test_broken hash(big(3)dB) == hash(big(3)dB)
+
+            @test 0.0dB == -0.0dB
+            @test !isequal(0.0dB, -0.0dB)
+            @test hash(0.0dB) != hash(-0.0dB)
+        end
+
         @test !(20dBm == 20dB)
         @test !(20dB == 20dBm)
+        @test !(20dBm == 20dBV)
+        @test !(20dBV == 20dBm)
     end
 
     @testset "> Addition and subtraction" begin
@@ -1799,13 +1889,30 @@ Base.:+(a::Num, b::Num) = Num(a.x + b.x)
 Base.:-(a::Num, b::Num) = Num(a.x - b.x)
 Base.:*(a::Num, b::Num) = Num(a.x * b.x)
 Base.promote_rule(::Type{Num}, ::Type{<:Real}) = Num
+Base.ArithmeticStyle(::Type{Num}) = Base.ArithmeticRounds()
+Base.OrderStyle(::Type{Num}) = Base.Unordered()
 
 @testset "Custom types" begin
     # Test that @generated functions work with Quantities + custom types (#231)
     @test uconvert(u"°C", Num(373.15)u"K") == Num(100)u"°C"
 end
 
-# Test precompiled Unitfu extension modules
+@testset "Traits" begin
+    @testset "> ArithmeticStyle" begin
+        @test Base.ArithmeticStyle(1m) === Base.ArithmeticWraps()
+        @test Base.ArithmeticStyle(1.0m) === Base.ArithmeticRounds()
+        @test Base.ArithmeticStyle((1//1)m) === Base.ArithmeticUnknown()
+        @test Base.ArithmeticStyle(Num(1)m) === Base.ArithmeticRounds()
+    end
+
+    @testset "> OrderStyle" begin
+        @test Base.OrderStyle(1m) === Base.Ordered()
+        @test Base.OrderStyle((1+1im)m) === Base.Unordered()
+        @test Base.OrderStyle(Num(1)m) === Base.Unordered()
+    end
+end
+
+# Test precompiled Unitful extension modules
 load_path = mktempdir()
 load_cache_path = mktempdir()
 try

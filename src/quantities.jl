@@ -174,7 +174,7 @@ end
 +(x::AffineQuantity, y::AffineQuantity) = throw(AffineError(
    "an invalid operation was attempted with affine quantities: $x + $y"))
 
-# Specialize substraction of affine quantities
+# Specialize subtraction of affine quantities
 -(x::AffineQuantity, y::AffineQuantity) = -(promote(x,y)...)
 function -(x::T, y::T) where T <: AffineQuantity
     return Quantity(x.val - y.val, absoluteunit(unit(x)))
@@ -226,7 +226,8 @@ end
 sqrt(x::AbstractQuantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
 cbrt(x::AbstractQuantity) = Quantity(cbrt(x.val), cbrt(unit(x)))
 
-for _y in (:sin, :cos, :tan, :cot, :sec, :csc, :cis)
+for _y in (:sin, :cos, :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
+           :sinpi, :cospi, :sinc, :cosc, :cis)
     @eval ($_y)(x::DimensionlessQuantity) = ($_y)(uconvert(NoUnits, x))
 end
 
@@ -408,6 +409,9 @@ isreal(x::AbstractQuantity) = isreal(x.val)
 isfinite(x::AbstractQuantity) = isfinite(x.val)
 isinf(x::AbstractQuantity) = isinf(x.val)
 isnan(x::AbstractQuantity) = isnan(x.val)
+@static if VERSION ≥ v"1.7.0-DEV.119"
+    isunordered(x::AbstractQuantity) = isunordered(x.val)
+end
 
 eps(x::T) where {T<:AbstractQuantity} = T(eps(x.val))
 eps(x::Type{T}) where {T<:AbstractQuantity} = eps(Unitfu.numtype(T))

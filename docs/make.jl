@@ -1,4 +1,4 @@
-using Documenter, Unitfu
+using Documenter, Unitfu, Dates
 
 DocMeta.setdocmeta!(Unitfu, :DocTestSetup, :(using Unitfu))
 
@@ -17,6 +17,7 @@ makedocs(
         "How units are displayed" => "display.md"
         "Logarithmic scales" => "logarithm.md"
         "Temperature scales" => "temperature.md"
+        "Interoperability with `Dates`" => "dates.md"
         "Extending Unitfu" => "extending.md"
         "Troubleshooting" => "trouble.md"
         "License" => "LICENSE.md"

@@ -37,6 +37,8 @@ abbreviations conflict with other definitions or syntax:
 - `inch` is used instead of `in`, since `in` conflicts with Julia syntax
 - `minute` is used instead of `min`, since `min` is a commonly used function
 - `hr` is used instead of `h`, since `h` is revered as the Planck constant
+- `hbar` is hectobars in the SI system, so `ħ` is used for the reduced Plank
+  constant
 
 ## Important note on namespaces
 
