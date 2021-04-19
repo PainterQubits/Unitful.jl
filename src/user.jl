@@ -59,7 +59,7 @@ macro dimension(symb, abbr, name)
     uname = Symbol(name,"Units")
     funame = Symbol(name,"FreeUnits")
     esc(quote
-        $Unitful.abbr(::$Dimension{$x}) = $abbr
+        $Unitfu.abbr(::$Dimension{$x}) = $abbr
         const global $s = $Dimensions{($Dimension{$x}(1),)}()
         const global ($name){T,U} = Union{
             $Quantity{T,$s,U},
@@ -175,7 +175,7 @@ macro unit(symb,abbr,name,equals,tf)
                                  ($equals)/$unit($equals),
                                  $tensfactor($unit($equals)), 1))
     push!(expr.args, quote
-        $Unitful.abbr(::$Unit{$n, $d}) = $abbr
+        $Unitfu.abbr(::$Unit{$n, $d}) = $abbr
     end)
 
     if tf

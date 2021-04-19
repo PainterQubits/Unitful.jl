@@ -1,14 +1,14 @@
 ```@meta
 DocTestSetup = quote
-    using Unitful
+    using Unitfu
 end
 ```
 # Logarithmic scales
 
 !!! note
-    Logarithmic scales are new to Unitful and should be considered experimental.
+    Logarithmic scales are new to Unitfu and should be considered experimental.
 
-Unitful provides a way to use logarithmically-scaled quantities as of v0.4.0. Some
+Unitfu provides a way to use logarithmically-scaled quantities as of v0.4.0. Some
 compromises have been made in striving for logarithmic quantities to be both usable and
 consistent. In the following discussion, for pedagogical purposes, we will assume prior
 familiarity with the definitions of `dB` and `dBm`.
@@ -36,7 +36,7 @@ One can also construct logarithmic quantities using the `@dB`, `@B`, `@cNp`, `@N
 use an arbitrary reference level:
 
 ```jldoctest
-julia> using Unitful: mW, V
+julia> using Unitfu: mW, V
 
 julia> @dB 10mW/mW
 10.0 dBm
@@ -57,7 +57,7 @@ time. The scales themselves are callable as functions if you need to construct a
 way (they are not exported):
 
 ```jldoctest
-julia> using Unitful: dB, mW, V
+julia> using Unitfu: dB, mW, V
 
 julia> dB(10mW,mW)
 10.0 dBm
@@ -76,7 +76,7 @@ logarithms, and nothing more. When there is ambiguity about what to do, we fall 
 to the underlying linear quantities, paying no mind to the reference levels:
 
 ```jldoctest
-julia> using Unitful: mW
+julia> using Unitfu: mW
 
 julia> (@dB 10mW/1mW) + (@dB 10mW/2mW)
 20 mW
@@ -113,7 +113,7 @@ custom display logic.
 Also, you can of course use functions instead of macros:
 
 ```jldoctest
-julia> using Unitful: dB, mW
+julia> using Unitfu: dB, mW
 
 julia> dB(10,1,true)
 20.0 dBFS
@@ -131,7 +131,7 @@ for example, `10*dB`, which displays similarly (`10 dB`). The type of this kind 
 logarithmic quantity is:
 
 ```@docs
-    Unitful.Gain
+    Unitfu.Gain
 ```
 
 One might expect that any gain / attenuation factor should be convertible to a pure number,
@@ -139,8 +139,8 @@ that is, to `x == y/z` if you had `10*log10(x)` dB. However, it turns out that i
 of powers is defined as `10*log10(y/z)`, but a ratio of voltages or other root-power
 quantities is defined as `20*log10(y/z)`. Clearly, converting back from decibels to a real
 number is ambiguous, and so we have not implemented automatic promotion to avoid incorrect
-results. You can use [`Unitful.uconvertp`](@ref) to interpret a `Gain` as a ratio of power
-quantities (hence the `p` in `uconvertp`), or [`Unitful.uconvertrp`](@ref) to interpret as
+results. You can use [`Unitfu.uconvertp`](@ref) to interpret a `Gain` as a ratio of power
+quantities (hence the `p` in `uconvertp`), or [`Unitfu.uconvertrp`](@ref) to interpret as
 a ratio of root-power (field) quantities.
 
 ### "Dimensionful" logarithmic quantities?
@@ -150,12 +150,12 @@ power, even though the expression `P(dBm) = 10*log10(P/1mW)` is dimensionless an
 from a dimensionless ratio. Practically speaking, these kinds of logarithmic quantities are
 fungible whenever they share the same dimensions, so it is more convenient to adopt this
 convention (people refer to `dBm/Hz` as a power spectral density, etc.) Presumably, one
-would like to have `10dBm isa Unitful.Power` for dispatch too. Therefore, in the following
+would like to have `10dBm isa Unitfu.Power` for dispatch too. Therefore, in the following
 discussion, we will shamelessly (okay, with some shame) speak of dimensionful logarithmic
 quantities, or `Level`s for short:
 
 ```@docs
-    Unitful.Level
+    Unitfu.Level
 ```
 
 Actually, the defining characteristic of a `Level` is that it has a reference level,
@@ -164,7 +164,7 @@ which may or may not be dimensionful. It usually is, but is not in the case of e
 Finally, for completeness we note that both `Level` and `Gain` are subtypes of `LogScaled`:
 
 ```@docs
-    Unitful.LogScaled
+    Unitfu.LogScaled
 ```
 
 ## Multiplication rules
@@ -237,7 +237,7 @@ The behavior of multiplication is summarized in the following table, with entrie
 are built.
 
 ```@eval
-using Latexify, Unitful
+using Latexify, Unitfu
 head = ["10", "Hz^-1", "dB", "dBm", "1/Hz", "1mW", "3dB", "3dBm"]
 side = ["*"; "**" .* head .* "**"]
 quantities = uparse.(head)
@@ -332,7 +332,7 @@ indicating prohibited operations. This table is populated automatically whenever
 are built.
 
 ```@eval
-using Latexify, Unitful
+using Latexify, Unitfu
 head = ["100", "20dB", "1Np", "10.0dBm", "10.0dBV", "1mW"]
 side = ["+"; "**" .* head .* "**"]
 quantities = uparse.(head)
@@ -382,7 +382,7 @@ julia> linear(12)
 
 Linearizing a `Quantity{<:Gain}` or a `Gain` to a real number is ambiguous, because the real
 number may represent a ratio of powers or a ratio of root-power (field) quantities. We
-implement [`Unitful.uconvertp`](@ref) and [`Unitful.uconvertrp`](@ref) which may be
+implement [`Unitfu.uconvertp`](@ref) and [`Unitfu.uconvertrp`](@ref) which may be
 thought of as disambiguated `uconvert` functions. There is a one argument version that
 assumes you are converting to a unitless number. These functions can take either a `Gain`
 or a `Real` so that they may be used somewhat generically.
@@ -425,14 +425,14 @@ displaying logarithmic quantities:
 ## Custom logarithmic scales
 
 ```@docs
-    Unitful.@logscale
+    Unitfu.@logscale
 ```
 
 ## API
 
 ```@docs
-    Unitful.linear
-    Unitful.reflevel
-    Unitful.uconvertp
-    Unitful.uconvertrp
+    Unitfu.linear
+    Unitfu.reflevel
+    Unitfu.uconvertp
+    Unitfu.uconvertrp
 ```

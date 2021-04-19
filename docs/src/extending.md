@@ -1,4 +1,4 @@
-# Extending Unitful
+# Extending Unitfu
 
 ## Making your own units package
 

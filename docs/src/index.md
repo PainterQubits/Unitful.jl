@@ -1,12 +1,12 @@
 ```@meta
 DocTestSetup = quote
-    using Unitful
+    using Unitfu
 end
 ```
-# Unitful.jl
+# Unitfu.jl
 
 A Julia package for physical units. Available
-[here](https://github.com/PainterQubits/Unitful.jl). Inspired by:
+[here](https://github.com/PainterQubits/Unitfu.jl). Inspired by:
 
 - [SIUnits.jl](https://github.com/keno/SIUnits.jl)
 - [EngUnits.jl](https://github.com/dhoegh/EngUnits.jl)
@@ -21,10 +21,10 @@ that are defined in Julia.
 ## Quick start
 
 - This package requires Julia 1.0. Older versions will not be supported.
-- `] add Unitful`
-- `using Unitful`
+- `] add Unitfu`
+- `using Unitfu`
 
-Unitful aims for generality, but has some useful functionality out of the box.
+Unitfu aims for generality, but has some useful functionality out of the box.
 - Base dimensions like length, mass, time, etc. are defined.
 - Derived dimensions like volume, energy, momentum, etc. are defined.
 - Base and derived SI units with their power-of-ten prefixes are defined.
@@ -42,14 +42,14 @@ abbreviations conflict with other definitions or syntax:
 
 ## Important note on namespaces
 
-Units, dimensions, and fundamental constants are not exported from Unitful.
+Units, dimensions, and fundamental constants are not exported from Unitfu.
 This is to avoid proliferating symbols in your namespace unnecessarily. You can
-retrieve them from Unitful in one of three ways:
+retrieve them from Unitfu in one of three ways:
 
 1. Use the [`@u_str`](@ref) string macro.
-2. Explicitly import from the `Unitful` package to bring specific symbols
+2. Explicitly import from the `Unitfu` package to bring specific symbols
    into the calling namespace.
-3. `using Unitful.DefaultSymbols` will bring the following symbols into the
+3. `using Unitfu.DefaultSymbols` will bring the following symbols into the
    calling namespace:
      - Dimensions `ᴸ,ᴹ,ᵀ,ᴵ,ᶿ,ᴶ,ᴺ` for length, mass, time, current, temperature,
      luminosity, and amount, respectively.
@@ -63,17 +63,17 @@ retrieve them from Unitful in one of three ways:
 
 ```@meta
 DocTestSetup = quote
-    using Unitful
-    °C = Unitful.°C
-    °F = Unitful.°F
-    Ra = Unitful.Ra
-    K = Unitful.K
-    μm = Unitful.μm
-    m = Unitful.m
-    hr = Unitful.hr
-    minute = Unitful.minute
-    s = Unitful.s
-    F = Unitful.F
+    using Unitfu
+    °C = Unitfu.°C
+    °F = Unitfu.°F
+    Ra = Unitfu.Ra
+    K = Unitfu.K
+    μm = Unitfu.μm
+    m = Unitfu.m
+    hr = Unitfu.hr
+    minute = Unitfu.minute
+    s = Unitfu.s
+    F = Unitfu.F
 end
 ```
 
@@ -112,7 +112,7 @@ A^2 s^4 kg^-1 m^-3
 !!! note
     Quantities in `°C` or `⁠°F` always unit-convert under an affine transformation that takes
     their relative scales into account. To avoid ambiguities that can lead to incorrect
-    results, the units `°C` and `°F` cannot be used in Unitful to represent temperature
+    results, the units `°C` and `°F` cannot be used in Unitfu to represent temperature
     differences. Fortunately, `1°C - 0°C == 1K` and `1°F - 0°F == 1Ra`, so the absolute
     temperature scales Kelvin (`K`) and Rankine (`Ra`) can be used easily to represent
     temperature differences.

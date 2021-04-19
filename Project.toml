@@ -1,6 +1,6 @@
 name = "Unitfu"
 uuid = "5ee08b94-2369-4f4a-b8c7-99333ba35fb0"
-version = "0.18.0"
+version = "1.7.0"
 
 [deps]
 ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"

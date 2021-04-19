@@ -1,23 +1,23 @@
 ```@meta
 DocTestSetup = quote
-    using Unitful
+    using Unitfu
 end
 ```
 # Interoperability with the `Dates` standard library
 
-[Julia's `Dates` standard library](https://docs.julialang.org/en/v1/stdlib/Dates/) provides data types for representing specific points in time `Date`/`DateTime` and differences between them, i.e., periods. Unitful provides methods for using period types from the `Dates` standard library together with `Quantity`s.
+[Julia's `Dates` standard library](https://docs.julialang.org/en/v1/stdlib/Dates/) provides data types for representing specific points in time `Date`/`DateTime` and differences between them, i.e., periods. Unitfu provides methods for using period types from the `Dates` standard library together with `Quantity`s.
 
 ## Support for `Dates.FixedPeriod`s
 
 The `Dates.FixedPeriod` union type includes all `Dates.Period`s that represent a fixed period of time, i.e., `Dates.Week`, `Dates.Day`, `Dates.Hour`, `Dates.Minute`, `Dates.Second`, `Dates.Millisecond`, `Dates.Microsecond`, and `Dates.Nanosecond`. These types can be converted to `Quantity`s or used in place of them.
 
 !!! note
-    `Dates.Year` does not represent a fixed period and cannot be converted to a `Quantity`. While Unitful's `yr` unit is exactly equal to 365.25 days, a `Dates.Year` may contain 365 or 366 days.
+    `Dates.Year` does not represent a fixed period and cannot be converted to a `Quantity`. While Unitfu's `yr` unit is exactly equal to 365.25 days, a `Dates.Year` may contain 365 or 366 days.
 
 Each `FixedPeriod` is considered equivalent to a `Quantity`. For example, `Dates.Millisecond(5)` corresponds to the quantity `Int64(5)*u"ms"`. A `FixedPeriod` can be converted to the equivalent `Quantity` with a constructor:
 
 ```@docs
-Unitful.Quantity(::Dates.FixedPeriod)
+Unitfu.Quantity(::Dates.FixedPeriod)
 ```
 
 In most respects, `FixedPeriod`s behave like their equivalent quantities. They can be converted to other units using `uconvert`, used in arithmetic operations with other quantities, and they have a `unit` and `dimension`:
@@ -47,7 +47,7 @@ julia> unit(p) === u"hr"
 true
 
 julia> dimension(p)
-𝐓
+ ᵀ
 ```
 
 Conversely, a `FixedPeriod` can be created from a quantity using the appropriate constructor, `convert`, or `round` methods. This will fail (i.e., throw an `InexactError`) if the resulting value cannot be represented as an `Int64`:
@@ -79,7 +79,7 @@ Day(5) + Second(1)
 typeof(ans)
 ```
 
-Unitful provides facilities to work with `CompoundPeriod`s as long as they consist only of `FixedPeriod`s. Such `CompoundPeriod`s can be converted to `Quantity`s using `convert`, `uconvert`, or `round`:
+Unitfu provides facilities to work with `CompoundPeriod`s as long as they consist only of `FixedPeriod`s. Such `CompoundPeriod`s can be converted to `Quantity`s using `convert`, `uconvert`, or `round`:
 
 ```@jldoctest
 julia> using Dates: Day, Second
@@ -100,7 +100,7 @@ julia> q = Month(1) + Day(1)  # Month is not a fixed period
 1 month, 1 day
 
 julia> uconvert(u"s", q)
-ERROR: MethodError: no method matching Quantity{Rational{Int64},𝐓,Unitful.FreeUnits{(s,),𝐓,nothing}}(::Month)
+ERROR: MethodError: no method matching Quantity{Rational{Int64}, ᵀ,Unitfu.FreeUnits{(s,), ᵀ,nothing}}(::Month)
 [...]
 ```
 
@@ -116,7 +116,7 @@ ERROR: MethodError: no method matching unit(::Dates.CompoundPeriod)
 [...]
 
 julia> dimension(p)  # ... but it does have a dimension
-𝐓
+ ᵀ
 
 julia> Quantity(p)  # As a result, there is no Quantity type associated with it ...
 ERROR: MethodError: no method matching Quantity(::Int64)

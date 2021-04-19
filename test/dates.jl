@@ -3,22 +3,22 @@
         for (T,u) = ((Nanosecond, u"ns"), (Microsecond, u"μs"), (Millisecond, u"ms"),
                      (Second, u"s"), (Minute, u"minute"), (Hour, u"hr"), (Day, u"d"),
                      (Week, u"wk"))
-            @test dimension(T) === dimension(T(1)) === 𝐓
-            @test Unitful.numtype(T) === Unitful.numtype(T(1)) === typeof(Dates.value(T(1)))
+            @test dimension(T) === dimension(T(1)) ===  ᵀ
+            @test Unitfu.numtype(T) === Unitfu.numtype(T(1)) === typeof(Dates.value(T(1)))
             @test unit(T) === unit(T(1)) === u
         end
         for T = (Month, Year)
             @test_throws MethodError dimension(T)
             @test_throws MethodError dimension(T(1))
-            @test_throws MethodError Unitful.numtype(T)
-            @test_throws MethodError Unitful.numtype(T(1))
+            @test_throws MethodError Unitfu.numtype(T)
+            @test_throws MethodError Unitfu.numtype(T(1))
             @test_throws MethodError unit(T)
             @test_throws MethodError unit(T(1))
         end
 
         for p = (CompoundPeriod, CompoundPeriod(), CompoundPeriod(Day(1)), CompoundPeriod(Day(1), Hour(-1)))
-            @test dimension(p) === 𝐓
-            @test_throws MethodError Unitful.numtype(p)
+            @test dimension(p) ===  ᵀ
+            @test_throws MethodError Unitfu.numtype(p)
             @test_throws MethodError unit(p)
         end
     end
@@ -171,8 +171,8 @@
             @test uconvert(u"hr", Minute(90)) === u"hr"(Minute(90)) === Rational{Int64}(3,2)u"hr"
             @test uconvert(u"ns", Millisecond(-2)) === u"ns"(Millisecond(-2)) === Int64(-2_000_000)u"ns"
             @test uconvert(u"wk", Hour(1)) === u"wk"(Hour(1)) === Rational{Int64}(1,168)u"wk"
-            @test_throws DimensionError uconvert(u"m", Second(1))
-            @test_throws DimensionError u"m"(Second(1))
+            @test_throws DimensionError strict_uconvert(u"m", Second(1))
+            #@test_throws DimensionError u"m"(Second(1))
 
             @static if Sys.WORD_SIZE == 32
                 @test uconvert(u"yr", CompoundPeriod()) === u"yr"(CompoundPeriod()) === 0.0u"yr"
@@ -195,12 +195,12 @@
             @test u"ns"(CompoundPeriod(Day(365),Hour(6))) === Int64(31_557_600_000_000_000)u"ns"
             @test uconvert(u"ps", CompoundPeriod(Week(1),Hour(-1))) === Int64(601_200_000_000_000_000)u"ps"
             @test u"ps"(CompoundPeriod(Week(1),Hour(-1))) === Int64(601_200_000_000_000_000)u"ps"
-            @test_throws DimensionError uconvert(u"m", CompoundPeriod(Day(365),Hour(6)))
-            @test_throws DimensionError u"m"(CompoundPeriod(Day(365),Hour(6)))
-            @test_throws MethodError uconvert(u"yr", CompoundPeriod(Year(1),Day(1)))
-            @test_throws MethodError u"yr"(CompoundPeriod(Year(1),Day(1)))
-            @test_throws MethodError uconvert(u"s", CompoundPeriod(Month(1),Day(1)))
-            @test_throws MethodError u"s"(CompoundPeriod(Month(1),Day(1)))
+            @test_throws DimensionError strict_uconvert(u"m", CompoundPeriod(Day(365),Hour(6)))
+            #@test_throws DimensionError u"m"(CompoundPeriod(Day(365),Hour(6)))
+            @test_throws MethodError strict_uconvert(u"yr", CompoundPeriod(Year(1),Day(1)))
+            #@test_throws MethodError u"yr"(CompoundPeriod(Year(1),Day(1)))
+            @test_throws MethodError strict_uconvert(u"s", CompoundPeriod(Month(1),Day(1)))
+            #@test_throws MethodError u"s"(CompoundPeriod(Month(1),Day(1)))
         end
 
         @testset ">> ustrip" begin
@@ -246,16 +246,16 @@
                          (Second, u"s"), (Minute, u"minute"), (Hour, u"hr"), (Day, u"d"),
                 (Week, u"wk"))
                 @test Quantity(T(1)) === convert(Quantity, T(1)) === Int64(1)*u
-                @test Quantity{Float64,𝐓,typeof(u)}(T(2)) === convert(Quantity{Float64,𝐓,typeof(u)}, T(2)) === 2.0u
-                @test Quantity{Rational{Int64},𝐓,typeof(u)}(T(3)) === convert(Quantity{Rational{Int64},𝐓,typeof(u)}, T(3)) === Rational{Int64}(3,1)u
+                @test Quantity{Float64, ᵀ,typeof(u)}(T(2)) === convert(Quantity{Float64, ᵀ,typeof(u)}, T(2)) === 2.0u
+                @test Quantity{Rational{Int64}, ᵀ,typeof(u)}(T(3)) === convert(Quantity{Rational{Int64}, ᵀ,typeof(u)}, T(3)) === Rational{Int64}(3,1)u
             end
-            @test Quantity{Float64,𝐓,typeof(u"d")}(Hour(6)) === convert(typeof(1.0u"d"), Hour(6)) === 0.25u"d"
-            @test_throws InexactError Quantity{Int64,𝐓,typeof(u"d")}(Hour(6))
+            @test Quantity{Float64, ᵀ,typeof(u"d")}(Hour(6)) === convert(typeof(1.0u"d"), Hour(6)) === 0.25u"d"
+            @test_throws InexactError Quantity{Int64, ᵀ,typeof(u"d")}(Hour(6))
             @test_throws InexactError convert(typeof(1u"d"), Hour(6))
-            @test_throws DimensionError Quantity{Float64,𝐋,typeof(u"m")}(Hour(6))
+            @test_throws DimensionError Quantity{Float64, ᴸ,typeof(u"m")}(Hour(6))
             @test_throws DimensionError convert(typeof(1.0u"m"), Week(1))
-            @test_throws MethodError Quantity{Float64,𝐓,typeof(u"d")}(Month(1))
-            @test_throws MethodError Quantity{Float64,𝐓,typeof(u"d")}(Year(1))
+            @test_throws MethodError Quantity{Float64, ᵀ,typeof(u"d")}(Month(1))
+            @test_throws MethodError Quantity{Float64, ᵀ,typeof(u"d")}(Year(1))
             @test_throws MethodError convert(typeof(1u"d"), Month(1))
             @test_throws MethodError convert(typeof(1u"d"), Year(1))
 
@@ -270,14 +270,14 @@
             @test_throws InexactError convert(Second, 1u"ms")
             @test_throws DimensionError Second(1u"m")
             @test_throws DimensionError convert(Second, 1u"m")
-            @test_throws DimensionError Month(1u"s") # Doesn't throw MethodError because Month(::Number) exists
-            @test_throws DimensionError Year(1u"s") # Doesn't throw MethodError because Year(::Number) exists
-            @test_throws MethodError convert(Month, 1u"s")
-            @test_throws MethodError convert(Year, 1u"s")
+            @test_throws MethodError Month(1u"s") # Doesn't throw MethodError because Month(::Number) exists
+            @test_throws MethodError Year(1u"s") # Doesn't throw MethodError because Year(::Number) exists
+            @test_throws MethodError strict_uconvert(Month, 1u"s")
+            @test_throws MethodError strict_uconvert(Year, 1u"s")
 
-            for T = (Quantity{Rational{Int64},𝐓,typeof(u"yr")},
-                     Quantity{Float64,𝐓,typeof(u"s")},
-                     Quantity{Int64,𝐓,typeof(u"ns")})
+            for T = (Quantity{Rational{Int64}, ᵀ,typeof(u"yr")},
+                     Quantity{Float64, ᵀ,typeof(u"s")},
+                     Quantity{Int64, ᵀ,typeof(u"ns")})
                 @test T(CompoundPeriod()) === convert(T, CompoundPeriod()) === T(0u"s")
                 @test T(CompoundPeriod(Day(365), Hour(6))) === convert(T, CompoundPeriod(Day(365), Hour(6))) === T(1u"yr")
                 @test T(CompoundPeriod(Week(1), Hour(-1))) === convert(T, CompoundPeriod(Week(1), Hour(-1))) === T(167u"hr")
@@ -286,9 +286,9 @@
                 @test_throws MethodError convert(T, CompoundPeriod(Month(1)))
                 @test_throws MethodError convert(T, CompoundPeriod(Year(1)))
             end
-            @test_throws InexactError Quantity{Int64,𝐓,typeof(u"d")}(CompoundPeriod(Day(1),Hour(6)))
+            @test_throws InexactError Quantity{Int64, ᵀ,typeof(u"d")}(CompoundPeriod(Day(1),Hour(6)))
             @test_throws InexactError convert(typeof(1u"d"), CompoundPeriod(Day(1),Hour(1)))
-            @test_throws DimensionError Quantity{Float64,𝐋,typeof(u"m")}(CompoundPeriod(Day(365), Hour(6)))
+            @test_throws DimensionError Quantity{Float64, ᴸ,typeof(u"m")}(CompoundPeriod(Day(365), Hour(6)))
             @test_throws DimensionError convert(typeof(1.0u"m"), CompoundPeriod(Day(365), Hour(6)))
         end
     end

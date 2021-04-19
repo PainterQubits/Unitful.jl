@@ -1,15 +1,15 @@
 ```@meta
 DocTestSetup = quote
-    using Unitful
+    using Unitfu
 end
 ```
 # Manipulating units
 
-## Unitful string macro
+## Unitfu string macro
 
 ```@docs
-Unitful.@u_str
-Unitful.register
+Unitfu.@u_str
+Unitfu.register
 ```
 
 ## Dimension and unit inspection
@@ -23,19 +23,19 @@ There is also a function [`unit`](@ref) that turns, for example, `1*acre^2` into
 You can then query whether the units are `FreeUnits`, `FixedUnits`, etc.
 
 ```@docs
-Unitful.unit
-Unitful.dimension
+Unitfu.unit
+Unitfu.dimension
 ```
 
 ## Unit stripping
 
 ```@docs
-Unitful.ustrip
+Unitfu.ustrip
 ```
 
 ## Unit multiplication
 
 ```@docs
-*(::Unitful.Units, ::Unitful.Units...)
-*(::Unitful.Dimensions, ::Unitful.Dimensions...)
+*(::Unitfu.Units, ::Unitfu.Units...)
+*(::Unitfu.Dimensions, ::Unitfu.Dimensions...)
 ```

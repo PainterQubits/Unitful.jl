@@ -1,6 +1,6 @@
 ```@meta
 DocTestSetup = quote
-    using Unitful
+    using Unitfu
 end
 ```
 # Highlighted features
@@ -10,10 +10,10 @@ end
 Consider the following toy example, converting from voltage or power ratios to decibels:
 
 ```jldoctest
-julia> whatsit(x::Unitful.Voltage) = "voltage!"
+julia> whatsit(x::Unitfu.Voltage) = "voltage!"
 whatsit (generic function with 1 method)
 
-julia> whatsit(x::Unitful.Length) = "length!"
+julia> whatsit(x::Unitfu.Length) = "length!"
 whatsit (generic function with 2 methods)
 
 julia> whatsit(1u"mm")
@@ -32,8 +32,8 @@ It may be tempting to specify the dimensions of a quantity in a type definition,
 
 ```julia
 struct Person
-    height::Unitful.Length
-    mass::Unitful.Mass
+    height::Unitfu.Length
+    mass::Unitfu.Mass
 end
 ```
 
@@ -62,7 +62,7 @@ yd5
 ## Arrays
 
 Promotion is used to create arrays of a concrete type where possible, such
-that arrays of unitful quantities are stored efficiently in memory. However,
+that arrays of Unitfu quantities are stored efficiently in memory. However,
 if necessary, arrays can hold quantities with different dimensions, even
 mixed with unitless numbers. Doing so will suffer a performance penalty compared
 with the fast performance attainable with an array of concrete type
@@ -73,7 +73,7 @@ where some conventions yield matrices with mixed dimensions:
 
 ```jldoctest
 julia> Diagonal([-1.0u"c^2", 1.0, 1.0, 1.0])
-4×4 Diagonal{Unitful.Quantity{Float64,D,U}}:
+4×4 Diagonal{Unitfu.Quantity{Float64,D,U}}:
  -1.0 c^2   ⋅    ⋅    ⋅
        ⋅   1.0   ⋅    ⋅
        ⋅    ⋅   1.0   ⋅

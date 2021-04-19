@@ -26,7 +26,7 @@ import LinearAlgebra: Diagonal, Bidiagonal, Tridiagonal, SymTridiagonal
 import LinearAlgebra: istril, istriu, norm
 import Random
 
-export logunit, unit, absoluteunit, dimension, uconvert, ustrip, upreferred, ∙
+export logunit, unit, absoluteunit, dimension, uconvert, strict_uconvert, ustrip, upreferred, ∙
 export @dimension, @derived_dimension, @refunit, @unit, @affineunit, @u_str
 export Quantity, DimensionlessQuantity, NoUnits, NoDims, FreeUnits
 

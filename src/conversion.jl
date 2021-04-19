@@ -188,3 +188,16 @@ convert(::Type{T}, y::Quantity) where {T <: Real} =
     T(uconvert(NoUnits, y))
 convert(::Type{T}, y::Quantity) where {T <: Complex} =
     T(uconvert(NoUnits, y))
+
+"""
+In this fork of Unitful, 'conversion factors' can be quantities. 
+So converting to the same units don't guarantee that two quantities
+represent the same dimension of quantity. However, some internal functions
+assume that uconvert guarantees the wanted dimension. Such functions
+should call strict_uconvert() instead.
+This first implementation is slower than it needs to be, for brevity.
+"""
+function strict_uconvert(u, x)
+    dimension(u) !== dimension(x) && throw(DimensionError(u, x))
+    uconvert(u, x)
+end

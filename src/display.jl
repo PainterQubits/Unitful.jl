@@ -291,7 +291,7 @@ superscript(i::Rational)
 String representation of exponent.
 """
 function superscript(i::Rational)
-    v = get(ENV, "UNITFUL_FANCY_EXPONENTS", Sys.isapple() ? "true" : "false")
+    v = get(ENV, "UNITFUL_FANCY_EXPONENTS", Sys.iswindows() || Sys.isapple() ? "true" : "false")
     t = tryparse(Bool, lowercase(v))
     k = (t === nothing) ? false : t
     if k

@@ -86,7 +86,7 @@ and can be parsed by Julia.
 for f in (:fld, :cld)
     @eval begin
         function ($f)(x::AbstractQuantity, y::AbstractQuantity)
-            z = uconvert(unit(y), x)        # TODO: use promote?
+            z = strict_uconvert(unit(y), x)        # TODO: use promote?
             ($f)(z.val,y.val)
         end
 
@@ -97,7 +97,7 @@ for f in (:fld, :cld)
 end
 
 function div(x::AbstractQuantity, y::AbstractQuantity, r...)
-    z = uconvert(unit(y), x)        # TODO: use promote?
+    z = strict_uconvert(unit(y), x)        # TODO: use promote?
     div(z.val,y.val, r...)
 end
 
@@ -111,7 +111,7 @@ end
 
 for f in (:mod, :rem)
     @eval function ($f)(x::AbstractQuantity, y::AbstractQuantity)
-        z = uconvert(unit(y), x)        # TODO: use promote?
+        z = strict_uconvert(unit(y), x)        # TODO: use promote?
         Quantity(($f)(z.val,y.val), unit(y))
     end
 end
@@ -137,7 +137,7 @@ for f = (:div, :cld, :fld, :rem, :mod)
     end
 end
 
-Base.mod2pi(x::DimensionlessQuantity) = mod2pi(uconvert(NoUnits, x))
+Base.mod2pi(x::DimensionlessQuantity) = mod2pi(strict_uconvert(NoUnits, x))
 Base.mod2pi(x::AbstractQuantity{S, NoDims, <:Units{(Unitfu.Unit{:Degree, NoDims}(0, 1//1),),
     NoDims}}) where S = mod(x, 360°)
 
@@ -166,7 +166,7 @@ function +(x::AffineQuantity{S,D}, y::AbstractQuantity{T,D}) where {S,T,D}
     # affine, x′+y could also fail.
     y′ = Quantity(y.val, FreeUnits(unit(y)))
 
-    return uconvert(pu, x′+y′)  # we get back the promotion context in the end
+    return strict_uconvert(pu, x′+y′)  # we get back the promotion context in the end
 end
 +(x::AbstractQuantity, y::AffineQuantity) = +(y,x)
 
@@ -184,7 +184,7 @@ end
 -(x::AbstractQuantity, y::AffineQuantity) =
     throw(AffineError("an invalid operation was attempted with affine quantities: $x - $y"))
 
-# Needed until LU factorization is made to work with unitful numbers
+# Needed until LU factorization is made to work with Unitfu numbers
 function inv(x::StridedMatrix{T}) where {T <: AbstractQuantity}
     m = inv(ustrip(x))
     iq = eltype(m)
@@ -218,8 +218,8 @@ for (_x,_y) in [(:fma, :_fma), (:muladd, :_muladd)]
         dimension(x) * dimension(y) != dimension(z) && throw(DimensionError(x*y,z))
         uI = unit(x)*unit(y)
         uF = promote_unit(uI, unit(z))
-        c = ($_x)(ustrip(x), ustrip(y), ustrip(uconvert(uI, z)))
-        uconvert(uF, Quantity(c, uI))
+        c = ($_x)(ustrip(x), ustrip(y), ustrip(strict_uconvert(uI, z)))
+        strict_uconvert(uF, Quantity(c, uI))
     end
 end
 
@@ -228,7 +228,7 @@ cbrt(x::AbstractQuantity) = Quantity(cbrt(x.val), cbrt(unit(x)))
 
 for _y in (:sin, :cos, :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
            :sinpi, :cospi, :sinc, :cosc, :cis)
-    @eval ($_y)(x::DimensionlessQuantity) = ($_y)(uconvert(NoUnits, x))
+    @eval ($_y)(x::DimensionlessQuantity) = ($_y)(strict_uconvert(NoUnits, x))
 end
 
 atan(y::AbstractQuantity{T1,D,U1}, x::AbstractQuantity{T2,D,U2}) where {T1,T2,D,U1,U2} =
@@ -292,7 +292,7 @@ end
 
 Base.rtoldefault(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = Base.rtoldefault(T)
 isapprox(x::AbstractQuantity{T,D,U}, y::AbstractQuantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) where {T,D,U} =
-    isapprox(x.val, y.val; atol=uconvert(unit(y), atol).val, kwargs...)
+    isapprox(x.val, y.val; atol=strict_uconvert(unit(y), atol).val, kwargs...)
 function isapprox(x::AbstractQuantity, y::AbstractQuantity; kwargs...)
     dimension(x) != dimension(y) && return false
     return isapprox(promote(x,y)...; kwargs...)
@@ -317,7 +317,7 @@ isapprox(x::AbstractArray{S}, y::AbstractArray{T};
 function isapprox(x::AbstractArray{S}, y::AbstractArray{N};
     kwargs...) where {S <: AbstractQuantity,N <: Number}
     if dimension(N) == dimension(S)
-        isapprox(map(x->uconvert(NoUnits,x),x),y; kwargs...)
+        isapprox(map(x->strict_uconvert(NoUnits,x),x),y; kwargs...)
     else
         false
     end
@@ -343,7 +343,7 @@ _dimerr(f) = error("$f can only be well-defined for dimensionless ",
         "numbers. For dimensionful numbers, different input units yield physically ",
         "different results.")
 isinteger(x::AbstractQuantity) = _dimerr(isinteger)
-isinteger(x::DimensionlessQuantity) = isinteger(uconvert(NoUnits, x))
+isinteger(x::DimensionlessQuantity) = isinteger(strict_uconvert(NoUnits, x))
 
 _rounderr() = error("specify the type of the quantity to convert to ",
     "when rounding quantities. Example: round(typeof(1u\"m\"), 137u\"cm\").")
@@ -358,13 +358,13 @@ round(::Type{T}, u::Units, q::AbstractQuantity, r::RoundingMode=RoundNearest;
 # workhorse methods
 round(x::AbstractQuantity, r::RoundingMode=RoundNearest; kwargs...) =
     _rounderr()
-round(x::DimensionlessQuantity; kwargs...) = round(uconvert(NoUnits, x); kwargs...)
+round(x::DimensionlessQuantity; kwargs...) = round(strict_uconvert(NoUnits, x); kwargs...)
 round(x::DimensionlessQuantity, r::RoundingMode; kwargs...) =
-    round(uconvert(NoUnits, x), r; kwargs...)
+    round(strict_uconvert(NoUnits, x), r; kwargs...)
 round(::Type{T}, x::AbstractQuantity, r=RoundingMode=RoundNearest;
     kwargs...) where {T<:Number} = _dimerr(:round)
 round(::Type{T}, x::DimensionlessQuantity, r::RoundingMode=RoundNearest;
-    kwargs...) where {T<:Number} = round(T, uconvert(NoUnits, x), r; kwargs...)
+    kwargs...) where {T<:Number} = round(T, strict_uconvert(NoUnits, x), r; kwargs...)
 function round(::Type{T}, x::AbstractQuantity;
         kwargs...) where {S, T <: Quantity{S}}
     u = unit(T)
@@ -419,7 +419,7 @@ eps(x::Type{T}) where {T<:AbstractQuantity} = eps(Unitfu.numtype(T))
 unsigned(x::AbstractQuantity) = Quantity(unsigned(x.val), unit(x))
 
 for f in (:exp, :exp10, :exp2, :expm1, :log, :log10, :log1p, :log2)
-    @eval ($f)(x::DimensionlessQuantity) = ($f)(uconvert(NoUnits, x))
+    @eval ($f)(x::DimensionlessQuantity) = ($f)(strict_uconvert(NoUnits, x))
 end
 
 real(x::AbstractQuantity) = Quantity(real(x.val), unit(x))

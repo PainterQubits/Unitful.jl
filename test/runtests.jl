@@ -45,9 +45,6 @@ using Dates:
 
 const colon = Base.:(:)
 
-Sys.iswindows() && push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
-Sys.isapple() && push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
-
 @testset "Construction" begin
     @test isa(NoUnits, FreeUnits)
     @test typeof(ᴸ) === Unitfu.Dimensions{(Unitfu.Dimension{:Length}(1),)}
@@ -97,7 +94,7 @@ end
 end
 
 @testset "Conversion" begin
-    @testset "> Unitless ↔ unitful conversion" begin
+    @testset "> Unitless ↔ Unitfu conversion" begin
         @test_throws DimensionError convert(typeof(3m), 1)
         @test_throws DimensionError convert(Quantity{Float64, typeof(ᴸ)}, 1)
         #@test_throws DimensionError convert(Float64, 3m)
@@ -142,7 +139,7 @@ end
         # Issue 327
         @test uconvert(u"√cm", 1u"√m") == 10u"√cm"
     end
-    @testset "> Unitfu ↔ unitful conversion" begin
+    @testset "> Unitfu ↔ Unitfu conversion" begin
         @testset ">> Numeric conversion" begin
             @test @inferred(float(3m)) === 3.0m
             @test @inferred(Float32(3m)) === 3.0f0m
@@ -331,10 +328,10 @@ include("dates.jl")
 end
 
 # preferred units work on AbstractQuantity
-struct QQQ <: Unitful.AbstractQuantity{Float64,𝐋,typeof(cm)}
+struct QQQ <: Unitfu.AbstractQuantity{Float64, ᴸ,typeof(cm)}
     val::Float64
 end
-Unitful.uconvert(U::Unitful.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
+Unitfu.uconvert(U::Unitfu.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
 
 @testset "Promotion" begin
     @testset "> Unit preferences" begin
@@ -438,7 +435,7 @@ Unitful.uconvert(U::Unitful.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
         px,py = promote(x,y)
 
         # promoting the second time should not change the types
-        @test_throws ErrorException promote(px, py)
+        @test_throws UndefVarError promote(px, py)
     end
     @testset "> Some internal behaviors" begin
         # quantities
@@ -1349,9 +1346,9 @@ end
 @testset "Display" begin
     withenv("UNITFUL_FANCY_EXPONENTS" => false) do
         @test string(typeof(1.0m/s)) ==
-            "Quantity{Float64, ᴸ∙ ᵀ^-1,FreeUnits{(m, s^-1), ᴸ∙ ᵀ^-1,nothing}}"
+            "Quantity{Float64,  ᴸ∙ ᵀ^-1, FreeUnits{(m, s^-1),  ᴸ∙ ᵀ^-1, nothing}}"
           @test string(typeof(m/s)) ==
-            "FreeUnits{(m, s^-1), ᴸ∙ ᵀ^-1,nothing}"
+            "FreeUnits{(m, s^-1),  ᴸ∙ ᵀ^-1, nothing}"
         @test string(dimension(1u"m/s")) == " ᴸ∙ ᵀ^-1"
         @test string(NoDims) == "NoDims"
     end
@@ -1366,7 +1363,7 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
         @test repr(1.0 * u"m * s * kg^-1") == "1.0m∙s∙kg^-1"
         @test repr("text/plain", 1.0 * u"m * s * kg^-1") == "1.0m∙s∙kg^-1"
         @test repr(Foo() * u"m * s * kg^-1") == "1m∙s∙kg^-1"
-        # Note that this clone of Unitful changes the bevaviour.
+        # Note that this clone of Unitfu changes the bevaviour.
         # Below, we are trying to show the decorated form of a
         # Quantity{Foo, ᴸ∙ ᵀ∙ ᴹ⁻¹,FreeUnits{(kg⁻¹, m, s), ᴸ∙ ᵀ∙ ᴹ⁻¹,nothing}}.
         # This overrules the 'show' method we defined above, as should be fine
@@ -1387,11 +1384,11 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
     end
     withenv("UNITFUL_FANCY_EXPONENTS" => true) do
         @test repr(1.0 * u"m * s * kg^(-1//2)") == "1.0m∙s∙kg⁻¹ᐟ²"
-        @test repr("text/plain", [1m 2m; 3m 4m])== "2×2 Array{Quantity{Int64, ᴸ,FreeUnits{(m,), ᴸ,nothing}},2}:\n 1  2\n 3  4"
+        @test repr("text/plain", [1m 2m; 3m 4m])== "2×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:\n 1  2\n 3  4"
     end
     withenv("UNITFUL_FANCY_EXPONENTS" => nothing) do
         @test repr(1.0 * u"m * s * kg^(-1//2)") ==
-            (Sys.isapple() ? "1.0m∙s∙kg⁻¹ᐟ²" : "1.0m∙s∙kg^-1/2")
+            (Sys.iswindows() || Sys.isapple() ? "1.0m∙s∙kg⁻¹ᐟ²" : "1.0m∙s∙kg^-1/2")
     end
 end
 
@@ -1411,19 +1408,19 @@ end
     withenv("UNITFUL_FANCY_EXPONENTS" => true) do
         x = qma
         @test shortp_bw(x) == "[1 2; 3 4]m"
-        @test longp_bw(x) == "2×2 Array{Quantity{Int64, ᴸ,FreeUnits{(m,), ᴸ,nothing}},2}:\n 1  2\n 3  4"
+        @test longp_bw(x) == "2×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:\n 1  2\n 3  4"
         x = qmami
         @test shortp_bw(x) == "[1m 2; 3m 4]"
-        @test longp_bw(x) == "2×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1m  2\n 3m  4"
+        @test longp_bw(x) == "2×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1m  2\n 3m  4"
         x = qve
         @test shortp_bw(x) == "[1 2]m"
-        @test longp_bw(x) == "1×2 Array{Quantity{Int64, ᴸ,FreeUnits{(m,), ᴸ,nothing}},2}:\n 1  2"
+        @test longp_bw(x) == "1×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:\n 1  2"
         x = qveve
         @test shortp_bw(x) == "[1, 2]m"
-        @test longp_bw(x) == "2-element Array{Quantity{Int64, ᴸ,FreeUnits{(m,), ᴸ,nothing}},1}:\n 1\n 2"
+        @test longp_bw(x) == "2-element Vector{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:\n 1\n 2"
         x = qvemi
         @test shortp_bw(x) == "[1m 2]"
-        @test longp_bw(x) == "1×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1m  2"
+        @test longp_bw(x) == "1×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1m  2"
         x = qntuple
         @test shortp_bw(x) == "(1, 2)m"
         @test longp_bw(x) == "(1, 2)m"
@@ -1434,26 +1431,26 @@ end
     # Colorful
     withenv("UNITFUL_FANCY_EXPONENTS" => true) do
         x = qma
-        shortp(x) == "[1 2; 3 4]\e[36mm\e[39m"
-        longp(x) == "2×2 Array{Quantity{Int64, ᴸ,FreeUnits{(\e[36mm\e[39m,), ᴸ,nothing}},2}:\n 1  2\n 3  4"
+        @test shortp(x) == "[1 2; 3 4]\e[36mm\e[39m"
+        @test longp(x) == "2×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(\e[36mm\e[39m,),  ᴸ, nothing}}}:\n 1  2\n 3  4"
         x = qmami
-        shortp(x) == "[1\e[36mm\e[39m 2; 3\e[36mm\e[39m 4]"
-        longp(x) == "2×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1\e[36mm\e[39m  2\n 3\e[36mm\e[39m  4"
+        @test shortp(x) == "[1\e[36mm\e[39m 2; 3\e[36mm\e[39m 4]"
+        @test longp(x) == "2×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1\e[36mm\e[39m  2\n 3\e[36mm\e[39m  4"
         x = qve
-        shortp(x) == "[1 2]\e[36mm\e[39m"
-        longp(x) == "1×2 Array{Quantity{Int64, ᴸ,FreeUnits{(\e[36mm\e[39m,), ᴸ,nothing}},2}:\n 1  2"
+        @test shortp(x) == "[1 2]\e[36mm\e[39m"
+        @test longp(x) == "1×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(\e[36mm\e[39m,),  ᴸ, nothing}}}:\n 1  2"
         x = qveve
         @test shortp(x) == "[1, 2]\e[36mm\e[39m"
-        @test longp(x) == "2-element Array{Quantity{Int64, ᴸ,FreeUnits{(\e[36mm\e[39m,), ᴸ,nothing}},1}:\n 1\n 2"
+        @test longp(x) == "2-element Vector{Quantity{Int64,  ᴸ, FreeUnits{(\e[36mm\e[39m,),  ᴸ, nothing}}}:\n 1\n 2"
         x = qvemi
-        shortp(x) == "[1\e[36mm\e[39m 2]"
-        longp(x) == "1×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1\e[36mm\e[39m  2"
+        @test shortp(x) == "[1\e[36mm\e[39m 2]"
+        @test longp(x) == "1×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1\e[36mm\e[39m  2"
         x = qntuple
-        shortp(x) == "(1, 2)\e[36mm\e[39m"
-        longp(x) == "(1, 2)\e[36mm\e[39m"
+        @test shortp(x) == "(1, 2)\e[36mm\e[39m"
+        @test longp(x) == "(1, 2)\e[36mm\e[39m"
         x = qtuple
-        shortp(x) == "(1\e[36mm\e[39m, 2)"
-        longp(x) == "(1\e[36mm\e[39m, 2)"
+        @test shortp(x) == "(1\e[36mm\e[39m, 2)"
+        @test longp(x) == "(1\e[36mm\e[39m, 2)"
     end
 end
 
@@ -1912,7 +1909,7 @@ end
     end
 end
 
-# Test precompiled Unitful extension modules
+# Test precompiled Unitfu extension modules
 load_path = mktempdir()
 load_cache_path = mktempdir()
 try

@@ -1,7 +1,7 @@
 ```@meta
 DocTestSetup = quote
-    using Unitful
-    using Unitful:AffineError
+    using Unitfu
+    using Unitfu:AffineError
 end
 ```
 # Temperature scales
@@ -29,11 +29,11 @@ julia> uconvert(u"K", 1u"Ra")
 5//9 K
 ```
 
-We can identify absolute temperatures using the `Unitful.AbsoluteScaleTemperature` type
+We can identify absolute temperatures using the `Unitfu.AbsoluteScaleTemperature` type
 alias:
 
 ```jldoctest
-julia> 1u"K" isa Unitful.AbsoluteScaleTemperature
+julia> 1u"K" isa Unitfu.AbsoluteScaleTemperature
 true
 ```
 
@@ -41,26 +41,26 @@ true
 
 Unit conversions between temperatures on relative scales like Celsius or Fahrenheit involve
 an affine transformation, that is, a scaling plus some translation (scale offset). In
-Unitful, relative scale temperatures are considered to have the same dimension as absolute
+Unitfu, relative scale temperatures are considered to have the same dimension as absolute
 scale temperatures, as expected. However, temperatures on relative and absolute scales are
-distinguished by the type of the [`Unitful.Units`](@ref) object (and therefore the type of
-the [`Unitful.Quantity`](@ref) object).
+distinguished by the type of the [`Unitfu.Units`](@ref) object (and therefore the type of
+the [`Unitfu.Quantity`](@ref) object).
 
 ```jldoctest
 julia> uconvert(u"°C", 32u"°F")
 0//1 °C
 ```
 
-We can identify relative scale temperatures using the `Unitful.RelativeScaleTemperature`
+We can identify relative scale temperatures using the `Unitfu.RelativeScaleTemperature`
 type alias, e.g.:
 
 ```jldoctest
-julia> 1u"°C" isa Unitful.RelativeScaleTemperature
+julia> 1u"°C" isa Unitfu.RelativeScaleTemperature
 true
 ```
 
 Some operations are not well defined with relative scale temperatures, and therefore throw
-an `Unitful.AffineError` (please report any unexpected behavior on the GitHub issue
+an `Unitfu.AffineError` (please report any unexpected behavior on the GitHub issue
 tracker).
 
 ```jldoctest
@@ -76,11 +76,11 @@ ERROR: AffineError: an invalid operation was attempted with affine quantities: 3
 There is a general mechanism for making units that indicate quantities should unit-convert
 under some affine transformation. While the usual use case is for relative scale
 temperatures, nothing in the implementation limits it as such. Accordingly, relative scale
-temperatures are considered to be [`Unitful.AffineQuantity`](@ref) objects with dimensions
-of temperature. The units on "affine quantities" are [`Unitful.AffineUnits`](@ref) objects.
+temperatures are considered to be [`Unitfu.AffineQuantity`](@ref) objects with dimensions
+of temperature. The units on "affine quantities" are [`Unitfu.AffineUnits`](@ref) objects.
 
 Making your own affine units typically requires two steps. First, define the absolute unit
-using the [`Unitful.@unit`](@ref) macro. Second, use the [`Unitful.@affineunit`](@ref) macro
+using the [`Unitfu.@unit`](@ref) macro. Second, use the [`Unitfu.@affineunit`](@ref) macro
 to make a corresponding affine unit. As an example, this is how `Ra` and `°F` are
 implemented:
 
@@ -90,12 +90,12 @@ implemented:
 ```
 
 The preferred unit for promoting temperatures is usually `K` when using
-[`Unitful.FreeUnits`](@ref).
+[`Unitfu.FreeUnits`](@ref).
 
 ```@docs
-Unitful.AffineUnits
-Unitful.AffineQuantity
-Unitful.ScalarUnits
-Unitful.ScalarQuantity
-Unitful.absoluteunit
+Unitfu.AffineUnits
+Unitfu.AffineQuantity
+Unitfu.ScalarUnits
+Unitfu.ScalarQuantity
+Unitfu.absoluteunit
 ```

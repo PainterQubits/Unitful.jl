@@ -20,13 +20,13 @@ The changes in this fork are:
 * All 'show' methods are moved into 'display.jl'
 * Additional testing
 * Units are printed with color
-* Dimension symbols can be displayed on Windows terminals
+* Dimension symbols ( ᴸ for Length, also ᵀ, ᴺ, ᶿ ) can be displayed in Windows terminals. Unitful's (𝐋 for Length, 𝐓, 𝐍, 𝚯) are problematic.
 * No space between value and unit. Useful for:
 ```julia
 julia> import Unitful.m
 julia> print([1 2]m)   # Un-decorated output can be parsed as input (copy to reproduce)
 [1 2]m
-julia> [1 2]m          # Decorated output (using this format as a generator is not recommended)
+julia> [1 2]m
 1×2 Array{Unitful.Quantity{Int64, ᴸ,Unitful.FreeUnits{(m,), ᴸ,nothing}},2}:
  1  2
 ```
@@ -40,43 +40,28 @@ julia> (1,2m,3)m*s^-1
 (1m∙s⁻¹, 2m²∙s⁻¹, 3m∙s⁻¹)
 ```
 
-* Unit conversions are more freely allowed, since an unexpected result is still a correct representation of the input quantity. 
-Unexpected output from a conversion often hints towards what dimension (mass, length...) is missing before the conversion. 
-We trigger such conversions by calling the wanted output unit, which may be considered dirty programming practice. We just consider it 
-too useful to disallow for that reason. Type stability in functions is a separate concern to physical correctness, and can be ensured 
-in other ways. Brief example, which would trigger an error in PainterQubits/Unitful:
+* Quantities are considered as the immutable object, while unit conversions are leniently allowed. E.g. converting 1kg∙m to mm will result in 1000kg∙mm and not an error. This is useful because unexpected output from a conversion often hints towards what dimension (mass, length...) is missing before the conversion. 
+We trigger such conversions by calling the wanted output unit. 
+
+Brief example, which would trigger an error in PainterQubits/Unitful:
 ´´´
 julia> import Unitful: mg, dyn
 
 julia> 1dyn |> mg
 10mg∙m∙s⁻²
 ´´´
+* `strict_uconvert(u, x)` is used where Unitful.jl uses `convert(u, x)` in place of quantity promotion. 
 
 ## Installing this clone / fork
-If you have already installed Unitful, you may have to remove it first:
+This fork is registered in [M8](https://github.com/hustf/M8).
+
+(@v1.6) pkg> registry add https://github.com/hustf/M8
+
+(@v1.6) pkg> add Unitfu
+
+julia> using Unitfu
 ´´´
-(@v1.5) pkg> rm Unitful
-Updating `C:\Users\F\.julia\environments\v1.5\Project.toml`
-  [1986cc42] - Unitful v1.3.0
-Updating `C:\Users\F\.julia\environments\v1.5\Manifest.toml`
-  [187b0558] - ConstructionBase v1.0.0
-  [1986cc42] - Unitful v1.3.0
-  [37e2e46d] - LinearAlgebra
 
-(@v1.5) pkg> add https://github.com/hustf/Unitful.jl
-   Updating git-repo `https://github.com/hustf/Unitful.jl`
-  Resolving package versions...
-Updating `C:\Users\F\.julia\environments\v1.5\Project.toml`
-  [1986cc42] + Unitful v1.3.0 `https://github.com/hustf/Unitful.jl#master`
-Updating `C:\Users\F\.julia\environments\v1.5\Manifest.toml`
-  [187b0558] + ConstructionBase v1.0.0
-  [1986cc42] + Unitful v1.3.0 `https://github.com/hustf/Unitful.jl#master`
-  [37e2e46d] + LinearAlgebra
-
-julia> using Unitful
-
-julia>
-´´´
 
 ## Unitful.jl
 Unitful is a Julia package for physical units. We want to support not only
