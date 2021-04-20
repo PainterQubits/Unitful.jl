@@ -7,6 +7,7 @@ makedocs(
     format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
     modules = [Unitfu],
     workdir = joinpath(@__DIR__, ".."),
+    doctest = false,
     pages = [
         "Home" => "index.md"
         "Highlighted features" => "highlights.md"
