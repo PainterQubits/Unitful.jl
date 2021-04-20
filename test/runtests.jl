@@ -1411,7 +1411,8 @@ end
         @test longp_bw(x) == "2×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:\n 1  2\n 3  4"
         x = qmami
         @test shortp_bw(x) == "[1m 2; 3m 4]"
-        @test longp_bw(x) == "2×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1m  2\n 3m  4"
+        @test longp_bw(x) == "2×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1m  2\n 3m  4" ||
+              longp_bw(x) == "2×2 Matrix{Quantity{Int64}}:\n 1m  2\n 3m  4"
         x = qve
         @test shortp_bw(x) == "[1 2]m"
         @test longp_bw(x) == "1×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:\n 1  2"
@@ -1420,7 +1421,8 @@ end
         @test longp_bw(x) == "2-element Vector{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:\n 1\n 2"
         x = qvemi
         @test shortp_bw(x) == "[1m 2]"
-        @test longp_bw(x) == "1×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1m  2"
+        @test longp_bw(x) == "1×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1m  2" ||
+              longp_bw(x) == "1×2 Matrix{Quantity{Int64}}:\n 1m  2"
         x = qntuple
         @test shortp_bw(x) == "(1, 2)m"
         @test longp_bw(x) == "(1, 2)m"
@@ -1435,7 +1437,8 @@ end
         @test longp(x) == "2×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(\e[36mm\e[39m,),  ᴸ, nothing}}}:\n 1  2\n 3  4"
         x = qmami
         @test shortp(x) == "[1\e[36mm\e[39m 2; 3\e[36mm\e[39m 4]"
-        @test longp(x) == "2×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1\e[36mm\e[39m  2\n 3\e[36mm\e[39m  4"
+        @test longp(x) == "2×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1\e[36mm\e[39m  2\n 3\e[36mm\e[39m  4" ||
+              longp(x) == "2×2 Matrix{Quantity{Int64}}:\n 1\e[36mm\e[39m  2\n 3\e[36mm\e[39m  4"
         x = qve
         @test shortp(x) == "[1 2]\e[36mm\e[39m"
         @test longp(x) == "1×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(\e[36mm\e[39m,),  ᴸ, nothing}}}:\n 1  2"
@@ -1444,7 +1447,8 @@ end
         @test longp(x) == "2-element Vector{Quantity{Int64,  ᴸ, FreeUnits{(\e[36mm\e[39m,),  ᴸ, nothing}}}:\n 1\n 2"
         x = qvemi
         @test shortp(x) == "[1\e[36mm\e[39m 2]"
-        @test longp(x) == "1×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1\e[36mm\e[39m  2"
+        @test longp(x) == "1×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1\e[36mm\e[39m  2" ||
+              longp(x) == "1×2 Matrix{Quantity{Int64}}:\n 1\e[36mm\e[39m  2"
         x = qntuple
         @test shortp(x) == "(1, 2)\e[36mm\e[39m"
         @test longp(x) == "(1, 2)\e[36mm\e[39m"

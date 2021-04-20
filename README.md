@@ -1,15 +1,14 @@
-[![CI](https://github.com/PainterQubits/Unitful.jl/workflows/CI/badge.svg)](https://github.com/PainterQubits/Unitful.jl/actions?query=workflow%3ACI)
-[![Coverage Status](https://coveralls.io/repos/github/PainterQubits/Unitful.jl/badge.svg?branch=master)](https://coveralls.io/github/PainterQubits/Unitful.jl?branch=master)
-[![codecov.io](https://codecov.io/github/PainterQubits/Unitful.jl/coverage.svg?branch=master)](https://codecov.io/github/PainterQubits/Unitful.jl?branch=master)
+[![CI](https://github.com/hustf/Unitfu.jl/workflows/CI/badge.svg)](https://github.com/hustf/Unitfu.jl/actions?query=workflow%3ACI)
+[![Coverage Status](https://coveralls.io/repos/github/hustf/Unitfu.jl/badge.svg?branch=master)](https://coveralls.io/github/hustf/Unitfu.jl?branch=master)
+[![codecov.io](https://codecov.io/github/hustf/Unitfu.jl/coverage.svg?branch=master)](https://codecov.io/github/hustf/Unitfu.jl?branch=master)
 
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://PainterQubits.github.io/Unitful.jl/stable)
-[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://PainterQubits.github.io/Unitful.jl/dev)
+[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://hustf.github.io/Unitfu.jl/stable)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://hustf.github.io/Unitfu.jl/dev)
 
-# Unitful.jl
+# Unitfu.jl
 
 ## About this clone / fork
-We intend to keep pulling in further improvements from PainterQubits/Unitful.jl, and some of the ideas might be
-accepted in Unitful as well.
+We intend to keep pulling in further improvements from [PainterQubits/Unitful.jl](https://github.com/PainterQubits/Unitful.jl), and suggest improvements to Unitful.jl as well. Hopefully, in future, Unitful.jl's core functionality may be separated into a separate package, reducing the motivation for forks like this.
 
 This is a minor adaption of the original, affecting parsing, display and constructors / conversion only. The changes 
 were previously made through type piracy in dependent packages, e.g. [MechanicalUnits.jl](https://github.com/hustf/MechanicalUnits.jl) was 
@@ -17,50 +16,54 @@ changing how types defined by Unitful were dislayed and parsed.
 Type piracy tends to destroy pre-compilation, hence forking Unitful is a cleaner solution.
 
 The changes in this fork are:
-* All 'show' methods are moved into 'display.jl'
-* Additional testing
-* Units are printed with color
+
+* 'show' methods are moved into 'display.jl'
 * Dimension symbols ( ᴸ for Length, also ᵀ, ᴺ, ᶿ ) can be displayed in Windows terminals. Unitful's (𝐋 for Length, 𝐓, 𝐍, 𝚯) are problematic.
-* No space between value and unit. Useful for:
-```julia
-julia> import Unitful.m
-julia> print([1 2]m)   # Un-decorated output can be parsed as input (copy to reproduce)
-[1 2]m
-julia> [1 2]m
-1×2 Array{Unitful.Quantity{Int64, ᴸ,Unitful.FreeUnits{(m,), ᴸ,nothing}},2}:
- 1  2
-```
-* Collections (tuples, arrays, vectors) with identical elements are printed with units outside of brackets
+* Units are printed with color and in a form that can be [parsed by Julia](https://docs.julialang.org/en/v1/base/io-network/#Text-I/O). Fancy superscripts and the unit separator, ∙ are exported by [MechanicalUnits.jl](https://github.com/hustf/MechanicalSketch.jl)
+* Collections (tuples, arrays, vectors) with identical elements are printed with units outside of brackets, without redundant type information:
 
 ```julia
-julia> (1,2,3)m*s^-1
-(1, 2, 3)m∙s⁻¹
+  julia> a = [1 2 3; 4 5 6]m/s
+  2×3 Matrix{Quantity{Int64,  ᴸ∙ ᵀ⁻¹, FreeUnits{(m, s⁻¹),  ᴸ∙ ᵀ⁻¹, nothing}}}:
+  1  2  3
+  4  5  6
 
-julia> (1,2m,3)m*s^-1
-(1m∙s⁻¹, 2m²∙s⁻¹, 3m∙s⁻¹)
+  julia> println(a)
+  [1 2 3; 4 5 6]m∙s⁻¹
+
+  julia> 25s * [1 2 3; 4 5 6]m∙s⁻¹
+  2×3 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:
+    25   50   75
+  100  125  150
+
+  julia> ans .|> cm
+  2×3 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(cm,),  ᴸ, nothing}}}:
+    2500   5000   7500
+  10000  12500  15000
 ```
 
-* Quantities are considered as the immutable object, while unit conversions are leniently allowed. E.g. converting 1kg∙m to mm will result in 1000kg∙mm and not an error. This is useful because unexpected output from a conversion often hints towards what dimension (mass, length...) is missing before the conversion. 
-We trigger such conversions by calling the wanted output unit. 
+* Quantities are considered as the immutable object, while unit conversions are leniently allowed. Converting `1kg∙m` to `mm` will result in `1000kg∙mm` and not an error. This is useful because unexpected output often hints towards what dimension (mass, length...) is missing before the conversion. For use in packages, use `strict_uconvert' instead.
 
-Brief example, which would trigger an error in PainterQubits/Unitful:
-´´´
+Brief example, which would trigger an error in [PainterQubits/Unitful](https://github.com/PainterQubits/Unitful.jl/blob/master/src/display.jl):
+```julia
 julia> import Unitful: mg, dyn
 
 julia> 1dyn |> mg
 10mg∙m∙s⁻²
-´´´
+```
 * `strict_uconvert(u, x)` is used where Unitful.jl uses `convert(u, x)` in place of quantity promotion. 
 
 ## Installing this clone / fork
 This fork is registered in [M8](https://github.com/hustf/M8).
 
+```julia
 (@v1.6) pkg> registry add https://github.com/hustf/M8
+     Cloning registry from "https://github.com/hustf/M8"
 
 (@v1.6) pkg> add Unitfu
 
 julia> using Unitfu
-´´´
+```
 
 
 ## Unitful.jl

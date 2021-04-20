@@ -325,7 +325,7 @@ end
   , which is used when showing
   such arrays. Prefixes to Array{Quantity} will not be printed.
 =#
-Base.typeinfo_implicit(::Type{<:Quantity}) = true
+@eval Base.typeinfo_implicit(::Type{<:Quantity}) = true
 
 #=
  We reluctantly (ref.

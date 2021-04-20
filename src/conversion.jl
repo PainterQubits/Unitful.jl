@@ -112,8 +112,8 @@ function uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
     elseif (a isa AffineUnits) || (x isa AffineQuantity)
         return uconvert_affine(a, x)
     else
-        cf = convfact(a, U())
-        if cf isa Quantity
+        cf = convfact(a, unit(x))
+        if cf * a isa Quantity
             return Quantity(x.val * cf * a)
         else
             return Quantity(x.val * cf, a)
