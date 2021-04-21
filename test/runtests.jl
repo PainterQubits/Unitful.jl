@@ -1343,14 +1343,20 @@ end
         end
     end
 end
-@testset "Display" begin
-    withenv("UNITFUL_FANCY_EXPONENTS" => false) do
-        @test string(typeof(1.0m/s)) ==
-            "Quantity{Float64,  ᴸ∙ ᵀ^-1, FreeUnits{(m, s^-1),  ᴸ∙ ᵀ^-1, nothing}}"
-          @test string(typeof(m/s)) ==
-            "FreeUnits{(m, s^-1),  ᴸ∙ ᵀ^-1, nothing}"
-        @test string(dimension(1u"m/s")) == " ᴸ∙ ᵀ^-1"
-        @test string(NoDims) == "NoDims"
+if VERSION >= VersionNumber("1.5.0-rc1")
+    @testset "Display" begin
+        withenv("UNITFUL_FANCY_EXPONENTS" => false) do
+            @test string(typeof(1.0m/s)) ==
+                "Quantity{Float64,  ᴸ∙ ᵀ^-1, FreeUnits{(m, s^-1),  ᴸ∙ ᵀ^-1, nothing}}" ||
+                  string(typeof(1.0m/s)) ==
+                "Quantity{Float64, ᴸ∙ ᵀ^-1,FreeUnits{(m, s^-1), ᴸ∙ ᵀ^-1,nothing}}" 
+            @test string(typeof(m/s)) ==
+                "FreeUnits{(m, s^-1),  ᴸ∙ ᵀ^-1, nothing}" ||
+                  string(typeof(m/s)) ==
+                "FreeUnits{(m, s^-1), ᴸ∙ ᵀ^-1,nothing}"
+            @test string(dimension(1u"m/s")) == " ᴸ∙ ᵀ^-1"
+            @test string(NoDims) == "NoDims"
+        end
     end
 end
 
@@ -1358,103 +1364,117 @@ struct Foo <: Number end
 Base.show(io::IO, x::Foo) = print(io, "1")
 Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
 
-@testset "Show quantities" begin
-    withenv("UNITFUL_FANCY_EXPONENTS" => false) do
-        @test repr(1.0 * u"m * s * kg^-1") == "1.0m∙s∙kg^-1"
-        @test repr("text/plain", 1.0 * u"m * s * kg^-1") == "1.0m∙s∙kg^-1"
-        @test repr(Foo() * u"m * s * kg^-1") == "1m∙s∙kg^-1"
-        # Note that this clone of Unitfu changes the bevaviour.
-        # Below, we are trying to show the decorated form of a
-        # Quantity{Foo, ᴸ∙ ᵀ∙ ᴹ⁻¹,FreeUnits{(kg⁻¹, m, s), ᴸ∙ ᵀ∙ ᴹ⁻¹,nothing}}.
-        # This overrules the 'show' method we defined above, as should be fine
-        @test repr("text/plain", Foo() * u"m * s * kg^-1") == "1m∙s∙kg^-1"
+if VERSION >= VersionNumber("1.6.0-rc1")
+    @testset "Show quantities" begin
+        withenv("UNITFUL_FANCY_EXPONENTS" => false) do
+            @test repr(1.0 * u"m * s * kg^-1") == "1.0m∙s∙kg^-1"
+            @test repr("text/plain", 1.0 * u"m * s * kg^-1") == "1.0m∙s∙kg^-1"
+            @test repr(Foo() * u"m * s * kg^-1") == "1m∙s∙kg^-1"
+            # Note that this clone of Unitfu changes the bevaviour.
+            # Below, we are trying to show the decorated form of a
+            # Quantity{Foo, ᴸ∙ ᵀ∙ ᴹ⁻¹,FreeUnits{(kg⁻¹, m, s), ᴸ∙ ᵀ∙ ᴹ⁻¹,nothing}}.
+            # This overrules the 'show' method we defined above, as should be fine
+            @test repr("text/plain", Foo() * u"m * s * kg^-1") == "1m∙s∙kg^-1"
 
-        # Complex quantities
-        @test repr((1+2im) * u"m/s") == "(1 + 2im)m∙s^-1"
-        @test repr("text/plain", (1+2im) * u"m/s") == "(1 + 2im)m∙s^-1"
+            # Complex quantities
+            @test repr((1+2im) * u"m/s") == "(1 + 2im)m∙s^-1"
+            @test repr("text/plain", (1+2im) * u"m/s") == "(1 + 2im)m∙s^-1"
 
-        # Angular degree printing #253
-        @test sprint(show, 1.0°)       == "1.0°"
-        @test repr("text/plain", 1.0°) == "1.0°"
+            # Angular degree printing #253
+            @test sprint(show, 1.0°)       == "1.0°"
+            @test repr("text/plain", 1.0°) == "1.0°"
 
-        # Concise printing of ranges
-        @test repr((1:10)*u"kg/m^3") == "(1:10)kg∙m^-3"
-        @test repr((1.0:0.1:10.0)*u"kg/m^3") == "(1.0:0.1:10.0)kg∙m^-3"
-        @test repr((1:10)*°) == "(1:10)°"
-    end
-    withenv("UNITFUL_FANCY_EXPONENTS" => true) do
-        @test repr(1.0 * u"m * s * kg^(-1//2)") == "1.0m∙s∙kg⁻¹ᐟ²"
-        @test repr("text/plain", [1m 2m; 3m 4m])== "2×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:\n 1  2\n 3  4"
-    end
-    withenv("UNITFUL_FANCY_EXPONENTS" => nothing) do
-        @test repr(1.0 * u"m * s * kg^(-1//2)") ==
-            (Sys.iswindows() || Sys.isapple() ? "1.0m∙s∙kg⁻¹ᐟ²" : "1.0m∙s∙kg^-1/2")
+            # Concise printing of ranges
+            @test repr((1:10)*u"kg/m^3") == "(1:10)kg∙m^-3"
+            @test repr((1.0:0.1:10.0)*u"kg/m^3") == "(1.0:0.1:10.0)kg∙m^-3"
+            @test repr((1:10)*°) == "(1:10)°"
+        end
+        withenv("UNITFUL_FANCY_EXPONENTS" => true) do
+            @test repr(1.0 * u"m * s * kg^(-1//2)") == "1.0m∙s∙kg⁻¹ᐟ²"
+            @test repr("text/plain", [1m 2m; 3m 4m])== "2×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:\n 1  2\n 3  4"
+        end
+        withenv("UNITFUL_FANCY_EXPONENTS" => nothing) do
+            @test repr(1.0 * u"m * s * kg^(-1//2)") ==
+                (Sys.iswindows() || Sys.isapple() ? "1.0m∙s∙kg⁻¹ᐟ²" : "1.0m∙s∙kg^-1/2")
+        end
     end
 end
 
-@testset "Show quantities in collection" begin
-    shortp(x) = repr(x, context = :color=>true)
-    longp(x) = repr(:"text/plain", x, context = :color=>true)
-    shortp_bw(x) = repr(x)
-    longp_bw(x) = repr(:"text/plain", x)
-    qma = [1m 2m; 3m 4m]
-    qmami = [1m 2; 3m 4]
-    qve = [1m 2m]
-    qveve = [1m, 2m]
-    qvemi = [1m 2]
-    qntuple = (1m, 2m)
-    qtuple = (1m, 2)
-    # Colorless
-    withenv("UNITFUL_FANCY_EXPONENTS" => true) do
-        x = qma
-        @test shortp_bw(x) == "[1 2; 3 4]m"
-        @test longp_bw(x) == "2×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:\n 1  2\n 3  4"
-        x = qmami
-        @test shortp_bw(x) == "[1m 2; 3m 4]"
-        @test longp_bw(x) == "2×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1m  2\n 3m  4" ||
-              longp_bw(x) == "2×2 Matrix{Quantity{Int64}}:\n 1m  2\n 3m  4"
-        x = qve
-        @test shortp_bw(x) == "[1 2]m"
-        @test longp_bw(x) == "1×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:\n 1  2"
-        x = qveve
-        @test shortp_bw(x) == "[1, 2]m"
-        @test longp_bw(x) == "2-element Vector{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:\n 1\n 2"
-        x = qvemi
-        @test shortp_bw(x) == "[1m 2]"
-        @test longp_bw(x) == "1×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1m  2" ||
-              longp_bw(x) == "1×2 Matrix{Quantity{Int64}}:\n 1m  2"
-        x = qntuple
-        @test shortp_bw(x) == "(1, 2)m"
-        @test longp_bw(x) == "(1, 2)m"
-        x = qtuple
-        @test shortp_bw(x) == "(1m, 2)"
-        @test longp_bw(x) == "(1m, 2)"
-    end
-    # Colorful
-    withenv("UNITFUL_FANCY_EXPONENTS" => true) do
-        x = qma
-        @test shortp(x) == "[1 2; 3 4]\e[36mm\e[39m"
-        @test longp(x) == "2×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(\e[36mm\e[39m,),  ᴸ, nothing}}}:\n 1  2\n 3  4"
-        x = qmami
-        @test shortp(x) == "[1\e[36mm\e[39m 2; 3\e[36mm\e[39m 4]"
-        @test longp(x) == "2×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1\e[36mm\e[39m  2\n 3\e[36mm\e[39m  4" ||
-              longp(x) == "2×2 Matrix{Quantity{Int64}}:\n 1\e[36mm\e[39m  2\n 3\e[36mm\e[39m  4"
-        x = qve
-        @test shortp(x) == "[1 2]\e[36mm\e[39m"
-        @test longp(x) == "1×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(\e[36mm\e[39m,),  ᴸ, nothing}}}:\n 1  2"
-        x = qveve
-        @test shortp(x) == "[1, 2]\e[36mm\e[39m"
-        @test longp(x) == "2-element Vector{Quantity{Int64,  ᴸ, FreeUnits{(\e[36mm\e[39m,),  ᴸ, nothing}}}:\n 1\n 2"
-        x = qvemi
-        @test shortp(x) == "[1\e[36mm\e[39m 2]"
-        @test longp(x) == "1×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1\e[36mm\e[39m  2" ||
-              longp(x) == "1×2 Matrix{Quantity{Int64}}:\n 1\e[36mm\e[39m  2"
-        x = qntuple
-        @test shortp(x) == "(1, 2)\e[36mm\e[39m"
-        @test longp(x) == "(1, 2)\e[36mm\e[39m"
-        x = qtuple
-        @test shortp(x) == "(1\e[36mm\e[39m, 2)"
-        @test longp(x) == "(1\e[36mm\e[39m, 2)"
+if VERSION >= VersionNumber("1.5.0-rc1")
+    @testset "Show quantities in collection" begin
+        shortp(x) = repr(x, context = :color=>true)
+        longp(x) = repr(:"text/plain", x, context = :color=>true)
+        shortp_bw(x) = repr(x)
+        longp_bw(x) = repr(:"text/plain", x)
+        qma = [1m 2m; 3m 4m]
+        qmami = [1m 2; 3m 4]
+        qve = [1m 2m]
+        qveve = [1m, 2m]
+        qvemi = [1m 2]
+        qntuple = (1m, 2m)
+        qtuple = (1m, 2)
+        # Colorless
+        withenv("UNITFUL_FANCY_EXPONENTS" => true) do
+            x = qma
+            @test shortp_bw(x) == "[1 2; 3 4]m"
+            @test longp_bw(x) == "2×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:\n 1  2\n 3  4" ||
+                  longp_bw(x) == "2×2 Array{Quantity{Int64, ᴸ,FreeUnits{(m,), ᴸ,nothing}},2}:\n 1  2\n 3  4"
+            x = qmami
+            @test shortp_bw(x) == "[1m 2; 3m 4]"
+            @test longp_bw(x) == "2×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1m  2\n 3m  4" ||
+                  longp_bw(x) == "2×2 Matrix{Quantity{Int64}}:\n 1m  2\n 3m  4" ||
+                  longp_bw(x) == "2×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1m  2\n 3m  4"
+            x = qve
+            @test shortp_bw(x) == "[1 2]m"
+            @test longp_bw(x) == "1×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:\n 1  2" ||
+                  longp_bw(x) == "1×2 Array{Quantity{Int64, ᴸ,FreeUnits{(m,), ᴸ,nothing}},2}:\n 1  2"
+            x = qveve
+            @test shortp_bw(x) == "[1, 2]m"
+            @test longp_bw(x) == "2-element Vector{Quantity{Int64,  ᴸ, FreeUnits{(m,),  ᴸ, nothing}}}:\n 1\n 2" ||
+                  longp_bw(x) == "2-element Array{Quantity{Int64, ᴸ,FreeUnits{(m,), ᴸ,nothing}},1}:\n 1\n 2"
+            x = qvemi
+            @test shortp_bw(x) == "[1m 2]"
+            @test longp_bw(x) == "1×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1m  2" ||
+                  longp_bw(x) == "1×2 Matrix{Quantity{Int64}}:\n 1m  2" ||
+                  longp_bw(x) == "1×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1m  2"
+            x = qntuple
+            @test shortp_bw(x) == "(1, 2)m"
+            @test longp_bw(x) == "(1, 2)m"
+            x = qtuple
+            @test shortp_bw(x) == "(1m, 2)"
+            @test longp_bw(x) == "(1m, 2)"
+        end
+        # Colorful
+        withenv("UNITFUL_FANCY_EXPONENTS" => true) do
+            x = qma
+            @test shortp(x) == "[1 2; 3 4]\e[36mm\e[39m"
+            @test longp(x) == "2×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(\e[36mm\e[39m,),  ᴸ, nothing}}}:\n 1  2\n 3  4" ||
+                  longp(x) == "2×2 Array{Quantity{Int64, ᴸ,FreeUnits{(\e[36mm\e[39m,), ᴸ,nothing}},2}:\n 1  2\n 3  4"
+            x = qmami
+            @test shortp(x) == "[1\e[36mm\e[39m 2; 3\e[36mm\e[39m 4]"
+            @test longp(x) == "2×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1\e[36mm\e[39m  2\n 3\e[36mm\e[39m  4" ||
+                  longp(x) == "2×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1\e[36mm\e[39m  2\n 3\e[36mm\e[39m  4" ||
+                  longp(x) == "2×2 Matrix{Quantity{Int64}}:\n 1\e[36mm\e[39m  2\n 3\e[36mm\e[39m  4"
+            x = qve
+            @test shortp(x) == "[1 2]\e[36mm\e[39m"
+            @test longp(x) == "1×2 Matrix{Quantity{Int64,  ᴸ, FreeUnits{(\e[36mm\e[39m,),  ᴸ, nothing}}}:\n 1  2" ||
+                  longp(x) == "1×2 Array{Quantity{Int64, ᴸ,FreeUnits{(\e[36mm\e[39m,), ᴸ,nothing}},2}:\n 1  2"
+            x = qveve
+            @test shortp(x) == "[1, 2]\e[36mm\e[39m"
+            @test longp(x) == "2-element Vector{Quantity{Int64,  ᴸ, FreeUnits{(\e[36mm\e[39m,),  ᴸ, nothing}}}:\n 1\n 2" ||
+                  longp(x) == "2-element Array{Quantity{Int64, ᴸ,FreeUnits{(\e[36mm\e[39m,), ᴸ,nothing}},1}:\n 1\n 2"
+            x = qvemi
+            @test shortp(x) == "[1\e[36mm\e[39m 2]"
+            @test longp(x) == "1×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1\e[36mm\e[39m  2" ||
+                  longp(x) == "1×2 Matrix{Quantity{Int64}}:\n 1\e[36mm\e[39m  2" ||
+                  longp(x) == "1×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1\e[36mm\e[39m  2" 
+            x = qntuple
+            @test shortp(x) == "(1, 2)\e[36mm\e[39m"
+            @test longp(x) == "(1, 2)\e[36mm\e[39m"
+            x = qtuple
+            @test shortp(x) == "(1\e[36mm\e[39m, 2)"
+            @test longp(x) == "(1\e[36mm\e[39m, 2)"
+        end
     end
 end
 
