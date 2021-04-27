@@ -109,8 +109,17 @@ true
 ```
 """
 @inline unit(x::AbstractQuantity{T,D,U}) where {T,D,U} = U()
-@inline unit(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = U()
-
+# This line causes hard-to-track down errors during compilation of seemingly unrelated functions like @info.
+# The intention is making logarithmic quantities work ()
+# ERROR: LoadError: UndefVarError: U not defined
+#  [1] unit(#unused#::Core.TypeofBottom)
+#    @ Unitfu ~\.julia\dev\Unitfu\src\utils.jl:112
+#  [2] showunit(io::IOContext{IOBuffer}, x::Type)
+#    @ Unitfu ~\.julia\dev\Unitfu\src\display.jl:284
+@inline unit(@nospecialize t::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = U()
+# Possible fix of the above: Also define more restricted methods.
+@inline unit(x::Quantity{T,D,U}) where {T,D,U} = U()
+@inline unit(::Type{Quantity{T,D,U}}) where {T,D,U} = U()
 
 """
     unit(x::Number)
