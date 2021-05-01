@@ -446,6 +446,6 @@ function Base.show_delim_array(io::IO,
         end
     end
     print(io, cl)
-    # This is added to Julia 1.4.0 Base.show_delim_array (duck-typed)
+    # This is added to Julia 1.4.0 Base.show_delim_array (duck-typed, eltype may give a Type{Union{}}
     showunit(io, eltype(itr))
 end

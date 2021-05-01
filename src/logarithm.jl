@@ -89,7 +89,6 @@ fromlog(L,x) = expfn(L())( x / ((1+isrootpower(L))*prefactor(L())) )
 abbr(::MixedUnits{L}) where {L <: Level} = abbr(L(reflevel(L)))
 abbr(::MixedUnits{L}) where {L <: Gain} = abbr(L(1))
 
-unit(a::MixedUnits{L,U}) where {L,U} = U()
 logunit(a::MixedUnits{L}) where {L} = MixedUnits{L}()
 isunitless(::MixedUnits) = false
 

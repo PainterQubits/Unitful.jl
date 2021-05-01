@@ -433,9 +433,8 @@ Unitfu.uconvert(U::Unitfu.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
     @testset "> Issue 52" begin
         x,y = 10m, 1
         px,py = promote(x,y)
-
         # promoting the second time should not change the types
-        @test_throws UndefVarError promote(px, py)
+        @test_throws ErrorException promote(px, py)
     end
     @testset "> Some internal behaviors" begin
         # quantities
@@ -1349,7 +1348,7 @@ if VERSION >= VersionNumber("1.5.0-rc1")
             @test string(typeof(1.0m/s)) ==
                 "Quantity{Float64,  ᴸ∙ ᵀ^-1, FreeUnits{(m, s^-1),  ᴸ∙ ᵀ^-1, nothing}}" ||
                   string(typeof(1.0m/s)) ==
-                "Quantity{Float64, ᴸ∙ ᵀ^-1,FreeUnits{(m, s^-1), ᴸ∙ ᵀ^-1,nothing}}" 
+                "Quantity{Float64, ᴸ∙ ᵀ^-1,FreeUnits{(m, s^-1), ᴸ∙ ᵀ^-1,nothing}}"
             @test string(typeof(m/s)) ==
                 "FreeUnits{(m, s^-1),  ᴸ∙ ᵀ^-1, nothing}" ||
                   string(typeof(m/s)) ==
@@ -1467,7 +1466,7 @@ if VERSION >= VersionNumber("1.5.0-rc1")
             @test shortp(x) == "[1\e[36mm\e[39m 2]"
             @test longp(x) == "1×2 Matrix{Quantity{Int64, D, U} where {D, U}}:\n 1\e[36mm\e[39m  2" ||
                   longp(x) == "1×2 Matrix{Quantity{Int64}}:\n 1\e[36mm\e[39m  2" ||
-                  longp(x) == "1×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1\e[36mm\e[39m  2" 
+                  longp(x) == "1×2 Array{Quantity{Int64,D,U} where U where D,2}:\n 1\e[36mm\e[39m  2"
             x = qntuple
             @test shortp(x) == "(1, 2)\e[36mm\e[39m"
             @test longp(x) == "(1, 2)\e[36mm\e[39m"

@@ -108,18 +108,42 @@ julia> unit(typeof(1.0u"m")) == u"m"
 true
 ```
 """
-@inline unit(x::AbstractQuantity{T,D,U}) where {T,D,U} = U()
-# This line causes hard-to-track down errors during compilation of seemingly unrelated functions like @info.
-# The intention is making logarithmic quantities work ()
-# ERROR: LoadError: UndefVarError: U not defined
-#  [1] unit(#unused#::Core.TypeofBottom)
-#    @ Unitfu ~\.julia\dev\Unitfu\src\utils.jl:112
-#  [2] showunit(io::IOContext{IOBuffer}, x::Type)
-#    @ Unitfu ~\.julia\dev\Unitfu\src\display.jl:284
-@inline unit(@nospecialize t::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = U()
-# Possible fix of the above: Also define more restricted methods.
-@inline unit(x::Quantity{T,D,U}) where {T,D,U} = U()
-@inline unit(::Type{Quantity{T,D,U}}) where {T,D,U} = U()
+@inline function unit(x::AbstractQuantity{T,D,U}) where {T,D,U}
+    if @isdefined U
+        U()
+    else
+        throw("This never happens")
+    end
+end
+# This next definition prevents the compiler in shying away from compiling all eventualities.
+# This could for example be useful to have for printing error messages while U is being promoted.
+@inline unit(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:Core.TypeofBottom} = Base.undef_ref_str
+@inline function unit(@nospecialize t::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U}
+    if @isdefined U
+        U()
+    else
+        throw("This does not happen")
+    end
+end
+
+
+# Possible fix of the above: Also define more restricted methods. Probably not necessary,
+# but this would need to be tested, and good tests are hard to come by.
+@inline function unit(x::Quantity{T,D,U}) where {T,D,U}
+    if @isdefined U
+        U()
+    else
+        throw("The compiler won't shy away from this function")
+    end
+end
+
+@inline function unit(::Type{Quantity{T,D,U}}) where {T,D,U} #
+    if @isdefined U
+        U()
+    else
+        throw("Actually, how would this be possible?")
+    end
+end
 
 """
     unit(x::Number)
@@ -140,11 +164,13 @@ julia> unit(1.0) == NoUnits
 true
 ```
 """
-@inline unit(x::Number) = NoUnits
-@inline unit(x::Type{T}) where {T <: Number} = NoUnits
-@inline unit(x::Type{Union{Missing, T}}) where T = unit(T)
-@inline unit(x::Type{Missing}) = missing
-@inline unit(x::Missing) = missing
+@inline unit(x::Number) = NoUnits #
+@inline unit(x::Type{T}) where {T <: Number} = NoUnits #
+@inline unit(x::Type{Union{Missing, T}}) where T = unit(T) #
+@inline unit(x::Type{Missing}) = missing #
+@inline unit(x::Missing) = missing #
+@inline unit(x::Base.TwicePrecision{Q}) where Q<:Quantity = unit(x.hi) #
+@inline unit(a::MixedUnits{L,U}) where {L,U} = U() #
 
 """
     absoluteunit(::Units)
@@ -157,6 +183,7 @@ the same promotion unit, which may be an affine unit, so take care.
 function absoluteunit end
 
 absoluteunit(x::AbstractQuantity{T,D,U}) where {T,D,U} = absoluteunit(U())
+absoluteunit(x::AbstractQuantity{T,D,U}) where {T,D,U<:Core.TypeofBottom} = Base.undef_ref_str
 absoluteunit(::FreeUnits{N,D,A}) where {N,D,A} = FreeUnits{N,D}()
 absoluteunit(::ContextUnits{N,D,P,A}) where {N,D,P,A} = ContextUnits{N,D,P}()
 absoluteunit(::FixedUnits{N,D,A}) where {N,D,A} = FixedUnits{N,D}()

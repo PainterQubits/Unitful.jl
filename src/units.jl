@@ -278,7 +278,7 @@ Base.nbitslen(::Type{Q}, len, offset) where Q<:Quantity =
 
 ustrip(x::Base.TwicePrecision{Q}) where Q<:Quantity =
     Base.TwicePrecision(ustrip(x.hi), ustrip(x.lo))
-unit(x::Base.TwicePrecision{Q}) where Q<:Quantity = unit(x.hi)
+
 
 function Base.twiceprecision(x::Union{Q,Base.TwicePrecision{Q}}, nb::Integer) where Q<:Quantity
     xt = Base.twiceprecision(ustrip(x), nb)
