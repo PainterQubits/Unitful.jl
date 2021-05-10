@@ -270,8 +270,8 @@
             @test_throws InexactError convert(Second, 1u"ms")
             @test_throws DimensionError Second(1u"m")
             @test_throws DimensionError convert(Second, 1u"m")
-            @test_throws MethodError Month(1u"s") # Doesn't throw MethodError because Month(::Number) exists
-            @test_throws MethodError Year(1u"s") # Doesn't throw MethodError because Year(::Number) exists
+            @test_throws TypeError Month(1u"s") # Doesn't throw MethodError because Month(::Number) exists
+            @test_throws TypeError Year(1u"s") # Doesn't throw MethodError because Year(::Number) exists
             @test_throws MethodError strict_uconvert(Month, 1u"s")
             @test_throws MethodError strict_uconvert(Year, 1u"s")
 

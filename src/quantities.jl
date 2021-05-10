@@ -386,12 +386,15 @@ for (f,r) = ((:trunc, :RoundToZero), (:floor, :RoundDown), (:ceil, :RoundUp))
     @eval $f(u::Units, x::AbstractQuantity; kwargs...) = round(u, x, $r; kwargs...)
 end
 
-zero(x::AbstractQuantity) = Quantity(zero(x.val), unit(x))
+zero(x::AbstractQuantity) = zero(typeof(x))
 zero(x::AffineQuantity) = Quantity(zero(x.val), absoluteunit(x))
 zero(x::Type{<:AbstractQuantity{T}}) where {T} = throw(ArgumentError("zero($x) not defined."))
 zero(x::Type{<:AbstractQuantity{T,D}}) where {T,D} = zero(T) * upreferred(D)
 zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:ScalarUnits} = zero(T)*U()
 zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:AffineUnits} = zero(T)*absoluteunit(U())
+# Mixed units are not fully inferrable, but we try to do better than simply having the compiler inferring Any,
+# in hope of reducing the number of compiled methods and improving type stability.
+zero(u::Array{Quantity{T, D, U} where {D, U}}) where T =  T.(zero.(u))
 
 one(x::AbstractQuantity) = one(x.val)
 one(x::AffineQuantity) =
@@ -466,6 +469,17 @@ Convert the numeric backing type of `x` to an integer representation.
 Returns a `Quantity` with the same units.
 """
 Integer(x::AbstractQuantity) = Quantity(Integer(x.val), unit(x))
+for f in ( :BigInt, :Int128, :Int16, :Int32, :Int64,  :Int8)
+    @eval begin
+    """
+        $($f)(x::AbstractQuantity)
+    Convert the numeric backing type of `x` to an integer representation.
+    Returns a `Quantity` with the same units.
+    """
+    (Base.$f)(x::AbstractQuantity) = Quantity($f(x.val), unit(x))
+    end
+end
+
 
 """
     Rational(x::AbstractQuantity)

@@ -144,6 +144,10 @@ end
             @test @inferred(float(3m)) === 3.0m
             @test @inferred(Float32(3m)) === 3.0f0m
             @test @inferred(Integer(3.0A)) === 3A
+
+            @test @inferred(Float64(1m)) === 1.0m
+            @test @inferred(Int64(1.0m)) === 1m
+
             @test Rational(3.0m) === (Int64(3)//1)*m
             @test typeof(convert(typeof(0.0°), 90°)) == typeof(0.0°)
             @test (3.0+4.0im)*V == (3+4im)*V
@@ -154,6 +158,7 @@ end
             @test @inferred(uconvert(g,1g)) === 1g
             @test @inferred(uconvert(m,0x01*m)) === 0x01*m
             @test @inferred(convert(Quantity{Float64, ᴸ}, 1m)) === 1.0m
+            @test @inferred(convert(Quantity{Int64, ᴸ}, 1.0m)) === 1m
             @test 1kg === 1kg
             @test typeof(1m)(1m) === 1m
 
@@ -1295,8 +1300,11 @@ end
             @test size(rand(Q, 2)) == (2,)
             @test size(rand(Q, 2, 3)) == (2,3)
             @test eltype(@inferred(rand(Q, 2))) == Q
-            @test_throws ArgumentError zero([1u"m", 1u"s"])
+            @test zero([1.0u"m", 1.0u"s"]) == [0.0u"m", 0.0u"s"]
+            @test zero([1u"m", 1u"s"]) == [0u"m", 0u"s"]
             @test zero(Quantity{Int,ᴸ}[1u"m", 1u"mm"]) == [0, 0]u"m"
+            r0 = [1.0km, 2km, 3m/s, 4m/s]
+            @test zero(r0) == [0.0km, 0.0km, 0.0m/s, 0.0m/s]
         end
     end
     @testset "> Tuples and NTuples" begin
