@@ -392,9 +392,6 @@ zero(x::Type{<:AbstractQuantity{T}}) where {T} = throw(ArgumentError("zero($x) n
 zero(x::Type{<:AbstractQuantity{T,D}}) where {T,D} = zero(T) * upreferred(D)
 zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:ScalarUnits} = zero(T)*U()
 zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:AffineUnits} = zero(T)*absoluteunit(U())
-# Mixed units are not fully inferrable, but we try to do better than simply having the compiler inferring Any,
-# in hope of reducing the number of compiled methods and improving type stability.
-zero(u::Array{Quantity{T, D, U} where {D, U}}) where T =  T.(zero.(u))
 
 one(x::AbstractQuantity) = one(x.val)
 one(x::AffineQuantity) =

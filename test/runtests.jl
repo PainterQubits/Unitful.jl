@@ -1300,11 +1300,12 @@ end
             @test size(rand(Q, 2)) == (2,)
             @test size(rand(Q, 2, 3)) == (2,3)
             @test eltype(@inferred(rand(Q, 2))) == Q
-            @test zero([1.0u"m", 1.0u"s"]) == [0.0u"m", 0.0u"s"]
-            @test zero([1u"m", 1u"s"]) == [0u"m", 0u"s"]
+            @test @inferred(zero([1.0u"m", 2.0u"m"])) == [0.0u"m", 0.0u"m"]
+            @test_throws ArgumentError zero([1.0u"m", 1.0u"s"]) == [0.0u"m", 0.0u"s"]
+            @test_throws ArgumentError  zero([1u"m", 1u"s"]) == [0u"m", 0u"s"]
             @test zero(Quantity{Int,ᴸ}[1u"m", 1u"mm"]) == [0, 0]u"m"
             r0 = [1.0km, 2km, 3m/s, 4m/s]
-            @test zero(r0) == [0.0km, 0.0km, 0.0m/s, 0.0m/s]
+            @test_throws ArgumentError zero(r0) == [0.0km, 0.0km, 0.0m/s, 0.0m/s]
         end
     end
     @testset "> Tuples and NTuples" begin
