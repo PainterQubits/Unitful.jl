@@ -299,3 +299,13 @@ For multiplication and division, note that powers-of-ten prefixes are significan
 in unit cancellation. For instance, `mV/V` is not simplified, although `V/V` is.
 Also, `N*m/J` is not simplified: there is currently no logic to decide
 whether or not units on a dimensionless quantity seem "intentional" or not.
+
+## Adding units to a real number
+Untis can be easily added to a real number using the `Quantity` constructor. This may be useful when the value of a unit is not yet known.
+
+```jldoctest
+julia> unknown_num = 5;
+
+julia> Quantity(unknown_num,mm)
+5 mm
+```
