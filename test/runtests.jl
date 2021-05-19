@@ -1299,6 +1299,10 @@ end
         @test string(dimension(1u"m/s")) == "𝐋 𝐓^-1"
         @test string(NoDims) == "NoDims"
     end
+    @testset "fancy_exponents kwarg" begin
+        @test sprint(io -> show(io, u"m/s"; fancy_exponents = true)) == "m s⁻¹"
+        @test sprint(io -> show(io, u"m/s"; fancy_exponents = false)) == "m s^-1"
+    end
 end
 
 struct Foo <: Number end

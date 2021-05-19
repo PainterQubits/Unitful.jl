@@ -84,11 +84,11 @@ tolog(L,x) = (1+isrootpower(L)) * prefactor(L()) * (logfn(L()))(x)
 fromlog(L,S,x) = unwrap(S) * expfn(L())( x / ((1+isrootpower(S))*prefactor(L())) )
 fromlog(L,x) = expfn(L())( x / ((1+isrootpower(L))*prefactor(L())) )
 
-function Base.show(io::IO, x::MixedUnits{T,U}) where {T,U}
+function Base.show(io::IO, x::MixedUnits{T,U}; fancy_exponents::Bool = get_fancy_exponents_env()) where {T,U}
     print(io, abbr(x))
     if x.units != NoUnits
         print(io, " ")
-        show(io, x.units)
+        show(io, x.units; fancy_exponents = fancy_exponents)
     end
 end
 

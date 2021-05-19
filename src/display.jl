@@ -23,6 +23,15 @@ const prefixdict = Dict(
     24  => "Y"
 )
 
+const docstring_for_fancy_exponents_kwarg = "- `fancy_exponents::Bool`. By default, this is `true` on macOS and false otherwise."
+
+function get_fancy_exponents_env()
+    v = get(ENV, "UNITFUL_FANCY_EXPONENTS", Sys.isapple() ? "true" : "false")
+    t = tryparse(Bool, lowercase(v))
+    fancy_exponents = (t === nothing) ? false : t
+    return fancy_exponents
+end
+
 """
 `abbr(x)` provides abbreviations for units or dimensions. Since a method should
 always be defined for each unit and dimension type, absence of a method for a
@@ -44,8 +53,8 @@ function prefix(x::Unit)
     end
 end
 
-function show(io::IO, x::Unit{N,D}) where {N,D}
-    show(io, FreeUnits{(x,), D, nothing}())
+function show(io::IO, x::Unit{N,D}; fancy_exponents::Bool = get_fancy_exponents_env()) where {N,D}
+    show(io, FreeUnits{(x,), D, nothing}(); fancy_exponents = fancy_exponents)
 end
 
 abstract type BracketStyle end
@@ -81,19 +90,22 @@ BracketStyle(::Type) = NoBrackets()
 BracketStyle(::Type{<:Complex}) = RoundBrackets()
 
 """
-    showval(io::IO, x::Number, brackets::Bool=true)
+    showval(io::IO, x::Number, brackets::Bool=true; kwargs...)
 
 Show the numeric value `x` of a quantity. Depending on the type of `x`, the value may be
 enclosed in brackets (see [`BracketStyle`](@ref)). If `brackets` is set to `false`, the
 brackets are not printed.
+
+# Optional keyword arguments
+$(docstring_for_fancy_exponents_kwarg)
 """
-function showval(io::IO, x::Number, brackets::Bool=true)
+function showval(io::IO, x::Number, brackets::Bool=true; fancy_exponents::Bool = get_fancy_exponents_env())
     brackets && print_opening_bracket(io, x)
     show(io, x)
     brackets && print_closing_bracket(io, x)
 end
 
-function showval(io::IO, mime::MIME, x::Number, brackets::Bool=true)
+function showval(io::IO, mime::MIME, x::Number, brackets::Bool=true; fancy_exponents::Bool = get_fancy_exponents_env())
     brackets && print_opening_bracket(io, x)
     show(io, mime, x)
     brackets && print_closing_bracket(io, x)
@@ -107,25 +119,28 @@ has_unit_spacing(u) = true
 has_unit_spacing(u::Units{(Unit{:Degree, NoDims}(0, 1//1),), NoDims}) = false
 
 """
-    show(io::IO, x::Quantity)
+    show(io::IO, x::Quantity; kwargs...)
 Show a unitful quantity by calling [`showval`](@ref) on the numeric value, appending a
 space, and then calling `show` on a units object `U()`.
+
+# Optional keyword arguments
+$(docstring_for_fancy_exponents_kwarg)
 """
-function show(io::IO, x::Quantity)
+function show(io::IO, x::Quantity; fancy_exponents::Bool = get_fancy_exponents_env())
     if isunitless(unit(x))
-        showval(io, x.val, false)
+        showval(io, x.val, false; fancy_exponents = fancy_exponents)
     else
-        showval(io, x.val, true)
+        showval(io, x.val, true; fancy_exponents = fancy_exponents)
         has_unit_spacing(unit(x)) && print(io, ' ')
-        show(io, unit(x))
+        show(io, unit(x); fancy_exponents = fancy_exponents)
     end
 end
 
-function show(io::IO, mime::MIME"text/plain", x::Quantity)
+function show(io::IO, mime::MIME"text/plain", x::Quantity; fancy_exponents::Bool = get_fancy_exponents_env())
     if isunitless(unit(x))
-        showval(io, mime, x.val, false)
+        showval(io, mime, x.val, false; fancy_exponents = fancy_exponents)
     else
-        showval(io, mime, x.val, true)
+        showval(io, mime, x.val, true; fancy_exponents = fancy_exponents)
         has_unit_spacing(unit(x)) && print(io, ' ')
         show(io, mime, unit(x))
     end
@@ -150,17 +165,20 @@ function show(io::IO, x::typeof(NoDims))
 end
 
 """
-    show(io::IO, x::Unitlike)
+    show(io::IO, x::Unitlike; kwargs...)
 Call [`Unitful.showrep`](@ref) on each object in the tuple that is the type
 variable of a [`Unitful.Units`](@ref) or [`Unitful.Dimensions`](@ref) object.
+
+# Optional keyword arguments
+$(docstring_for_fancy_exponents_kwarg)
 """
-function show(io::IO, x::Unitlike)
+function show(io::IO, x::Unitlike; fancy_exponents::Bool = get_fancy_exponents_env())
     showoperators = get(io, :showoperators, false)
     first = ""
     sep = showoperators ? "*" : " "
     foreach(sortexp(typeof(x).parameters[1])) do y
         print(io,first)
-        showrep(io,y)
+        showrep(io, y; fancy_exponents = fancy_exponents)
         first = sep
     end
     nothing
@@ -176,36 +194,42 @@ function sortexp(xs)
 end
 
 """
-    showrep(io::IO, x::Unit)
+    showrep(io::IO, x::Unit; kwargs...)
 Show the unit, prefixing with any decimal prefix and appending the exponent as
 formatted by [`Unitful.superscript`](@ref).
+
+# Optional keyword arguments
+$(docstring_for_fancy_exponents_kwarg)
 """
-function showrep(io::IO, x::Unit)
+function showrep(io::IO, x::Unit; fancy_exponents::Bool = get_fancy_exponents_env())
     print(io, prefix(x))
     print(io, abbr(x))
-    print(io, (power(x) == 1//1 ? "" : superscript(power(x))))
+    print(io, (power(x) == 1//1 ? "" : superscript(power(x); fancy_exponents = fancy_exponents)))
     nothing
 end
 
 """
-    showrep(io::IO, x::Dimension)
+    showrep(io::IO, x::Dimension; kwargs...)
 Show the dimension, appending any exponent as formatted by
 [`Unitful.superscript`](@ref).
+
+# Optional keyword arguments
+$(docstring_for_fancy_exponents_kwarg)
 """
-function showrep(io::IO, x::Dimension)
+function showrep(io::IO, x::Dimension; fancy_exponents::Bool = get_fancy_exponents_env())
     print(io, abbr(x))
-    print(io, (power(x) == 1//1 ? "" : superscript(power(x))))
+    print(io, (power(x) == 1//1 ? "" : superscript(power(x); fancy_exponents = fancy_exponents)))
 end
 
 """
-    superscript(i::Rational)
+    superscript(i::Rational; kwargs...)
 Prints exponents.
+
+# Optional keyword arguments
+$(docstring_for_fancy_exponents_kwarg)
 """
-function superscript(i::Rational)
-    v = get(ENV, "UNITFUL_FANCY_EXPONENTS", Sys.isapple() ? "true" : "false")
-    t = tryparse(Bool, lowercase(v))
-    k = (t === nothing) ? false : t
-    if k
+function superscript(i::Rational; fancy_exponents::Bool = get_fancy_exponents_env())
+    if fancy_exponents
         return i.den == 1 ? superscript(i.num) : string(superscript(i.num), '\u141F', superscript(i.den))
     else
         i.den == 1 ? "^" * string(i.num) : "^" * replace(string(i), "//" => "/")
