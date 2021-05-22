@@ -49,6 +49,41 @@ true
 @inline ustrip(x::Quantity) = ustrip(x.val)
 @inline ustrip(x::Missing) = missing
 
+
+"""
+    ubasestrip(q::AbstractQuantity)
+    ubasestrip(u::Unitlike)
+    ubasestrip(s::String)
+
+Returns the numerical value of a quantity resp. conversion factor of a unit expressed in 
+base (preferred) units. This provides an easy way to express different combinations
+of units (and physical constants) in base units, allowing to use Unitful.jl
+(and PhysicalConstants.jl) as a consistent source of information even for "unitless" packages.
+
+```jldoctest
+julia> ubasestrip(2cm) == 2//100
+true
+
+julia> ubasestrip(u"cm") == 2//100
+true
+
+julia> ubasestrip("cm") == 2//100
+true
+```
+
+```
+julia> using PhysicalConstants.CODATA2018
+julia> ubasestrip(AvogadroConstant) == 6.02214076e23
+true
+```
+
+"""
+@inline ubasestrip(q::AbstractQuantity) = ustrip(upreferred(q).val)
+@inline ubasestrip(u::Unitlike) = ubasestrip(1u)
+@inline ubasestrip(s::String) = ubasestrip(1uparse(s))
+
+
+
 """
     ustrip(x::Array{Q}) where {Q <: Quantity}
 Strip units from an `Array` by reinterpreting to type `T`. The resulting

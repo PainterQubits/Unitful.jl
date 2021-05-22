@@ -33,6 +33,12 @@ Unitful.dimension
 Unitful.ustrip
 ```
 
+## Unit stripping from base units
+
+```@docs
+Unitful.ubasestrip
+```
+
 ## Unit multiplication
 
 ```@docs

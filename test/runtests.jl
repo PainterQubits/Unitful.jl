@@ -115,6 +115,12 @@ end
         @test @inferred(ustrip(Int, mm, 2.0m)) === 2000
         @test @inferred(ustrip(Float32, NoUnits, 5.0u"m"/2.0u"m")) === Float32(2.5)
         @test @inferred(ustrip(Int, NoUnits, 3.0u"m"/1.0u"cm")) === 300
+        # ubasestrip
+        @test @inferred(ubasestrip(3.0m)) === 3.0
+        @test @inferred(ubasestrip(2mm)) === 1//500
+        @test @inferred(ubasestrip(mm)) === 1//1000
+        @test ubasestrip("mm") === 1//1000
+
         # convert
         @test convert(typeof(1mm/m), 3) == 3000mm/m
         @test convert(typeof(1mm/m), 3*NoUnits) == 3000mm/m

@@ -27,7 +27,7 @@ import Random
 
 import ConstructionBase: constructorof
 
-export logunit, unit, absoluteunit, dimension, uconvert, ustrip, upreferred
+export logunit, unit, absoluteunit, dimension, uconvert, ustrip, ubasestrip, upreferred
 export @dimension, @derived_dimension, @refunit, @unit, @affineunit, @u_str
 export Quantity, DimensionlessQuantity, NoUnits, NoDims
 
