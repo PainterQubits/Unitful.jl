@@ -312,7 +312,7 @@ julia> uconvert(m, 1km) / 1m
 julia> m(1km) / 1m
 1000.0
 
-# Using the piping operator to convert to meter/meter:
+# Using the piping operator to convert to m/m, which is automatically canceled:
 julia>  1km/1m |> m/m
 1000.0
 
