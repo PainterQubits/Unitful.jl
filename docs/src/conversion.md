@@ -299,3 +299,24 @@ For multiplication and division, note that powers-of-ten prefixes are significan
 in unit cancellation. For instance, `mV/V` is not simplified, although `V/V` is.
 Also, `N*m/J` is not simplified: there is currently no logic to decide
 whether or not units on a dimensionless quantity seem "intentional" or not.
+It is however possible to cancel units manually. In the hour examples below,
+it is shown how to cancel the units of 1km/1m:
+```jldoctest
+julia> using Unitful, Unitful.DefaultSymbols
+
+# Converting the units to be equal with `uconvert`:
+julia> uconvert(m, 1km) / 1m
+1000.0
+
+# Using a unit as a function to convert to it
+julia> m(1km) / 1m
+1000.0
+
+# Using the piping operator to convert to meter/meter:
+julia>  1km/1m |> m/m
+1000.0
+
+# The units are arbitrary, since the quantity is dimensionless:
+julia>  1km/1m |> J/J
+1000.0
+```
