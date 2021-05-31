@@ -215,6 +215,7 @@ function superscript(i::Rational; io::Union{IO, Nothing} = nothing)
     if iocontext_value isa Bool
         fancy_exponent = iocontext_value
     else
+        haskey(ENV, "UNITFUL_FANCY_EXPONENTS") && @warn("the `UNITFUL_FANCY_EXPONENTS` environment variable is deprecated; please use the `:fancy_exponent` IO context property instead", maxlog=1)
         v = get(ENV, "UNITFUL_FANCY_EXPONENTS", Sys.isapple() ? "true" : "false")
         t = tryparse(Bool, lowercase(v))
         fancy_exponent = (t === nothing) ? false : t
