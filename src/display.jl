@@ -183,7 +183,7 @@ formatted by [`Unitful.superscript`](@ref).
 function showrep(io::IO, x::Unit)
     print(io, prefix(x))
     print(io, abbr(x))
-    print(io, (power(x) == 1//1 ? "" : superscript(power(x))))
+    print(io, (power(x) == 1//1 ? "" : superscript(power(x); io=io)))
     nothing
 end
 
@@ -194,18 +194,32 @@ Show the dimension, appending any exponent as formatted by
 """
 function showrep(io::IO, x::Dimension)
     print(io, abbr(x))
-    print(io, (power(x) == 1//1 ? "" : superscript(power(x))))
+    print(io, (power(x) == 1//1 ? "" : superscript(power(x); io=io)))
 end
 
 """
-    superscript(i::Rational)
-Prints exponents.
+    superscript(i::Rational; io::Union{IO, Nothing} = nothing)
+Returns exponents as a string.
+
+This function returns the value as a string. It does not print to `io`. `io` is
+only used for IO context values. If `io` contains the `:fancy_exponent`
+property and the value is a `Bool`, this value will override the behavior of
+fancy exponents.
 """
-function superscript(i::Rational)
-    v = get(ENV, "UNITFUL_FANCY_EXPONENTS", Sys.isapple() ? "true" : "false")
-    t = tryparse(Bool, lowercase(v))
-    k = (t === nothing) ? false : t
-    if k
+function superscript(i::Rational; io::Union{IO, Nothing} = nothing)
+    if io === nothing
+        iocontext_value = nothing
+    else
+        iocontext_value = get(io, :fancy_exponent, nothing)
+    end
+    if iocontext_value isa Bool
+        fancy_exponent = iocontext_value
+    else
+        v = get(ENV, "UNITFUL_FANCY_EXPONENTS", Sys.isapple() ? "true" : "false")
+        t = tryparse(Bool, lowercase(v))
+        fancy_exponent = (t === nothing) ? false : t
+    end
+    if fancy_exponent
         return i.den == 1 ? superscript(i.num) : string(superscript(i.num), '\u141F', superscript(i.den))
     else
         i.den == 1 ? "^" * string(i.num) : "^" * replace(string(i), "//" => "/")
