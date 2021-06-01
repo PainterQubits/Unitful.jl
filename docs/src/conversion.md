@@ -300,19 +300,19 @@ in unit cancellation. For instance, `mV/V` is not simplified, although `V/V` is.
 Also, `N*m/J` is not simplified: there is currently no logic to decide
 whether or not units on a dimensionless quantity seem "intentional" or not.
 It is however possible to cancel units manually. In the equivalent examples below,
-it is shown how to cancel the units of 1km/1m:
+it is shown how to cancel the units of 1km/2.5m:
 ```jldoctest
 julia> using Unitful, Unitful.DefaultSymbols
 
 # Converting the units to be equal with `uconvert` for automatic canceling:
-julia> uconvert(m, 1km) / 1m
-1000.0
+julia> uconvert(m, 1km) / 2.5m
+400.0
 
 # Using the unit as a function for conversion instead of `uconvert`
-julia> m(1km) / 1m
-1000.0
+julia> m(1km) / 2.5m
+400.0
 
-# Using the piping operator to convert to the NoUnit type
-julia>  1km/1m |> NoUnit
-1000.0
+# Using the piping operator to convert to the NoUnits type
+julia>  1km/2.5m |> NoUnits
+400.0
 ```
