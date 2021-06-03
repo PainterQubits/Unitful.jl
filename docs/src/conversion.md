@@ -300,10 +300,10 @@ in unit cancellation. For instance, `mV/V` is not simplified, although `V/V` is.
 Also, `N*m/J` is not simplified: there is currently no logic to decide
 whether or not units on a dimensionless quantity seem "intentional" or not.
 It is however possible to cancel units manually, by passing the dimentionless
-size to the `NoUnits` constructor. This takes care of different SI-prefixes:
+size to the [`NoUnits`](@ref) constructor. This takes into account different SI-prefixes:
 ```jldoctest
 julia> using Unitful
 
-julia>  1u"km"/4u"m" |> NoUnits
+julia>  julia> 1u"kN*m"/4u"J" |> NoUnits
 250.0
 ```
