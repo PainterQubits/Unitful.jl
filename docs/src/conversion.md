@@ -299,3 +299,11 @@ For multiplication and division, note that powers-of-ten prefixes are significan
 in unit cancellation. For instance, `mV/V` is not simplified, although `V/V` is.
 Also, `N*m/J` is not simplified: there is currently no logic to decide
 whether or not units on a dimensionless quantity seem "intentional" or not.
+It is however possible to cancel units manually, by passing the dimensionless
+quantity to the [`NoUnits`](@ref) constructor. This takes into account different SI-prefixes:
+```jldoctest
+julia> using Unitful
+
+julia>  julia> 1u"kN*m"/4u"J" |> NoUnits
+250.0
+```
