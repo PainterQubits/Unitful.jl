@@ -74,7 +74,7 @@ for (_x,_y) in ((:sin,:sind), (:cos,:cosd), (:tan,:tand),
 end
 @static if VERSION ≥ v"1.3.0-rc1"
     import Base: sincosd
-    @eval sincosd(x::Quantity{T, NoDims, typeof(°)}) where {T} = sincosd(ustrip(x))
+    sincosd(x::Quantity{T, NoDims, typeof(°)}) where {T} = sincosd(ustrip(x))
 end
 
 # SI and related units
