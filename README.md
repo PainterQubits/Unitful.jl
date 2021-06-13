@@ -10,14 +10,15 @@
 ## About this clone / fork
 We intend to keep pulling in further improvements from [PainterQubits/Unitful.jl](https://github.com/PainterQubits/Unitful.jl), and suggest improvements to Unitful.jl as well. Hopefully, in future, Unitful.jl's core functionality may be separated into a separate package, reducing the motivation for forks like this.
 
-This is a minor adaption of the original, affecting parsing, display and constructors / conversion only. The changes 
-were previously made through type piracy in dependent packages, e.g. [MechanicalUnits.jl](https://github.com/hustf/MechanicalUnits.jl) was 
+This is a minor adaption of the original, affecting parsing, display and constructors / conversion only. The changes
+were previously made through type piracy in dependent packages, e.g. [MechanicalUnits.jl](https://github.com/hustf/MechanicalUnits.jl) was
 changing how types defined by Unitful were dislayed and parsed.
 Type piracy tends to destroy pre-compilation, hence forking Unitful is a cleaner solution.
 
 The changes in this fork are:
 
 * 'show' methods are moved into 'display.jl'
+* 'fancy exponents' is the default behavior on all operating systems (apple and windows on versions previous to 1.8)
 * Dimension symbols ( ᴸ for Length, also ᵀ, ᴺ, ᶿ ) can be displayed in Windows terminals. Unitful's (𝐋 for Length, 𝐓, 𝐍, 𝚯) are problematic.
 * Units are printed with color and in a form that can be [parsed by Julia](https://docs.julialang.org/en/v1/base/io-network/#Text-I/O). Fancy superscripts and the unit separator, ∙ are exported by [MechanicalUnits.jl](https://github.com/hustf/MechanicalSketch.jl)
 * Collections (tuples, arrays, vectors) with identical elements are printed with units outside of brackets, without redundant type information:
@@ -51,7 +52,7 @@ julia> import Unitful: mg, dyn
 julia> 1dyn |> mg
 10mg∙m∙s⁻²
 ```
-* `strict_uconvert(u, x)` is used where Unitful.jl uses `convert(u, x)` in place of quantity promotion. 
+* `strict_uconvert(u, x)` is used where Unitful.jl uses `convert(u, x)` in place of quantity promotion.
 
 ## Installing this clone / fork
 This fork is registered in [M8](https://github.com/hustf/M8).

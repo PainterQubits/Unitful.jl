@@ -34,8 +34,8 @@ import Unitfu:
 import Unitfu: LengthUnits, AreaUnits, MassUnits, TemperatureUnits
 
 
-Sys.iswindows() && push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
-Sys.isapple() && push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
+push!(ENV, "UNITFUL_FANCY_EXPONENTS" => "true")
+
 
 using Dates:
     Dates,
@@ -1366,6 +1366,10 @@ if VERSION >= VersionNumber("1.5.0-rc1")
             @test string(NoDims) == "NoDims"
         end
     end
+    @testset ":fancy_exponent IOContext property" begin
+        @test sprint(io -> show(IOContext(io, :fancy_exponent => true), u"m/s")) == "m∙s⁻¹"
+        @test sprint(io -> show(IOContext(io, :fancy_exponent => false), u"m/s")) == "m∙s^-1"
+    end
 end
 
 struct Foo <: Number end
@@ -1403,7 +1407,7 @@ if VERSION >= VersionNumber("1.6.0-rc1")
         end
         withenv("UNITFUL_FANCY_EXPONENTS" => nothing) do
             @test repr(1.0 * u"m * s * kg^(-1//2)") ==
-                (Sys.iswindows() || Sys.isapple() ? "1.0m∙s∙kg⁻¹ᐟ²" : "1.0m∙s∙kg^-1/2")
+                "1.0m∙s∙kg⁻¹ᐟ²"
         end
     end
 end

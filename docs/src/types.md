@@ -31,6 +31,7 @@ Finally, we define physical quantity types as [`Quantity{T<:Number, D, U}`](@ref
 quantity, staged functions can be used to offload as much of the unit
 computation to compile-time as is possible. By also having the dimensions
 explicitly in the type signature, dispatch can be done on dimensions:
+
 `isa(1m, Length) == true`. This works because `Length` is a type alias for
 some subset of `Unitfu.Quantity` subtypes.
 
