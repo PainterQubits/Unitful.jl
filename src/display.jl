@@ -262,7 +262,7 @@ Also prints with color when allowed by io.
 """
 function showrep(io::IO, x::Unit)
     col = get(io, :unitsymbolcolor, :cyan)
-    printstyled(io, color = col, prefix(x), abbr(x), power(x) == 1//1 ? "" : superscript(power(x);io))
+    printstyled(io, color = col, prefix(x), abbr(x), power(x) == 1//1 ? "" : superscript(power(x); io = io))
     nothing
 end
 """
@@ -287,7 +287,6 @@ end
 showunit(io::IO, ::MIME, x) = showunit(io, x)
 
 """
-<<<<<<< HEAD
 Returns exponents as a string.
 
 This function returns the value as a string. It does not print to `io`. `io` is
