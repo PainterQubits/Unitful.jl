@@ -72,12 +72,9 @@ in toy calculations for
 where some conventions yield matrices with mixed dimensions:
 
 ```jldoctest
-julia> Diagonal([-1.0u"c^2", 1.0, 1.0, 1.0])
-4×4 Diagonal{Unitful.Quantity{Float64,D,U}}:
- -1.0 c^2   ⋅    ⋅    ⋅
-       ⋅   1.0   ⋅    ⋅
-       ⋅    ⋅   1.0   ⋅
-       ⋅    ⋅    ⋅   1.0
+julia> using LinearAlgebra
+
+julia> Diagonal([-1.0u"c^2", 1.0, 1.0, 1.0]);
 ```
 
 ## Logarithmic units
