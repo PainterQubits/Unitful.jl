@@ -183,6 +183,7 @@ Base.hash(x::Level, h::UInt) = hash(x.val, h)
 for op in (:+, :-)
     @eval Base. $op(x::Level{L,S}, y::Level{L,S}) where {L,S} = Level{L,S}(($op)(x.val, y.val))
     @eval Base. $op(x::Gain{L,S}, y::Gain{L,S}) where {L,S} = Gain{L,S}(($op)(x.val, y.val))
+    @eval Base. $op(x::Gain{L,S}) where {L,S} = Gain{L,S}(($op)(x.val))
     @eval function Base. $op(x::Gain{L,S1}, y::Gain{L,S2}) where {L,S1,S2}
         if S1 == :?
             return Gain{L,S2}(($op)(x.val, y.val))
@@ -197,6 +198,8 @@ for op in (:+, :-)
 end
 Base. +(x::Gain, y::Level) = +(y,x)
 Base. -(x::Gain, y::Level) = throw(ArgumentError("cannot subtract a level from a gain."))
+Base. +(x::Level) = x
+Base. -(x::Level) = throw(ArgumentError("Levels cannot represent negative power. Negation not provided."))
 
 # Multiplication and division
 leveltype(x::Level{L,S}) where {L,S} = Level{L,S}

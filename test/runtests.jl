@@ -1529,6 +1529,8 @@ end
             @test 1Np + 1.5Np == 2.5Np
             @test_throws DimensionError (1dBm + 1dBV)
             @test_throws DimensionError (1dBm + 1V)
+            @test +(1dBm) == 1dBm
+            @test_throws ArgumentError -(1dBm)
         end
 
         @testset ">> Gain" begin
@@ -1554,6 +1556,8 @@ end
                 @test_throws ErrorException @eval ($op)(1dB, 1Np) # no promotion
                 @test_throws ErrorException @eval ($op)(1dB_rp, 1Np)
             end
+            @test -(10dB) === (-10)dB
+            @test +(10dB) === (10)dB
         end
 
         @testset ">> Level, meet Gain" begin
