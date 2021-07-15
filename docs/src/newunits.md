@@ -27,7 +27,7 @@ MyUnits
 julia> using Unitful
 
 julia> u"myMeter"
-ERROR: LoadError: ArgumentError: Symbol myMeter could not be found in unit modules Module[Unitful]
+ERROR: LoadError:
 [...]
 
 julia> Unitful.register(MyUnits);
