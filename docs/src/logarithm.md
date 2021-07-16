@@ -164,17 +164,17 @@ Finally, for completeness we note that both `Level` and `Gain` are subtypes of `
     Unitful.LogScaled
 ```
 
-## Addition and Multiplication rules
+## Addition and multiplication rules
 
-For dimensionaless logarithmic units, addition behaves as one might expect:
+For dimensionless logarithmic quantities, addition behaves as one might expect:
 
 ```jldoctest
 julia> 10u"dB" + 10u"dB"
 20 dB
 ```
 
-I.e. the gains add. However, as hinted at above, dimensionful logarithmic units,
-behave as their corresponding linear unit:
+I.e. the gains add. However, as hinted at above, dimensionful logarithmic quantities
+behave as their corresponding linear quantity:
 
 ```
 julia> 10u"dBm" + 10u"dBm"
@@ -246,10 +246,10 @@ julia> 0u"dB/Hz"
 [0 dB] Hz^-1
 ```
 
-Since dimensionful logarithmic units still behave as their corresponding linear unit,
-working with dimensionful units is entirely consistnet.
+Since dimensionful logarithmic quantities still behave as their corresponding linear quantities,
+working with dimensionful units is entirely consistent.
 
-The behavior of addition and multiplication are summarized in the following table, with entries marked by
+The behavior of addition and multiplication is summarized in the following tables, with entries marked by
 † indicate prohibited operations. This table is populated automatically whenever the docs
 are built.
 
@@ -330,10 +330,10 @@ julia> 10u"dBm" + (10u"dBm" + 20u"dB")
 julia> 10u"dBm" * 20u"dB"
 ERROR: ArgumentError: Multiplying a level by a Gain is disallowed. Use addition, or `linear` depending on context.
 
-julia> linear(10u"dBm") * 20u"dB"
+julia> 10u"mW" * 20u"dB"
 1000.0 mW
 
-julia> linear(10u"dBm") + 20u"dB"
+julia> 10u"mW" + 20u"dB"
 ERROR: ArgumentError: Adding a gain to a linear quantity is disallowed. Use multiplication or convert to `Level` first
 ```
 
