@@ -744,6 +744,7 @@ end
         # Issue 465:
         z = (1+im) * ones(2,3) * 1m
         @test !isapprox(z, 2z)
+        @test isapprox(z, z * (1 + 1e-15))
 
         # Test eps
         @test eps(1.0u"s") == eps(1.0)u"s"
