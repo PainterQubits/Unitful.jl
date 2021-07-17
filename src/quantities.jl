@@ -282,7 +282,7 @@ function isapprox(
     atol = zero(Quantity{real(T),D,U}),
     kwargs...,
 ) where {T,D,U}
-    return isapprox(x.val, y.val; atol=uconvert(unit(y), atol).val, kwargs...)
+    return isapprox(x.val, y.val; atol=ustrip(unit(y), atol), kwargs...)
 end
 
 function isapprox(x::AbstractQuantity, y::AbstractQuantity; kwargs...)
