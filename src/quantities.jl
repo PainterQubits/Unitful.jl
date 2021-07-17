@@ -275,18 +275,31 @@ for (i,j) in zip((:<, :isless), (:_lt, :_isless))
 end
 
 Base.rtoldefault(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = Base.rtoldefault(T)
-isapprox(x::AbstractQuantity{T,D,U}, y::AbstractQuantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) where {T,D,U} =
-    isapprox(x.val, y.val; atol=uconvert(unit(y), atol).val, kwargs...)
+
+function isapprox(
+    x::AbstractQuantity{T,D,U},
+    y::AbstractQuantity{T,D,U};
+    atol = zero(Quantity{real(T),D,U}),
+    kwargs...,
+) where {T,D,U}
+    return isapprox(x.val, y.val; atol=uconvert(unit(y), atol).val, kwargs...)
+end
+
 function isapprox(x::AbstractQuantity, y::AbstractQuantity; kwargs...)
     dimension(x) != dimension(y) && return false
     return isapprox(promote(x,y)...; kwargs...)
 end
+
 isapprox(x::AbstractQuantity, y::Number; kwargs...) = isapprox(promote(x,y)...; kwargs...)
 isapprox(x::Number, y::AbstractQuantity; kwargs...) = isapprox(y, x; kwargs...)
 
-function isapprox(x::AbstractArray{<:AbstractQuantity{T1,D,U1}},
-        y::AbstractArray{<:AbstractQuantity{T2,D,U2}}; rtol::Real=Base.rtoldefault(T1,T2,0),
-        atol=zero(Quantity{T1,D,U1}), norm::Function=norm) where {T1,D,U1,T2,U2}
+function isapprox(
+    x::AbstractArray{<:AbstractQuantity{T1,D,U1}},
+    y::AbstractArray{<:AbstractQuantity{T2,D,U2}};
+    rtol::Real=Base.rtoldefault(T1,T2,0),
+    atol=zero(Quantity{real(T1),D,U1}),
+    norm::Function=norm,
+) where {T1,D,U1,T2,U2}
 
     d = norm(x - y)
     if isfinite(d)
@@ -296,8 +309,10 @@ function isapprox(x::AbstractArray{<:AbstractQuantity{T1,D,U1}},
         return all(ab -> isapprox(ab[1], ab[2]; rtol=rtol, atol=atol), zip(x, y))
     end
 end
+
 isapprox(x::AbstractArray{S}, y::AbstractArray{T};
     kwargs...) where {S <: AbstractQuantity,T <: AbstractQuantity} = false
+
 function isapprox(x::AbstractArray{S}, y::AbstractArray{N};
     kwargs...) where {S <: AbstractQuantity,N <: Number}
     if dimension(N) == dimension(S)
@@ -306,6 +321,7 @@ function isapprox(x::AbstractArray{S}, y::AbstractArray{N};
         false
     end
 end
+
 isapprox(y::AbstractArray{N}, x::AbstractArray{S};
     kwargs...) where {S <: AbstractQuantity,N <: Number} = isapprox(x,y; kwargs...)
 
