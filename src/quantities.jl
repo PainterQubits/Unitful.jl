@@ -376,6 +376,7 @@ zero(x::Type{<:AbstractQuantity{T}}) where {T} = throw(ArgumentError("zero($x) n
 zero(x::Type{<:AbstractQuantity{T,D}}) where {T,D} = zero(T) * upreferred(D)
 zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:ScalarUnits} = zero(T)*U()
 zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:AffineUnits} = zero(T)*absoluteunit(U())
+zero(x::AbstractArray{<:AbstractQuantity}) = map(zero,x)
 
 one(x::AbstractQuantity) = one(x.val)
 one(x::AffineQuantity) =
