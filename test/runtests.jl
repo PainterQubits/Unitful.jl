@@ -1281,7 +1281,7 @@ end
             @test size(rand(Q, 2)) == (2,)
             @test size(rand(Q, 2, 3)) == (2,3)
             @test eltype(@inferred(rand(Q, 2))) == Q
-            @test_throws ArgumentError zero([1u"m", 1u"s"])
+            @test zero([1u"m", 1u"s"]) == [0u"m",0u"s"]
             @test zero(Quantity{Int,𝐋}[1u"m", 1u"mm"]) == [0, 0]u"m"
         end
     end
