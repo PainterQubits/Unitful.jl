@@ -227,3 +227,12 @@ superscript(i::Integer) = map(repr(i)) do c
     c == '0' ? '\u2070' :
     error("unexpected character")
 end
+
+Base.print(io::IO, x::Quantity) = show(io, "text/plain", x)
+Base.print(io::IO, x::Dimension) = show(io, "text/plain", x)
+Base.print(io::IO, x::Unit) = show(io, "text/plain", x)
+Base.print(io::IO, x::Union{StepRange{T},StepRangeLen{T}}) where T<:Quantity = show(io, "text/plain", x)
+Base.print(io::IO, x::typeof(NoDims)) = show(io, "text/plain", x)
+Base.print(io::IO, x::Unitlike) = show(io, "text/plain", x)
+Base.print(io::IO, x::MixedUnits{T,U}) where {T,U} = show(io, "text/plain", x)
+Base.print(io::IO, x::FreeUnits{N,D,A}) where {N,D,A} = show(io, "text/plain", x)

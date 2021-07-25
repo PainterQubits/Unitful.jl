@@ -1479,7 +1479,7 @@ end
     withenv("UNITFUL_FANCY_EXPONENTS" => false) do
         @static if VERSION ≥ v"1.6.0-DEV.770"
             @test string(typeof(1.0m/s)) ==
-               "Quantity{Float64, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}}"
+                "Quantity{Float64, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}}"
             @test string(typeof(m/s)) ==
                 "FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}"
         else
@@ -1488,8 +1488,8 @@ end
             @test string(typeof(m/s)) ==
                 "FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}"
         end
-        @test string(dimension(1u"m/s")) == "Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}()"
-        @test string(NoDims) == "Unitful.Dimensions{()}()"
+        @test string(dimension(1u"m/s")) == "𝐋 𝐓^-1"
+        @test string(NoDims) == "NoDims"
     end
     @testset ":fancy_exponent IOContext property" begin
         @test sprint(io -> show(IOContext(io, :fancy_exponent => true), u"m/s")) == "FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}()"
@@ -1552,6 +1552,14 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
         u = u"m/s"
         u2 = eval(Meta.parse(repr(u)))
         @test u == u2 
+
+        q = Quantity(5, u"m")
+        q2 = eval(Meta.parse(repr(q)))
+        @test q == q2 
+        
+        d = u"𝐌*𝐋/𝐓^2"
+        d2 = eval(Meta.parse(repr(d)))
+        @test d == d2 
     end
 end
 
@@ -1562,11 +1570,11 @@ end
         String(take!(b))
     end
     @test errorstr(DimensionError(1u"m",2)) ==
-        "DimensionError: Quantity{Int64, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}(), FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1),), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}(), nothing}}(1) and 2 are not dimensionally compatible."
+        "DimensionError: 1 m and 2 are not dimensionally compatible."
     @test errorstr(DimensionError(1u"m",NoDims)) ==
-        "DimensionError: Quantity{Int64, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}(), FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1),), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}(), nothing}}(1) and Unitful.Dimensions{()}() are not dimensionally compatible."
+        "DimensionError: 1 m and NoDims are not dimensionally compatible."
     @test errorstr(DimensionError(u"m",2)) ==
-        "DimensionError: FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1),), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}(), nothing}() and 2 are not dimensionally compatible."
+        "DimensionError: m and 2 are not dimensionally compatible."
 end
 
 @testset "Logarithmic quantities" begin
@@ -1890,7 +1898,7 @@ end
             @test repr("text/plain", 3u"dB/Hz") == "[3 dB] Hz^-1"
         end
         @test Unitful.abbr(3u"dBm") == "dBm"
-        @test Unitful.abbr(@dB 3V/1.241V) == "dB (Quantity{Float64, Unitful.Dimensions{(Unitful.Dimension{:Current}(-1//1), Unitful.Dimension{:Length}(2//1), Unitful.Dimension{:Mass}(1//1), Unitful.Dimension{:Time}(-3//1))}(), FreeUnits{(Unitful.Unit{:Volt, Unitful.Dimensions{(Unitful.Dimension{:Current}(-1//1), Unitful.Dimension{:Length}(2//1), Unitful.Dimension{:Mass}(1//1), Unitful.Dimension{:Time}(-3//1))}()}(0, 1//1),), Unitful.Dimensions{(Unitful.Dimension{:Current}(-1//1), Unitful.Dimension{:Length}(2//1), Unitful.Dimension{:Mass}(1//1), Unitful.Dimension{:Time}(-3//1))}(), nothing}}(1.241))"
+        @test Unitful.abbr(@dB 3V/1.241V) == "dB (1.241 V)"
         @test repr("text/plain", 360°) == "360°"
     end
 
