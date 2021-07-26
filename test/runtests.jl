@@ -1899,7 +1899,7 @@ end
         end
         @test Unitful.abbr(3u"dBm") == "dBm"
         @test Unitful.abbr(@dB 3V/1.241V) == "dB (1.241 V)"
-        @test repr("text/plain", 360°) == "360°"
+        @test string(360°) == "360°"
     end
 
     @testset "> Thanks for signing up for Log Facts!" begin
