@@ -1492,8 +1492,8 @@ end
         @test string(NoDims) == "NoDims"
     end
     @testset ":fancy_exponent IOContext property" begin
-        @test sprint(io -> show(IOContext(io, :fancy_exponent => true), u"m/s")) == "FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}()"
-        @test sprint(io -> show(IOContext(io, :fancy_exponent => false), u"m/s")) == "FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}()"
+        @test sprint(print, u"m/s", context = :fancy_exponent => true) == "m s⁻¹"
+        @test sprint(print, u"m/s", context = :fancy_exponent => false) == "m s^-1"
     end
 end
 
