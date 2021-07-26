@@ -235,7 +235,7 @@ struct DimensionError <: Exception
 end
 
 Base.showerror(io::IO, e::DimensionError) =
-    print(io, "DimensionError: $(string(e.x)) and $(string(e.y)) are not dimensionally compatible.");
+    print(io, "DimensionError: ", e.x, " and ", e.y, " are not dimensionally compatible.");
 
 """
     struct AffineError <: Exception
