@@ -246,4 +246,4 @@ struct AffineError <: Exception
     x
 end
 
-Base.showerror(io::IO, e::AffineError) = print(io, "AffineError: $(string(e.x))")
+Base.showerror(io::IO, e::AffineError) = print(io, "AffineError: ", e.x)
