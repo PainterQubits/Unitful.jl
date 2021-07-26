@@ -228,7 +228,7 @@ superscript(i::Integer) = map(repr(i)) do c
     error("unexpected character")
 end
 
-Base.print(io::IO, x::Quantity) = show(io, "text/plain", x)
+Base.print(io::IO, x::AbstractQuantity) = show(io, "text/plain", x)
 Base.print(io::IO, x::Dimension) = show(io, "text/plain", x)
 Base.print(io::IO, x::Unit) = show(io, "text/plain", x)
 Base.print(io::IO, x::Union{StepRange{T},StepRangeLen{T}}) where T<:Quantity = show(io, "text/plain", x)
