@@ -238,9 +238,15 @@ macro prefixed_unit_symbols(symb,name,user_dimension,basefactor)
     for (k,v) in prefixdict
         s = Symbol(v,symb)
         u = :($Unit{$n, $user_dimension}($k,1//1))
+        docstring1 = "Equal to 10^"*string(k)*" "*string(name)*", or "
+        docstring2 = ", with dimensions "*string(eval(user_dimension))
         ea = quote
             $(basefactors_expr(__module__, n, basefactor))
             const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
+            function Docs.getdoc(x::typeof($s))
+                factor = uconvert(upreferred($s),1*$s)
+                $docstring1*string(factor)*$docstring2
+            end
         end
         push!(expr.args, ea)
     end
@@ -267,9 +273,15 @@ macro unit_symbols(symb,name,user_dimension,basefactor)
     s = Symbol(symb)
     n = Meta.quot(Symbol(name))
     u = :($Unit{$n, $user_dimension}(0,1//1))
+    docstring1 = "Defines the "*string(name)*" as "
+    docstring2 = ", with dimensions "*string(eval(user_dimension))
     esc(quote
         $(basefactors_expr(__module__, n, basefactor))
         const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
+        function Docs.getdoc(x::typeof($s))
+            factor = uconvert(upreferred($s),1*$s)
+            $docstring1*string(factor)*$docstring2
+        end
     end)
 end
 
