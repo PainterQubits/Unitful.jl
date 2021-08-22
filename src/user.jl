@@ -310,7 +310,7 @@ function preferunits(u0::Units, u::Units...)
             "For instance, it should not be used with units of dimension 𝐋^2.")
         end
         y = typeof(dim).parameters[1][1]
-        promotion[name(y)] = typeof(unit).parameters[1][1]
+        promotion[name(y)] = unit
     end
 
     nothing

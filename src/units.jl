@@ -302,6 +302,6 @@ factory defaults, this function will return a product of powers of base SI units
 (as [`Unitful.FreeUnits`](@ref)).
 """
 @generated function upreferred(x::Dimensions{D}) where {D}
-    u = *(FreeUnits{((Unitful.promotion[name(z)]^z.power for z in D)...,),()}())
+    u = prod(Unitful.promotion[name(z)]^z.power for z in D)
     :($u)
 end
