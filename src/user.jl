@@ -60,8 +60,8 @@ macro dimension(symb, abbr, name)
     funame = Symbol(name,"FreeUnits")
     esc(quote
         $Unitful.abbr(::$Dimension{$x}) = $abbr
-        const global $s = $Dimensions{($Dimension{$x}(1),)}()
-        const global ($name){T,U} = Union{
+        Base.@__doc__ const global $s = $Dimensions{($Dimension{$x}(1),)}()
+        Base.@__doc__ const global ($name){T,U} = Union{
             $Quantity{T,$s,U},
             $Level{L,S,$Quantity{T,$s,U}} where {L,S}}
         const global ($uname){U} = $Units{U,$s}
@@ -89,7 +89,7 @@ macro derived_dimension(name, dims)
     uname = Symbol(name,"Units")
     funame = Symbol(name,"FreeUnits")
     esc(quote
-        const global ($name){T,U} = Union{
+        Base.@__doc__ const global ($name){T,U} = Union{
             $Quantity{T,$dims,U},
             $Level{L,S,$Quantity{T,$dims,U}} where {L,S}}
         const global ($uname){U} = $Units{U,$dims}
@@ -138,11 +138,11 @@ macro refunit(symb, abbr, name, dimension, tf)
 
     if tf
         push!(expr.args, quote
-            $Unitful.@prefixed_unit_symbols $symb $name $dimension (1.0, 1)
+            Base.@__doc__ $Unitful.@prefixed_unit_symbols $symb $name $dimension (1.0, 1)
         end)
     else
         push!(expr.args, quote
-            $Unitful.@unit_symbols $symb $name $dimension (1.0, 1)
+            Base.@__doc__ $Unitful.@unit_symbols $symb $name $dimension (1.0, 1)
         end)
     end
 
@@ -180,11 +180,11 @@ macro unit(symb,abbr,name,equals,tf)
 
     if tf
         push!(expr.args, quote
-            $Unitful.@prefixed_unit_symbols $symb $name $d $basef
+            Base.@__doc__ $Unitful.@prefixed_unit_symbols $symb $name $d $basef
         end)
     else
         push!(expr.args, quote
-            $Unitful.@unit_symbols $symb $name $d $basef
+            Base.@__doc__ $Unitful.@unit_symbols $symb $name $d $basef
         end)
     end
 
@@ -204,7 +204,7 @@ in terms of an absolute scale; the scaling is the same as the absolute scale. Ex
 macro affineunit(symb, abbr, offset)
     s = Symbol(symb)
     return esc(quote
-        const global $s = $affineunit($offset)
+        Base.@__doc__ const global $s = $affineunit($offset)
         $Base.show(io::$IO, ::$genericunit($s)) = $print(io, $abbr)
     end)
 end
@@ -238,14 +238,16 @@ macro prefixed_unit_symbols(symb,name,user_dimension,basefactor)
     for (k,v) in prefixdict
         s = Symbol(v,symb)
         u = :($Unit{$n, $user_dimension}($k,1//1))
-        docstring1 = "Equal to 10^"*string(k)*" "*string(name)*", or "
-        docstring2 = ", with dimensions "*string(eval(user_dimension))
+        isbase = k==0
+        docstring1 = "Unit equal to 10^"*string(k)*" "*string(symb)*"."
+        docstring1 *= "\n\nSee also: [`Unitful."*string(symb)*"`](@ref)"
         ea = quote
             $(basefactors_expr(__module__, n, basefactor))
             const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
-            function Docs.getdoc(x::typeof($s))
-                factor = uconvert(upreferred($s),1*$s)
-                $docstring1*string(factor)*$docstring2
+            if ($isbase)
+                Base.@__doc__ $s
+            else
+                @doc $docstring1 $s
             end
         end
         push!(expr.args, ea)
@@ -273,15 +275,9 @@ macro unit_symbols(symb,name,user_dimension,basefactor)
     s = Symbol(symb)
     n = Meta.quot(Symbol(name))
     u = :($Unit{$n, $user_dimension}(0,1//1))
-    docstring1 = "Defines the "*string(name)*" as "
-    docstring2 = ", with dimensions "*string(eval(user_dimension))
     esc(quote
         $(basefactors_expr(__module__, n, basefactor))
-        const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
-        function Docs.getdoc(x::typeof($s))
-            factor = uconvert(upreferred($s),1*$s)
-            $docstring1*string(factor)*$docstring2
-        end
+        Base.@__doc__ const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
     end)
 end
 
@@ -409,7 +405,7 @@ macro logscale(symb,abbr,name,base,prefactor,irp)
         const global $(esc(Symbol(symb,"_rp"))) = MixedUnits{Gain{$(esc(name)), :rp}}()
         const global $(esc(Symbol(symb,"_p"))) = MixedUnits{Gain{$(esc(name)), :p}}()
 
-        macro $(esc(symb))(::Union{Real,Symbol})
+        Base.@__doc__ macro $(esc(symb))(::Union{Real,Symbol})
             throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
         end
 
@@ -466,7 +462,7 @@ Defines a logarithmic unit. For examples see `src/pkgdefaults.jl`.
 macro logunit(symb, abbr, logscale, reflevel)
     quote
         $Unitful.abbr(::Level{$(esc(logscale)), $(esc(reflevel))}) = $abbr
-        const global $(esc(symb)) =
+        Base.@__doc__ const global $(esc(symb)) =
             MixedUnits{Level{$(esc(logscale)), $(esc(reflevel))}}()
     end
 end
