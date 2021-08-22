@@ -401,7 +401,7 @@ macro logscale(symb,abbr,name,base,prefactor,irp)
         const global $(esc(name)) = LogInfo{$(QuoteNode(name)), $base, $prefactor}
         $Unitful.isrootpower(::Type{$(esc(name))}) = $irp
 
-        const global $(esc(symb)) = MixedUnits{Gain{$(esc(name)), :?}}()
+        Base.@__doc__ const global $(esc(symb)) = MixedUnits{Gain{$(esc(name)), :?}}()
         const global $(esc(Symbol(symb,"_rp"))) = MixedUnits{Gain{$(esc(name)), :rp}}()
         const global $(esc(Symbol(symb,"_p"))) = MixedUnits{Gain{$(esc(name)), :p}}()
 
@@ -434,7 +434,7 @@ macro logscale(symb,abbr,name,base,prefactor,irp)
             return Level{$(esc(name)), den}(num)
         end
 
-        function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Number, irp::Bool)
+        Base.@__doc__ function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Number, irp::Bool)
             dimension(num) != dimension(den) && throw(DimensionError(num,den))
             dimension(num) != NoDims &&
                 throw(ArgumentError(string("when passing a final Bool argument, ",
