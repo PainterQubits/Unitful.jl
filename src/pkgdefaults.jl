@@ -53,17 +53,27 @@ const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 # Define base units. This is not to imply g is the base SI unit instead of kg.
 # See the documentation for further details.
 # #key:   Symbol  Display  Name      Dimension   Prefixes?
+"SI Unit of length\n\nSee also: [`Unitful.𝐋`](@ref)"
 @refunit  m       "m"      Meter     𝐋           true
+"SI Unit of time\n\nSee also: [`Unitful.𝐓`](@ref)"
 @refunit  s       "s"      Second    𝐓           true
+"SI Unit of current\n\nSee also: [`Unitful.𝐈`](@ref)"
 @refunit  A       "A"      Ampere    𝐈            true
+"SI Unit of temperature\n\nSee also: [`Unitful.𝚯`](@ref)"
 @refunit  K       "K"      Kelvin    𝚯           true
+"SI Unit of luminosity\n\nSee also: [`Unitful.𝐉`](@ref)"
 @refunit  cd      "cd"     Candela   𝐉            true
+# the docs for all gram-based units are defined later, to ensure kg is the base unit.
 @refunit  g       "g"      Gram      𝐌           true
+"SI Unit for amounts of a substance\n\nSee also: [`Unitful.𝐍`](@ref)"
 @refunit  mol     "mol"    Mole      𝐍           true
 
 # Angles and solid angles
+"Unit of spherical angle. There are 4π sr in a sphere."
 @unit sr      "sr"      Steradian   1                       true
+"Unit of angle. There are 2π rad in a circle."
 @unit rad     "rad"     Radian      1                       true
+"Unit of angle. There are 360° in a circle."
 @unit °       "°"       Degree      pi/180                  false
 # For numerical accuracy, specific to the degree
 import Base: sind, cosd, tand, secd, cscd, cotd
@@ -79,30 +89,49 @@ deg2rad(d::Quantity{T, NoDims, typeof(°)}) where {T} = deg2rad(ustrip(°, d))u"
 rad2deg(r::Quantity{T, NoDims, typeof(rad)}) where {T} = rad2deg(ustrip(rad, r))u"°"
 
 # SI and related units
+"SI Unit of frequency, defined as 1/s\n\nSee also: [`Unitful.s`](@ref)"
 @unit Hz              "Hz"   Hertz           1/s                true
+"SI Unit of force, defined as 1kg*m/s^2\n\nSee also: [`Unitful.kg`](@ref), [`Unitful.m`](@ref), [`Unitful.s`](@ref)"
 @unit N               "N"    Newton          1kg*m/s^2          true
+"SI Unit of pressure, defined as 1N/m^2\n\nSee also: [`Unitful.N`](@ref), [`Unitful.m`](@ref)"
 @unit Pa              "Pa"   Pascal          1N/m^2             true
+"SI Unit of energy, defined as 1N*m\n\nSee also: [`Unitful.N`](@ref), [`Unitful.m`](@ref)"
 @unit J               "J"    Joule           1N*m               true
+"SI Unit of power, defined as 1J/s\n\nSee also: [`Unitful.J`](@ref), [`Unitful.s`](@ref)"
 @unit W               "W"    Watt            1J/s               true
+"SI Unit of electric charge, defined as 1A*s\n\nSee also: [`Unitful.A`](@ref), [`Unitful.s`](@ref)"
 @unit C               "C"    Coulomb         1A*s               true
+"SI Unit of electric potential, defined as 1W/A\n\nSee also: [`Unitful.W`](@ref), [`Unitful.A`](@ref)"
 @unit V               "V"    Volt            1W/A               true
+"SI Unit of electrical resistance, defined as 1V/A\n\nSee also: [`Unitful.V`](@ref), [`Unitful.A`](@ref)"
 @unit Ω               "Ω"    Ohm             1V/A               true
+"SI Unit of electrical conductance, defined as 1/Ω\n\nSee also: [`Unitful.Ω`](@ref)"
 @unit S               "S"    Siemens         1/Ω                true
+"SI Unit of electrical capacitance, defined as 1s^4*A^2/(kg*m^2)\n\nSee also: [`Unitful.s`](@ref), [`Unitful.A`](@ref), [`Unitful.kg`](@ref), [`Unitful.m`](@ref)"
 @unit F               "F"    Farad           1s^4*A^2/(kg*m^2)  true
+"SI Unit of electrical inductance, defined as 1J/(A^2)\n\nSee also: [`Unitful.J`](@ref), [`Unitful.A`](@ref)"
 @unit H               "H"    Henry           1J/(A^2)           true
+"SI Unit of magnetic B-field strength, defined as 1kg/(A*s^2)\n\nSee also: [`Unitful.kg`](@ref), [`Unitful.A`](@ref), [`Unitful.s`](@ref)"
 @unit T               "T"    Tesla           1kg/(A*s^2)        true
+"SI Unit of magnetic flux, defined as 1kg*m^2/(A*s^2)\n\nSee also: [`Unitful.kg`](@ref), [`Unitful.m`](@ref), [`Unitful.A`](@ref), [`Unitful.s`](@ref)"
 @unit Wb              "Wb"   Weber           1kg*m^2/(A*s^2)    true
+"SI Unit of luminous flux, defined as 1cd*sr\n\nSee also: [`Unitful.cd`](@ref), [`Unitful.sr`](@ref)"
 @unit lm              "lm"   Lumen           1cd*sr             true
+"SI Unit of illuminance, defined as 1lm/m^2\n\nSee also: [`Unitful.lm`](@ref), [`Unitful.m`](@ref)"
 @unit lx              "lx"   Lux             1lm/m^2            true
 @unit Bq              "Bq"   Becquerel       1/s                true
 @unit Gy              "Gy"   Gray            1J/kg              true
 @unit Sv              "Sv"   Sievert         1J/kg              true
 @unit kat             "kat"  Katal           1mol/s             true
+"Unit meaning parts per hundred"
 @unit percent         "%"    Percent         1//100             false
+"Unit meaning parts per thousand"
 @unit permille        "‰"    Permille        1//1000            false
+"Unit meaning parts per ten thousand"
 @unit pertenthousand  "‱"    Pertenthousand  1//10000           false
 
 # Temperature
+"SI Unit of temperature, defined such that 0°C = 273.15K\n\nSee also: [`Unitful.K`](@ref)"
 @affineunit °C "°C"     (27315//100)K
 
 # Common units of time
@@ -295,6 +324,18 @@ end
 #########
 
 preferunits(kg) # others done in @refunit
+# Fix documentation for all kg based units
+# Using a NullLogger is necessary to avoid documentation overwritten errors.
+Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
+    for (k,v) in prefixdict
+        sym = Symbol(v,:g)
+        docstring = "Unit equal to 10^"*string(k-3)*" kg."
+        docstring *= "\n\nSee also: [`Unitful.kg`](@ref)"
+        run = quote @doc $docstring $sym end
+        eval(run)
+    end
+    @doc "SI Unit of mass\n\nSee also: [`Unitful.𝐌`](@ref)" kg
+end
 
 """
     Unitful.promote_to_derived()
