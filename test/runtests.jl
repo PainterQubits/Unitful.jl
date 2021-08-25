@@ -14,7 +14,8 @@ import Unitful:
     J, A, N, mol, V,
     mW, W,
     dB, dB_rp, dB_p, dBm, dBV, dBSPL, Decibel,
-    Np, Np_rp, Np_p, Neper
+    Np, Np_rp, Np_p, Neper,
+    C
 
 import Unitful: 𝐋, 𝐓, 𝐍, 𝚯
 
@@ -320,6 +321,14 @@ Unitful.uconvert(U::Unitful.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
 
 @testset "Promotion" begin
     @testset "> Unit preferences" begin
+        # Should warn on possible redundant units issue (ms and s)
+        @test_logs (:warn,) Unitful.preferunits(C/ms)
+        # Test for wacky prefered units functionality
+        Unitful.preferunits(C/s)
+        @test dimension(upreferred(u"V/m")) == dimension(u"V/m")
+        # Reset prefered units to default
+        Unitful.preferunits(A)
+
         # Only because we favor SI, we have the following:
         @test @inferred(upreferred(N)) === kg*m/s^2
         @test @inferred(upreferred(dimension(N))) === kg*m/s^2
