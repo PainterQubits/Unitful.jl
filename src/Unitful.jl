@@ -36,6 +36,9 @@ export @logscale, @logunit, @dB, @B, @cNp, @Np
 export Level, Gain
 export uparse
 
+# For natural units
+export natural, unnatural
+
 const unitmodules = Vector{Module}()
 
 function _basefactors(m::Module)
@@ -69,5 +72,6 @@ include("logarithm.jl")
 include("complex.jl")
 include("pkgdefaults.jl")
 include("dates.jl")
+include("natural_units.jl")
 
 end

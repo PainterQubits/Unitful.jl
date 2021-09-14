@@ -3,11 +3,11 @@ using Documenter, Unitful, Dates
 DocMeta.setdocmeta!(Unitful, :DocTestSetup, :(using Unitful))
 
 makedocs(
-    sitename = "Unitful.jl",
-    format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
-    modules = [Unitful],
-    workdir = joinpath(@__DIR__, ".."),
-    pages = [
+    sitename="Unitful.jl",
+    format=Documenter.HTML(prettyurls=get(ENV, "CI", nothing) == "true"),
+    modules=[Unitful],
+    workdir=joinpath(@__DIR__, ".."),
+    pages=[
         "Home" => "index.md"
         "Highlighted features" => "highlights.md"
         "Types" => "types.md"
@@ -17,6 +17,7 @@ makedocs(
         "How units are displayed" => "display.md"
         "Logarithmic scales" => "logarithm.md"
         "Temperature scales" => "temperature.md"
+        "Natural Units" => "natural_units.md"
         "Interoperability with `Dates`" => "dates.md"
         "Extending Unitful" => "extending.md"
         "Troubleshooting" => "trouble.md"
@@ -24,4 +25,4 @@ makedocs(
     ]
 )
 
-deploydocs(repo = "github.com/PainterQubits/Unitful.jl.git")
+deploydocs(repo="github.com/PainterQubits/Unitful.jl.git")

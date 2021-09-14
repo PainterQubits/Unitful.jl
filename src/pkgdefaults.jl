@@ -164,6 +164,7 @@ const k  = 1.380_649e-23*(J/K)      # exact, Boltzmann constant
 const R  = Na*k                     # molar gas constant
 const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
 const R∞ = 10_973_731.568_160/m     # (21) Rydberg constant
+const ħc = ħ * c                    # Useful for example for natural units
 @unit u      "u" UnifiedAtomicMassUnit 1.660_539_066_60e-27*kg false # (50)
 
 # Acceleration

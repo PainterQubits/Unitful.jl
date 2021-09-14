@@ -84,6 +84,12 @@ julia> uconvert(u"mW*s", 20u"dBm/Hz")
 100.0 s mW
 ```
 
+## Natural units
+```jldoctest
+julia> natural(1u"kg")
+5.609588650020686e35 eV
+```
+
 ## Units with rational exponents
 
 ```jldoctest
