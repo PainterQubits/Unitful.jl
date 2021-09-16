@@ -638,9 +638,11 @@ end
         _pow_3(x) = x^3
         _pow_2_3(x) = x^(2//3)
 
-        @test_throws ErrorException @inferred(_pow_2_3(m))
-        @test_throws ErrorException @inferred(_pow_2_3(𝐋))
-        @test_throws ErrorException @inferred(_pow_2_3(1.0m))
+        @static if VERSION ≥ v"1.8.0-DEV"
+            @test @inferred(_pow_2_3(m)) == m^(2//3)
+            @test @inferred(_pow_2_3(𝐋)) == 𝐋^(2//3)
+            @test_broken @inferred(_pow_2_3(1.0m))
+        end
 
         @test @inferred(_pow_m3(m)) == m^-3
         @test @inferred(_pow_0(m)) == NoUnits
