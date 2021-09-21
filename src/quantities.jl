@@ -307,11 +307,9 @@ round(::Type{T}, u::Units, q::AbstractQuantity, r::RoundingMode=RoundNearest;
     round(Quantity{T, dimension(u), typeof(u)}, q, r; kwargs...)
 
 # workhorse methods
-round(x::AbstractQuantity, r::RoundingMode; kwargs...) =
-    _rounderr()
-function round(x::AbstractQuantity; sigdigits::Union{Nothing,Integer}=nothing, kwargs...)
+function round(x::AbstractQuantity, r::RoundingMode=RoundNearest; sigdigits::Union{Nothing,Integer}=nothing, kwargs...)
     sigdigits === nothing && _rounderr()
-    round(unit(x), x; sigdigits=sigdigits, kwargs...)
+    round(unit(x), x, r; sigdigits=sigdigits, kwargs...)
 end
 round(x::DimensionlessQuantity; kwargs...) = round(uconvert(NoUnits, x); kwargs...)
 round(x::DimensionlessQuantity, r::RoundingMode; kwargs...) =
