@@ -1154,6 +1154,7 @@ end
             @test r[3] === 0.3s
             @test *(1:5, mm, s^-1) === 1mm*s^-1:1mm*s^-1:5mm*s^-1
             @test *(1:5, mm, s^-1, mol^-1) === 1mm*s^-1*mol^-1:1mm*s^-1*mol^-1:5mm*s^-1*mol^-1
+            @test @inferred((0:2) * 3f0m) === StepRangeLen{typeof(0f0m)}(0.0m, 3.0m, 3) # issue #477
         end
     end
     @testset "> Arrays" begin
