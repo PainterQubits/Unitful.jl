@@ -325,6 +325,7 @@ Unitful.uconvert(U::Unitful.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
         @test_logs (:warn,) Unitful.preferunits(C/ms)
         # Test for wacky prefered units functionality
         Unitful.preferunits(C/s)
+        @test @inferred(preferunits(u"V/m")) == u"kg*m*C^-1*s^-2"
         @test dimension(upreferred(u"V/m")) == dimension(u"V/m")
         # Reset prefered units to default
         Unitful.preferunits(A)
