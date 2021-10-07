@@ -12,7 +12,7 @@
 @dimension 𝐈 "𝐈" Current
 "A dimension representing temperature."
 @dimension 𝚯 "𝚯" Temperature    # This one is \bfTheta
-"A dimension representing luminosity."
+"A dimension representing luminous intensity."
 @dimension 𝐉 "𝐉" Luminosity
 "A dimension representing amount of substance."
 @dimension 𝐍 "𝐍" Amount
