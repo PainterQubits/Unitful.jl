@@ -8,7 +8,7 @@
 @dimension 𝐌 "𝐌" Mass
 "A dimension representing time."
 @dimension 𝐓 "𝐓" Time
-"A dimension representing current."
+"A dimension representing electric current."
 @dimension 𝐈 "𝐈" Current
 "A dimension representing temperature."
 @dimension 𝚯 "𝚯" Temperature    # This one is \bfTheta
