@@ -10,7 +10,7 @@
 @dimension 𝐓 "𝐓" Time
 "A dimension representing electric current."
 @dimension 𝐈 "𝐈" Current
-"A dimension representing temperature."
+"A dimension representing thermodynamic temperature."
 @dimension 𝚯 "𝚯" Temperature    # This one is \bfTheta
 "A dimension representing luminous intensity."
 @dimension 𝐉 "𝐉" Luminosity
