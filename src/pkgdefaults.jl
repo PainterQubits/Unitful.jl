@@ -60,24 +60,24 @@ const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 # Define base units. This is not to imply g is the base SI unit instead of kg.
 # See the documentation for further details.
 # #key:   Symbol  Display  Name      Dimension   Prefixes?
-"The meter, the base SI unit of length.
+"The meter, the SI base unit of length.
 \n\nDimension: [`Unitful.𝐋`](@ref)."
 @refunit  m       "m"      Meter     𝐋           true
-"The second, the base SI unit of time.
+"The second, the SI base unit of time.
 \n\nDimension: [`Unitful.𝐓`](@ref)."
 @refunit  s       "s"      Second    𝐓           true
-"The ampere, the base SI unit of current.
+"The ampere, the SI base unit of electric current.
 \n\nDimension: [`Unitful.𝐈`](@ref)."
 @refunit  A       "A"      Ampere    𝐈            true
-"The kelvin, the base SI unit of temperature.
+"The kelvin, the SI base unit of thermodynamic temperature.
 \n\nDimension: [`Unitful.𝚯`](@ref)."
 @refunit  K       "K"      Kelvin    𝚯           true
-"The candela, the base SI unit of luminosity.
+"The candela, the SI base unit of luminous intensity.
 \n\nDimension: [`Unitful.𝐉`](@ref)."
 @refunit  cd      "cd"     Candela   𝐉            true
 # the docs for all gram-based units are defined later, to ensure kg is the base unit.
 @refunit  g       "g"      Gram      𝐌           true
-"The mol, the base SI unit for amounts of a substance.
+"The mole, the SI base unit for amount of substance.
 \n\nDimension: [`Unitful.𝐍`](@ref)."
 @refunit  mol     "mol"    Mole      𝐍           true
 
@@ -171,14 +171,14 @@ rad2deg(r::Quantity{T, NoDims, typeof(rad)}) where {T} = rad2deg(ustrip(rad, r))
 \n\nSee also: [`Unitful.lm`](@ref), [`Unitful.m`](@ref)."
 @unit Gy              "Gy"   Gray            1J/kg              true
 "The sievert, an SI unit of the biological effect of an ionizing radiation dose.
-Defined as the health effect of 1Sv of radiation, scaled based on a quality factor.
+Defined as the health effect of 1Gy of radiation, scaled by a quality factor.
 \n\nDimension: 𝐋^2 𝐓^-2.
-\n\nSee also: [`Unitful.lm`](@ref), [`Unitful.m`](@ref)."
+\n\nSee also: [`Unitful.Gy`](@ref)."
 @unit Sv              "Sv"   Sievert         1J/kg              true
 "The katal, an SI unit of catalytic activity, defined as 1mol of catalyzed
 substrate per s.
 \n\nDimension: 𝐍 𝐓^-1.
-\n\nSee also: [`Unitful.lm`](@ref), [`Unitful.m`](@ref)."
+\n\nSee also: [`Unitful.mol`](@ref), [`Unitful.s`](@ref)."
 @unit kat             "kat"  Katal           1mol/s             true
 "Percent, a unit meaning parts per hundred."
 @unit percent         "%"    Percent         1//100             false
@@ -188,7 +188,7 @@ substrate per s.
 @unit pertenthousand  "‱"    Pertenthousand  1//10000           false
 
 # Temperature
-"Celcius, an SI unit of temperature, defined such that 0°C = 273.15K.
+"The degree Celsius, an SI unit of temperature, defined such that 0°C = 273.15K.
 \n\nDimension: [`Unitful.𝚯`](@ref).
 \n\nSee also: [`Unitful.K`](@ref)."
 @affineunit °C "°C"     (27315//100)K
@@ -206,7 +206,7 @@ substrate per s.
 \n\nDimension: [`Unitful.𝐓`](@ref).
 \n\nSee Also: [`Unitful.hr`](@ref)."
 @unit d      "d"        Day                   86400s        false
-"The week, a unit of time, defined as 70d.
+"The week, a unit of time, defined as 7d.
 \n\nDimension: [`Unitful.𝐓`](@ref).
 \n\nSee Also: [`Unitful.d`](@ref)."
 @unit wk     "wk"       Week                  604800s       false
@@ -240,8 +240,8 @@ const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, 𝐋^2}(2, 1//1),), 𝐋^2}()
 
 # Volume
 # `l` is also an acceptable symbol for liters
-"The liter, a metric unit of volume, defined as 1000cm^2.
-\n\nDimension: 𝐋^2.
+"The liter, a metric unit of volume, defined as 1000cm^3.
+\n\nDimension: 𝐋^3.
 \n\nSee Also: [`Unitful.cm`](@ref)."
 @unit L      "L"        Liter       m^3//1000                true
 for p in (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
@@ -272,7 +272,7 @@ const q = 1.602_176_634e-19*C        # CODATA 2018; `e` means 2.718...
 @unit eV     "eV"       eV          q*V                     true
 
 # For convenience
-"A unit for convinience in angular frequency, equal to 2π Hz.
+"A unit for convenience in angular frequency, equal to 2π Hz.
 \n\nDimension: 𝐓^-1.
 \n\nSee also: [`Unitful.Hz`](@ref)."
 @unit Hz2π   "Hz2π"     AngHertz    2π/s                    true
@@ -378,7 +378,7 @@ const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
 \n\nDimension: 𝐋^-1.
 \n\nSee also: [`Unitful.m`](@ref)."
 const R∞ = 10_973_731.568_160/m     # (21) Rydberg constant
-"The unifided atomic mass unit, or dalton, a unit of mass defined as 1//12 the
+"The unified atomic mass unit, or dalton, a unit of mass defined as 1//12 the
 mass of an unbound neutral atom of carbon-12. It is defined here to 12
 significant figures.
 \n\nDimension: [`Unitful.𝐌`](@ref).
@@ -420,7 +420,7 @@ earth, a unit of acceleration, defined by standard to be exactly 9.80665 m/s^2.
 @unit St     "St"       Stokes      1cm^2/s                 true
 "The gauss, a CGS unit of magnetic B-field strength, defined as 1Mx/cm^2.
 \n\nDimension: 𝐌 𝐈^-1 𝐓^-2.
-\n\nSee also: [`Unitful.cm`](@ref), [`Unitful.mx`](@ref)"
+\n\nSee also: [`Unitful.cm`](@ref), [`Unitful.Mx`](@ref)"
 @unit Gauss  "Gauss"    Gauss       (1//10_000)*T           true
 "The oersted, a CGS unit of magnetic H-field strength, defined as (1_000/4π)A/m.
 \n\nDimension: 𝐈 𝐋^-1.
@@ -471,11 +471,11 @@ const Å = Å = angstrom
 @unit ac        "ac"       Acre                 (316160658//78125)*m^2  false
 
 # Temperatures
-"The inch, a US customary unit of temperature defined as 5//9 K.
+"The rankine, a US customary unit of temperature defined as 5//9 K.
 \n\nDimension: [`Unitful.𝚯`](@ref).
 \n\nSee Also: [`Unitful.K`](@ref)."
 @unit Ra        "Ra"      Rankine               (5//9)*K                false
-"Farenheit, a US customary unit of temperature, defined such that 0°F = 459.67Ra.
+"The degree Fahrenheit, a US customary unit of temperature, defined such that 0°F = 459.67Ra.
 \n\nDimension: [`Unitful.𝚯`](@ref).
 \n\nSee also: [`Unitful.Ra`](@ref)."
 @affineunit °F  "°F"      (45967//100)Ra
@@ -514,7 +514,7 @@ const Å = Å = angstrom
 \n\nDimension: 𝐋^2 𝐌 𝐓^-2.
 \n\nSee Also: [`Unitful.J`](@ref)."
 @unit cal       "cal"      Calorie              4.184J                  true
-"The calorie, a US customary unit of heat defined by ISO 31-4 as exactly 1055.06J.
+"The British thermal unit, a US customary unit of heat defined by ISO 31-4 as exactly 1055.06J.
 \n\nDimension: 𝐋^2 𝐌 𝐓^-2.
 \n\nSee Also: [`Unitful.J`](@ref)."
 @unit btu       "btu"      BritishThermalUnit   1055.06J                false
@@ -610,7 +610,7 @@ Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
         run = quote @doc $docstring $sym end
         eval(run)
     end
-    @doc "The kilogram, base SI unit of mass.
+    @doc "The kilogram, the SI base unit of mass.
     Note that `kg`, not `g`, is the base unit.
     \n\nDimension: [`Unitful.𝐌`](@ref)." kg
 end
