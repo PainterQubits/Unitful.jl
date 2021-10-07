@@ -470,7 +470,11 @@ Base.literal_pow(::typeof(^), x::AbstractQuantity, ::Val{v}) where {v} =
 
 # All of these are needed for ambiguity resolution
 ^(x::AbstractQuantity, y::Integer) = Quantity((x.val)^y, unit(x)^y)
-^(x::AbstractQuantity, y::Rational) = Quantity((x.val)^y, unit(x)^y)
+@static if VERSION ≥ v"1.8.0-DEV.501"
+    Base.@constprop(:aggressive, ^(x::AbstractQuantity, y::Rational) = Quantity((x.val)^y, unit(x)^y))
+else
+    ^(x::AbstractQuantity, y::Rational) = Quantity((x.val)^y, unit(x)^y)
+end
 ^(x::AbstractQuantity, y::Real) = Quantity((x.val)^y, unit(x)^y)
 
 Base.rand(r::Random.AbstractRNG, ::Random.SamplerType{<:AbstractQuantity{T,D,U}}) where {T,D,U} =
