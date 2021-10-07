@@ -14,7 +14,7 @@
 @dimension 𝚯 "𝚯" Temperature    # This one is \bfTheta
 "A dimension representing luminosity."
 @dimension 𝐉 "𝐉" Luminosity
-"A dimension representing amounts."
+"A dimension representing amount of substance."
 @dimension 𝐍 "𝐍" Amount
 const RelativeScaleTemperature = Quantity{T, 𝚯, <:AffineUnits} where T
 const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
