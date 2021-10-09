@@ -239,7 +239,7 @@ macro prefixed_unit_symbols(symb,name,user_dimension,basefactor)
         s = Symbol(v,symb)
         u = :($Unit{$n, $user_dimension}($k,1//1))
         isbase = k==0
-        docstring1 = "A prefixed unit, equal to 10^"*string(k)*" "*string(symb)*"."
+        docstring1 = "`"*string(__module__)*"."*string(s)*"`\n\nA prefixed unit, equal to 10^"*string(k)*" "*string(symb)*"."
         docstring1 *= "\n\nSee also: [`"*string(__module__)*"."*string(symb)*"`](@ref)."
         ea = quote
             $(basefactors_expr(__module__, n, basefactor))
