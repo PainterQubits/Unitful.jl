@@ -96,13 +96,16 @@ const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 
 # Angles and solid angles
 "`Unitful.sr`
-\nThe steradian, a unit of spherical angle. There are 4π sr in a sphere."
+\nThe steradian, a unit of spherical angle. There are 4π sr in a sphere.
+\nDImension: [`Unitful.NoDims`](@ref)."
 @unit sr      "sr"      Steradian   1                       true
 "`Unitful.rad`
-\nThe radian, a unit of angle. There are 2π rad in a circle."
+\nThe radian, a unit of angle. There are 2π rad in a circle.
+\nDImension: [`Unitful.NoDims`](@ref)."
 @unit rad     "rad"     Radian      1                       true
 "`Unitful.°`
-\nThe degree, a unit of angle. There are 360° in a circle."
+\nThe degree, a unit of angle. There are 360° in a circle.
+\nDImension: [`Unitful.NoDims`](@ref)."
 @unit °       "°"       Degree      pi/180                  false
 # For numerical accuracy, specific to the degree
 import Base: sind, cosd, tand, secd, cscd, cotd
@@ -216,13 +219,16 @@ substrate per s.
 \nSee also: [`Unitful.mol`](@ref), [`Unitful.s`](@ref)."
 @unit kat             "kat"  Katal           1mol/s             true
 "`Unitful.percent`
-\nPercent, a unit meaning parts per hundred."
+\nPercent, a unit meaning parts per hundred.
+\nDImension: [`Unitful.NoDims`](@ref)."
 @unit percent         "%"    Percent         1//100             false
 "`Unitful.permille`
-\nPermille, a unit meaning parts per thousand."
+\nPermille, a unit meaning parts per thousand.
+\nDImension: [`Unitful.NoDims`](@ref)."
 @unit permille        "‰"    Permille        1//1000            false
 "`Unitful.pertenthousand`
-\nPermyriad, a unit meaning parts per ten thousand."
+\nPermyriad, a unit meaning parts per ten thousand.
+\nDImension: [`Unitful.NoDims`](@ref)."
 @unit pertenthousand  "‱"    Pertenthousand  1//10000           false
 
 # Temperature
