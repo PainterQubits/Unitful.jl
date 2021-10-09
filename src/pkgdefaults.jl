@@ -194,7 +194,8 @@ substrate per s.
 @affineunit °C "°C"     (27315//100)K
 
 # Common units of time
-"The minute, a unit of time defined as 60s.
+"The minute, a unit of time defined as 60s. The full name `minute` is used instead of the symbol `min`
+to avoid confusion with the Julia function `min`.
 \n\nDimension: [`Unitful.𝐓`](@ref).
 \n\nSee Also: [`Unitful.s`](@ref)."
 @unit minute "minute"   Minute                60s           false
@@ -262,7 +263,8 @@ solute per L of solution.
 
 # Energy
 "A quantity equal to the elementary charge, the charge of a single electron,
-with a value of exactly 1.602176634 e-19 C.
+with a value of exactly 1.602176634 e-19 C. The letter `q` is used instead of `e` to avoid
+confusion with Euler's number.
 \n\nDimension: 𝐈 𝐓.
 \n\nSee Also: [`Unitful.C`](@ref)."
 const q = 1.602_176_634e-19*C        # CODATA 2018; `e` means 2.718...
