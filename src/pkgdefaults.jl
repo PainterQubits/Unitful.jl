@@ -188,7 +188,7 @@ rad2deg(r::Quantity{T, NoDims, typeof(rad)}) where {T} = rad2deg(ustrip(rad, r))
 @unit Wb              "Wb"   Weber           1kg*m^2/(A*s^2)    true
 "`Unitful.lm`
 \nThe lumen, an SI unit of luminous flux, defined as 1 cd × sr.
-\nDimension: 𝐉.
+\nDimension: [`Unitful.𝐉`](@ref).
 \nSee also: [`Unitful.cd`](@ref), [`Unitful.sr`](@ref)."
 @unit lm              "lm"   Lumen           1cd*sr             true
 "`Unitful.lx`
@@ -416,19 +416,19 @@ const Φ0 = h/(2q)                   # Superconducting magnetic flux quantum
 "`Unitful.me`
 \nA quantity representing the rest mass of an electron, equal to 9.109,383,7015
 × 10^-31 kg (the CODATA 2018 recommended value).
-\nDimension: 𝐌.
+\nDimension: [`Unitful.𝐌`](@ref).
 \nSee also: [`Unitful.kg`](@ref)."
 const me = 9.109_383_7015e-31*kg    # (28) electron rest mass
 "`Unitful.mn`
 \nA quantity representing the rest mass of a neutron, equal to 1.674,927,498,04
 × 10^-27 kg (the CODATA 2018 recommended value).
-\nDimension: 𝐌.
+\nDimension: [`Unitful.𝐌`](@ref).
 \nSee also: [`Unitful.kg`](@ref)."
 const mn = 1.674_927_498_04e-27*kg  # (95) neutron rest mass
 "`Unitful.mp`
 \nA quantity representing the rest mass of a proton, equal to 1.672,621,923,69
 × 10^-27 kg (the CODATA 2018 recommended value).
-\nDimension: 𝐌.
+\nDimension: [`Unitful.𝐌`](@ref).
 \nSee also: [`Unitful.kg`](@ref)."
 const mp = 1.672_621_923_69e-27*kg  # (51) proton rest mass
 "`Unitful.μB`
