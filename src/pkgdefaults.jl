@@ -378,7 +378,7 @@ const µ0 = μ0                       # magnetic constant
 \nDimension: 𝐈^2 𝐓^4 𝐋^-3 𝐌^-1.
 \nSee also: [`Unitful.μ0`](@ref), [`Unitful.c`](@ref)."
 const ɛ0 = 1/(μ0*c^2)               # exact, electric constant; changes here may affect
-const ϵ0 = ɛ0                           # test of issue 79.
+@doc @doc(ɛ0) const ϵ0 = ɛ0                           # test of issue 79.
 "    Unitful.Z0
 \nA quantity representing the impedance of free space, a constant defined as μ0 × c.
 \nDimension: 𝐋^2 𝐌 𝐈^-2 𝐓^-3.
