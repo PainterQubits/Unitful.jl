@@ -398,7 +398,7 @@ near the surface of the earth, defined by standard to be exactly 9.806,65 m / s^
 const gn = 9.80665*m/s^2            # exact, standard acceleration of gravity
 "    Unitful.h
 \nA quantity representing Planck's constant, defined as exactly
-6.62607015 × 10^-34 J*s.
+6.62607015 × 10^-34 J × s.
 \nDimension: 𝐋^2 𝐌 𝐓^-1.
 \nSee also: [`Unitful.J`](@ref), [`Unitful.s`](@ref)."
 const h  = 6.626_070_15e-34*J*s     # exact, Planck constant
@@ -538,9 +538,9 @@ earth, a unit of acceleration, defined by standard to be exactly 9.806,65 m / s^
 # Length
 #key: Symbol    Display    Name                 Equivalent to           10^n prefixes?
 "    Unitful.inch
-\nThe inch, a US customary unit of length defined as 254/10000 m.
+\nThe inch, a US customary unit of length defined as 2.54 cm.
 \nDimension: [`Unitful.𝐋`](@ref).
-\nSee Also: [`Unitful.m`](@ref)."
+\nSee Also: [`Unitful.cm`](@ref)."
 @unit inch      "inch"     Inch                 (254//10000)*m          false
 "    Unitful.mil
 \nThe mil, a US customary unit of length defined as 1/1000 inch.
