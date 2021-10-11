@@ -97,15 +97,15 @@ const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 # Angles and solid angles
 "`Unitful.sr`
 \nThe steradian, a unit of spherical angle. There are 4π sr in a sphere.
-\nDImension: [`Unitful.NoDims`](@ref)."
+\nDimension: [`Unitful.NoDims`](@ref)."
 @unit sr      "sr"      Steradian   1                       true
 "`Unitful.rad`
 \nThe radian, a unit of angle. There are 2π rad in a circle.
-\nDImension: [`Unitful.NoDims`](@ref)."
+\nDimension: [`Unitful.NoDims`](@ref)."
 @unit rad     "rad"     Radian      1                       true
 "`Unitful.°`
 \nThe degree, a unit of angle. There are 360° in a circle.
-\nDImension: [`Unitful.NoDims`](@ref)."
+\nDimension: [`Unitful.NoDims`](@ref)."
 @unit °       "°"       Degree      pi/180                  false
 # For numerical accuracy, specific to the degree
 import Base: sind, cosd, tand, secd, cscd, cotd
@@ -220,15 +220,15 @@ substrate per s.
 @unit kat             "kat"  Katal           1mol/s             true
 "`Unitful.percent`
 \nPercent, a unit meaning parts per hundred.
-\nDImension: [`Unitful.NoDims`](@ref)."
+\nDimension: [`Unitful.NoDims`](@ref)."
 @unit percent         "%"    Percent         1//100             false
 "`Unitful.permille`
 \nPermille, a unit meaning parts per thousand.
-\nDImension: [`Unitful.NoDims`](@ref)."
+\nDimension: [`Unitful.NoDims`](@ref)."
 @unit permille        "‰"    Permille        1//1000            false
 "`Unitful.pertenthousand`
 \nPermyriad, a unit meaning parts per ten thousand.
-\nDImension: [`Unitful.NoDims`](@ref)."
+\nDimension: [`Unitful.NoDims`](@ref)."
 @unit pertenthousand  "‱"    Pertenthousand  1//10000           false
 
 # Temperature
@@ -261,19 +261,19 @@ to avoid confusion with the Julia function `min`.
 \nSee Also: [`Unitful.d`](@ref)."
 @unit wk     "wk"       Week                  604800s       false
 "`Unitful.yr`
-\nThe year, a unit of time, defined as 8766 hr.
+\nThe year, a unit of time, defined as 365.25 d.
 \nDimension: [`Unitful.𝐓`](@ref).
 \nSee Also: [`Unitful.hr`](@ref)."
 @unit yr     "yr"       Year                  31557600s     true
 "`Unitful.rps`
-\nRevolutions per second, a unit of rotational speed, defined as one rotation per s.
+\nRevolutions per second, a unit of rotational speed, defined as 2π rad / s.
 \nDimension: 𝐓^-1.
-\nSee Also: [`Unitful.s`](@ref)."
+\nSee Also: [`Unitful.rad`](@ref), [`Unitful.s`](@ref)."
 @unit rps    "rps"      RevolutionsPerSecond  2π*rad/s      false
 "`Unitful.rpm`
-\nRevolutions per minute, a unit of rotational speed, defined as one rotation per minute.
+\nRevolutions per minute, a unit of rotational speed, defined as 2π rad / minute.
 \nDimension: 𝐓^-1.
-\nSee Also: [`Unitful.minute`](@ref)."
+\nSee Also: [`Unitful.minute`](@ref), [`Unitful.rad`](@ref)."
 @unit rpm    "rpm"      RevolutionsPerMinute  2π*rad/minute false
 
 # Area
@@ -469,7 +469,7 @@ const σ  = π^2*k^4/(60*ħ^3*c^2)     # Stefan-Boltzmann constant
 const R∞ = 10_973_731.568_160/m     # (21) Rydberg constant
 "`Unitful.u`
 \nThe unified atomic mass unit, or dalton, a unit of mass defined as 1/12 the
-mass of an unbound neutral atom of carbon-12, equal to 1.660,539,066,60 × kg
+mass of an unbound neutral atom of carbon-12, equal to 1.660,539,066,60 × 10^-27 kg
 (the CODATA 2018 recommended value).
 \nDimension: [`Unitful.𝐌`](@ref).
 \nSee Also: [`Unitful.kg`](@ref)."
@@ -584,7 +584,7 @@ earth, a unit of acceleration, defined by standard to be exactly 9.806,65 m / s^
 \nSee Also: [`Unitful.K`](@ref)."
 @unit Ra        "Ra"      Rankine               (5//9)*K                false
 "`Unitful.°F`
-\nThe degree Fahrenheit, a US customary unit of temperature, defined such that 0° F = 459.67 Ra.
+\nThe degree Fahrenheit, a US customary unit of temperature, defined such that 0 °F = 459.67 Ra.
 \nDimension: [`Unitful.𝚯`](@ref).
 \nSee also: [`Unitful.Ra`](@ref)."
 @affineunit °F  "°F"      (45967//100)Ra
@@ -611,9 +611,9 @@ earth, a unit of acceleration, defined by standard to be exactly 9.806,65 m / s^
 \nSee Also: [`Unitful.oz`](@ref)."
 @unit dr        "dr"       Dram                 oz//16                  false
 "`Unitful.gr`
-\nThe grain, a US customary unit of mass defined as 32/875 dr.
+\nThe grain, a US customary unit of mass defined as 1/7000 lb.
 \nDimension: [`Unitful.𝐌`](@ref).
-\nSee Also: [`Unitful.dr`](@ref)."
+\nSee Also: [`Unitful.lb`](@ref)."
 @unit gr        "gr"       Grain                (32//875)*dr            false
 
 # Force
