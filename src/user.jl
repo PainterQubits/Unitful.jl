@@ -58,14 +58,25 @@ macro dimension(symb, abbr, name)
     x = Expr(:quote, name)
     uname = Symbol(name,"Units")
     funame = Symbol(name,"FreeUnits")
+    name_doc = "    "*string(__module__)*"."*string(name)*"{T, U}"
+    name_doc *= "\n\nA supertype for quantities and levels of dimension [`"*string(__module__)*"."*string(s)*"`](@ref) with a value of type `T` and units `U`."
+    name_doc *= "\n\nSee also: [`"*string(__module__)*"."*string(s)*"`](@ref), [`Unitful.Quantity`](@ref), [`Unitful.Level`](@ref)."
+    unit_doc = "    "*string(__module__)*"."*string(uname)*"{U}"
+    unit_doc *= "\n\nA supertype for units of dimension [`"*string(__module__)*"."*string(s)*"`](@ref). "
+    unit_doc *= "Equivalent to `Unitful.Units{U, "*string(__module__)*"."*string(s)*"}`."
+    unit_doc *= "\n\nSee also: [`"*string(__module__)*"."*string(s)*"`](@ref), [`Unitful.Units`](@ref)."
+    funit_doc = "    "*string(__module__)*"."*string(funame)*"{U}"
+    funit_doc *= "\n\nA supertype for free units of dimension [`"*string(__module__)*"."*string(s)*"`](@ref). "
+    funit_doc *= "Equivalent to `Unitful.FreeUnits{U, "*string(__module__)*"."*string(s)*"}`."
+    funit_doc *= "\n\nSee also: [`"*string(__module__)*"."*string(s)*"`](@ref), [`Unitful.FreeUnits`](@ref)."
     esc(quote
         $Unitful.abbr(::$Dimension{$x}) = $abbr
         Base.@__doc__ const global $s = $Dimensions{($Dimension{$x}(1),)}()
-        Base.@__doc__ const global ($name){T,U} = Union{
+        @doc $name_doc const global ($name){T,U} = Union{
             $Quantity{T,$s,U},
             $Level{L,S,$Quantity{T,$s,U}} where {L,S}}
-        const global ($uname){U} = $Units{U,$s}
-        const global ($funame){U} = $FreeUnits{U,$s}
+        @doc $unit_doc const global ($uname){U} = $Units{U,$s}
+        @doc $funit_doc const global ($funame){U} = $FreeUnits{U,$s}
         $s
     end)
 end
@@ -405,7 +416,7 @@ macro logscale(symb,abbr,name,base,prefactor,irp)
         const global $(esc(Symbol(symb,"_rp"))) = MixedUnits{Gain{$(esc(name)), :rp}}()
         const global $(esc(Symbol(symb,"_p"))) = MixedUnits{Gain{$(esc(name)), :p}}()
 
-        Base.@__doc__ macro $(esc(symb))(::Union{Real,Symbol})
+        macro $(esc(symb))(::Union{Real,Symbol})
             throw(ArgumentError(join(["usage: `@", $(String(symb)), " (a)/(b)`"])))
         end
 
@@ -434,7 +445,7 @@ macro logscale(symb,abbr,name,base,prefactor,irp)
             return Level{$(esc(name)), den}(num)
         end
 
-        Base.@__doc__ function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Number, irp::Bool)
+        function (::$(esc(:typeof))($(esc(symb))))(num::Number, den::Number, irp::Bool)
             dimension(num) != dimension(den) && throw(DimensionError(num,den))
             dimension(num) != NoDims &&
                 throw(ArgumentError(string("when passing a final Bool argument, ",
