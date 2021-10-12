@@ -27,6 +27,7 @@ end
 
 """
     @dimension(symb, abbr, name)
+    @dimension(symb, abbr, name, autodocs)
 Creates new dimensions. `name` will be used like an identifier in the type
 parameter for a [`Unitful.Dimension`](@ref) object. `symb` will be a symbol
 defined in the namespace from which this macro is called that is bound to a
@@ -43,6 +44,7 @@ of the newly defined dimension. The type alias for quantities or levels is simpl
 `name`, and the type alias for units is given by `name*"Units"`, e.g. `LengthUnits`.
 Note that there is also `LengthFreeUnits`, for example, which is an alias for
 dispatching on `FreeUnits` with length dimensions. The aliases are not exported.
+If `autodocs == true`, documentation will be automatically generated for these aliases.
 
 Finally, if you define new dimensions with [`@dimension`](@ref) you will need
 to specify a preferred unit for that dimension with [`Unitful.preferunits`](@ref),
@@ -53,7 +55,7 @@ Returns the `Dimensions` object to which `symb` is bound.
 
 Usage example from `src/pkgdefaults.jl`: `@dimension 𝐋 "𝐋" Length`
 """
-macro dimension(symb, abbr, name)
+macro dimension(symb, abbr, name, autodocs)
     s = Symbol(symb)
     x = Expr(:quote, name)
     uname = Symbol(name,"Units")
@@ -72,20 +74,30 @@ macro dimension(symb, abbr, name)
     esc(quote
         $Unitful.abbr(::$Dimension{$x}) = $abbr
         Base.@__doc__ const global $s = $Dimensions{($Dimension{$x}(1),)}()
-        @doc $name_doc const global ($name){T,U} = Union{
+        const global ($name){T,U} = Union{
             $Quantity{T,$s,U},
             $Level{L,S,$Quantity{T,$s,U}} where {L,S}}
-        @doc $unit_doc const global ($uname){U} = $Units{U,$s}
-        @doc $funit_doc const global ($funame){U} = $FreeUnits{U,$s}
+        const global ($uname){U} = $Units{U,$s}
+        const global ($funame){U} = $FreeUnits{U,$s}
+        if ($autodocs)
+            @doc $name_doc ($name)
+            @doc $unit_doc ($uname)
+            @doc $funit_doc ($funame)
+        end
         $s
     end)
+end
+macro dimension(symb, abbr, name)
+    esc(:(@dimension($symb,$abbr,$name,false)))
 end
 
 """
     @derived_dimension(name, dims)
+    @derived_dimension(name, dims, autodocs)
 Creates type aliases to allow dispatch on [`Unitful.Quantity`](@ref),
 [`Unitful.Level`](@ref), and [`Unitful.Units`](@ref) objects of a derived dimension,
 like area, which is just length squared. The type aliases are not exported.
+If `autodocs == true`, documentation will be automatically generated for these aliases.
 
 `dims` is a [`Unitful.Dimensions`](@ref) object.
 
@@ -96,22 +108,42 @@ Usage examples:
 - `@derived_dimension Area 𝐋^2` gives `Area` and `AreaUnit` type aliases
 - `@derived_dimension Speed 𝐋/𝐓` gives `Speed` and `SpeedUnit` type aliases
 """
-macro derived_dimension(name, dims)
+macro derived_dimension(name, dims, autodocs)
     uname = Symbol(name,"Units")
     funame = Symbol(name,"FreeUnits")
+    name_doc = "    "*string(__module__)*"."*string(name)*"{T, U}"
+    name_doc *= "\n\nA supertype for quantities and levels of dimension `"*string(dims)*"` with a value of type `T` and units `U`."
+    name_doc *= "\n\nSee also: [`Unitful.Quantity`](@ref), [`Unitful.Level`](@ref)."
+    unit_doc = "    "*string(__module__)*"."*string(uname)*"{U}"
+    unit_doc *= "\n\nA supertype for units of dimension `"*string(dims)*"`. "
+    unit_doc *= "Equivalent to `Unitful.Units{U, "*string(dims)*"}`."
+    unit_doc *= "\n\nSee also: [`Unitful.Units`](@ref)."
+    funit_doc = "    "*string(__module__)*"."*string(funame)*"{U}"
+    funit_doc *= "\n\nA supertype for free units of dimension `"*string(dims)*"`. "
+    funit_doc *= "Equivalent to `Unitful.FreeUnits{U, "*string(dims)*"}`."
+    funit_doc *= "\n\nSee also: [`Unitful.FreeUnits`](@ref)."
     esc(quote
-        Base.@__doc__ const global ($name){T,U} = Union{
+        const global ($name){T,U} = Union{
             $Quantity{T,$dims,U},
             $Level{L,S,$Quantity{T,$dims,U}} where {L,S}}
         const global ($uname){U} = $Units{U,$dims}
         const global ($funame){U} = $FreeUnits{U,$dims}
+        if ($autodocs)
+            @doc $name_doc ($name)
+            @doc $unit_doc ($uname)
+            @doc $funit_doc ($funame)
+        end
         nothing
     end)
+end
+macro derived_dimension(name, dims)
+    esc(:(@derived_dimension($name,$dims,false)))
 end
 
 
 """
     @refunit(symb, name, abbr, dimension, tf)
+    @refunit(symb, name, abbr, dimension, tf, autodocs)
 Define a reference unit, typically SI. Rather than define
 conversion factors between each and every unit of a given dimension, conversion
 factors are given between each unit and a reference unit, defined by this macro.
@@ -120,7 +152,8 @@ This macro extends [`Unitful.abbr`](@ref) so that the reference unit can be
 displayed in an abbreviated format. If `tf == true`, this macro generates symbols
 for every power of ten of the unit, using the standard SI prefixes. A `dimension`
 must be given ([`Unitful.Dimensions`](@ref) object) that specifies the dimension
-of the reference unit.
+of the reference unit. If `autodocs == true`, automatic documentation for
+power-of-ten prefixes (if defined) will be added.
 
 In principle, users can use this macro, but it probably does not make much sense
 to do so. If you define a new (probably unphysical) dimension using
@@ -139,7 +172,7 @@ Usage example: `@refunit m "m" Meter 𝐋 true`
 
 This example, found in `src/pkgdefaults.jl`, generates `km`, `m`, `cm`, ...
 """
-macro refunit(symb, abbr, name, dimension, tf)
+macro refunit(symb, abbr, name, dimension, tf, autodocs)
     expr = Expr(:block)
     n = Meta.quot(Symbol(name))
 
@@ -149,7 +182,7 @@ macro refunit(symb, abbr, name, dimension, tf)
 
     if tf
         push!(expr.args, quote
-            Base.@__doc__ $Unitful.@prefixed_unit_symbols $symb $name $dimension (1.0, 1)
+            Base.@__doc__ $Unitful.@prefixed_unit_symbols $symb $name $dimension (1.0, 1) $autodocs
         end)
     else
         push!(expr.args, quote
@@ -164,12 +197,18 @@ macro refunit(symb, abbr, name, dimension, tf)
 
     esc(expr)
 end
+macro refunit(symb,abbr,name,dimension,tf)
+    esc(:(@refunit($symb,$abbr,$name,$dimension,$tf,false)))
+end
 
 """
     @unit(symb,abbr,name,equals,tf)
+    @unit(symb,abbr,name,equals,tf,autodocs)
 Define a unit. Rather than specifying a dimension like in [`@refunit`](@ref),
 `equals` should be a [`Unitful.Quantity`](@ref) equal to one of the unit being
 defined. If `tf == true`, symbols will be made for each power-of-ten prefix.
+If `autodocs == true`, automatic documentation for power-of-ten prefixes (if
+defined) will be added.
 
 Returns the [`Unitful.FreeUnits`](@ref) object to which `symb` is bound.
 
@@ -177,7 +216,7 @@ Usage example: `@unit mi "mi" Mile (201168//125)*m false`
 
 This example will *not* generate `kmi` (kilomiles).
 """
-macro unit(symb,abbr,name,equals,tf)
+macro unit(symb,abbr,name,equals,tf,autodocs)
     expr = Expr(:block)
     n = Meta.quot(Symbol(name))
 
@@ -191,7 +230,7 @@ macro unit(symb,abbr,name,equals,tf)
 
     if tf
         push!(expr.args, quote
-            Base.@__doc__ $Unitful.@prefixed_unit_symbols $symb $name $d $basef
+            Base.@__doc__ $Unitful.@prefixed_unit_symbols $symb $name $d $basef $autodocs
         end)
     else
         push!(expr.args, quote
@@ -204,6 +243,9 @@ macro unit(symb,abbr,name,equals,tf)
     end)
 
     esc(expr)
+end
+macro unit(symb,abbr,name,equals,tf)
+    esc(:(@unit($symb,$abbr,$name,$equals,$tf,false)))
 end
 
 """
@@ -235,14 +277,15 @@ function basefactors_expr(m::Module, n, basefactor)
 end
 
 """
-    @prefixed_unit_symbols(symb,name,dimension,basefactor)
+    @prefixed_unit_symbols(symb,name,dimension,basefactor,autodocs)
 Not called directly by the user. Given a unit symbol and a unit's name,
-will define units for each possible SI power-of-ten prefix on that unit.
+will define units for each possible SI power-of-ten prefix on that unit. If
+`autodocs == true`, it will automatically generate documentation for these units.
 
-Example: `@prefixed_unit_symbols m Meter 𝐋 (1.0,1)` results in `nm`, `cm`, `m`, `km`, ...
-all getting defined in the calling namespace.
+Example: `@prefixed_unit_symbols m Meter 𝐋 (1.0,1) true` results in `nm`, `cm`, `m`, `km`, ...
+all getting defined in the calling namespace, with documentation automatically defined.
 """
-macro prefixed_unit_symbols(symb,name,user_dimension,basefactor)
+macro prefixed_unit_symbols(symb,name,user_dimension,basefactor,autodocs)
     expr = Expr(:block)
     n = Meta.quot(Symbol(name))
 
@@ -257,7 +300,7 @@ macro prefixed_unit_symbols(symb,name,user_dimension,basefactor)
             const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
             if ($isbase)
                 Base.@__doc__ $s
-            else
+            elseif ($autodocs)
                 @doc $docstring1 $s
             end
         end
