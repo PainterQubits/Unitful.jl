@@ -725,6 +725,7 @@ Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
         docstring = "    Unitful."*string(sym)*"\n\n"
         docstring *= "A prefixed unit, equal to 10^"*string(k-3)*" kg."
         docstring *= " Note that `kg`, not `g`, is the base unit."
+        docstring *= "\n\nDimension: [`Unitful.𝐌`](@ref)."
         docstring *= "\n\nSee also: [`Unitful.kg`](@ref)."
         run = quote @doc $docstring $sym end
         eval(run)
