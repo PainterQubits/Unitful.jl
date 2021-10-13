@@ -6,10 +6,12 @@ version = "1.9.0"
 ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+OpenLibm_jll = "05823500-19ac-5b8b-9628-191a04bc5112"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
 ConstructionBase = "1"
+OpenLibm_jll = "0.7, 0.8"
 julia = "1"
 
 [extras]

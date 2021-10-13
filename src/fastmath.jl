@@ -35,8 +35,9 @@ import Base.FastMath: @fastmath,
     minmax_fast,
     cis_fast,
     angle_fast,
-    fast_op,
-    libm
+    fast_op
+
+import OpenLibm_jll: libopenlibm
 
 sub_fast(x::Quantity{T}) where {T <: FloatTypes} = typeof(x)(neg_float_fast(x.val))
 
@@ -167,9 +168,9 @@ for f in (:cos, :sin, :tan)
     f_fast = fast_op[f]
     @eval begin
         $f_fast(x::DimensionlessQuantity{Float32,U}) where {U} =
-            ccall(($(string(f,"f")),libm), Float32, (Float32,), uconvert(x,NoUnits))
+            ccall(($(string(f,"f")),libopenlibm), Float32, (Float32,), uconvert(x,NoUnits))
         $f_fast(x::DimensionlessQuantity{Float64,U}) where {U} =
-            ccall(($(string(f)),libm), Float64, (Float64,), uconvert(x,NoUnits))
+            ccall(($(string(f)),libopenlibm), Float64, (Float64,), uconvert(x,NoUnits))
     end
 end
 
