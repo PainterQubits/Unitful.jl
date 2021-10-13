@@ -632,15 +632,17 @@ end
         @test (8m)^(1//3) === 2.0*m^(1//3)
         @test @inferred(cis(90°)) ≈ im
 
-        # Test inferrability of integer literal powers
+        # Test inferrability of literal powers
         _pow_m3(x) = x^-3
         _pow_0(x) = x^0
         _pow_3(x) = x^3
         _pow_2_3(x) = x^(2//3)
 
-        @test_throws ErrorException @inferred(_pow_2_3(m))
-        @test_throws ErrorException @inferred(_pow_2_3(𝐋))
-        @test_throws ErrorException @inferred(_pow_2_3(1.0m))
+        @static if VERSION ≥ v"1.8.0-DEV.501"
+            @test @inferred(_pow_2_3(m)) == m^(2//3)
+            @test @inferred(_pow_2_3(𝐋)) == 𝐋^(2//3)
+            @test @inferred(_pow_2_3(1.0m)) == 1.0m^(2//3)
+        end
 
         @test @inferred(_pow_m3(m)) == m^-3
         @test @inferred(_pow_0(m)) == NoUnits
