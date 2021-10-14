@@ -301,25 +301,22 @@ const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, 𝐋^2}(2, 1//1),), 𝐋^2}()
 \nThe liter, a metric unit of volume, defined as 1000 cm^3.
 \nDimension: 𝐋^3.
 \nSee Also: [`Unitful.cm`](@ref)."
-@unit L      "L"        Liter       m^3//1000                true true
+@unit L      "L"        Liter       m^3//1000                true
 for p in (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
     Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
     Core.eval(Unitful, :(const $(Symbol(p,:l)) = $(Symbol(p,:L))))
 end
 @doc @doc(L) l
-# NullLogger to ignore documentation overwrite errors
-Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
-    for (k,v) in prefixdict
-        if (k!=0)
-            sym_L = Symbol(v,:L)
-            sym_l = Symbol(v,:l)
-            docstring = "    Unitful."*string(sym_L)*"\n    Unitful."*string(sym_l)*"\n\n"
-            docstring *= "A prefixed unit, equal to 10^"*string(k-3)*" L."
-            docstring *= "\n\nDimension: 𝐋^3."
-            docstring *= "\n\nSee also: [`Unitful.L`](@ref)."
-            run = quote @doc $docstring $sym_l; @doc $docstring $sym_L end
-            eval(run)
-        end
+for (k,v) in prefixdict
+    if (k!=0)
+        sym_L = Symbol(v,:L)
+        sym_l = Symbol(v,:l)
+        docstring = "    Unitful."*string(sym_L)*"\n    Unitful."*string(sym_l)*"\n\n"
+        docstring *= "A prefixed unit, equal to 10^"*string(k)*" L."
+        docstring *= "\n\nDimension: 𝐋^3."
+        docstring *= "\n\nSee also: [`Unitful.L`](@ref)."
+        run = quote @doc $docstring $sym_l; @doc $docstring $sym_L end
+        eval(run)
     end
 end
 
@@ -732,9 +729,8 @@ end
 
 preferunits(kg) # others done in @refunit
 # Fix documentation for all kg based units
-# Using a NullLogger is necessary to avoid documentation overwritten errors.
-Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
-    for (k,v) in prefixdict
+for (k,v) in prefixdict
+    if (k!=3)
         sym = Symbol(v,:g)
         docstring = "    Unitful."*string(sym)*"\n\n"
         docstring *= "A prefixed unit, equal to 10^"*string(k-3)*" kg."
@@ -744,11 +740,11 @@ Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
         run = quote @doc $docstring $sym end
         eval(run)
     end
-    @doc "    Unitful.kg
-    \nThe kilogram, the SI base unit of mass.
-    Note that `kg`, not `g`, is the base unit.
-    \nDimension: [`Unitful.𝐌`](@ref)." kg
 end
+@doc "    Unitful.kg
+\nThe kilogram, the SI base unit of mass.
+Note that `kg`, not `g`, is the base unit.
+\nDimension: [`Unitful.𝐌`](@ref)." kg
 
 """
     Unitful.promote_to_derived()
