@@ -109,7 +109,7 @@ Usage examples:
 - `@derived_dimension Area 𝐋^2` gives `Area` and `AreaUnit` type aliases
 - `@derived_dimension Speed 𝐋/𝐓` gives `Speed` and `SpeedUnit` type aliases
 """
-macro derived_dimension(name, dims, autodocs)
+macro derived_dimension(name, dims, autodocs=false)
     uname = Symbol(name,"Units")
     funame = Symbol(name,"FreeUnits")
     name_doc = "    "*string(__module__)*"."*string(name)*"{T, U}"
