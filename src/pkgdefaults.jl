@@ -219,15 +219,15 @@ substrate per s.
 \nSee also: [`Unitful.mol`](@ref), [`Unitful.s`](@ref)."
 @unit kat             "kat"  Katal           1mol/s             true true
 "    Unitful.percent
-\nPercent, a unit meaning parts per hundred. Printed as "%".
+\nPercent, a unit meaning parts per hundred. Printed as \"%\".
 \nDimension: [`Unitful.NoDims`](@ref)."
 @unit percent         "%"    Percent         1//100             false true
 "    Unitful.permille
-\nPermille, a unit meaning parts per thousand. Printed as "‰".
+\nPermille, a unit meaning parts per thousand. Printed as \"‰\".
 \nDimension: [`Unitful.NoDims`](@ref)."
 @unit permille        "‰"    Permille        1//1000            false true
 "    Unitful.pertenthousand
-\nPermyriad, a unit meaning parts per ten thousand. Printed as "‱".
+\nPermyriad, a unit meaning parts per ten thousand. Printed as \"‱\".
 \nDimension: [`Unitful.NoDims`](@ref)."
 @unit pertenthousand  "‱"    Pertenthousand  1//10000           false true
 
@@ -305,9 +305,21 @@ const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, 𝐋^2}(2, 1//1),), 𝐋^2}()
 for p in (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
     Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
     Core.eval(Unitful, :(const $(Symbol(p,:l)) = $(Symbol(p,:L))))
-    # NullLogger to ignore documentation overwrite errors
-    Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
-        Core.eval(Unitful, :(@doc @doc($(Symbol(p,:L))) $(Symbol(p,:l))))
+end
+@doc @doc(L) l
+# NullLogger to ignore documentation overwrite errors
+Base.CoreLogging.with_logger(Base.CoreLogging.NullLogger()) do
+    for (k,v) in prefixdict
+        if (k!=0)
+            sym_L = Symbol(v,:L)
+            sym_l = Symbol(v,:l)
+            docstring = "    Unitful."*string(sym_L)*"\n    Unitful."*string(sym_l)*"\n\n"
+            docstring *= "A prefixed unit, equal to 10^"*string(k-3)*" L."
+            docstring *= "\n\nDimension: 𝐋^3."
+            docstring *= "\n\nSee also: [`Unitful.L`](@ref)."
+            run = quote @doc $docstring $sym_l; @doc $docstring $sym_L end
+            eval(run)
+        end
     end
 end
 
@@ -410,7 +422,7 @@ const h  = 6.626_070_15e-34*J*s     # exact, Planck constant
 const ħ  = h/2π                     # hbar
 "    Unitful.Φ0
 \nA quantity representing the superconducting magnetic flux quantum, defined as
-h / (2 q).
+h / (2 × q).
 \nDimension: 𝐋^2 𝐌 𝐈^-1 𝐓^-2.
 \nSee also: [`Unitful.h`](@ref), [`Unitful.q`](@ref)."
 const Φ0 = h/(2q)                   # Superconducting magnetic flux quantum
@@ -564,7 +576,7 @@ earth, a unit of acceleration, defined by standard to be exactly 9.806,65 m / s^
 \nSee Also: [`Unitful.yd`](@ref)."
 @unit mi        "mi"       Mile                 1760yd                  false true
 "    Unitful.angstrom
-    Unitful.Å
+    Unitful.Å
 \nThe angstrom, a metric unit of length defined as 1/10 nm.
 \nDimension: [`Unitful.𝐋`](@ref).
 \nSee Also: [`Unitful.nm`](@ref)."
