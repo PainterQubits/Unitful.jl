@@ -219,15 +219,15 @@ substrate per s.
 \nSee also: [`Unitful.mol`](@ref), [`Unitful.s`](@ref)."
 @unit kat             "kat"  Katal           1mol/s             true true
 "    Unitful.percent
-\nPercent, a unit meaning parts per hundred.
+\nPercent, a unit meaning parts per hundred. Printed as "%".
 \nDimension: [`Unitful.NoDims`](@ref)."
 @unit percent         "%"    Percent         1//100             false true
 "    Unitful.permille
-\nPermille, a unit meaning parts per thousand.
+\nPermille, a unit meaning parts per thousand. Printed as "‰".
 \nDimension: [`Unitful.NoDims`](@ref)."
 @unit permille        "‰"    Permille        1//1000            false true
 "    Unitful.pertenthousand
-\nPermyriad, a unit meaning parts per ten thousand.
+\nPermyriad, a unit meaning parts per ten thousand. Printed as "‱".
 \nDimension: [`Unitful.NoDims`](@ref)."
 @unit pertenthousand  "‱"    Pertenthousand  1//10000           false true
 
@@ -297,6 +297,7 @@ const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, 𝐋^2}(2, 1//1),), 𝐋^2}()
 # Volume
 # `l` is also an acceptable symbol for liters
 "    Unitful.L
+    Unitful.l
 \nThe liter, a metric unit of volume, defined as 1000 cm^3.
 \nDimension: 𝐋^3.
 \nSee Also: [`Unitful.cm`](@ref)."
@@ -312,8 +313,7 @@ end
 
 # Molarity
 "    Unitful.M
-\nA unit for measuring molar concentration; a 1 molar solution has 1 mol of
-solute per L of solution.
+\nA unit for measuring molar concentration, equal to 1 mol/L.
 \nDimension: 𝐍 𝐋^-3.
 \nSee Also: [`Unitful.L`](@ref), [`Unitful.mol`](@ref)."
 @unit M      "M"        Molar       1mol/L                  true true
@@ -374,6 +374,7 @@ const c0 = 299_792_458*m/s              # exact
 const μ0 = 4π*(1//10)^7*H/m         # exact (but gets promoted to Float64...)
 const µ0 = μ0                       # magnetic constant
 "    Unitful.ε0
+    Unitful.ϵ0
 \nA quantity representing the vacuum permittivity constant, defined as 1 / (μ0 × c^2).
 \nDimension: 𝐈^2 𝐓^4 𝐋^-3 𝐌^-1.
 \nSee also: [`Unitful.μ0`](@ref), [`Unitful.c`](@ref)."
@@ -398,7 +399,7 @@ near the surface of the earth, defined by standard to be exactly 9.806,65 m / s^
 const gn = 9.80665*m/s^2            # exact, standard acceleration of gravity
 "    Unitful.h
 \nA quantity representing Planck's constant, defined as exactly
-6.62607015 × 10^-34 J × s.
+6.626,070,15 × 10^-34 J × s.
 \nDimension: 𝐋^2 𝐌 𝐓^-1.
 \nSee also: [`Unitful.J`](@ref), [`Unitful.s`](@ref)."
 const h  = 6.626_070_15e-34*J*s     # exact, Planck constant
@@ -521,7 +522,7 @@ earth, a unit of acceleration, defined by standard to be exactly 9.806,65 m / s^
 \nSee also: [`Unitful.cm`](@ref), [`Unitful.Mx`](@ref)"
 @unit Gauss  "Gauss"    Gauss       (1//10_000)*T           true true
 "    Unitful.Oe
-\nThe oersted, a CGS unit of magnetic H-field strength, defined as 1,000 × A / (4π × m).
+\nThe oersted, a CGS unit of magnetic H-field strength, defined as 1000 A / (4π × m).
 \nDimension: 𝐈 𝐋^-1.
 \nSee also: [`Unitful.A`](@ref), [`Unitful.m`](@ref)"
 @unit Oe     "Oe"       Oersted     (1_000/4π)*A/m          true true
@@ -563,6 +564,7 @@ earth, a unit of acceleration, defined by standard to be exactly 9.806,65 m / s^
 \nSee Also: [`Unitful.yd`](@ref)."
 @unit mi        "mi"       Mile                 1760yd                  false true
 "    Unitful.angstrom
+    Unitful.Å
 \nThe angstrom, a metric unit of length defined as 1/10 nm.
 \nDimension: [`Unitful.𝐋`](@ref).
 \nSee Also: [`Unitful.nm`](@ref)."

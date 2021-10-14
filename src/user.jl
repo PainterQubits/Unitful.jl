@@ -215,7 +215,7 @@ Usage example: `@unit mi "mi" Mile (201168//125)*m false`
 
 This example will *not* generate `kmi` (kilomiles).
 """
-macro unit(symb,abbr,name,equals,tf,autodocs)
+macro unit(symb,abbr,name,equals,tf,autodocs=false)
     expr = Expr(:block)
     n = Meta.quot(Symbol(name))
 
@@ -282,7 +282,7 @@ will define units for each possible SI power-of-ten prefix on that unit. If
     The `autodocs` argument requires Unitful 1.10 or later.
 
 Example: `@prefixed_unit_symbols m Meter 𝐋 (1.0,1) true` results in `nm`, `cm`, `m`, `km`, ...
-all getting defined in the calling namespace, with documentation automatically defined.
+all getting defined in the calling namespace, with docstrings automatically defined for SI-prefixed units.
 """
 macro prefixed_unit_symbols(symb,name,user_dimension,basefactor,autodocs=false)
     expr = Expr(:block)
@@ -301,8 +301,7 @@ macro prefixed_unit_symbols(symb,name,user_dimension,basefactor,autodocs=false)
             if ($isbase)
                 Base.@__doc__ $s
             elseif ($autodocs)
-                adoc_str = $docstring1*string($user_dimension)*$docstring2
-                @doc adoc_str $s
+                @doc $docstring1*string($user_dimension)*$docstring2 $s
             end
         end
         push!(expr.args, ea)
