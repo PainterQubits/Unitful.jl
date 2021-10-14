@@ -2,6 +2,7 @@ const colon = Base.:(:)
 
 import Base: ArithmeticRounds
 import Base: OrderStyle, Ordered, ArithmeticStyle, ArithmeticWraps
+import Base.Broadcast: DefaultArrayStyle, broadcasted
 
 *(y::Units, r::AbstractRange) = *(r,y)
 *(r::AbstractRange, y::Units, z::Units...) = *(r, *(y,z...))
@@ -95,3 +96,15 @@ end
 function /(x::Base.TwicePrecision, v::Quantity)
     x / Base.TwicePrecision(oftype(ustrip(x.hi)/ustrip(v)*unit(v), v))
 end
+
+# These can be removed (I think) if `range_start_step_length()` returns a `StepRangeLen` for
+# non-floats, cf. https://github.com/JuliaLang/julia/issues/40672
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), r::AbstractRange, x::AbstractQuantity) =
+    broadcasted(DefaultArrayStyle{1}(), *, r, ustrip(x)) * unit(x)
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), x::AbstractQuantity, r::AbstractRange) =
+    broadcasted(DefaultArrayStyle{1}(), *, ustrip(x), r) * unit(x)
+# for ambiguity resolution
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), r::StepRangeLen{T}, x::AbstractQuantity) where T =
+    broadcasted(DefaultArrayStyle{1}(), *, r, ustrip(x)) * unit(x)
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), x::AbstractQuantity, r::StepRangeLen{T}) where T =
+    broadcasted(DefaultArrayStyle{1}(), *, ustrip(x), r) * unit(x)
