@@ -4,25 +4,25 @@
 # dimensions from units, and also helps prevent common namespace collisions.
 "    Unitful.𝐋
 \nA dimension representing length."
-@dimension 𝐋 "𝐋" Length true
+@dimension 𝐋 "𝐋" Length      true
 "    Unitful.𝐌
 \nA dimension representing mass."
-@dimension 𝐌 "𝐌" Mass true
+@dimension 𝐌 "𝐌" Mass       true
 "    Unitful.𝐓
 \nA dimension representing time."
-@dimension 𝐓 "𝐓" Time true
+@dimension 𝐓 "𝐓" Time        true
 "    Unitful.𝐈
 \nA dimension representing electric current."
-@dimension 𝐈 "𝐈" Current true
+@dimension 𝐈 "𝐈" Current      true
 "    Unitful.𝚯
 \nA dimension representing thermodynamic temperature."
 @dimension 𝚯 "𝚯" Temperature true   # This one is \bfTheta
 "    Unitful.𝐉
 \nA dimension representing luminous intensity."
-@dimension 𝐉 "𝐉" Luminosity true
+@dimension 𝐉 "𝐉" Luminosity   true
 "    Unitful.𝐍
 \nA dimension representing amount of substance."
-@dimension 𝐍 "𝐍" Amount true
+@dimension 𝐍 "𝐍" Amount      true
 const RelativeScaleTemperature = Quantity{T, 𝚯, <:AffineUnits} where T
 const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 
