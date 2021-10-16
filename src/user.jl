@@ -314,7 +314,7 @@ macro prefixed_unit_symbols(symb,name,user_dimension,basefactor,autodocs=false)
                          $__module__.$s
                      \nA prefixed unit, equal to 10^$k $symb.
                      \nDimension: """
-        docstring2 = """\n\nSee also: [`$__module__.$symb`](@ref)."
+        docstring2 = "\n\nSee also: [`$__module__.$symb`](@ref)."
         ea = quote
             $(basefactors_expr(__module__, n, basefactor))
             const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
