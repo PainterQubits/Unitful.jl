@@ -1814,36 +1814,79 @@ end
     @test string(@doc DocUnits.dRefFoo) == "refunit docs\n"
     @test string(@doc DocUnits.dFoo) == "unit docs\n"
     @test string(@doc DocUnits.DocDimension) == """
-        ```\n$(@__MODULE__).DocUnits.DocDimension{T, U}\n```\n
-        A supertype for quantities and levels of dimension [`$(@__MODULE__).DocUnits.𝐃`](@ref) with a value of type `T` and units `U`.\n
-        See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref), `Unitful.Quantity`, `Unitful.Level`.\n"""
+        ```
+        $(@__MODULE__).DocUnits.DocDimension{T, U}
+        ```
+
+        A supertype for quantities and levels of dimension [`$(@__MODULE__).DocUnits.𝐃`](@ref) with a value of type `T` and units `U`.
+
+        See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref), `Unitful.Quantity`, `Unitful.Level`.
+        """
     @test string(@doc DocUnits.DocDimensionUnits) == """
-        ```\n$(@__MODULE__).DocUnits.DocDimensionUnits{U}\n```\n
-        A supertype for units of dimension [`$(@__MODULE__).DocUnits.𝐃`](@ref). Equivalent to `Unitful.Units{U, $(@__MODULE__).DocUnits.𝐃}`.\n
-        See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref), `Unitful.Units`.\n"""
+        ```
+        $(@__MODULE__).DocUnits.DocDimensionUnits{U}
+        ```
+
+        A supertype for units of dimension [`$(@__MODULE__).DocUnits.𝐃`](@ref). Equivalent to `Unitful.Units{U, $(@__MODULE__).DocUnits.𝐃}`.
+
+        See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref), `Unitful.Units`.
+        """
     @test string(@doc DocUnits.DocDimensionFreeUnits) == """
-        ```\n$(@__MODULE__).DocUnits.DocDimensionFreeUnits{U}\n```\n
-        A supertype for `Unitful.FreeUnits` of dimension [`$(@__MODULE__).DocUnits.𝐃`](@ref). Equivalent to `Unitful.FreeUnits{U, $(@__MODULE__).DocUnits.𝐃}`.\n
-        See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref).\n"""
+        ```
+        $(@__MODULE__).DocUnits.DocDimensionFreeUnits{U}
+        ```
+
+        A supertype for `Unitful.FreeUnits` of dimension [`$(@__MODULE__).DocUnits.𝐃`](@ref). Equivalent to `Unitful.FreeUnits{U, $(@__MODULE__).DocUnits.𝐃}`.
+
+        See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref).
+        """
     @test string(@doc DocUnits.DerivedDocDimension) == """
-        ```\n$(@__MODULE__).DocUnits.DerivedDocDimension{T, U}\n```\n
-        A supertype for quantities and levels of dimension `𝐃 * 𝐋` with a value of type `T` and units `U`.\n
-        See also: `Unitful.Quantity`, `Unitful.Level`.\n"""
+        ```
+        $(@__MODULE__).DocUnits.DerivedDocDimension{T, U}
+        ```
+
+        A supertype for quantities and levels of dimension `𝐃 * 𝐋` with a value of type `T` and units `U`.
+
+        See also: `Unitful.Quantity`, `Unitful.Level`.
+        """
     @test string(@doc DocUnits.DerivedDocDimensionUnits) == """
-        ```\n$(@__MODULE__).DocUnits.DerivedDocDimensionUnits{U}\n```\n
-        A supertype for units of dimension `𝐃 * 𝐋`. Equivalent to `Unitful.Units{U, 𝐃 * 𝐋}`.\n
-        See also: `Unitful.Units`.\n"""
+        ```
+        $(@__MODULE__).DocUnits.DerivedDocDimensionUnits{U}
+        ```
+
+        A supertype for units of dimension `𝐃 * 𝐋`. Equivalent to `Unitful.Units{U, 𝐃 * 𝐋}`.
+
+        See also: `Unitful.Units`.
+        """
     @test string(@doc DocUnits.DerivedDocDimensionFreeUnits) == """
-        ```\n$(@__MODULE__).DocUnits.DerivedDocDimensionFreeUnits{U}\n```\n
-        A supertype for `Unitful.FreeUnits` of dimension `𝐃 * 𝐋`. Equivalent to `Unitful.FreeUnits{U, 𝐃 * 𝐋}`.\n"""
+        ```
+        $(@__MODULE__).DocUnits.DerivedDocDimensionFreeUnits{U}
+        ```
+
+        A supertype for `Unitful.FreeUnits` of dimension `𝐃 * 𝐋`. Equivalent to `Unitful.FreeUnits{U, 𝐃 * 𝐋}`.
+        """
     @test string(@doc DocUnits.kdFoo) == """
-        ```\n$(@__MODULE__).DocUnits.kdFoo\n```\n
-        A prefixed unit, equal to 10^3 dFoo.\n\nDimension: 𝐃 𝐋\n
-        See also: [`$(@__MODULE__).DocUnits.dFoo`](@ref).\n"""
+        ```
+        $(@__MODULE__).DocUnits.kdFoo
+        ```
+
+        A prefixed unit, equal to 10^3 dFoo.
+
+        Dimension: 𝐃 𝐋
+
+        See also: [`$(@__MODULE__).DocUnits.dFoo`](@ref).
+        """
     @test string(@doc DocUnits.kdRefFoo) == """
-        ```\n$(@__MODULE__).DocUnits.kdRefFoo\n```\n
-        A prefixed unit, equal to 10^3 dRefFoo.\n\nDimension: 𝐃\n
-        See also: [`$(@__MODULE__).DocUnits.dRefFoo`](@ref).\n"""
+        ```
+        $(@__MODULE__).DocUnits.kdRefFoo
+        ```
+
+        A prefixed unit, equal to 10^3 dRefFoo.
+
+        Dimension: 𝐃
+
+        See also: [`$(@__MODULE__).DocUnits.dRefFoo`](@ref).
+        """
 end
 
 # Test precompiled Unitful extension modules

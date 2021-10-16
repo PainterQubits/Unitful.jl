@@ -314,9 +314,12 @@ for (k,v) in prefixdict
         docstring = """
                         Unitful.$sym_L
                         Unitful.$sym_l
-                    \nA prefixed unit, equal to 10^$k L.
-                    \nDimension: 𝐋^3.
-                    \nSee also: [`Unitful.L`](@ref).
+
+                    A prefixed unit, equal to 10^$k L.
+
+                    Dimension: 𝐋^3.
+
+                    See also: [`Unitful.L`](@ref).
                     """
         run = quote @doc $docstring $sym_l; @doc $docstring $sym_L end
         eval(run)
@@ -737,9 +740,12 @@ for (k,v) in prefixdict
         sym = Symbol(v,:g)
         docstring = """
                         Unitful.$sym
-                    \nA prefixed unit, equal to 10^$(k-3) kg. Note that `kg`, not `g`, is the base unit.
-                    \nDimension: [`Unitful.𝐌`](@ref).
-                    \nSee also: [`Unitful.kg`](@ref).
+
+                    A prefixed unit, equal to 10^$(k-3) kg. Note that `kg`, not `g`, is the base unit.
+
+                    Dimension: [`Unitful.𝐌`](@ref).
+
+                    See also: [`Unitful.kg`](@ref).
                     """
         run = quote @doc $docstring $sym end
         eval(run)

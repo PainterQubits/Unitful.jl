@@ -65,23 +65,29 @@ macro dimension(symb, abbr, name, autodocs=false)
     name_links = __module__ == Unitful ? "[`Unitful.Quantity`](@ref), [`Unitful.Level`](@ref)" : "`Unitful.Quantity`, `Unitful.Level`"
     unit_links = __module__ == Unitful ? "[`Unitful.Units`](@ref)" : "`Unitful.Units`"
     funit_links = __module__ == Unitful ? "[`Unitful.FreeUnits`](@ref)" : "`Unitful.FreeUnits`"
-    name_doc = """
-                   $__module__.$name{T, U}
-               \nA supertype for quantities and levels of dimension [`$__module__.$s`](@ref) with a value
-               of type `T` and units `U`.
-               \nSee also: [`$__module__.$s`](@ref), $name_links.
-               """
-    unit_doc = """
-                   $__module__.$uname{U}
-               \nA supertype for units of dimension [`$__module__.$s`](@ref). Equivalent to
-               `Unitful.Units{U, $__module__.$s}`.
-               \nSee also: [`$__module__.$s`](@ref), $unit_links.
-               """
+    name_doc =  """
+                    $__module__.$name{T, U}
+
+                A supertype for quantities and levels of dimension [`$__module__.$s`](@ref) with a value
+                of type `T` and units `U`.
+
+                See also: [`$__module__.$s`](@ref), $name_links.
+                """
+    unit_doc =  """
+                    $__module__.$uname{U}
+
+                A supertype for units of dimension [`$__module__.$s`](@ref). Equivalent to
+                `Unitful.Units{U, $__module__.$s}`.
+
+                See also: [`$__module__.$s`](@ref), $unit_links.
+                """
     funit_doc = """
                     $__module__.$funame{U}
-                \nA supertype for $funit_links of dimension [`$__module__.$s`](@ref). Equivalent to
+
+                A supertype for $funit_links of dimension [`$__module__.$s`](@ref). Equivalent to
                 `Unitful.FreeUnits{U, $__module__.$s}`.
-                \nSee also: [`$__module__.$s`](@ref).
+
+                See also: [`$__module__.$s`](@ref).
                 """
     esc(quote
         $Unitful.abbr(::$Dimension{$x}) = $abbr
@@ -125,20 +131,25 @@ macro derived_dimension(name, dims, autodocs=false)
     name_links = __module__ == Unitful ? "[`Unitful.Quantity`](@ref), [`Unitful.Level`](@ref)" : "`Unitful.Quantity`, `Unitful.Level`"
     unit_links = __module__ == Unitful ? "[`Unitful.Units`](@ref)" : "`Unitful.Units`"
     funit_links = __module__ == Unitful ? "[`Unitful.FreeUnits`](@ref)" : "`Unitful.FreeUnits`"
-    name_doc = """
-                   $__module__.$name{T, U}
-               \nA supertype for quantities and levels of dimension `$dims` with a value of type `T` and
-               units `U`.
-               \nSee also: $name_links.
-               """
-    unit_doc = """
-                   $__module__.$uname{U}
-               \nA supertype for units of dimension `$dims`. Equivalent to `Unitful.Units{U, $dims}`.
-               \nSee also: $unit_links.
-               """
+    name_doc =  """
+                    $__module__.$name{T, U}
+
+                A supertype for quantities and levels of dimension `$dims` with a value of type `T` and
+                units `U`.
+
+                See also: $name_links.
+                """
+    unit_doc =  """
+                    $__module__.$uname{U}
+
+                A supertype for units of dimension `$dims`. Equivalent to `Unitful.Units{U, $dims}`.
+
+                See also: $unit_links.
+                """
     funit_doc = """
                     $__module__.$funame{U}
-                \nA supertype for $funit_links of dimension `$dims`. Equivalent to
+
+                A supertype for $funit_links of dimension `$dims`. Equivalent to
                 `Unitful.FreeUnits{U, $dims}`.
                 """
     esc(quote
@@ -312,8 +323,10 @@ macro prefixed_unit_symbols(symb,name,user_dimension,basefactor,autodocs=false)
         isbase = k==0
         docstring1 = """
                          $__module__.$s
-                     \nA prefixed unit, equal to 10^$k $symb.
-                     \nDimension: """
+
+                     A prefixed unit, equal to 10^$k $symb.
+
+                     Dimension: """
         docstring2 = "\n\nSee also: [`$__module__.$symb`](@ref)."
         ea = quote
             $(basefactors_expr(__module__, n, basefactor))
