@@ -311,10 +311,13 @@ for (k,v) in prefixdict
     if (k!=0)
         sym_L = Symbol(v,:L)
         sym_l = Symbol(v,:l)
-        docstring = "    Unitful."*string(sym_L)*"\n    Unitful."*string(sym_l)*"\n\n"
-        docstring *= "A prefixed unit, equal to 10^"*string(k)*" L."
-        docstring *= "\n\nDimension: 𝐋^3."
-        docstring *= "\n\nSee also: [`Unitful.L`](@ref)."
+        docstring = """
+                        Unitful.$sym_L
+                        Unitful.$sym_l
+                    \nA prefixed unit, equal to 10^$k L.
+                    \nDimension: 𝐋^3.
+                    \nSee also: [`Unitful.L`](@ref).
+                    """
         run = quote @doc $docstring $sym_l; @doc $docstring $sym_L end
         eval(run)
     end
@@ -730,13 +733,14 @@ end
 preferunits(kg) # others done in @refunit
 # Fix documentation for all kg based units
 for (k,v) in prefixdict
-    if (k!=3)
+    if k != 3
         sym = Symbol(v,:g)
-        docstring = "    Unitful."*string(sym)*"\n\n"
-        docstring *= "A prefixed unit, equal to 10^"*string(k-3)*" kg."
-        docstring *= " Note that `kg`, not `g`, is the base unit."
-        docstring *= "\n\nDimension: [`Unitful.𝐌`](@ref)."
-        docstring *= "\n\nSee also: [`Unitful.kg`](@ref)."
+        docstring = """
+                        Unitful.$sym
+                    \nA prefixed unit, equal to 10^$(k-3) kg. Note that `kg`, not `g`, is the base unit.
+                    \nDimension: [`Unitful.𝐌`](@ref).
+                    \nSee also: [`Unitful.kg`](@ref).
+                    """
         run = quote @doc $docstring $sym end
         eval(run)
     end

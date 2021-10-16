@@ -63,19 +63,26 @@ macro dimension(symb, abbr, name, autodocs=false)
     uname = Symbol(name,"Units")
     funame = Symbol(name,"FreeUnits")
     name_links = __module__ == Unitful ? "[`Unitful.Quantity`](@ref), [`Unitful.Level`](@ref)" : "`Unitful.Quantity`, `Unitful.Level`"
-    unit_links = __module__ == Unitful ? "[`Unitful.Units`](@ref)" : "Unitful.Units"
-    funit_links = __module__ == Unitful ? "[`Unitful.FreeUnits`](@ref)" : "Unitful.FreeUnits"
-    name_doc = "    "*string(__module__)*"."*string(name)*"{T, U}"
-    name_doc *= "\n\nA supertype for quantities and levels of dimension [`"*string(__module__)*"."*string(s)*"`](@ref) with a value of type `T` and units `U`."
-    name_doc *= "\n\nSee also: [`"*string(__module__)*"."*string(s)*"`](@ref), "*name_links*"."
-    unit_doc = "    "*string(__module__)*"."*string(uname)*"{U}"
-    unit_doc *= "\n\nA supertype for units of dimension [`"*string(__module__)*"."*string(s)*"`](@ref). "
-    unit_doc *= "Equivalent to `Unitful.Units{U, "*string(__module__)*"."*string(s)*"}`."
-    unit_doc *= "\n\nSee also: [`"*string(__module__)*"."*string(s)*"`](@ref), "*unit_links*"."
-    funit_doc = "    "*string(__module__)*"."*string(funame)*"{U}"
-    funit_doc *= "\n\nA supertype for [`Unitful.FreeUnits`](@ref) of dimension [`"*string(__module__)*"."*string(s)*"`](@ref). "
-    funit_doc *= "Equivalent to `Unitful.FreeUnits{U, "*string(__module__)*"."*string(s)*"}`."
-    funit_doc *= "\n\nSee also: [`"*string(__module__)*"."*string(s)*"`](@ref), "*funit_links*"."
+    unit_links = __module__ == Unitful ? "[`Unitful.Units`](@ref)" : "`Unitful.Units`"
+    funit_links = __module__ == Unitful ? "[`Unitful.FreeUnits`](@ref)" : "`Unitful.FreeUnits`"
+    name_doc = """
+                   $__module__.$name{T, U}
+               \nA supertype for quantities and levels of dimension [`$__module__.$s`](@ref) with a value
+               of type `T` and units `U`.
+               \nSee also: [`$__module__.$s`](@ref), $name_links.
+               """
+    unit_doc = """
+                   $__module__.$uname{U}
+               \nA supertype for units of dimension [`$__module__.$s`](@ref). Equivalent to
+               `Unitful.Units{U, $__module__.$s}`.
+               \nSee also: [`$__module__.$s`](@ref), $unit_links.
+               """
+    funit_doc = """
+                    $__module__.$funame{U}
+                \nA supertype for $funit_links of dimension [`$__module__.$s`](@ref). Equivalent to
+                `Unitful.FreeUnits{U, $__module__.$s}`.
+                \nSee also: [`$__module__.$s`](@ref).
+                """
     esc(quote
         $Unitful.abbr(::$Dimension{$x}) = $abbr
         Base.@__doc__ const global $s = $Dimensions{($Dimension{$x}(1),)}()
@@ -84,10 +91,10 @@ macro dimension(symb, abbr, name, autodocs=false)
             $Level{L,S,$Quantity{T,$s,U}} where {L,S}}
         const global ($uname){U} = $Units{U,$s}
         const global ($funame){U} = $FreeUnits{U,$s}
-        if ($autodocs)
-            @doc $name_doc ($name)
-            @doc $unit_doc ($uname)
-            @doc $funit_doc ($funame)
+        if $autodocs
+            @doc $name_doc $name
+            @doc $unit_doc $uname
+            @doc $funit_doc $funame
         end
         $s
     end)
@@ -116,29 +123,34 @@ macro derived_dimension(name, dims, autodocs=false)
     uname = Symbol(name,"Units")
     funame = Symbol(name,"FreeUnits")
     name_links = __module__ == Unitful ? "[`Unitful.Quantity`](@ref), [`Unitful.Level`](@ref)" : "`Unitful.Quantity`, `Unitful.Level`"
-    unit_links = __module__ == Unitful ? "[`Unitful.Units`](@ref)" : "Unitful.Units"
-    funit_links = __module__ == Unitful ? "[`Unitful.FreeUnits`](@ref)" : "Unitful.FreeUnits"
-    name_doc = "    "*string(__module__)*"."*string(name)*"{T, U}"
-    name_doc *= "\n\nA supertype for quantities and levels of dimension `"*string(dims)*"` with a value of type `T` and units `U`."
-    name_doc *= "\n\nSee also: "*name_links*"."
-    unit_doc = "    "*string(__module__)*"."*string(uname)*"{U}"
-    unit_doc *= "\n\nA supertype for units of dimension `"*string(dims)*"`. "
-    unit_doc *= "Equivalent to `Unitful.Units{U, "*string(dims)*"}`."
-    unit_doc *= "\n\nSee also: "*unit_links*"."
-    funit_doc = "    "*string(__module__)*"."*string(funame)*"{U}"
-    funit_doc *= "\n\nA supertype for free units of dimension `"*string(dims)*"`. "
-    funit_doc *= "Equivalent to `Unitful.FreeUnits{U, "*string(dims)*"}`."
-    funit_doc *= "\n\nSee also: "*funit_links*"."
+    unit_links = __module__ == Unitful ? "[`Unitful.Units`](@ref)" : "`Unitful.Units`"
+    funit_links = __module__ == Unitful ? "[`Unitful.FreeUnits`](@ref)" : "`Unitful.FreeUnits`"
+    name_doc = """
+                   $__module__.$name{T, U}
+               \nA supertype for quantities and levels of dimension `$dims` with a value of type `T` and
+               units `U`.
+               \nSee also: $name_links.
+               """
+    unit_doc = """
+                   $__module__.$uname{U}
+               \nA supertype for units of dimension `$dims`. Equivalent to `Unitful.Units{U, $dims}`.
+               \nSee also: $unit_links.
+               """
+    funit_doc = """
+                    $__module__.$funame{U}
+                \nA supertype for $funit_links of dimension `$dims`. Equivalent to
+                `Unitful.FreeUnits{U, $dims}`.
+                """
     esc(quote
         const global ($name){T,U} = Union{
             $Quantity{T,$dims,U},
             $Level{L,S,$Quantity{T,$dims,U}} where {L,S}}
         const global ($uname){U} = $Units{U,$dims}
         const global ($funame){U} = $FreeUnits{U,$dims}
-        if ($autodocs)
-            @doc $name_doc ($name)
-            @doc $unit_doc ($uname)
-            @doc $funit_doc ($funame)
+        if $autodocs
+            @doc $name_doc $name
+            @doc $unit_doc $uname
+            @doc $funit_doc $funame
         end
         nothing
     end)
@@ -298,15 +310,17 @@ macro prefixed_unit_symbols(symb,name,user_dimension,basefactor,autodocs=false)
         s = Symbol(v,symb)
         u = :($Unit{$n, $user_dimension}($k,1//1))
         isbase = k==0
-        docstring1 = "    "*string(__module__)*"."*string(s)*"\n\nA prefixed unit, equal to 10^"*string(k)*" "*string(symb)*"."
-        docstring1 *= "\n\nDimension: "
-        docstring2 = ".\n\nSee also: [`"*string(__module__)*"."*string(symb)*"`](@ref)."
+        docstring1 = """
+                         $__module__.$s
+                     \nA prefixed unit, equal to 10^$k $symb.
+                     \nDimension: """
+        docstring2 = """\n\nSee also: [`$__module__.$symb`](@ref)."
         ea = quote
             $(basefactors_expr(__module__, n, basefactor))
             const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
-            if ($isbase)
+            if $isbase
                 Base.@__doc__ $s
-            elseif ($autodocs)
+            elseif $autodocs
                 @doc $docstring1*string($user_dimension)*$docstring2 $s
             end
         end
