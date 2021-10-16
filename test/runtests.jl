@@ -1840,6 +1840,10 @@ end
         ```\n$(@__MODULE__).DocUnits.kdFoo\n```\n
         A prefixed unit, equal to 10^3 dFoo.\n\nDimension: 𝐃 𝐋\n
         See also: [`$(@__MODULE__).DocUnits.dFoo`](@ref).\n"""
+    @test string(@doc DocUnits.kdRefFoo) == """
+        ```\n$(@__MODULE__).DocUnits.kdRefFoo\n```\n
+        A prefixed unit, equal to 10^3 dRefFoo.\n\nDimension: 𝐃\n
+        See also: [`$(@__MODULE__).DocUnits.dRefFoo`](@ref).\n"""
 end
 
 # Test precompiled Unitful extension modules
