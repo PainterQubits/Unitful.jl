@@ -282,6 +282,10 @@ end
 Macro for easily defining affine units. `offset` gives the zero of the relative scale
 in terms of an absolute scale; the scaling is the same as the absolute scale. Example:
 `@affineunit °C "°C" (27315//100)K` is used internally to define degrees Celsius.
+
+!!! compat "Unitful 1.10"
+    Documenting the resulting unit by adding a docstring before the `@affineunit` call
+    requires Unitful 1.10 or later.
 """
 macro affineunit(symb, abbr, offset)
     s = Symbol(symb)
@@ -365,6 +369,10 @@ end
     @unit_symbols(symb,name)
 Not called directly by the user. Given a unit symbol and a unit's name,
 will define units without SI power-of-ten prefixes.
+
+!!! compat "Unitful 1.10"
+    Documenting the resulting unit by adding a docstring before the `@unit_symbols` call
+    requires Unitful 1.10 or later.
 
 Example: `@unit_symbols ft Foot 𝐋` results in `ft` getting defined but not `kft`.
 """
@@ -498,7 +506,7 @@ macro logscale(symb,abbr,name,base,prefactor,irp)
         const global $(esc(name)) = LogInfo{$(QuoteNode(name)), $base, $prefactor}
         $Unitful.isrootpower(::Type{$(esc(name))}) = $irp
 
-        Base.@__doc__ const global $(esc(symb)) = MixedUnits{Gain{$(esc(name)), :?}}()
+        const global $(esc(symb)) = MixedUnits{Gain{$(esc(name)), :?}}()
         const global $(esc(Symbol(symb,"_rp"))) = MixedUnits{Gain{$(esc(name)), :rp}}()
         const global $(esc(Symbol(symb,"_p"))) = MixedUnits{Gain{$(esc(name)), :p}}()
 
@@ -559,7 +567,7 @@ Defines a logarithmic unit. For examples see `src/pkgdefaults.jl`.
 macro logunit(symb, abbr, logscale, reflevel)
     quote
         $Unitful.abbr(::Level{$(esc(logscale)), $(esc(reflevel))}) = $abbr
-        Base.@__doc__ const global $(esc(symb)) =
+        const global $(esc(symb)) =
             MixedUnits{Level{$(esc(logscale)), $(esc(reflevel))}}()
     end
 end
