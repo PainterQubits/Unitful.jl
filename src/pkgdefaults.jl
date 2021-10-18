@@ -308,7 +308,7 @@ for p in (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
 end
 @doc @doc(L) l
 for (k,v) in prefixdict
-    if (k!=0)
+    if k != 0
         sym_L = Symbol(v,:L)
         sym_l = Symbol(v,:l)
         docstring = """
@@ -373,12 +373,14 @@ const q = 1.602_176_634e-19*C        # CODATA 2018; `e` means 2.718...
 "    Unitful.c0
 \nA quantity representing the speed of light in a vacuum, defined as exactly
 2.997,924,58 × 10^8 m/s.
+\n`Unitful.c0` is a quantity (with units `m/s`) whereas [`Unitful.c`](@ref) is a unit equal to `c0`.
 \nDimension: 𝐋 𝐓^-1.
 \nSee also: [`Unitful.m`](@ref), [`Unitful.s`](@ref)."
 const c0 = 299_792_458*m/s              # exact
 "    Unitful.c
 \nThe speed of light in a vacuum, a unit of speed, defined as exactly
 2.997,924,58 × 10^8 m/s.
+\n[`Unitful.c0`](@ref) is a quantity (with units `m/s`) whereas `Unitful.c` is a unit equal to `c0`.
 \nDimension: 𝐋 𝐓^-1.
 \nSee also: [`Unitful.m`](@ref), [`Unitful.s`](@ref)."
 @unit c      "c"        SpeedOfLight 1c0                    false
@@ -409,6 +411,7 @@ const G  = 6.674_30e-11*m^3/kg/s^2  # (15) gravitational constant
 "    Unitful.gn
 \nA quantity representing the nominal acceleration due to gravity in a vacuum
 near the surface of the earth, defined by standard to be exactly 9.806,65 m / s^2.
+\n`Unitful.gn` is a quantity (with units `m/s^2`) whereas [`Unitful.ge`](@ref) is a unit equal to `gn`.
 \nDimension: 𝐋 𝐓^-2.
 \nSee also: [`Unitful.m`](@ref), [`Unitful.s`](@ref)."
 const gn = 9.80665*m/s^2            # exact, standard acceleration of gravity
@@ -495,6 +498,7 @@ mass of an unbound neutral atom of carbon-12, equal to 1.660,539,066,60 × 10^-2
 "    Unitful.ge
 \nThe nominal acceleration due to gravity in a vacuum near the surface of the
 earth, a unit of acceleration, defined by standard to be exactly 9.806,65 m / s^2.
+\n[`Unitful.gn`](@ref) is a quantity (with units `m/s^2`) whereas `Unitful.ge` is a unit equal to `gn`.
 \nDimension: 𝐋 𝐓^-2.
 \nSee also: [`Unitful.m`](@ref), [`Unitful.s`](@ref)."
 @unit ge     "ge"       EarthGravity gn                     false
