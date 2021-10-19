@@ -30,8 +30,7 @@ Quantity(x::Number, y::Units{()}) = x
 *(x::AbstractQuantity, y::AbstractQuantity) = Quantity(x.val*y.val, unit(x)*unit(y))
 
 # Next two lines resolves some method ambiguity:
-*(x::Bool, y::T) where {T <: AbstractQuantity} =
-    ifelse(x, y, ifelse(signbit(y), -zero(y), zero(y)))
+*(x::Bool, y::AbstractQuantity) = *(y, x)
 *(x::AbstractQuantity, y::Bool) = Quantity(x.val*y, unit(x))
 
 *(y::Number, x::AbstractQuantity) = *(x,y)
