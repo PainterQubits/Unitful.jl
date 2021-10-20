@@ -29,8 +29,6 @@ Quantity(x::Number, y::Units{()}) = x
 *(x::AbstractQuantity, y::Units, z::Units...) = Quantity(x.val, *(unit(x),y,z...))
 *(x::AbstractQuantity, y::AbstractQuantity) = Quantity(x.val*y.val, unit(x)*unit(y))
 
-# Next two lines resolves some method ambiguity:
-
 *(y::Number, x::AbstractQuantity) = *(x,y)
 function *(x::AbstractQuantity, y::Number)
     x isa AffineQuantity &&
