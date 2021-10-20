@@ -590,6 +590,8 @@ end
         @test @inferred(false*(1+im)kg) === (0+0im)kg     # Boolean-complex multiplication (F)
         @test @inferred((1+im)kg*true) === (1+im)kg       # Complex-boolean multiplication (T)
         @test @inferred((1+im)kg*false) === (0+0im)kg     # Complex-boolean multiplication (F)
+        @test @inferred((NaN*kg)*false) === 0.0kg         # `false` acts as "strong zero"
+        @test @inferred(false*(-Inf*kg)) === -0.0kg       # `false` acts as "strong zero"
         @test typeof(one(eltype([1.0s, 1kg]))) <: Float64 # issue 159, multiplicative identity
     end
     @testset "> Division" begin
