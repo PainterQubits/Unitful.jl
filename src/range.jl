@@ -108,3 +108,7 @@ broadcasted(::DefaultArrayStyle{1}, ::typeof(*), r::StepRangeLen{T}, x::Abstract
     broadcasted(DefaultArrayStyle{1}(), *, r, ustrip(x)) * unit(x)
 broadcasted(::DefaultArrayStyle{1}, ::typeof(*), x::AbstractQuantity, r::StepRangeLen{T}) where T =
     broadcasted(DefaultArrayStyle{1}(), *, ustrip(x), r) * unit(x)
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), r::LinRange, x::AbstractQuantity) =
+    LinRange(r.start*x, r.stop*x, r.len)
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), x::AbstractQuantity, r::LinRange) =
+    LinRange(x*r.start, x*r.stop, r.len)
