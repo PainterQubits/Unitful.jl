@@ -1164,6 +1164,10 @@ end
             @test *(1:5, mm, s^-1, mol^-1) === 1mm*s^-1*mol^-1:1mm*s^-1*mol^-1:5mm*s^-1*mol^-1
             @test @inferred((0:2) * 3f0m) === StepRangeLen{typeof(0f0m)}(0.0m, 3.0m, 3) # issue #477
             @test @inferred(3f0m * (0:2)) === StepRangeLen{typeof(0f0m)}(0.0m, 3.0m, 3) # issue #477
+            @test @inferred((0f0:2f0) * 3f0m) === 0f0m:3f0m:6f0m
+            @test @inferred(3f0m * (0.0:2.0)) === 0.0m:3.0m:6.0m
+            @test @inferred(LinRange(0f0, 1f0, 3) * 3f0m) === LinRange(0f0m, 3f0m, 3)
+            @test @inferred(3f0m * LinRange(0.0, 1.0, 3)) === LinRange(0.0m, 3.0m, 3)
             @test @inferred(1.0s * range(0.1, step=0.1, length=3)) === @inferred(range(0.1, step=0.1, length=3) * 1.0s)
         end
     end
