@@ -322,7 +322,7 @@ Unitful.uconvert(U::Unitful.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
 @testset "Promotion" begin
     @testset "> Unit preferences" begin
         # Should warn on possible redundant units issue (ms and s)
-        @test_logs (:warn,) Unitful.preferunits(C/ms)
+        @test_logs (:warn, r"^Preferred units contain complex units") Unitful.preferunits(C/ms)
         # Test for wacky prefered units functionality
         Unitful.preferunits(C/s)
         @test @inferred(upreferred(u"V/m")) == u"kg*m*C^-1*s^-2"
