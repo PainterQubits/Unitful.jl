@@ -318,11 +318,11 @@ function preferunits(u0::Units, u::Units...)
     # unexpected (though still correct) results. There may be cases where people would want to do this,
     # so we won't stop them, just let them know they're doing it.
     ulist = (typeof(i[2]).parameters[1] for i in promotion)
-    check = Dict{String, Unit}()
+    check = Dict{Unitful.Dimensions, Unit}()
     for a in ulist
         ulistA = (i^(1/i.power) for i in a)
         for i in ulistA
-            k = string(dimension(i))
+            k = dimension(i)
             if haskey(check, k)
                 if i!=check[k]
                     @warn "Preferred units contain complex units based on units of the same dimension but different scales: "*string(i)*" and "*string(check[k])*
