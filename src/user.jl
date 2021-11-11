@@ -318,7 +318,7 @@ function preferunits(u0::Units, u::Units...)
     # unexpected (though still correct) results. There may be cases where people would want to do this,
     # so we won't stop them, just let them know they're doing it.
     ulist = (typeof(i[2]).parameters[1] for i in promotion)
-    check = Dict{Unitful.Dimensions, Unit}()
+    check = Dict{Dimensions, Unit}()
     for a in ulist
         ulistA = (i^(1/i.power) for i in a)
         for i in ulistA
