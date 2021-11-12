@@ -327,7 +327,8 @@ Unitful.uconvert(U::Unitful.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
         Unitful.preferunits(C/s)
         @test @inferred(upreferred(V/m)) == kg*m*C^-1*s^-2
         @test dimension(upreferred(V/m)) == dimension(V/m)
-        # Reset prefered units to default
+        # Reset preferred units to default, except for units of dimension 𝐋*𝐌*𝐈^-1*𝐓^-3,
+        # because upreferred has already been called for that dimension
         Unitful.preferunits(A)
 
         # Only because we favor SI, we have the following:
