@@ -405,7 +405,7 @@ real(x::AbstractQuantity) = Quantity(real(x.val), unit(x))
 imag(x::AbstractQuantity) = Quantity(imag(x.val), unit(x))
 conj(x::AbstractQuantity) = Quantity(conj(x.val), unit(x))
 
-@inline norm(x::AbstractQuantity, p::Real=2) = Quantity(norm(x.val), unit(x))
+@inline norm(x::AbstractQuantity, p::Real=2) = Quantity(norm(x.val, p), unit(x))
 
 """
     sign(x::AbstractQuantity)
