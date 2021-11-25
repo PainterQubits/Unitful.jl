@@ -1170,6 +1170,26 @@ end
             @test @inferred(3f0m * LinRange(0.0, 1.0, 3)) === LinRange(0.0m, 3.0m, 3)
             @test @inferred(1.0s * range(0.1, step=0.1, length=3)) === @inferred(range(0.1, step=0.1, length=3) * 1.0s)
         end
+        @testset ">> broadcasting" begin
+            @test @inferred((1:5) .* mm) === 1mm:1mm:5mm
+            @test @inferred(mm .* (1:5)) === 1mm:1mm:5mm
+            @test @inferred((1:2:5) .* mm) === 1mm:2mm:5mm
+            @test @inferred((1.0:2.0:5.01) .* mm) === 1.0mm:2.0mm:5.0mm
+            r = @inferred(range(0.1, step=0.1, length=3) .* 1.0s)
+            @test r[3] === 0.3s
+            @test @inferred((0:2) .* 3f0m) === StepRangeLen{typeof(0f0m)}(0.0m, 3.0m, 3) # issue #477
+            @test @inferred(3f0m .* (0:2)) === StepRangeLen{typeof(0f0m)}(0.0m, 3.0m, 3) # issue #477
+            @test @inferred((0f0:2f0) .* 3f0m) === 0f0m:3f0m:6f0m
+            @test @inferred(3f0m .* (0.0:2.0)) === 0.0m:3.0m:6.0m
+            @test @inferred(LinRange(0f0, 1f0, 3) .* 3f0m) === LinRange(0f0m, 3f0m, 3)
+            @test @inferred(3f0m .* LinRange(0.0, 1.0, 3)) === LinRange(0.0m, 3.0m, 3)
+            @test @inferred(1.0s .* range(0.1, step=0.1, length=3)) === @inferred(range(0.1, step=0.1, length=3) * 1.0s)
+
+            @test @inferred((1:2:5) .* cm .|> mm) === 10mm:20mm:50mm
+            @test mm.((1:2:5) .* cm) === 10mm:20mm:50mm
+            @test @inferred((1:2:5) .* km .|> upreferred) === 1000m:2000m:5000m
+            @test @inferred((1:2:5) .* cm .|> mm .|> ustrip) === 10:20:50
+        end
     end
     @testset "> Arrays" begin
         @testset ">> Array multiplication" begin

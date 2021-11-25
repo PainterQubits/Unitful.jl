@@ -81,6 +81,8 @@ _colon(::Any, ::Any, start::T, step, stop::T) where {T} =
 # Opt into TwicePrecision functionality
 *(x::Base.TwicePrecision, y::Units) = Base.TwicePrecision(x.hi*y, x.lo*y)
 *(x::Base.TwicePrecision, y::Quantity) = (x * ustrip(y)) * unit(y)
+uconvert(y, x::Base.TwicePrecision) = Base.TwicePrecision(uconvert(y, x.hi), uconvert(y, x.lo))
+
 function colon(start::T, step::T, stop::T) where (T<:Quantity{S}
         where S<:Union{Float16,Float32,Float64})
     # This will always return a StepRangeLen
@@ -103,6 +105,15 @@ broadcasted(::DefaultArrayStyle{1}, ::typeof(*), r::AbstractRange, x::AbstractQu
     broadcasted(DefaultArrayStyle{1}(), *, r, ustrip(x)) * unit(x)
 broadcasted(::DefaultArrayStyle{1}, ::typeof(*), x::AbstractQuantity, r::AbstractRange) =
     broadcasted(DefaultArrayStyle{1}(), *, ustrip(x), r) * unit(x)
+
+const BCAST_PROPAGATE_CALLS = Union{typeof(upreferred), typeof(ustrip), Units}
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), r::AbstractRange, x::Ref{<:Units}) = r * x[]
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), x::Ref{<:Units}, r::AbstractRange) = x[] * r
+broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::StepRangeLen) = StepRangeLen(x(r.ref), x(r.step), r.len, r.offset)
+broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::StepRange) = StepRange(x(r.start), x(r.step), x(r.stop))
+broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::LinRange) = LinRange(x(r.start), x(r.stop), r.len)
+broadcasted(::DefaultArrayStyle{1}, ::typeof(|>), r::AbstractRange, x::Ref{<:BCAST_PROPAGATE_CALLS}) = broadcasted(DefaultArrayStyle{1}(), x[], r)
+
 # for ambiguity resolution
 broadcasted(::DefaultArrayStyle{1}, ::typeof(*), r::StepRangeLen{T}, x::AbstractQuantity) where T =
     broadcasted(DefaultArrayStyle{1}(), *, r, ustrip(x)) * unit(x)
