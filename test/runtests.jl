@@ -1843,6 +1843,98 @@ end
     end
 end
 
+module DocUnits
+    using Unitful
+    using Unitful: 𝐋
+    "dimension docs"
+    @dimension 𝐃 "𝐃" DocDimension true
+    @derived_dimension DerivedDocDimension 𝐃*𝐋 true
+    "refunit docs"
+    @refunit dRefFoo "dRefFoo" DRefFoo 𝐃 true true
+    "unit docs"
+    @unit dFoo "dFoo" DFoo 1*dRefFoo*u"m" true true
+end
+
+@testset "Docs" begin
+    @test string(@doc DocUnits.𝐃) == "dimension docs\n"
+    @test string(@doc DocUnits.dRefFoo) == "refunit docs\n"
+    @test string(@doc DocUnits.dFoo) == "unit docs\n"
+    @test string(@doc DocUnits.DocDimension) == """
+        ```
+        $(@__MODULE__).DocUnits.DocDimension{T, U}
+        ```
+
+        A supertype for quantities and levels of dimension [`$(@__MODULE__).DocUnits.𝐃`](@ref) with a value of type `T` and units `U`.
+
+        See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref), `Unitful.Quantity`, `Unitful.Level`.
+        """
+    @test string(@doc DocUnits.DocDimensionUnits) == """
+        ```
+        $(@__MODULE__).DocUnits.DocDimensionUnits{U}
+        ```
+
+        A supertype for units of dimension [`$(@__MODULE__).DocUnits.𝐃`](@ref). Equivalent to `Unitful.Units{U, $(@__MODULE__).DocUnits.𝐃}`.
+
+        See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref), `Unitful.Units`.
+        """
+    @test string(@doc DocUnits.DocDimensionFreeUnits) == """
+        ```
+        $(@__MODULE__).DocUnits.DocDimensionFreeUnits{U}
+        ```
+
+        A supertype for `Unitful.FreeUnits` of dimension [`$(@__MODULE__).DocUnits.𝐃`](@ref). Equivalent to `Unitful.FreeUnits{U, $(@__MODULE__).DocUnits.𝐃}`.
+
+        See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref).
+        """
+    @test string(@doc DocUnits.DerivedDocDimension) == """
+        ```
+        $(@__MODULE__).DocUnits.DerivedDocDimension{T, U}
+        ```
+
+        A supertype for quantities and levels of dimension `𝐃 * 𝐋` with a value of type `T` and units `U`.
+
+        See also: `Unitful.Quantity`, `Unitful.Level`.
+        """
+    @test string(@doc DocUnits.DerivedDocDimensionUnits) == """
+        ```
+        $(@__MODULE__).DocUnits.DerivedDocDimensionUnits{U}
+        ```
+
+        A supertype for units of dimension `𝐃 * 𝐋`. Equivalent to `Unitful.Units{U, 𝐃 * 𝐋}`.
+
+        See also: `Unitful.Units`.
+        """
+    @test string(@doc DocUnits.DerivedDocDimensionFreeUnits) == """
+        ```
+        $(@__MODULE__).DocUnits.DerivedDocDimensionFreeUnits{U}
+        ```
+
+        A supertype for `Unitful.FreeUnits` of dimension `𝐃 * 𝐋`. Equivalent to `Unitful.FreeUnits{U, 𝐃 * 𝐋}`.
+        """
+    @test string(@doc DocUnits.kdFoo) == """
+        ```
+        $(@__MODULE__).DocUnits.kdFoo
+        ```
+
+        A prefixed unit, equal to 10^3 dFoo.
+
+        Dimension: 𝐃 𝐋
+
+        See also: [`$(@__MODULE__).DocUnits.dFoo`](@ref).
+        """
+    @test string(@doc DocUnits.kdRefFoo) == """
+        ```
+        $(@__MODULE__).DocUnits.kdRefFoo
+        ```
+
+        A prefixed unit, equal to 10^3 dRefFoo.
+
+        Dimension: 𝐃
+
+        See also: [`$(@__MODULE__).DocUnits.dRefFoo`](@ref).
+        """
+end
+
 # Test precompiled Unitful extension modules
 load_path = mktempdir()
 load_cache_path = mktempdir()

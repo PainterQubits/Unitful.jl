@@ -26,7 +26,7 @@ function register(unit_module::Module)
 end
 
 """
-    @dimension(symb, abbr, name)
+    @dimension(symb, abbr, name, autodocs=false)
 Creates new dimensions. `name` will be used like an identifier in the type
 parameter for a [`Unitful.Dimension`](@ref) object. `symb` will be a symbol
 defined in the namespace from which this macro is called that is bound to a
@@ -43,6 +43,12 @@ of the newly defined dimension. The type alias for quantities or levels is simpl
 `name`, and the type alias for units is given by `name*"Units"`, e.g. `LengthUnits`.
 Note that there is also `LengthFreeUnits`, for example, which is an alias for
 dispatching on `FreeUnits` with length dimensions. The aliases are not exported.
+If `autodocs == true`, docstrings will be automatically generated for these aliases.
+
+!!! compat "Unitful 1.10"
+    Documenting the resulting dimension symbol by adding a docstring before the `@dimension`
+    call requires Unitful 1.10 or later. The `autodocs` argument also requires Unitful 1.10
+    or later.
 
 Finally, if you define new dimensions with [`@dimension`](@ref) you will need
 to specify a preferred unit for that dimension with [`Unitful.preferunits`](@ref),
@@ -53,28 +59,64 @@ Returns the `Dimensions` object to which `symb` is bound.
 
 Usage example from `src/pkgdefaults.jl`: `@dimension 𝐋 "𝐋" Length`
 """
-macro dimension(symb, abbr, name)
+macro dimension(symb, abbr, name, autodocs=false)
     s = Symbol(symb)
     x = Expr(:quote, name)
     uname = Symbol(name,"Units")
     funame = Symbol(name,"FreeUnits")
+    name_links = __module__ == Unitful ? "[`Unitful.Quantity`](@ref), [`Unitful.Level`](@ref)" : "`Unitful.Quantity`, `Unitful.Level`"
+    unit_links = __module__ == Unitful ? "[`Unitful.Units`](@ref)" : "`Unitful.Units`"
+    funit_links = __module__ == Unitful ? "[`Unitful.FreeUnits`](@ref)" : "`Unitful.FreeUnits`"
+    name_doc =  """
+                    $__module__.$name{T, U}
+
+                A supertype for quantities and levels of dimension [`$__module__.$s`](@ref) with a value
+                of type `T` and units `U`.
+
+                See also: [`$__module__.$s`](@ref), $name_links.
+                """
+    unit_doc =  """
+                    $__module__.$uname{U}
+
+                A supertype for units of dimension [`$__module__.$s`](@ref). Equivalent to
+                `Unitful.Units{U, $__module__.$s}`.
+
+                See also: [`$__module__.$s`](@ref), $unit_links.
+                """
+    funit_doc = """
+                    $__module__.$funame{U}
+
+                A supertype for $funit_links of dimension [`$__module__.$s`](@ref). Equivalent to
+                `Unitful.FreeUnits{U, $__module__.$s}`.
+
+                See also: [`$__module__.$s`](@ref).
+                """
     esc(quote
         $Unitful.abbr(::$Dimension{$x}) = $abbr
-        const global $s = $Dimensions{($Dimension{$x}(1),)}()
+        Base.@__doc__ const global $s = $Dimensions{($Dimension{$x}(1),)}()
         const global ($name){T,U} = Union{
             $Quantity{T,$s,U},
             $Level{L,S,$Quantity{T,$s,U}} where {L,S}}
         const global ($uname){U} = $Units{U,$s}
         const global ($funame){U} = $FreeUnits{U,$s}
+        if $autodocs
+            @doc $name_doc $name
+            @doc $unit_doc $uname
+            @doc $funit_doc $funame
+        end
         $s
     end)
 end
 
 """
-    @derived_dimension(name, dims)
+    @derived_dimension(name, dims, autodocs=false)
 Creates type aliases to allow dispatch on [`Unitful.Quantity`](@ref),
 [`Unitful.Level`](@ref), and [`Unitful.Units`](@ref) objects of a derived dimension,
 like area, which is just length squared. The type aliases are not exported.
+If `autodocs == true`, docstrings will be automatically generated for these aliases.
+
+!!! compat "Unitful 1.10"
+    The `autodocs` argument requires Unitful 1.10 or later.
 
 `dims` is a [`Unitful.Dimensions`](@ref) object.
 
@@ -85,22 +127,51 @@ Usage examples:
 - `@derived_dimension Area 𝐋^2` gives `Area` and `AreaUnit` type aliases
 - `@derived_dimension Speed 𝐋/𝐓` gives `Speed` and `SpeedUnit` type aliases
 """
-macro derived_dimension(name, dims)
+macro derived_dimension(name, dims, autodocs=false)
     uname = Symbol(name,"Units")
     funame = Symbol(name,"FreeUnits")
+    name_links = __module__ == Unitful ? "[`Unitful.Quantity`](@ref), [`Unitful.Level`](@ref)" : "`Unitful.Quantity`, `Unitful.Level`"
+    unit_links = __module__ == Unitful ? "[`Unitful.Units`](@ref)" : "`Unitful.Units`"
+    funit_links = __module__ == Unitful ? "[`Unitful.FreeUnits`](@ref)" : "`Unitful.FreeUnits`"
+    name_doc =  """
+                    $__module__.$name{T, U}
+
+                A supertype for quantities and levels of dimension `$dims` with a value of type `T` and
+                units `U`.
+
+                See also: $name_links.
+                """
+    unit_doc =  """
+                    $__module__.$uname{U}
+
+                A supertype for units of dimension `$dims`. Equivalent to `Unitful.Units{U, $dims}`.
+
+                See also: $unit_links.
+                """
+    funit_doc = """
+                    $__module__.$funame{U}
+
+                A supertype for $funit_links of dimension `$dims`. Equivalent to
+                `Unitful.FreeUnits{U, $dims}`.
+                """
     esc(quote
         const global ($name){T,U} = Union{
             $Quantity{T,$dims,U},
             $Level{L,S,$Quantity{T,$dims,U}} where {L,S}}
         const global ($uname){U} = $Units{U,$dims}
         const global ($funame){U} = $FreeUnits{U,$dims}
+        if $autodocs
+            @doc $name_doc $name
+            @doc $unit_doc $uname
+            @doc $funit_doc $funame
+        end
         nothing
     end)
 end
 
 
 """
-    @refunit(symb, name, abbr, dimension, tf)
+    @refunit(symb, name, abbr, dimension, tf, autodocs=false)
 Define a reference unit, typically SI. Rather than define
 conversion factors between each and every unit of a given dimension, conversion
 factors are given between each unit and a reference unit, defined by this macro.
@@ -109,7 +180,12 @@ This macro extends [`Unitful.abbr`](@ref) so that the reference unit can be
 displayed in an abbreviated format. If `tf == true`, this macro generates symbols
 for every power of ten of the unit, using the standard SI prefixes. A `dimension`
 must be given ([`Unitful.Dimensions`](@ref) object) that specifies the dimension
-of the reference unit.
+of the reference unit. If `autodocs == true`, autogenerated docstrings for
+SI-prefixed units will be added. This option has no effect when 'tf == false'.
+
+!!! compat "Unitful 1.10"
+    Documenting the resulting unit by adding a docstring before the `@refunit` call requires
+    Unitful 1.10 or later. The `autodocs` argument also requires Unitful 1.10 or later.
 
 In principle, users can use this macro, but it probably does not make much sense
 to do so. If you define a new (probably unphysical) dimension using
@@ -128,7 +204,7 @@ Usage example: `@refunit m "m" Meter 𝐋 true`
 
 This example, found in `src/pkgdefaults.jl`, generates `km`, `m`, `cm`, ...
 """
-macro refunit(symb, abbr, name, dimension, tf)
+macro refunit(symb, abbr, name, dimension, tf, autodocs=false)
     expr = Expr(:block)
     n = Meta.quot(Symbol(name))
 
@@ -138,11 +214,11 @@ macro refunit(symb, abbr, name, dimension, tf)
 
     if tf
         push!(expr.args, quote
-            $Unitful.@prefixed_unit_symbols $symb $name $dimension (1.0, 1)
+            Base.@__doc__ $Unitful.@prefixed_unit_symbols $symb $name $dimension (1.0, 1) $autodocs
         end)
     else
         push!(expr.args, quote
-            $Unitful.@unit_symbols $symb $name $dimension (1.0, 1)
+            Base.@__doc__ $Unitful.@unit_symbols $symb $name $dimension (1.0, 1)
         end)
     end
 
@@ -155,10 +231,16 @@ macro refunit(symb, abbr, name, dimension, tf)
 end
 
 """
-    @unit(symb,abbr,name,equals,tf)
+    @unit(symb,abbr,name,equals,tf,autodocs=false)
 Define a unit. Rather than specifying a dimension like in [`@refunit`](@ref),
 `equals` should be a [`Unitful.Quantity`](@ref) equal to one of the unit being
 defined. If `tf == true`, symbols will be made for each power-of-ten prefix.
+If `autodocs == true`, autogenerated docstrings for SI-prefixed units will be added.
+This option has no effect when `tf == false`.
+
+!!! compat "Unitful 1.10"
+    Documenting the resulting unit by adding a docstring before the `@unit` call requires
+    Unitful 1.10 or later. The `autodocs` argument also requires Unitful 1.10 or later.
 
 Returns the [`Unitful.FreeUnits`](@ref) object to which `symb` is bound.
 
@@ -166,7 +248,7 @@ Usage example: `@unit mi "mi" Mile (201168//125)*m false`
 
 This example will *not* generate `kmi` (kilomiles).
 """
-macro unit(symb,abbr,name,equals,tf)
+macro unit(symb,abbr,name,equals,tf,autodocs=false)
     expr = Expr(:block)
     n = Meta.quot(Symbol(name))
 
@@ -180,11 +262,11 @@ macro unit(symb,abbr,name,equals,tf)
 
     if tf
         push!(expr.args, quote
-            $Unitful.@prefixed_unit_symbols $symb $name $d $basef
+            Base.@__doc__ $Unitful.@prefixed_unit_symbols $symb $name $d $basef $autodocs
         end)
     else
         push!(expr.args, quote
-            $Unitful.@unit_symbols $symb $name $d $basef
+            Base.@__doc__ $Unitful.@unit_symbols $symb $name $d $basef
         end)
     end
 
@@ -200,11 +282,15 @@ end
 Macro for easily defining affine units. `offset` gives the zero of the relative scale
 in terms of an absolute scale; the scaling is the same as the absolute scale. Example:
 `@affineunit °C "°C" (27315//100)K` is used internally to define degrees Celsius.
+
+!!! compat "Unitful 1.10"
+    Documenting the resulting unit by adding a docstring before the `@affineunit` call
+    requires Unitful 1.10 or later.
 """
 macro affineunit(symb, abbr, offset)
     s = Symbol(symb)
     return esc(quote
-        const global $s = $affineunit($offset)
+        Base.@__doc__ const global $s = $affineunit($offset)
         $Base.show(io::$IO, ::$genericunit($s)) = $print(io, $abbr)
     end)
 end
@@ -224,23 +310,46 @@ function basefactors_expr(m::Module, n, basefactor)
 end
 
 """
-    @prefixed_unit_symbols(symb,name,dimension,basefactor)
+    @prefixed_unit_symbols(symb,name,dimension,basefactor,autodocs=false)
 Not called directly by the user. Given a unit symbol and a unit's name,
-will define units for each possible SI power-of-ten prefix on that unit.
+will define units for each possible SI power-of-ten prefix on that unit. If
+`autodocs == true`, it will automatically generate docstrings for these units.
 
-Example: `@prefixed_unit_symbols m Meter 𝐋 (1.0,1)` results in `nm`, `cm`, `m`, `km`, ...
-all getting defined in the calling namespace.
+!!! compat "Unitful 1.10"
+    Documenting the resulting unit by adding a docstring before the `@prefixed_unit_symbols`
+    call requires Unitful 1.10 or later. The `autodocs` argument also requires Unitful 1.10
+    or later.
+
+Example: `@prefixed_unit_symbols m Meter 𝐋 (1.0,1) true` results in `nm`, `cm`, `m`, `km`, ...
+all getting defined in the calling namespace, with docstrings automatically defined for SI-prefixed units.
 """
-macro prefixed_unit_symbols(symb,name,user_dimension,basefactor)
+macro prefixed_unit_symbols(symb,name,user_dimension,basefactor,autodocs=false)
     expr = Expr(:block)
     n = Meta.quot(Symbol(name))
 
     for (k,v) in prefixdict
         s = Symbol(v,symb)
         u = :($Unit{$n, $user_dimension}($k,1//1))
-        ea = quote
-            $(basefactors_expr(__module__, n, basefactor))
-            const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
+        if k == 0
+            ea = quote
+                $(basefactors_expr(__module__, n, basefactor))
+                Base.@__doc__ const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
+            end
+        else
+            docstring1 = """
+                             $__module__.$s
+
+                         A prefixed unit, equal to 10^$k $symb.
+
+                         Dimension: """
+            docstring2 = "\n\nSee also: [`$__module__.$symb`](@ref)."
+            ea = quote
+                $(basefactors_expr(__module__, n, basefactor))
+                const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
+                if $autodocs
+                    @doc $docstring1*string($user_dimension)*$docstring2 $s
+                end
+            end
         end
         push!(expr.args, ea)
     end
@@ -261,6 +370,10 @@ end
 Not called directly by the user. Given a unit symbol and a unit's name,
 will define units without SI power-of-ten prefixes.
 
+!!! compat "Unitful 1.10"
+    Documenting the resulting unit by adding a docstring before the `@unit_symbols` call
+    requires Unitful 1.10 or later.
+
 Example: `@unit_symbols ft Foot 𝐋` results in `ft` getting defined but not `kft`.
 """
 macro unit_symbols(symb,name,user_dimension,basefactor)
@@ -269,7 +382,7 @@ macro unit_symbols(symb,name,user_dimension,basefactor)
     u = :($Unit{$n, $user_dimension}(0,1//1))
     esc(quote
         $(basefactors_expr(__module__, n, basefactor))
-        const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
+        Base.@__doc__ const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
     end)
 end
 
