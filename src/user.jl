@@ -310,7 +310,28 @@ function preferunits(u0::Units, u::Units...)
             "For instance, it should not be used with units of dimension 𝐋^2.")
         end
         y = typeof(dim).parameters[1][1]
-        promotion[name(y)] = typeof(unit).parameters[1][1]
+        promotion[name(y)] = unit
+    end
+
+    # Let's run a quick check for anything where, for instance, current was defined is C/ms and time
+    # was defined in ns. We'll give a warning if this is the case so the user knows they may get
+    # unexpected (though still correct) results. There may be cases where people would want to do this,
+    # so we won't stop them, just let them know they're doing it.
+    ulist = (typeof(i[2]).parameters[1] for i in promotion)
+    check = Dict{Dimensions, Unit}()
+    for a in ulist
+        ulistA = (i^(1/i.power) for i in a)
+        for i in ulistA
+            k = dimension(i)
+            if haskey(check, k)
+                if i!=check[k]
+                    @warn "Preferred units contain complex units based on units of the same dimension but different scales: "*string(i)*" and "*string(check[k])*
+                    "\nThis may be intentional, but otherwise could lead to redundant units, such as ms/s or kg/g"
+                end
+            else
+                check[k] = i
+            end
+        end
     end
 
     nothing
