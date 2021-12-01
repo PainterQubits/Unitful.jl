@@ -3,6 +3,7 @@ uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
 version = "1.11.0"
 
 [deps]
+ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
