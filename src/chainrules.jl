@@ -12,7 +12,7 @@ end
 
 function (projector::ProjectTo{<:Quantity})(x::Number)
     new_val = projector.project_val(ustrip(x))
-    return new_val*x
+    return new_val*unit(x)
 end
 
 # Project Unitful Quantities onto numerical types by projecting the value and carrying units
