@@ -44,10 +44,6 @@ function prefix(x::Unit)
     end
 end
 
-function show(io::IO, x::Unit{N,D}) where {N,D}
-    show(io, FreeUnits{(x,), D, nothing}())
-end
-
 abstract type BracketStyle end
 
 struct NoBrackets <: BracketStyle end
@@ -89,7 +85,7 @@ brackets are not printed.
 """
 function showval(io::IO, x::Number, brackets::Bool=true)
     brackets && print_opening_bracket(io, x)
-    show(io, x)
+    show(io, MIME"text/plain"(), x)
     brackets && print_closing_bracket(io, x)
 end
 
@@ -107,20 +103,10 @@ has_unit_spacing(u) = true
 has_unit_spacing(u::Units{(Unit{:Degree, NoDims}(0, 1//1),), NoDims}) = false
 
 """
-    show(io::IO, x::Quantity)
+    show(io::IO, mime::MIME"text/plain", x::Quantity)
 Show a unitful quantity by calling [`showval`](@ref) on the numeric value, appending a
 space, and then calling `show` on a units object `U()`.
 """
-function show(io::IO, x::Quantity)
-    if isunitless(unit(x))
-        showval(io, x.val, false)
-    else
-        showval(io, x.val, true)
-        has_unit_spacing(unit(x)) && print(io, ' ')
-        show(io, unit(x))
-    end
-end
-
 function show(io::IO, mime::MIME"text/plain", x::Quantity)
     if isunitless(unit(x))
         showval(io, mime, x.val, false)
@@ -131,30 +117,30 @@ function show(io::IO, mime::MIME"text/plain", x::Quantity)
     end
 end
 
-function show(io::IO, r::Union{StepRange{T},StepRangeLen{T}}) where T<:Quantity
+function show(io::IO, mime::MIME"text/plain", r::Union{StepRange{T},StepRangeLen{T}}) where T<:Quantity
     a,s,b = first(r), step(r), last(r)
     U = unit(a)
     print(io, '(')
     if ustrip(U, s) == 1
-        show(io, ustrip(U, a):ustrip(U, b))
+        show(io, mime, ustrip(U, a):ustrip(U, b))
     else
-        show(io, ustrip(U, a):ustrip(U, s):ustrip(U, b))
+        show(io, mime, ustrip(U, a):ustrip(U, s):ustrip(U, b))
     end
     print(io, ')')
     has_unit_spacing(U) && print(io,' ')
-    show(io, U)
+    show(io, mime, U)
 end
 
-function show(io::IO, x::typeof(NoDims))
+function show(io::IO, ::MIME"text/plain", x::typeof(NoDims))
     print(io, "NoDims")
 end
 
 """
-    show(io::IO, x::Unitlike)
+    show(io::IO, ::MIME"text/plain", x::Unitlike)
 Call [`Unitful.showrep`](@ref) on each object in the tuple that is the type
 variable of a [`Unitful.Units`](@ref) or [`Unitful.Dimensions`](@ref) object.
 """
-function show(io::IO, x::Unitlike)
+function show(io::IO, ::MIME"text/plain", x::Unitlike)
     showoperators = get(io, :showoperators, false)
     first = ""
     sep = showoperators ? "*" : " "
@@ -241,3 +227,12 @@ superscript(i::Integer) = map(repr(i)) do c
     c == '0' ? '\u2070' :
     error("unexpected character")
 end
+
+Base.print(io::IO, x::AbstractQuantity) = show(io, "text/plain", x)
+Base.print(io::IO, x::Dimension) = show(io, "text/plain", x)
+Base.print(io::IO, x::Unit) = show(io, "text/plain", x)
+Base.print(io::IO, x::Union{StepRange{T},StepRangeLen{T}}) where T<:Quantity = show(io, "text/plain", x)
+Base.print(io::IO, x::Unitlike) = show(io, "text/plain", x)
+Base.print(io::IO, x::MixedUnits) = show(io, "text/plain", x)
+Base.print(io::IO, x::LogScaled) = show(io, "text/plain", x)
+Base.print(io::IO, x::IsRootPowerRatio) = show(io, "text/plain", x)
