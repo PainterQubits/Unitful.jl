@@ -116,4 +116,4 @@ Base.promote_rule(::Type{Quantity{T}}, ::Type{Quantity{S,D,U}}) where {T,S,D,U} 
 Base.promote_rule(::Type{Quantity{S,D,U}}, ::Type{Quantity{T}}) where {T,S,D,U} =
     Quantity{promote_type(T,S)}
 
-Base.promote_typejoin(::Type{T}, ::Type{Quantity{T,D,U}}) where {T,D,U} = Quantity{T}
+Base.promote_typejoin(::Type{Quantity{S,D,U}}, ::Type{Quantity{T,D,U}}) where {T,S,D,U} = Quantity{T,S}
