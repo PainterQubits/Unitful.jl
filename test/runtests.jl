@@ -1263,7 +1263,7 @@ end
             b = [0.0, 0.0m]
             @test b + b == b
             @test b .+ b == b
-            @test eltype(b+b) === Quantity{Float64}
+            @test eltype(b+b) === Number
 
             # Dimensionless quantities
             @test @inferred([1mm/m] + [1.0cm/m])     == [0.011]
