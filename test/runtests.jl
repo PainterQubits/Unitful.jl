@@ -14,7 +14,8 @@ import Unitful:
     J, A, N, mol, V,
     mW, W,
     dB, dB_rp, dB_p, dBm, dBV, dBSPL, Decibel,
-    Np, Np_rp, Np_p, Neper
+    Np, Np_rp, Np_p, Neper,
+    C
 
 import Unitful: 𝐋, 𝐓, 𝐍, 𝚯
 
@@ -320,6 +321,16 @@ Unitful.uconvert(U::Unitful.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
 
 @testset "Promotion" begin
     @testset "> Unit preferences" begin
+        # Should warn on possible redundant units issue (ms and s)
+        @test_logs (:warn, r"^Preferred units contain complex units") Unitful.preferunits(C/ms)
+        # Test for wacky prefered units functionality
+        Unitful.preferunits(C/s)
+        @test @inferred(upreferred(V/m)) == kg*m*C^-1*s^-2
+        @test dimension(upreferred(V/m)) == dimension(V/m)
+        # Reset preferred units to default, except for units of dimension 𝐋*𝐌*𝐈^-1*𝐓^-3,
+        # because upreferred has already been called for that dimension
+        Unitful.preferunits(A)
+
         # Only because we favor SI, we have the following:
         @test @inferred(upreferred(N)) === kg*m/s^2
         @test @inferred(upreferred(dimension(N))) === kg*m/s^2
@@ -586,6 +597,12 @@ end
         @test @inferred((3m)*m) === 3*(m*m)               # Associative multiplication
         @test @inferred(true*1kg) === 1kg                 # Boolean multiplication (T)
         @test @inferred(false*1kg) === 0kg                # Boolean multiplication (F)
+        @test @inferred(true*(1+im)kg) === (1+im)kg       # Boolean-complex multiplication (T)
+        @test @inferred(false*(1+im)kg) === (0+0im)kg     # Boolean-complex multiplication (F)
+        @test @inferred((1+im)kg*true) === (1+im)kg       # Complex-boolean multiplication (T)
+        @test @inferred((1+im)kg*false) === (0+0im)kg     # Complex-boolean multiplication (F)
+        @test @inferred((NaN*kg)*false) === 0.0kg         # `false` acts as "strong zero"
+        @test @inferred(false*(-Inf*kg)) === -0.0kg       # `false` acts as "strong zero"
         @test typeof(one(eltype([1.0s, 1kg]))) <: Float64 # issue 159, multiplicative identity
     end
     @testset "> Division" begin
@@ -632,15 +649,17 @@ end
         @test (8m)^(1//3) === 2.0*m^(1//3)
         @test @inferred(cis(90°)) ≈ im
 
-        # Test inferrability of integer literal powers
+        # Test inferrability of literal powers
         _pow_m3(x) = x^-3
         _pow_0(x) = x^0
         _pow_3(x) = x^3
         _pow_2_3(x) = x^(2//3)
 
-        @test_throws ErrorException @inferred(_pow_2_3(m))
-        @test_throws ErrorException @inferred(_pow_2_3(𝐋))
-        @test_throws ErrorException @inferred(_pow_2_3(1.0m))
+        @static if VERSION ≥ v"1.8.0-DEV.501"
+            @test @inferred(_pow_2_3(m)) == m^(2//3)
+            @test @inferred(_pow_2_3(𝐋)) == 𝐋^(2//3)
+            @test @inferred(_pow_2_3(1.0m)) == 1.0m^(2//3)
+        end
 
         @test @inferred(_pow_m3(m)) == m^-3
         @test @inferred(_pow_0(m)) == NoUnits
@@ -1159,6 +1178,34 @@ end
             @test r[3] === 0.3s
             @test *(1:5, mm, s^-1) === 1mm*s^-1:1mm*s^-1:5mm*s^-1
             @test *(1:5, mm, s^-1, mol^-1) === 1mm*s^-1*mol^-1:1mm*s^-1*mol^-1:5mm*s^-1*mol^-1
+            @test @inferred((0:2) * 3f0m) === StepRangeLen{typeof(0f0m)}(0.0m, 3.0m, 3) # issue #477
+            @test @inferred(3f0m * (0:2)) === StepRangeLen{typeof(0f0m)}(0.0m, 3.0m, 3) # issue #477
+            @test @inferred((0f0:2f0) * 3f0m) === 0f0m:3f0m:6f0m
+            @test @inferred(3f0m * (0.0:2.0)) === 0.0m:3.0m:6.0m
+            @test @inferred(LinRange(0f0, 1f0, 3) * 3f0m) === LinRange(0f0m, 3f0m, 3)
+            @test @inferred(3f0m * LinRange(0.0, 1.0, 3)) === LinRange(0.0m, 3.0m, 3)
+            @test @inferred(1.0s * range(0.1, step=0.1, length=3)) === @inferred(range(0.1, step=0.1, length=3) * 1.0s)
+        end
+        @testset ">> broadcasting" begin
+            @test @inferred((1:5) .* mm) === 1mm:1mm:5mm
+            @test @inferred(mm .* (1:5)) === 1mm:1mm:5mm
+            @test @inferred((1:2:5) .* mm) === 1mm:2mm:5mm
+            @test @inferred((1.0:2.0:5.01) .* mm) === 1.0mm:2.0mm:5.0mm
+            r = @inferred(range(0.1, step=0.1, length=3) .* 1.0s)
+            @test r[3] === 0.3s
+            @test @inferred((0:2) .* 3f0m) === StepRangeLen{typeof(0f0m)}(0.0m, 3.0m, 3) # issue #477
+            @test @inferred(3f0m .* (0:2)) === StepRangeLen{typeof(0f0m)}(0.0m, 3.0m, 3) # issue #477
+            @test @inferred((0f0:2f0) .* 3f0m) === 0f0m:3f0m:6f0m
+            @test @inferred(3f0m .* (0.0:2.0)) === 0.0m:3.0m:6.0m
+            @test @inferred(LinRange(0f0, 1f0, 3) .* 3f0m) === LinRange(0f0m, 3f0m, 3)
+            @test @inferred(3f0m .* LinRange(0.0, 1.0, 3)) === LinRange(0.0m, 3.0m, 3)
+            @test @inferred(1.0s .* range(0.1, step=0.1, length=3)) === @inferred(range(0.1, step=0.1, length=3) * 1.0s)
+
+            @test @inferred((1:2:5) .* cm .|> mm) === 10mm:20mm:50mm
+            @test mm.((1:2:5) .* cm) === 10mm:20mm:50mm
+            @test @inferred((1:2:5) .* km .|> upreferred) === 1000m:2000m:5000m
+            @test @inferred((1:2:5) .* cm .|> mm .|> ustrip) === 10:20:50
+            @test @inferred((1f0:2f0:5f0) .* cm .|> mm .|> ustrip) === 10f0:20f0:50f0
         end
     end
     @testset "> Arrays" begin
@@ -1221,7 +1268,7 @@ end
             b = [0.0, 0.0m]
             @test b + b == b
             @test b .+ b == b
-            @test eltype(b+b) === Quantity{Float64}
+            @test eltype(b+b) === Number
 
             # Dimensionless quantities
             @test @inferred([1mm/m] + [1.0cm/m])     == [0.011]
@@ -1800,6 +1847,98 @@ end
         @test Base.OrderStyle((1+1im)m) === Base.Unordered()
         @test Base.OrderStyle(Num(1)m) === Base.Unordered()
     end
+end
+
+module DocUnits
+    using Unitful
+    using Unitful: 𝐋
+    "dimension docs"
+    @dimension 𝐃 "𝐃" DocDimension true
+    @derived_dimension DerivedDocDimension 𝐃*𝐋 true
+    "refunit docs"
+    @refunit dRefFoo "dRefFoo" DRefFoo 𝐃 true true
+    "unit docs"
+    @unit dFoo "dFoo" DFoo 1*dRefFoo*u"m" true true
+end
+
+@testset "Docs" begin
+    @test string(@doc DocUnits.𝐃) == "dimension docs\n"
+    @test string(@doc DocUnits.dRefFoo) == "refunit docs\n"
+    @test string(@doc DocUnits.dFoo) == "unit docs\n"
+    @test string(@doc DocUnits.DocDimension) == """
+        ```
+        $(@__MODULE__).DocUnits.DocDimension{T, U}
+        ```
+
+        A supertype for quantities and levels of dimension [`$(@__MODULE__).DocUnits.𝐃`](@ref) with a value of type `T` and units `U`.
+
+        See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref), `Unitful.Quantity`, `Unitful.Level`.
+        """
+    @test string(@doc DocUnits.DocDimensionUnits) == """
+        ```
+        $(@__MODULE__).DocUnits.DocDimensionUnits{U}
+        ```
+
+        A supertype for units of dimension [`$(@__MODULE__).DocUnits.𝐃`](@ref). Equivalent to `Unitful.Units{U, $(@__MODULE__).DocUnits.𝐃}`.
+
+        See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref), `Unitful.Units`.
+        """
+    @test string(@doc DocUnits.DocDimensionFreeUnits) == """
+        ```
+        $(@__MODULE__).DocUnits.DocDimensionFreeUnits{U}
+        ```
+
+        A supertype for `Unitful.FreeUnits` of dimension [`$(@__MODULE__).DocUnits.𝐃`](@ref). Equivalent to `Unitful.FreeUnits{U, $(@__MODULE__).DocUnits.𝐃}`.
+
+        See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref).
+        """
+    @test string(@doc DocUnits.DerivedDocDimension) == """
+        ```
+        $(@__MODULE__).DocUnits.DerivedDocDimension{T, U}
+        ```
+
+        A supertype for quantities and levels of dimension `𝐃 * 𝐋` with a value of type `T` and units `U`.
+
+        See also: `Unitful.Quantity`, `Unitful.Level`.
+        """
+    @test string(@doc DocUnits.DerivedDocDimensionUnits) == """
+        ```
+        $(@__MODULE__).DocUnits.DerivedDocDimensionUnits{U}
+        ```
+
+        A supertype for units of dimension `𝐃 * 𝐋`. Equivalent to `Unitful.Units{U, 𝐃 * 𝐋}`.
+
+        See also: `Unitful.Units`.
+        """
+    @test string(@doc DocUnits.DerivedDocDimensionFreeUnits) == """
+        ```
+        $(@__MODULE__).DocUnits.DerivedDocDimensionFreeUnits{U}
+        ```
+
+        A supertype for `Unitful.FreeUnits` of dimension `𝐃 * 𝐋`. Equivalent to `Unitful.FreeUnits{U, 𝐃 * 𝐋}`.
+        """
+    @test string(@doc DocUnits.kdFoo) == """
+        ```
+        $(@__MODULE__).DocUnits.kdFoo
+        ```
+
+        A prefixed unit, equal to 10^3 dFoo.
+
+        Dimension: 𝐃 𝐋
+
+        See also: [`$(@__MODULE__).DocUnits.dFoo`](@ref).
+        """
+    @test string(@doc DocUnits.kdRefFoo) == """
+        ```
+        $(@__MODULE__).DocUnits.kdRefFoo
+        ```
+
+        A prefixed unit, equal to 10^3 dRefFoo.
+
+        Dimension: 𝐃
+
+        See also: [`$(@__MODULE__).DocUnits.dRefFoo`](@ref).
+        """
 end
 
 # Test precompiled Unitful extension modules

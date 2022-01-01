@@ -2,6 +2,7 @@ const colon = Base.:(:)
 
 import Base: ArithmeticRounds
 import Base: OrderStyle, Ordered, ArithmeticStyle, ArithmeticWraps
+import Base.Broadcast: DefaultArrayStyle, broadcasted
 
 *(y::Units, r::AbstractRange) = *(r,y)
 *(r::AbstractRange, y::Units, z::Units...) = *(r, *(y,z...))
@@ -80,6 +81,8 @@ _colon(::Any, ::Any, start::T, step, stop::T) where {T} =
 # Opt into TwicePrecision functionality
 *(x::Base.TwicePrecision, y::Units) = Base.TwicePrecision(x.hi*y, x.lo*y)
 *(x::Base.TwicePrecision, y::Quantity) = (x * ustrip(y)) * unit(y)
+uconvert(y, x::Base.TwicePrecision) = Base.TwicePrecision(uconvert(y, x.hi), uconvert(y, x.lo))
+
 function colon(start::T, step::T, stop::T) where (T<:Quantity{S}
         where S<:Union{Float16,Float32,Float64})
     # This will always return a StepRangeLen
@@ -88,9 +91,35 @@ end
 
 # No need to confuse things by changing the type once units are on there,
 # if we can help it.
-*(r::StepRangeLen, y::Units) = StepRangeLen(r.ref*y, r.step*y, length(r), r.offset)
+*(r::StepRangeLen, y::Units) =
+    StepRangeLen{typeof(zero(eltype(r))*y)}(r.ref*y, r.step*y, length(r), r.offset)
 *(r::LinRange, y::Units) = LinRange(r.start*y, r.stop*y, length(r))
 *(r::StepRange, y::Units) = StepRange(r.start*y, r.step*y, r.stop*y)
 function /(x::Base.TwicePrecision, v::Quantity)
     x / Base.TwicePrecision(oftype(ustrip(x.hi)/ustrip(v)*unit(v), v))
 end
+
+# These can be removed (I think) if `range_start_step_length()` returns a `StepRangeLen` for
+# non-floats, cf. https://github.com/JuliaLang/julia/issues/40672
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), r::AbstractRange, x::AbstractQuantity) =
+    broadcasted(DefaultArrayStyle{1}(), *, r, ustrip(x)) * unit(x)
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), x::AbstractQuantity, r::AbstractRange) =
+    broadcasted(DefaultArrayStyle{1}(), *, ustrip(x), r) * unit(x)
+
+const BCAST_PROPAGATE_CALLS = Union{typeof(upreferred), typeof(ustrip), Units}
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), r::AbstractRange, x::Ref{<:Units}) = r * x[]
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), x::Ref{<:Units}, r::AbstractRange) = x[] * r
+broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::StepRangeLen) = StepRangeLen{typeof(x(zero(eltype(r))))}(x(r.ref), x(r.step), r.len, r.offset)
+broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::StepRange) = StepRange(x(r.start), x(r.step), x(r.stop))
+broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::LinRange) = LinRange(x(r.start), x(r.stop), r.len)
+broadcasted(::DefaultArrayStyle{1}, ::typeof(|>), r::AbstractRange, x::Ref{<:BCAST_PROPAGATE_CALLS}) = broadcasted(DefaultArrayStyle{1}(), x[], r)
+
+# for ambiguity resolution
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), r::StepRangeLen{T}, x::AbstractQuantity) where T =
+    broadcasted(DefaultArrayStyle{1}(), *, r, ustrip(x)) * unit(x)
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), x::AbstractQuantity, r::StepRangeLen{T}) where T =
+    broadcasted(DefaultArrayStyle{1}(), *, ustrip(x), r) * unit(x)
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), r::LinRange, x::AbstractQuantity) =
+    LinRange(r.start*x, r.stop*x, r.len)
+broadcasted(::DefaultArrayStyle{1}, ::typeof(*), x::AbstractQuantity, r::LinRange) =
+    LinRange(x*r.start, x*r.stop, r.len)
