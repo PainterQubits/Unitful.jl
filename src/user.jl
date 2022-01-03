@@ -354,14 +354,6 @@ macro prefixed_unit_symbols(symb,name,user_dimension,basefactor,autodocs=false)
         push!(expr.args, ea)
     end
 
-    # These lines allow for μ to be typed with option-m on a Mac.
-    s = Symbol(:µ, symb)
-    u = :($Unit{$n, $user_dimension}(-6,1//1))
-    push!(expr.args, quote
-        $(basefactors_expr(__module__, n, basefactor))
-        const global $s = $FreeUnits{($u,), $dimension($u), $nothing}()
-    end)
-
     esc(expr)
 end
 
