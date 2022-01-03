@@ -695,7 +695,7 @@ end
 
         @test @inferred(sinh(0.0rad)) == 0.0
         @test @inferred(sinh(1J/N/m) + cosh(1rad)) ≈ MathConstants.e
-        @test @inferred(tanh(1m/1µm)) == 1
+        @test @inferred(tanh(1m/1μm)) == 1
         @test @inferred(csch(0.0°)) == Inf
         @test @inferred(sech(0K/Ra)) == 1
         @test @inferred(coth(1e3m*mm^-1)) == 1
