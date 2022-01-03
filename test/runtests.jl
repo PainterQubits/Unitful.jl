@@ -1849,6 +1849,20 @@ end
     end
 end
 
+@testset "Encoding" begin
+    # Julia treats µ (U+00B5) and μ (U+03BC) as the same
+    @test Unitful.µ0 === Unitful.μ0
+    @test Unitful.µm === Unitful.μm
+    @test Unitful.dBµV === Unitful.dBμV
+    @test u"µ0" === u"μ0"
+    @test u"µm" === u"μm"
+    @test u"dBµV" === u"dBμV"
+    @test uparse("µ0") === uparse("μ0")
+    @test uparse("µm") === uparse("μm")
+    @test uparse("dBµV") === uparse("dBμV")
+    @test @doc(Unitful.µm) == @doc(Unitful.μm)
+end
+
 module DocUnits
     using Unitful
     using Unitful: 𝐋
