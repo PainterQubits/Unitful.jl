@@ -1384,6 +1384,8 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
         @test repr((1:10)*u"kg/m^3") == "(1:10) kg m^-3"
         @test repr((1.0:0.1:10.0)*u"kg/m^3") == "(1.0:0.1:10.0) kg m^-3"
         @test repr((1:10)*°) == "(1:10)°"
+        @test repr(range(1.0+2.0im, length=5)*u"m") == "(1.0 + 2.0im:1.0 + 0.0im:5.0 + 2.0im) m"
+        @test repr(range(1+2im, step=1+1im, length=5)*u"m") == "(1 + 2im:1 + 1im:5 + 6im) m"
     end
     withenv("UNITFUL_FANCY_EXPONENTS" => true) do
         @test repr(1.0 * u"m * s * kg^(-1//2)") == "1.0 m s kg⁻¹ᐟ²"
