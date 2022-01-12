@@ -1207,6 +1207,12 @@ end
             @test @inferred((1:2:5) .* cm .|> mm .|> ustrip) === 10:20:50
             @test @inferred((1f0:2f0:5f0) .* cm .|> mm .|> ustrip) === 10f0:20f0:50f0
         end
+        @testset ">> step defaults to 1" begin
+            @test range(1.0mm/m, length=5) == (1.0mm/m):(1000.0mm/m):(4001.0mm/m)
+            @test range((1+2im)mm/m, length=5) == range(1+2im, step=1000, length=5)*mm/m
+            @test_throws DimensionError range(1.0m, length=5)
+            @test_throws DimensionError range((1+2im)m, length=5)
+        end
     end
     @testset "> Arrays" begin
         @testset ">> Array multiplication" begin

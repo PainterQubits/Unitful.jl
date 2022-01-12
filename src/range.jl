@@ -47,6 +47,10 @@ function Base._range(a::Quantity, step, ::Nothing, len::Integer)
     _a, _step = promote(a, uconvert(unit(a), step))
     return Base._rangestyle(OrderStyle(_a), ArithmeticStyle(_a), _a, _step, len)
 end
+Base._range(a::Quantity{<:Real}, ::Nothing, ::Nothing, len::Integer) =
+    Base._range(a, one(a), nothing, len)
+Base._range(a::Quantity, ::Nothing, ::Nothing, len::Integer) =
+    Base._range(a, real(one(a)), nothing, len)
 *(r::AbstractRange, y::Units) = range(first(r)*y, step=step(r)*y, length=length(r))
 
 # first promote start and stop, leaving step alone
