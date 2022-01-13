@@ -1207,6 +1207,12 @@ end
             @test @inferred((1:2:5) .* cm .|> mm .|> ustrip) === 10:20:50
             @test @inferred((1f0:2f0:5f0) .* cm .|> mm .|> ustrip) === 10f0:20f0:50f0
         end
+        @testset ">> complex" begin
+            @test range((1+2im)m, step=(1+2im)m, length=5) == range(1+2im, step=1+2im, length=5) * m
+            @test range((1+2im)m, step=(1+2im)mm, length=5) == range(1//1+(2//1)im, step=1//1000+(1//500)im, length=5) * m
+            @test range((1.0+2.0im)m, stop=(3.0+4.0im)m, length=5) == LinRange(1.0+2.0im, 3.0+4.0im, 5) * m
+            @test range((1.0+2.0im)mm, stop=(3.0+4.0im)m, length=3) == LinRange(0.001+0.002im, 3.0+4.0im, 3) * m
+        end
         @testset ">> step defaults to 1" begin
             @test range(1.0mm/m, length=5) == (1.0mm/m):(1000.0mm/m):(4001.0mm/m)
             @test range((1+2im)mm/m, length=5) == range(1+2im, step=1000, length=5)*mm/m
