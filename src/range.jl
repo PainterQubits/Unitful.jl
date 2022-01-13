@@ -51,6 +51,10 @@ Base._range(a::Quantity{<:Real}, ::Nothing, ::Nothing, len::Integer) =
     Base._range(a, one(a), nothing, len)
 Base._range(a::Quantity, ::Nothing, ::Nothing, len::Integer) =
     Base._range(a, real(one(a)), nothing, len)
+@static if VERSION ≥ v"1.7"
+    Base._range(::Nothing, ::Nothing, stop::Quantity{<:Real}, len::Integer) =
+        Base._range(nothing, one(stop), stop, len)
+end
 *(r::AbstractRange, y::Units) = range(first(r)*y, step=step(r)*y, length=length(r))
 
 # first promote start and stop, leaving step alone

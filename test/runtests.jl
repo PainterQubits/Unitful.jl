@@ -1213,6 +1213,19 @@ end
             @test_throws DimensionError range(1.0m, length=5)
             @test_throws DimensionError range((1+2im)m, length=5)
         end
+        @static if VERSION ≥ v"1.7"
+            @testset ">> no start argument" begin
+                @test range(stop=1.0m, step=2.0m, length=5) == -7.0m:2.0m:1.0m
+                @test range(stop=1.0mm, step=1.0m, length=5) == -3999.0mm:1000.0mm:1.0mm
+                @test range(stop=(1.0+2.0im)mm, step=(1.0+1.0im)m, length=5) == range(stop=1.0+2.0im, step=(1000+1000im), length=5)*mm
+                @test range(stop=1.0mm/m, length=5) == (-3999.0mm/m):(1000.0mm/m):(1.0mm/m)
+                @test range(stop=(1+2im)mm/m, length=5) == range(stop=1+2im, step=1000, length=5)*mm/m
+                @test_throws DimensionError range(stop=1.0m, step=1V, length=5)
+                @test_throws DimensionError range(stop=(1+2im)m, step=1V, length=5)
+                @test_throws DimensionError range(stop=1.0m, length=5)
+                @test_throws DimensionError range(stop=(1+2im)m, length=5)
+            end
+        end
     end
     @testset "> Arrays" begin
         @testset ">> Array multiplication" begin
