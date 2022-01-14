@@ -13,22 +13,18 @@ Base._range(start, ::Nothing, stop::Quantity{<:Real}, len::Integer) =
     _range(promote(start, stop)..., len)
 Base._range(start::Quantity{<:Real}, ::Nothing, stop::Quantity{<:Real}, len::Integer) =
     _range(promote(start, stop)..., len)
-(Base._range(start::T, ::Nothing, stop::T, len::Integer) where (T<:Quantity{<:Real})) =
+Base._range(start::T, ::Nothing, stop::T, len::Integer) where {T<:Quantity{<:Real}} =
     LinRange{T}(start, stop, len)
-(Base._range(start::T, ::Nothing, stop::T, len::Integer) where (T<:Quantity{<:Integer})) =
+Base._range(start::T, ::Nothing, stop::T, len::Integer) where {T<:Quantity{<:Integer}} =
     Base._linspace(Float64, ustrip(start), ustrip(stop), len, 1)*unit(T)
-function Base._range(start::T, ::Nothing, stop::T, len::Integer) where (T<:Quantity{S}
-    where S<:Union{Float16,Float32,Float64})
+Base._range(start::T, ::Nothing, stop::T, len::Integer) where {S<:Base.IEEEFloat, T<:Quantity{S}} =
     range(ustrip(start), stop=ustrip(stop), length=len) * unit(T)
-end
 function _range(start::Quantity{T}, stop::Quantity{T}, len::Integer) where {T}
     dimension(start) != dimension(stop) && throw(DimensionError(start, stop))
     Base._range(start, nothing, stop, len)
 end
-function Base._range(a::T, st::T, ::Nothing, len::Integer) where (T<:Quantity{S}
-        where S<:Union{Float16,Float32,Float64})
-    return Base._range(ustrip(a), ustrip(st), nothing, len) * unit(T)
-end
+Base._range(a::T, st::T, ::Nothing, len::Integer) where {S<:Base.IEEEFloat, T<:Quantity{S}} =
+    Base._range(ustrip(a), ustrip(st), nothing, len) * unit(T)
 Base._range(a::Quantity{<:Real}, st::Quantity{<:AbstractFloat}, ::Nothing, len::Integer) =
     Base._range(float(a), st, nothing, len)
 Base._range(a::Quantity{<:AbstractFloat}, st::Quantity{<:Real}, ::Nothing, len::Integer) =
