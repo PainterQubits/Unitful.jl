@@ -1146,6 +1146,7 @@ end
             @test (-2.0Hz:1.0Hz:2.0Hz)/1.0Hz == -2.0:1.0:2.0  # issue 160
             @test (range(0, stop=2, length=5) * u"°")[2:end] ==
                 range(0.5, stop=2, length=4) * u"°"  # issue 241
+            @test range(big(1.0)m, step=big(1.0)m, length=5) == (big(1.0):big(1.0):big(5.0))*m
         end
         @testset ">> LinSpace" begin
             # Not using Compat.range for these because kw args don't infer in julia 0.6.2

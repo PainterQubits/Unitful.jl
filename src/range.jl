@@ -23,8 +23,10 @@ function _range(start::Quantity{T}, stop::Quantity{T}, len::Integer) where {T}
     dimension(start) != dimension(stop) && throw(DimensionError(start, stop))
     Base._range(start, nothing, stop, len)
 end
-Base._range(a::T, st::T, ::Nothing, len::Integer) where {S<:Base.IEEEFloat, T<:Quantity{S}} =
+Base._range(a::T, st::T, ::Nothing, len::Integer) where {T<:Quantity{<:Base.IEEEFloat}} =
     Base._range(ustrip(a), ustrip(st), nothing, len) * unit(T)
+Base._range(a::T, st::T, ::Nothing, len::Integer) where {T<:Quantity{<:AbstractFloat}} =
+    StepRangeLen{typeof(st*len),typeof(a),typeof(st)}(a, st, len)
 Base._range(a::Quantity{<:Real}, st::Quantity{<:AbstractFloat}, ::Nothing, len::Integer) =
     Base._range(float(a), st, nothing, len)
 Base._range(a::Quantity{<:AbstractFloat}, st::Quantity{<:Real}, ::Nothing, len::Integer) =
