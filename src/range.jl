@@ -7,13 +7,13 @@ import Base.Broadcast: DefaultArrayStyle, broadcasted
 *(y::Units, r::AbstractRange) = *(r,y)
 *(r::AbstractRange, y::Units, z::Units...) = *(r, *(y,z...))
 
-Base._range(start::Quantity{<:Real}, ::Nothing, stop, len::Integer) =
+Base._range(start::Quantity, ::Nothing, stop, len::Integer) =
     _range(promote(start, stop)..., len)
-Base._range(start, ::Nothing, stop::Quantity{<:Real}, len::Integer) =
+Base._range(start, ::Nothing, stop::Quantity, len::Integer) =
     _range(promote(start, stop)..., len)
-Base._range(start::Quantity{<:Real}, ::Nothing, stop::Quantity{<:Real}, len::Integer) =
+Base._range(start::Quantity, ::Nothing, stop::Quantity, len::Integer) =
     _range(promote(start, stop)..., len)
-Base._range(start::T, ::Nothing, stop::T, len::Integer) where {T<:Quantity{<:Real}} =
+Base._range(start::T, ::Nothing, stop::T, len::Integer) where {T<:Quantity} =
     LinRange{T}(start, stop, len)
 Base._range(start::T, ::Nothing, stop::T, len::Integer) where {T<:Quantity{<:Integer}} =
     Base._linspace(Float64, ustrip(start), ustrip(stop), len, 1)*unit(T)
@@ -43,13 +43,11 @@ function Base._range(a::Quantity, step, ::Nothing, len::Integer)
     _a, _step = promote(a, uconvert(unit(a), step))
     return Base._rangestyle(OrderStyle(_a), ArithmeticStyle(_a), _a, _step, len)
 end
-Base._range(a::Quantity{<:Real}, ::Nothing, ::Nothing, len::Integer) =
-    Base._range(a, one(a), nothing, len)
 Base._range(a::Quantity, ::Nothing, ::Nothing, len::Integer) =
     Base._range(a, real(one(a)), nothing, len)
 @static if VERSION ≥ v"1.7"
-    Base._range(::Nothing, ::Nothing, stop::Quantity{<:Real}, len::Integer) =
-        Base._range(nothing, one(stop), stop, len)
+    Base._range(::Nothing, ::Nothing, stop::Quantity, len::Integer) =
+        Base._range(nothing, real(one(stop)), stop, len)
 end
 *(r::AbstractRange, y::Units) = range(first(r)*y, step=step(r)*y, length=length(r))
 
