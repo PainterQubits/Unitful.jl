@@ -2047,6 +2047,10 @@ end
         """
 end
 
+@testset "ChainRules" begin
+    include("./chainrules.jl")
+end
+
 # Test precompiled Unitful extension modules
 load_path = mktempdir()
 load_cache_path = mktempdir()
