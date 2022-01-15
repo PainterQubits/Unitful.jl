@@ -23,35 +23,35 @@ function _range(start::Quantity{T}, stop::Quantity{T}, len::Integer) where {T}
     dimension(start) != dimension(stop) && throw(DimensionError(start, stop))
     Base._range(start, nothing, stop, len)
 end
-Base._range(a::T, st::T, ::Nothing, len::Integer) where {T<:Quantity{<:Base.IEEEFloat}} =
-    Base._range(ustrip(a), ustrip(st), nothing, len) * unit(T)
-Base._range(a::T, st::T, ::Nothing, len::Integer) where {T<:Quantity{<:AbstractFloat}} =
-    StepRangeLen{typeof(st*len),typeof(a),typeof(st)}(a, st, len)
+Base._range(a::T, step::T, ::Nothing, len::Integer) where {T<:Quantity{<:Base.IEEEFloat}} =
+    Base._range(ustrip(a), ustrip(step), nothing, len) * unit(T)
+Base._range(a::T, step::T, ::Nothing, len::Integer) where {T<:Quantity{<:AbstractFloat}} =
+    StepRangeLen{typeof(step*len),typeof(a),typeof(step)}(a, step, len)
 @static if VERSION ≥ v"1.8.0-DEV"
-    function Base._range(a::T, st::T, ::Nothing, len::Integer) where {T<:Quantity}
-        stop = a + st * (len - oneunit(len))
+    function Base._range(a::T, step::T, ::Nothing, len::Integer) where {T<:Quantity}
+        stop = a + step * (len - oneunit(len))
         if ustrip(stop) isa Signed
-            StepRange{typeof(stop), typeof(st)}(a, st, stop)
+            StepRange{typeof(stop), typeof(step)}(a, step, stop)
         else
-            StepRangeLen{typeof(stop), typeof(a), typeof(st)}(a, st, len)
+            StepRangeLen{typeof(stop), typeof(a), typeof(step)}(a, step, len)
         end
     end
 else
-    Base._range(a::T, st::T, ::Nothing, len::Integer) where {T<:Quantity} =
-        Base._rangestyle(OrderStyle(a), ArithmeticStyle(a), a, st, len)
+    Base._range(a::T, step::T, ::Nothing, len::Integer) where {T<:Quantity} =
+        Base._rangestyle(OrderStyle(a), ArithmeticStyle(a), a, step, len)
 end
-Base._range(a::Quantity{<:Real}, st::Quantity{<:AbstractFloat}, ::Nothing, len::Integer) =
-    Base._range(float(a), st, nothing, len)
-Base._range(a::Quantity{<:AbstractFloat}, st::Quantity{<:Real}, ::Nothing, len::Integer) =
-    Base._range(a, float(st), nothing, len)
-function Base._range(a::Quantity{<:AbstractFloat}, st::Quantity{<:AbstractFloat}, ::Nothing, len::Integer)
-    dimension(a) != dimension(st) && throw(DimensionError(a, st))
-    Base._range(promote(a, uconvert(unit(a), st))..., nothing, len)
+Base._range(a::Quantity{<:Real}, step::Quantity{<:AbstractFloat}, ::Nothing, len::Integer) =
+    Base._range(float(a), step, nothing, len)
+Base._range(a::Quantity{<:AbstractFloat}, step::Quantity{<:Real}, ::Nothing, len::Integer) =
+    Base._range(a, float(step), nothing, len)
+function Base._range(a::Quantity{<:AbstractFloat}, step::Quantity{<:AbstractFloat}, ::Nothing, len::Integer)
+    dimension(a) != dimension(step) && throw(DimensionError(a, step))
+    Base._range(promote(a, uconvert(unit(a), step))..., nothing, len)
 end
-Base._range(a::Quantity, st::Real, ::Nothing, len::Integer) =
-    Base._range(promote(a, uconvert(unit(a), st))..., nothing, len)
-Base._range(a::Real, st::Quantity, ::Nothing, len::Integer) =
-    Base._range(promote(a, uconvert(unit(a), st))..., nothing, len)
+Base._range(a::Quantity, step::Real, ::Nothing, len::Integer) =
+    Base._range(promote(a, uconvert(unit(a), step))..., nothing, len)
+Base._range(a::Real, step::Quantity, ::Nothing, len::Integer) =
+    Base._range(promote(a, uconvert(unit(a), step))..., nothing, len)
 # the following is needed to give sane error messages when doing e.g. range(1°, 2V, 5)
 function Base._range(a::Quantity, step, ::Nothing, len::Integer)
     dimension(a) != dimension(step) && throw(DimensionError(a,step))
