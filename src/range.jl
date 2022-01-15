@@ -27,6 +27,19 @@ Base._range(a::T, st::T, ::Nothing, len::Integer) where {T<:Quantity{<:Base.IEEE
     Base._range(ustrip(a), ustrip(st), nothing, len) * unit(T)
 Base._range(a::T, st::T, ::Nothing, len::Integer) where {T<:Quantity{<:AbstractFloat}} =
     StepRangeLen{typeof(st*len),typeof(a),typeof(st)}(a, st, len)
+@static if VERSION ≥ v"1.8.0-DEV"
+    function Base._range(a::T, st::T, ::Nothing, len::Integer) where {T<:Quantity}
+        stop = a + st * (len - oneunit(len))
+        if ustrip(stop) isa Signed
+            StepRange{typeof(stop), typeof(st)}(a, st, stop)
+        else
+            StepRangeLen{typeof(stop), typeof(a), typeof(st)}(a, st, len)
+        end
+    end
+else
+    Base._range(a::T, st::T, ::Nothing, len::Integer) where {T<:Quantity} =
+        Base._rangestyle(OrderStyle(a), ArithmeticStyle(a), a, st, len)
+end
 Base._range(a::Quantity{<:Real}, st::Quantity{<:AbstractFloat}, ::Nothing, len::Integer) =
     Base._range(float(a), st, nothing, len)
 Base._range(a::Quantity{<:AbstractFloat}, st::Quantity{<:Real}, ::Nothing, len::Integer) =
@@ -42,8 +55,7 @@ Base._range(a::Real, st::Quantity, ::Nothing, len::Integer) =
 # the following is needed to give sane error messages when doing e.g. range(1°, 2V, 5)
 function Base._range(a::Quantity, step, ::Nothing, len::Integer)
     dimension(a) != dimension(step) && throw(DimensionError(a,step))
-    _a, _step = promote(a, uconvert(unit(a), step))
-    return Base._rangestyle(OrderStyle(_a), ArithmeticStyle(_a), _a, _step, len)
+    Base._range(promote(a, uconvert(unit(a), step))..., nothing, len)
 end
 Base._range(a::Quantity, ::Nothing, ::Nothing, len::Integer) =
     Base._range(a, real(one(a)), nothing, len)
