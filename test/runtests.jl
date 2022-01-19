@@ -1208,6 +1208,16 @@ end
             @test @inferred((1:2:5) .* cm .|> mm .|> ustrip) === 10:20:50
             @test @inferred((1f0:2f0:5f0) .* cm .|> mm .|> ustrip) === 10f0:20f0:50f0
         end
+        @testset ">> quantities and non-quantities" begin
+            @test range(1, step=1m/mm, length=5) == 1:1000:4001
+            @test range(1, step=1mm/m, length=5) == (1//1):(1//1000):(251//250)
+            @test eltype(range(1, step=1m/mm, length=5)) == Int
+            @test eltype(range(1, step=1mm/m, length=5)) == Rational{Int}
+            @test range(1m/mm, step=1, length=5) == ((1//1):(1//1000):(251//250)) * m/mm
+            @test range(1mm/m, step=1, length=5) == (1:1000:4001) * mm/m
+            @test eltype(range(1m/mm, step=1, length=5)) == typeof((1//1)m/mm)
+            @test eltype(range(1mm/m, step=1, length=5)) == typeof(1mm/m)
+        end
         @testset ">> complex" begin
             @test range((1+2im)m, step=(1+2im)m, length=5) == range(1+2im, step=1+2im, length=5) * m
             @test range((1+2im)m, step=(1+2im)mm, length=5) == range(1//1+(2//1)im, step=1//1000+(1//500)im, length=5) * m
@@ -1232,6 +1242,14 @@ end
                 @test_throws DimensionError range(stop=(1+2im)m, step=1V, length=5)
                 @test_throws DimensionError range(stop=1.0m, length=5)
                 @test_throws DimensionError range(stop=(1+2im)m, length=5)
+                @test range(stop=1, step=1m/mm, length=5) == -3999:1000:1
+                @test range(stop=1, step=1mm/m, length=5) == (249//250):(1//1000):(1//1)
+                @test eltype(range(stop=1, step=1m/mm, length=5)) == Int
+                @test eltype(range(stop=1, step=1mm/m, length=5)) == Rational{Int}
+                @test range(stop=1m/mm, step=1, length=5) == ((249//250):(1//1000):(1//1)) * m/mm
+                @test range(stop=1mm/m, step=1, length=5) == (-3999:1000:1) * mm/m
+                @test eltype(range(stop=1m/mm, step=1, length=5)) == typeof((1//1)m/mm)
+                @test eltype(range(stop=1mm/m, step=1, length=5)) == typeof(1mm/m)
             end
         end
     end

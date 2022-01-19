@@ -60,7 +60,7 @@ end
 Base._range(a::Quantity, ::Nothing, ::Nothing, len::Integer) =
     Base._range(a, one(a), nothing, len)
 @static if VERSION ≥ v"1.8-DEV"
-    function Base._range(::Nothing, step::T, a::T, len::Integer) where {T<:Quantity}
+    function Base.range_step_stop_length(step::T, a::T, len::Integer) where {T<:Quantity}
         start = a - step * (len - oneunit(len))
         if ustrip(start) isa Signed
             StepRange{typeof(start), typeof(step)}(start, step, a)
@@ -68,12 +68,18 @@ Base._range(a::Quantity, ::Nothing, ::Nothing, len::Integer) =
             StepRangeLen{typeof(start), typeof(start), typeof(step)}(start, step, len)
         end
     end
-    function Base._range(::Nothing, step, stop::Quantity, len::Integer)
-        dimension(stop) != dimension(step) && throw(DimensionError(stop,step))
-        Base._range(nothing, promote(uconvert(unit(stop), step), stop)..., len)
-    end
 end
 @static if VERSION ≥ v"1.7"
+    Base._range(::Nothing, step, stop::Quantity, len::Integer) =
+        _range_step_stop_length(step, stop, len)
+    Base._range(::Nothing, step::Quantity, stop, len::Integer) =
+        _range_step_stop_length(step, stop, len)
+    Base._range(::Nothing, step::Quantity, stop::Quantity, len::Integer) =
+        _range_step_stop_length(step, stop, len)
+    function _range_step_stop_length(step, stop, len)
+        dimension(stop) != dimension(step) && throw(DimensionError(stop,step))
+        Base.range_step_stop_length(promote(uconvert(unit(stop), step), stop)..., len)
+    end
     Base._range(::Nothing, ::Nothing, stop::Quantity, len::Integer) =
         Base._range(nothing, one(stop), stop, len)
 end
