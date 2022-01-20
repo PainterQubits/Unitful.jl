@@ -7,6 +7,7 @@ import Base.Broadcast: DefaultArrayStyle, broadcasted
 *(y::Units, r::AbstractRange) = *(r,y)
 *(r::AbstractRange, y::Units, z::Units...) = *(r, *(y,z...))
 
+# start, stop, length
 Base._range(start::Quantity, ::Nothing, stop, len::Integer) =
     _range(promote(start, stop)..., len)
 Base._range(start, ::Nothing, stop::Quantity, len::Integer) =
@@ -23,6 +24,8 @@ function _range(start::Quantity{T}, stop::Quantity{T}, len::Integer) where {T}
     dimension(start) != dimension(stop) && throw(DimensionError(start, stop))
     Base._range(start, nothing, stop, len)
 end
+
+# start, step, length
 Base._range(a::T, step::T, ::Nothing, len::Integer) where {T<:Quantity{<:Base.IEEEFloat}} =
     Base._range(ustrip(a), ustrip(step), nothing, len) * unit(T)
 Base._range(a::T, step::T, ::Nothing, len::Integer) where {T<:Quantity{<:AbstractFloat}} =
@@ -57,8 +60,12 @@ function Base._range(a::Quantity, step, ::Nothing, len::Integer)
     dimension(a) != dimension(step) && throw(DimensionError(a,step))
     Base._range(promote(a, uconvert(unit(a), step))..., nothing, len)
 end
+
+# start, length (step defaults to 1)
 Base._range(a::Quantity, ::Nothing, ::Nothing, len::Integer) =
     Base._range(a, one(a), nothing, len)
+
+# step, stop, length
 @static if VERSION ≥ v"1.8-DEV"
     function Base.range_step_stop_length(step::T, a::T, len::Integer) where {T<:Quantity}
         start = a - step * (len - oneunit(len))
@@ -80,9 +87,14 @@ end
         dimension(stop) != dimension(step) && throw(DimensionError(stop,step))
         Base.range_step_stop_length(promote(uconvert(unit(stop), step), stop)..., len)
     end
+end
+
+# stop, length (step defaults to 1)
+@static if VERSION ≥ v"1.7"
     Base._range(::Nothing, ::Nothing, stop::Quantity, len::Integer) =
         Base._range(nothing, one(stop), stop, len)
 end
+
 *(r::AbstractRange, y::Units) = range(first(r)*y, step=step(r)*y, length=length(r))
 
 # first promote start and stop, leaving step alone
