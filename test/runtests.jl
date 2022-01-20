@@ -1250,6 +1250,7 @@ end
                 @test range(stop=1mm/m, step=1, length=5) == (-3999:1000:1) * mm/m
                 @test eltype(range(stop=1m/mm, step=1, length=5)) == typeof((1//1)m/mm)
                 @test eltype(range(stop=1mm/m, step=1, length=5)) == typeof(1mm/m)
+                @test_throws ArgumentError range(step=1m, length=5)
             end
         end
     end

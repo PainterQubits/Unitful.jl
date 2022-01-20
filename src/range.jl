@@ -83,6 +83,8 @@ end
         _unitful_step_stop_length(step, stop, len)
     Base._range(::Nothing, step::Quantity, stop::Quantity, len::Integer) =
         _unitful_step_stop_length(step, stop, len)
+    Base._range(::Nothing, step::Quantity, ::Nothing, len::Integer) =
+        Base.range_error(nothing, step, nothing, len)
     function _unitful_step_stop_length(step, stop, len)
         dimension(stop) != dimension(step) && throw(DimensionError(stop,step))
         Base.range_step_stop_length(promote(uconvert(unit(stop), step), stop)..., len)
