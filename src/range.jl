@@ -45,21 +45,20 @@ else
         Base._rangestyle(OrderStyle(a), ArithmeticStyle(a), a, step, len)
 end
 Base._range(a::Quantity{<:Real}, step::Quantity{<:AbstractFloat}, ::Nothing, len::Integer) =
-    Base._range(float(a), step, nothing, len)
+    _unitful_start_step_length(float(a), step, len)
 Base._range(a::Quantity{<:AbstractFloat}, step::Quantity{<:Real}, ::Nothing, len::Integer) =
-    Base._range(a, float(step), nothing, len)
-function Base._range(a::Quantity{<:AbstractFloat}, step::Quantity{<:AbstractFloat}, ::Nothing, len::Integer)
-    dimension(a) != dimension(step) && throw(DimensionError(a, step))
-    Base._range(promote(a, uconvert(unit(a), step))..., nothing, len)
-end
-Base._range(a::Quantity, step::Real, ::Nothing, len::Integer) =
-    Base._range(promote(a, uconvert(unit(a), step))..., nothing, len)
-Base._range(a::Real, step::Quantity, ::Nothing, len::Integer) =
-    Base._range(promote(a, uconvert(unit(a), step))..., nothing, len)
-# the following is needed to give sane error messages when doing e.g. range(1°, 2V, 5)
-function Base._range(a::Quantity, step, ::Nothing, len::Integer)
-    dimension(a) != dimension(step) && throw(DimensionError(a,step))
-    Base._range(promote(a, uconvert(unit(a), step))..., nothing, len)
+    _unitful_start_step_length(a, float(step), len)
+Base._range(a::Quantity{<:AbstractFloat}, step::Quantity{<:AbstractFloat}, ::Nothing, len::Integer) =
+    _unitful_start_step_length(a, step, len)
+Base._range(a, step::Quantity, ::Nothing, len::Integer) =
+    _unitful_start_step_length(a, step, len)
+Base._range(a::Quantity, step, ::Nothing, len::Integer) =
+    _unitful_start_step_length(a, step, len)
+Base._range(a::Quantity, step::Quantity, ::Nothing, len::Integer) =
+    _unitful_start_step_length(a, step, len)
+function _unitful_start_step_length(start, step, len)
+    dimension(start) != dimension(step) && throw(DimensionError(start,step))
+    Base._range(promote(start, uconvert(unit(start), step))..., nothing, len)
 end
 
 # start, length (step defaults to 1)
