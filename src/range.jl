@@ -9,21 +9,22 @@ import Base.Broadcast: DefaultArrayStyle, broadcasted
 
 # start, stop, length
 Base._range(start::Quantity, ::Nothing, stop, len::Integer) =
-    _range(promote(start, stop)..., len)
+    _unitful_start_stop_length(start, stop, len)
 Base._range(start, ::Nothing, stop::Quantity, len::Integer) =
-    _range(promote(start, stop)..., len)
+    _unitful_start_stop_length(start, stop, len)
 Base._range(start::Quantity, ::Nothing, stop::Quantity, len::Integer) =
-    _range(promote(start, stop)..., len)
+    _unitful_start_stop_length(start, stop, len)
+function _unitful_start_stop_length(start, stop, len)
+    dimension(start) != dimension(stop) && throw(DimensionError(start, stop))
+    a, b = promote(start, stop)
+    Base._range(a, nothing, b, len)
+end
 Base._range(start::T, ::Nothing, stop::T, len::Integer) where {T<:Quantity} =
     LinRange{T}(start, stop, len)
 Base._range(start::T, ::Nothing, stop::T, len::Integer) where {T<:Quantity{<:Integer}} =
     Base._linspace(Float64, ustrip(start), ustrip(stop), len, 1)*unit(T)
-Base._range(start::T, ::Nothing, stop::T, len::Integer) where {S<:Base.IEEEFloat, T<:Quantity{S}} =
-    range(ustrip(start), stop=ustrip(stop), length=len) * unit(T)
-function _range(start::Quantity{T}, stop::Quantity{T}, len::Integer) where {T}
-    dimension(start) != dimension(stop) && throw(DimensionError(start, stop))
-    Base._range(start, nothing, stop, len)
-end
+Base._range(start::T, ::Nothing, stop::T, len::Integer) where {T<:Quantity{<:Base.IEEEFloat}} =
+    Base._range(ustrip(start), nothing, ustrip(stop), len) * unit(T)
 
 # start, step, length
 Base._range(a::T, step::T, ::Nothing, len::Integer) where {T<:Quantity{<:Base.IEEEFloat}} =
