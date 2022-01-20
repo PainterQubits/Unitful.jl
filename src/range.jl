@@ -78,12 +78,12 @@ Base._range(a::Quantity, ::Nothing, ::Nothing, len::Integer) =
 end
 @static if VERSION ≥ v"1.7"
     Base._range(::Nothing, step, stop::Quantity, len::Integer) =
-        _range_step_stop_length(step, stop, len)
+        _unitful_step_stop_length(step, stop, len)
     Base._range(::Nothing, step::Quantity, stop, len::Integer) =
-        _range_step_stop_length(step, stop, len)
+        _unitful_step_stop_length(step, stop, len)
     Base._range(::Nothing, step::Quantity, stop::Quantity, len::Integer) =
-        _range_step_stop_length(step, stop, len)
-    function _range_step_stop_length(step, stop, len)
+        _unitful_step_stop_length(step, stop, len)
+    function _unitful_step_stop_length(step, stop, len)
         dimension(stop) != dimension(step) && throw(DimensionError(stop,step))
         Base.range_step_stop_length(promote(uconvert(unit(stop), step), stop)..., len)
     end
