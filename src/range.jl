@@ -31,19 +31,12 @@ Base._range(a::T, step::T, ::Nothing, len::Integer) where {T<:Quantity{<:Base.IE
     Base._range(ustrip(a), ustrip(step), nothing, len) * unit(T)
 Base._range(a::T, step::T, ::Nothing, len::Integer) where {T<:Quantity{<:AbstractFloat}} =
     StepRangeLen{typeof(step*len),typeof(a),typeof(step)}(a, step, len)
-@static if VERSION ≥ v"1.8.0-DEV"
-    function Base._range(a::T, step::T, ::Nothing, len::Integer) where {T<:Quantity}
-        stop = a + step * (len - oneunit(len))
-        if ustrip(stop) isa Signed
-            StepRange{typeof(stop), typeof(step)}(a, step, stop)
-        else
-            StepRangeLen{typeof(stop), typeof(a), typeof(step)}(a, step, len)
-        end
-    end
-else
-    Base._range(a::T, step::T, ::Nothing, len::Integer) where {T<:Quantity} =
+Base._range(a::T, step::T, ::Nothing, len::Integer) where {T<:Quantity} =
+    @static if VERSION ≥ v"1.8.0-DEV"
+        Base.range_start_step_length(a, step, len)
+    else
         Base._rangestyle(OrderStyle(a), ArithmeticStyle(a), a, step, len)
-end
+    end
 Base._range(a::Quantity{<:Real}, step::Quantity{<:AbstractFloat}, ::Nothing, len::Integer) =
     _unitful_start_step_length(float(a), step, len)
 Base._range(a::Quantity{<:AbstractFloat}, step::Quantity{<:Real}, ::Nothing, len::Integer) =
@@ -66,16 +59,6 @@ Base._range(a::Quantity, ::Nothing, ::Nothing, len::Integer) =
     Base._range(a, one(a), nothing, len)
 
 # step, stop, length
-@static if VERSION ≥ v"1.8-DEV"
-    function Base.range_step_stop_length(step::T, a::T, len::Integer) where {T<:Quantity}
-        start = a - step * (len - oneunit(len))
-        if ustrip(start) isa Signed
-            StepRange{typeof(start), typeof(step)}(start, step, a)
-        else
-            StepRangeLen{typeof(start), typeof(start), typeof(step)}(start, step, len)
-        end
-    end
-end
 @static if VERSION ≥ v"1.7"
     Base._range(::Nothing, step, stop::Quantity, len::Integer) =
         _unitful_step_stop_length(step, stop, len)
@@ -145,6 +128,7 @@ end
     StepRangeLen{typeof(zero(eltype(r))*y)}(r.ref*y, r.step*y, length(r), r.offset)
 *(r::LinRange, y::Units) = LinRange(r.start*y, r.stop*y, length(r))
 *(r::StepRange, y::Units) = StepRange(r.start*y, r.step*y, r.stop*y)
+*(r::AbstractUnitRange, y::Units) = StepRange(first(r)*y, oneunit(first(r))*y, last(r)*y)
 function /(x::Base.TwicePrecision, v::Quantity)
     x / Base.TwicePrecision(oftype(ustrip(x.hi)/ustrip(v)*unit(v), v))
 end
