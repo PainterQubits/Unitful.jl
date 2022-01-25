@@ -103,7 +103,7 @@ end
 OrderStyle(::Type{<:AbstractQuantity{T}}) where T = OrderStyle(T)
 ArithmeticStyle(::Type{<:AbstractQuantity{T}}) where T = ArithmeticStyle(T)
 
-(colon(start::T, step::T, stop::T) where T <: Quantity{<:Real}) =
+colon(start::T, step::T, stop::T) where {T<:Quantity{<:Real}} =
     _colon(OrderStyle(T), ArithmeticStyle(T), start, step, stop)
 _colon(::Ordered, ::Any, start::T, step, stop::T) where {T} = StepRange(start, step, stop)
 _colon(::Ordered, ::ArithmeticRounds, start::T, step, stop::T) where {T} =
@@ -116,11 +116,8 @@ _colon(::Any, ::Any, start::T, step, stop::T) where {T} =
 *(x::Base.TwicePrecision, y::Quantity) = (x * ustrip(y)) * unit(y)
 uconvert(y, x::Base.TwicePrecision) = Base.TwicePrecision(uconvert(y, x.hi), uconvert(y, x.lo))
 
-function colon(start::T, step::T, stop::T) where (T<:Quantity{S}
-        where S<:Union{Float16,Float32,Float64})
-    # This will always return a StepRangeLen
-    return colon(ustrip(start), ustrip(step), ustrip(stop)) * unit(T)
-end
+colon(start::T, step::T, stop::T) where {T<:Quantity{<:Base.IEEEFloat}} =
+    colon(ustrip(start), ustrip(step), ustrip(stop)) * unit(T) # This will always return a StepRangeLen
 
 # No need to confuse things by changing the type once units are on there,
 # if we can help it.
