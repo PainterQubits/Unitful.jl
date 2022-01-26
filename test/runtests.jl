@@ -1229,6 +1229,27 @@ end
             @test range((1+2im)mm/m, length=5) == range(1+2im, step=1000, length=5)*mm/m
             @test_throws DimensionError range(1.0m, length=5)
             @test_throws DimensionError range((1+2im)m, length=5)
+            @test (1mm/m):(5001mm/m) == (1:1000:5001) * mm/m
+            @test (1m/mm):(5m/mm) == (1//1:1//1000:5//1) * m/mm
+            @test (1mm/m):(1m/mm) == 1//1000:999001//1000
+            @test (1m/mm):(1mm/m) == 1000//1:999//1
+            @test (1.0mm/m):(5001mm/m) == (1.0:1000.0:5001.0) * mm/m
+            @test (1m/mm):(5.0m/mm) == (1.0:0.001:5.0) * m/mm
+            @test (1.0mm/m):(1m/mm) == 0.001:999.001
+            @test (1m/mm):(1.0mm/m) == 1000.0:1.0:999.0
+            @test_throws DimensionError (1m):(1m)
+            @test_throws DimensionError (1m):(1000cm)
+            @test_throws DimensionError (1m):(1s)
+            @test (1m/cm):1 == 100:99
+            @test (1m/cm):1000 == 100:1000
+            @test (1m/cm):1.0 == 100.0:99.0
+            @test (1.0m/cm):1000 == 100.0:1000.0
+            @test_throws DimensionError (1m):1
+            @test 1:(1m/mm) == 1:1000
+            @test 1000:(1m/mm) == 1000:1000
+            @test 1.0:(1m/mm) == 1.0:1000.0
+            @test 1000:(1.0m/mm) == 1000.0:1000.0
+            @test_throws DimensionError 1:(1m)
         end
         @static if VERSION ≥ v"1.7"
             @testset ">> no start argument" begin

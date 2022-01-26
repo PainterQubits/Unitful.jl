@@ -119,6 +119,19 @@ uconvert(y, x::Base.TwicePrecision) = Base.TwicePrecision(uconvert(y, x.hi), uco
 colon(start::T, step::T, stop::T) where {T<:Quantity{<:Base.IEEEFloat}} =
     colon(ustrip(start), ustrip(step), ustrip(stop)) * unit(T) # This will always return a StepRangeLen
 
+# two-argument colon
+colon(start, stop::Quantity) = _unitful_start_stop(start, stop)
+colon(start::Quantity, stop) = _unitful_start_stop(start, stop)
+colon(start::Quantity, stop::Quantity) = _unitful_start_stop(start, stop)
+function _unitful_start_stop(start, stop)
+    dimension(start) != dimension(stop) && throw(DimensionError(start, stop))
+    colon(promote(start, stop)...)
+end
+function colon(start::T, stop::T) where {T<:Quantity}
+    step = uconvert(unit(start), one(start))
+    colon(promote(start, step, stop)...)
+end
+
 # No need to confuse things by changing the type once units are on there,
 # if we can help it.
 *(r::StepRangeLen, y::Units) =
