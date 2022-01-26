@@ -1146,6 +1146,7 @@ end
             @test (-2.0Hz:1.0Hz:2.0Hz)/1.0Hz == -2.0:1.0:2.0  # issue 160
             @test (range(0, stop=2, length=5) * u"°")[2:end] ==
                 range(0.5, stop=2, length=4) * u"°"  # issue 241
+            @test range(big(1.0)m, step=big(1.0)m, length=5) == (big(1.0):big(1.0):big(5.0))*m
         end
         @testset ">> LinSpace" begin
             # Not using Compat.range for these because kw args don't infer in julia 0.6.2
@@ -1206,6 +1207,72 @@ end
             @test @inferred((1:2:5) .* km .|> upreferred) === 1000m:2000m:5000m
             @test @inferred((1:2:5) .* cm .|> mm .|> ustrip) === 10:20:50
             @test @inferred((1f0:2f0:5f0) .* cm .|> mm .|> ustrip) === 10f0:20f0:50f0
+        end
+        @testset ">> quantities and non-quantities" begin
+            @test range(1, step=1m/mm, length=5) == 1:1000:4001
+            @test range(1, step=1mm/m, length=5) == (1//1):(1//1000):(251//250)
+            @test eltype(range(1, step=1m/mm, length=5)) == Int
+            @test eltype(range(1, step=1mm/m, length=5)) == Rational{Int}
+            @test range(1m/mm, step=1, length=5) == ((1//1):(1//1000):(251//250)) * m/mm
+            @test range(1mm/m, step=1, length=5) == (1:1000:4001) * mm/m
+            @test eltype(range(1m/mm, step=1, length=5)) == typeof((1//1)m/mm)
+            @test eltype(range(1mm/m, step=1, length=5)) == typeof(1mm/m)
+        end
+        @testset ">> complex" begin
+            @test range((1+2im)m, step=(1+2im)m, length=5) == range(1+2im, step=1+2im, length=5) * m
+            @test range((1+2im)m, step=(1+2im)mm, length=5) == range(1//1+(2//1)im, step=1//1000+(1//500)im, length=5) * m
+            @test range((1.0+2.0im)m, stop=(3.0+4.0im)m, length=5) == LinRange(1.0+2.0im, 3.0+4.0im, 5) * m
+            @test range((1.0+2.0im)mm, stop=(3.0+4.0im)m, length=3) == LinRange(0.001+0.002im, 3.0+4.0im, 3) * m
+        end
+        @testset ">> step defaults to 1" begin
+            @test range(1.0mm/m, length=5) == (1.0mm/m):(1000.0mm/m):(4001.0mm/m)
+            @test range((1+2im)mm/m, length=5) == range(1+2im, step=1000, length=5)*mm/m
+            @test_throws DimensionError range(1.0m, length=5)
+            @test_throws DimensionError range((1+2im)m, length=5)
+            @test (1mm/m):(5001mm/m) == (1:1000:5001) * mm/m
+            @test (1m/mm):(5m/mm) == (1//1:1//1000:5//1) * m/mm
+            @test (1mm/m):(1m/mm) == 1//1000:999001//1000
+            @test (1m/mm):(1mm/m) == 1000//1:999//1
+            @test (1.0mm/m):(5001mm/m) == (1.0:1000.0:5001.0) * mm/m
+            @test (1m/mm):(5.0m/mm) == (1.0:0.001:5.0) * m/mm
+            @test (1.0mm/m):(1m/mm) == 0.001:999.001
+            @test (1m/mm):(1.0mm/m) == 1000.0:1.0:999.0
+            @test_throws DimensionError (1m):(1m)
+            @test_throws DimensionError (1m):(1000cm)
+            @test_throws DimensionError (1m):(1s)
+            @test (1m/cm):1 == 100:99
+            @test (1m/cm):1000 == 100:1000
+            @test (1m/cm):1.0 == 100.0:99.0
+            @test (1.0m/cm):1000 == 100.0:1000.0
+            @test_throws DimensionError (1m):1
+            @test 1:(1m/mm) == 1:1000
+            @test 1000:(1m/mm) == 1000:1000
+            @test 1.0:(1m/mm) == 1.0:1000.0
+            @test 1000:(1.0m/mm) == 1000.0:1000.0
+            @test_throws DimensionError 1:(1m)
+        end
+        @static if VERSION ≥ v"1.7"
+            @testset ">> no start argument" begin
+                @test range(stop=1.0m, step=2.0m, length=5) == -7.0m:2.0m:1.0m
+                @test range(stop=1.0mm, step=1.0m, length=5) == -3999.0mm:1000.0mm:1.0mm
+                @test range(stop=(1.0+2.0im)mm, step=(1.0+1.0im)m, length=5) == range(stop=1.0+2.0im, step=(1000+1000im), length=5)*mm
+                @test range(stop=1.0mm/m, length=5) == (-3999.0mm/m):(1000.0mm/m):(1.0mm/m)
+                @test range(stop=(1+2im)mm/m, length=5) == range(stop=1+2im, step=1000, length=5)*mm/m
+                @test range(stop=1.0mm/m, step=1, length=5) == (-3999.0mm/m):(1000.0mm/m):(1.0mm/m)
+                @test_throws DimensionError range(stop=1.0m, step=1V, length=5)
+                @test_throws DimensionError range(stop=(1+2im)m, step=1V, length=5)
+                @test_throws DimensionError range(stop=1.0m, length=5)
+                @test_throws DimensionError range(stop=(1+2im)m, length=5)
+                @test range(stop=1, step=1m/mm, length=5) == -3999:1000:1
+                @test range(stop=1, step=1mm/m, length=5) == (249//250):(1//1000):(1//1)
+                @test eltype(range(stop=1, step=1m/mm, length=5)) == Int
+                @test eltype(range(stop=1, step=1mm/m, length=5)) == Rational{Int}
+                @test range(stop=1m/mm, step=1, length=5) == ((249//250):(1//1000):(1//1)) * m/mm
+                @test range(stop=1mm/m, step=1, length=5) == (-3999:1000:1) * mm/m
+                @test eltype(range(stop=1m/mm, step=1, length=5)) == typeof((1//1)m/mm)
+                @test eltype(range(stop=1mm/m, step=1, length=5)) == typeof(1mm/m)
+                @test_throws ArgumentError range(step=1m, length=5)
+            end
         end
     end
     @testset "> Arrays" begin
