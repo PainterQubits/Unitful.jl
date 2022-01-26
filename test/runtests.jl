@@ -188,7 +188,7 @@ end
             @test uconvert(g, 1*FixedUnits(kg)) == 1000g         # manual conversion okay
             @test (1kg, 2g, 3mg, missing) .|> g === (1000g, 2g, (3//1000)g, missing)
             # Issue 79:
-            @test isapprox(upreferred(Unitful.ɛ0), 8.85e-12u"F/m", atol=0.01e-12u"F/m")
+            @test isapprox(upreferred(Unitful.ε0), 8.85e-12u"F/m", atol=0.01e-12u"F/m")
             # Issue 261:
             @test 1u"rps" == 360°/s
             @test 1u"rps" == 2π/s
@@ -695,7 +695,7 @@ end
 
         @test @inferred(sinh(0.0rad)) == 0.0
         @test @inferred(sinh(1J/N/m) + cosh(1rad)) ≈ MathConstants.e
-        @test @inferred(tanh(1m/1µm)) == 1
+        @test @inferred(tanh(1m/1μm)) == 1
         @test @inferred(csch(0.0°)) == Inf
         @test @inferred(sech(0K/Ra)) == 1
         @test @inferred(coth(1e3m*mm^-1)) == 1
@@ -1914,6 +1914,25 @@ end
         @test Base.OrderStyle((1+1im)m) === Base.Unordered()
         @test Base.OrderStyle(Num(1)m) === Base.Unordered()
     end
+end
+
+@testset "Encoding" begin
+    # Julia treats µ (U+00B5) and μ (U+03BC) as the same
+    @test Unitful.µ0 === Unitful.μ0
+    @test Unitful.µm === Unitful.μm
+    @test Unitful.dBµV === Unitful.dBμV
+    @test u"µ0" === u"μ0"
+    @test u"µm" === u"μm"
+    @test u"dBµV" === u"dBμV"
+    @test uparse("µ0") === uparse("μ0")
+    @test uparse("µm") === uparse("μm")
+    @test uparse("dBµV") === uparse("dBμV")
+    @test @doc(Unitful.µm) == @doc(Unitful.μm)
+    # Julia treats ɛ (U+025B) and ε (U+03B5) as the same
+    @test Unitful.ɛ0 === Unitful.ε0
+    @test u"ɛ0" === u"ε0"
+    @test uparse("ɛ0") === uparse("ε0")
+    @test @doc(Unitful.ɛ0) == @doc(Unitful.ε0)
 end
 
 module DocUnits

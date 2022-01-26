@@ -302,7 +302,7 @@ const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, 𝐋^2}(2, 1//1),), 𝐋^2}()
 \nDimension: 𝐋^3.
 \nSee Also: [`Unitful.cm`](@ref)."
 @unit L      "L"        Liter       m^3//1000                true
-for p in (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
+for p in (:y, :z, :a, :f, :p, :n, :μ, :m, :c, :d,
     Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
     Core.eval(Unitful, :(const $(Symbol(p,:l)) = $(Symbol(p,:L))))
 end
@@ -388,15 +388,14 @@ const c0 = 299_792_458*m/s              # exact
 \nA quantity representing the vacuum permeability constant, defined as 4π × 10^-7 H / m.
 \nDimension: 𝐋 𝐌 𝐈^-2 𝐓^-2.
 \nSee also: [`Unitful.H`](@ref), [`Unitful.m`](@ref)."
-const μ0 = 4π*(1//10)^7*H/m         # exact (but gets promoted to Float64...)
-const µ0 = μ0                       # magnetic constant
+const μ0 = 4π*(1//10)^7*H/m         # exact (but gets promoted to Float64...), magnetic constant
 "    Unitful.ε0
     Unitful.ϵ0
 \nA quantity representing the vacuum permittivity constant, defined as 1 / (μ0 × c^2).
 \nDimension: 𝐈^2 𝐓^4 𝐋^-3 𝐌^-1.
 \nSee also: [`Unitful.μ0`](@ref), [`Unitful.c`](@ref)."
-const ɛ0 = 1/(μ0*c^2)               # exact, electric constant; changes here may affect
-@doc @doc(ɛ0) const ϵ0 = ɛ0                           # test of issue 79.
+const ε0 = 1/(μ0*c^2)               # exact, electric constant; changes here may affect
+@doc @doc(ε0) const ϵ0 = ε0         # test of issue 79.
 "    Unitful.Z0
 \nA quantity representing the impedance of free space, a constant defined as μ0 × c.
 \nDimension: 𝐋^2 𝐌 𝐈^-2 𝐓^-3.
@@ -455,7 +454,6 @@ const mp = 1.672_621_923_69e-27*kg  # (51) proton rest mass
 \nDimension: 𝐈 𝐋^2.
 \nSee also: [`Unitful.q`](@ref), [`Unitful.ħ`](@ref), [`Unitful.me`](@ref)."
 const μB = q*ħ/(2*me)               # Bohr magneton
-const µB = μB
 "    Unitful.Na
 \nA quantity representing Avogadro's constant, defined as exactly
 6.022,140,76 × 10^23 / mol.
@@ -682,8 +680,6 @@ earth, a unit of acceleration, defined by standard to be exactly 9.806,65 m / s^
 @logunit  dBΩ   "dBΩ"      Decibel      1Ω
 @logunit  dBS   "dBS"      Decibel      1S
 
-const dBµV = dBμV   # different character encoding of μ
-
 # TODO: some more dimensions?
 isrootpower_dim(::typeof(dimension(W)))         = false
 isrootpower_dim(::typeof(dimension(V)))         = true
@@ -706,8 +702,7 @@ isrootpower_dim(::typeof(dimension(J)))         = false
 #   - Candela conflicts with `Base.cd` so it is not brought in (issue #102)
 # - Degrees: °
 
-# The following line has two different character encodings for μ
-const si_prefixes = (:y, :z, :a, :f, :p, :n, :μ, :µ, :m, :c, :d,
+const si_prefixes = (:y, :z, :a, :f, :p, :n, :μ, :m, :c, :d,
     Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
 
 const si_no_prefix = (:m, :s, :A, :K, :g, :mol, :rad, :sr, :Hz, :N, :Pa, #:cd,
