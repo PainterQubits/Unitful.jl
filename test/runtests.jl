@@ -581,7 +581,9 @@ end
         @test @inferred(zero(1m)) === 0m                # Additive identity
         @test @inferred(zero(typeof(1m))) === 0m
         @test @inferred(zero(typeof(1.0m))) === 0.0m
-        @test_throws ArgumentError zero(Quantity{Int})
+        @test @inferred(zero(Quantity{Int})) === 0
+        @test @inferred(zero(Quantity{Float64})) === 0.0
+        @test @inferred(zero(eltype([2.0kg, 3m/s]))) === 0.0
         @test zero(Quantity{Int, ᴸ}) == 0m
         @test zero(Quantity{Int, ᴸ}) isa Quantity{Int}
         @test @inferred(π/2*u"rad" + 90u"°") ≈ π        # Dimless quantities
@@ -1301,11 +1303,11 @@ end
             @test size(rand(Q, 2, 3)) == (2,3)
             @test eltype(@inferred(rand(Q, 2))) == Q
             @test @inferred(zero([1.0u"m", 2.0u"m"])) == [0.0u"m", 0.0u"m"]
-            @test_throws ArgumentError zero([1.0u"m", 1.0u"s"]) == [0.0u"m", 0.0u"s"]
-            @test_throws ArgumentError  zero([1u"m", 1u"s"]) == [0u"m", 0u"s"]
+            @test @inferred(zero([1.0u"m", 1.0u"s"])) == [0.0, 0.0]
+            @test @inferred(zero([1u"m", 1u"s"])) == [0, 0]
             @test zero(Quantity{Int,ᴸ}[1u"m", 1u"mm"]) == [0, 0]u"m"
             r0 = [1.0km, 2km, 3m/s, 4m/s]
-            @test_throws ArgumentError zero(r0) == [0.0km, 0.0km, 0.0m/s, 0.0m/s]
+            @test @inferred(zero(r0)) == [0.0, 0.0, 0.0, 0.0]
         end
     end
     @testset "> Tuples and NTuples" begin

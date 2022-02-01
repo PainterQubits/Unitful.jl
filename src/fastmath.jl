@@ -35,8 +35,7 @@ import Base.FastMath: @fastmath,
     minmax_fast,
     cis_fast,
     angle_fast,
-    fast_op,
-    libm
+    fast_op
 
 sub_fast(x::Quantity{T}) where {T <: FloatTypes} = typeof(x)(neg_float_fast(x.val))
 
@@ -163,13 +162,16 @@ pow_fast(x::Quantity, y::Rational) = x^y
 sqrt_fast(x::Quantity{T}) where {T <: FloatTypes} =
     Quantity(sqrt_llvm(x.val), sqrt(unit(x)))
 
-for f in (:cos, :sin, :tan)
+for f in (:acos, :acosh, :angle, :asin, :asinh, :atan, :atanh, :cbrt,
+    :cis, :cos, :cosh, :exp10, :exp2, :exp, :expm1,
+    :log10, :log1p, :log2, :log, :sin, :sinh, :sqrt, :tan,
+    :tanh)
     f_fast = fast_op[f]
     @eval begin
-        $f_fast(x::DimensionlessQuantity{Float32,U}) where {U} =
-            ccall(($(string(f,"f")),libm), Float32, (Float32,), uconvert(x,NoUnits))
-        $f_fast(x::DimensionlessQuantity{Float64,U}) where {U} =
-            ccall(($(string(f)),libm), Float64, (Float64,), uconvert(x,NoUnits))
+        $f_fast(x::DimensionlessQuantity{Float32,U}) where {U} = $f(uconvert(x,NoUnits))
+    end
+    @eval begin
+        $f_fast(x::DimensionlessQuantity{Float64,U}) where {U} = $f(uconvert(x,NoUnits))
     end
 end
 
