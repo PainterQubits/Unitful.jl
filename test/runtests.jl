@@ -1400,8 +1400,26 @@ end
             @test size(rand(Q, 2)) == (2,)
             @test size(rand(Q, 2, 3)) == (2,3)
             @test eltype(@inferred(rand(Q, 2))) == Q
-            @test_throws ArgumentError zero([1u"m", 1u"s"])
-            @test zero(Quantity{Int,𝐋}[1u"m", 1u"mm"]) == [0, 0]u"m"
+            @test zero([1m, 2m]) == [0m, 0m]
+            @test zero(Quantity{Int,𝐋}[1m, 1mm]) == [0m, 0mm]
+            @test zero(Quantity{Int}[1m, 1s]) == [0m, 0s]
+            @test zero(Quantity[1m, 1s]) == [0m, 0s]
+            @test zero([1mm, missing]) == [0mm, 0mm]
+            @test zero(Union{typeof(0.0s),Missing}[missing]) == [0.0s]
+            @test_broken zero(Union{Quantity{Int,𝐋},Missing}[1mm, missing]) == [0mm, 0m]
+            @test_broken zero(Union{Quantity{Float64,𝐋},Missing}[1.0mm, missing]) == [0.0mm, 0.0m]
+            @test_broken zero(Union{Quantity,Missing}[1m, 1mm]) == [0m, 0mm]
+            @test zero([1°C, 2°C]) == [0K, 0K]
+            @test zero(Quantity[1°C, 2°F]) == [0K, 0K]
+            @test zero(Union{typeof(0°C),Missing}[missing]) == [0K]
+            @test_broken zero(Union{Quantity{Int,𝚯},Missing}[1°C, 2°F, missing]) == [0K, 0K, 0K]
+            @test zero(Vector{typeof(big(1)mm)}(undef, 1)) == [big(0)mm]
+            @test zero(Vector{Union{typeof(big(1)mm),Missing}}(undef, 1)) == [big(0)mm]
+            @test zero(Vector{Quantity{Float64,𝐋}}(undef, 1)) == [0.0m]
+            @test_broken zero(Vector{Union{Quantity{Float64,𝐋},Missing}}(undef, 1)) == [0.0m]
+            @test_throws MethodError zero(Union{Quantity,Missing}[1m, 1s, missing])
+            @test_throws MethodError zero(Vector{Quantity}(undef, 1))
+            @test_throws MethodError zero(Vector{Union{Quantity,Missing}}(undef, 1))
         end
     end
 end
