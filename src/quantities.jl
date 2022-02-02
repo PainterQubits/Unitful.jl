@@ -388,6 +388,30 @@ zero(x::Type{<:AbstractQuantity{T,D}}) where {T,D} = zero(T) * upreferred(D)
 zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:ScalarUnits} = zero(T)*U()
 zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:AffineUnits} = zero(T)*absoluteunit(U())
 
+function zero(x::AbstractArray{T}) where T<:AbstractQuantity
+    if isconcretetype(T)
+        z = zero(T)
+        fill!(similar(x, typeof(z)), z)
+    else
+        dest = similar(x)
+        for i = eachindex(x)
+            if isassigned(x, i...)
+                dest[i] = zero(x[i])
+            else
+                dest[i] = zero(T)
+            end
+        end
+        dest
+    end
+end
+@static if VERSION < v"1.8.0-DEV.107"
+    function zero(x::AbstractArray{Union{T,Missing}}) where T<:AbstractQuantity # only matches _concrete_ T ...
+        @assert isconcretetype(T) # ... but check anyway
+        z = zero(T)
+        fill!(similar(x, typeof(z)), z)
+    end
+end
+
 one(x::AbstractQuantity) = one(x.val)
 one(x::AffineQuantity) =
     throw(AffineError("no multiplicative identity for affine quantity $x."))
