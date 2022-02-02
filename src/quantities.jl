@@ -404,7 +404,7 @@ function zero(x::AbstractArray{T}) where T<:AbstractQuantity
         dest
     end
 end
-@static if VERSION < v"1.8.0-DEV"
+@static if VERSION < v"1.8.0-DEV.107"
     function zero(x::AbstractArray{Union{T,Missing}}) where T<:AbstractQuantity # only matches _concrete_ T ...
         @assert isconcretetype(T) # ... but check anyway
         z = zero(T)
