@@ -710,6 +710,12 @@ end
         @test @inferred(cospi(1rad)) == -1
         @test @inferred(sinc(1rad)) === 0
         @test @inferred(cosc(1ft/3inch)) === 0.25
+        if isdefined(Base, :cispi)
+            @test @inferred(cispi(rad/2)) === complex(0.0, 1.0)
+        end
+        if isdefined(Base, :sincospi)
+            @test @inferred(sincospi(rad/2)) === (1.0, 0.0)
+        end
 
         @test @inferred(atan(m*sqrt(3),1m)) ≈ 60°
         @test @inferred(atan(m*sqrt(3),1.0m)) ≈ 60°
