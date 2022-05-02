@@ -160,7 +160,9 @@ function uconvert(a::MixedUnits{Gain{L1,S1,<:Real}}, x::Level{L2,S2}) where {L1,
 end
 
 ustrip(x::Level{L,S}) where {L<:LogInfo,S} = tolog(L,S,x.val/reflevel(x))
+ustrip(u::MixedUnits, x::Level) = ustrip(uconvert(u, x))
 ustrip(x::Gain) = x.val
+ustrip(u::MixedUnits, x::Gain) = ustrip(uconvert(u, x))
 
 isrootpower(y::IsRootPowerRatio{T}) where {T} = T
 isrootpower(y) = isrootpower_dim(dimension(y))
