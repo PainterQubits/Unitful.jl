@@ -121,6 +121,7 @@ end
         @test @inferred(ustrip(B, 3.0dB)) === 0.3
         @test @inferred(ustrip(dBμV, 3.0dBV)) === 123.0
         @test_throws DimensionError ustrip(dBm, 3.0dBμV)
+        @test @inferred(ustrip(B/m, 1.0dB/mm)) ≈ 100.0
         # convert
         @test convert(typeof(1mm/m), 3) == 3000mm/m
         @test convert(typeof(1mm/m), 3*NoUnits) == 3000mm/m
