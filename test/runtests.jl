@@ -13,7 +13,7 @@ import Unitful:
     ms, s, minute, hr, d, yr, Hz,
     J, A, N, mol, V,
     mW, W,
-    dB, dB_rp, dB_p, dBm, dBV, dBSPL, Decibel,
+    dB, B, dB_rp, dB_p, dBm, dBV, dBμV, dBSPL, Decibel,
     Np, Np_rp, Np_p, Neper,
     C
 
@@ -103,6 +103,8 @@ end
         @test @inferred(ustrip(3*FixedUnits(m))) === 3
         @test @inferred(ustrip(3)) === 3
         @test @inferred(ustrip(3.0m)) === 3.0
+        @test @inferred(ustrip(3.0dB)) === 3.0
+        @test @inferred(ustrip(3.0dBm)) === 3.0
         # ustrip with type and unit arguments
         @test @inferred(ustrip(m, 3.0m)) === 3.0
         @test @inferred(ustrip(m, 2mm)) === 1//500
@@ -116,6 +118,9 @@ end
         @test @inferred(ustrip(Int, mm, 2.0m)) === 2000
         @test @inferred(ustrip(Float32, NoUnits, 5.0u"m"/2.0u"m")) === Float32(2.5)
         @test @inferred(ustrip(Int, NoUnits, 3.0u"m"/1.0u"cm")) === 300
+        @test @inferred(ustrip(B, 3.0dB)) === 0.3
+        @test @inferred(ustrip(dBμV, 3.0dBV)) === 123.0
+        @test_throws DimensionError ustrip(dBm, 3.0dBμV)
         # convert
         @test convert(typeof(1mm/m), 3) == 3000mm/m
         @test convert(typeof(1mm/m), 3*NoUnits) == 3000mm/m
