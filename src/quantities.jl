@@ -119,6 +119,7 @@ end
 Base.mod2pi(x::DimensionlessQuantity) = mod2pi(uconvert(NoUnits, x))
 Base.mod2pi(x::AbstractQuantity{S, NoDims, <:Units{(Unitful.Unit{:Degree, NoDims}(0, 1//1),),
     NoDims}}) where S = mod(x, 360°)
+Base.modf(x::DimensionlessQuantity) = modf(uconvert(NoUnits, x))
 
 # Addition / subtraction
 for op in [:+, :-]

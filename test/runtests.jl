@@ -630,6 +630,9 @@ end
         @test mod(1hr+3minute+5s, 24s) == 17s
         @test mod2pi(360°) === 0°           # 2pi is 360°
         @test mod2pi(0.5pi*u"m/dm") ≈ pi    # just testing the dimensionless fallback
+        @test modf(2.5rad) === (0.5, 2.0)
+        @test modf(-250cm/m) === (-1//2, -2//1)
+        @test_throws MethodError modf(1m)
         @test @inferred(inv(s)) === s^-1
         @test inv(ContextUnits(m,km)) === ContextUnits(m^-1,km^-1)
         @test inv(FixedUnits(m)) === FixedUnits(m^-1)
