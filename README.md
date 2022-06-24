@@ -38,6 +38,7 @@ mathematical operations and collections that are found in Julia base.
 - [UnitfulLatexify.jl](https://github.com/gustaphe/UnitfulLatexify.jl): Pretty print units and quantities in LaTeX format.
 - [UnitfulBuckinghamPi.jl](https://github.com/rmsrosa/UnitfulBuckinghamPi.jl): Solves for the adimensional Pi groups in a list of Unitful parameters, according to the Buckingham-Pi Theorem.
 - [NaturallyUnitful.jl](https://github.com/MasonProtter/NaturallyUnitful.jl): Convert to and from natural units in physics.
+- [UnitfulChainRules.jl](https://github.com/SBuercklin/UnitfulChainRules.jl): Enables use of Unitful quantities with [ChainRules.jl](https://github.com/JuliaDiff/ChainRules.jl)-compatible autodifferentiation systems
 
 ## Related packages
 
