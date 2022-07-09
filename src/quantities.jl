@@ -172,7 +172,7 @@ function inv(x::StridedMatrix{T}) where {T <: AbstractQuantity}
 end
 
 for x in (:istriu, :istril)
-    @eval ($x)(A::AbstractMatrix{T}) where {T <: AbstractQuantity} = ($x)(ustrip(A))
+    @eval ($x)(A::AbstractMatrix{T}) where {T <: AbstractQuantity} = ($x)(ustrip.(A))
 end
 
 # Other mathematical functions
