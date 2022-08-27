@@ -108,6 +108,9 @@ Base.promote_rule(::Type{S}, ::Type{T}) where {S<:AbstractIrrational,S2,T<:Quant
 Base.promote_rule(::Type{Quantity{S}}, ::Type{T}) where {S,T <: Number} =
     Quantity{promote_type(S,T)}
 
+Base.promote_rule(::Type{Quantity{S}}, ::Type{Quantity{T}}) where {S,T} =
+    Quantity{promote_type(S,T)}
+    
 # With only one of these, you can get a segmentation fault because you # fall back to the
 # number, quantity promote_rule above and there is an infinite recursion.
 Base.promote_rule(::Type{Quantity{T}}, ::Type{Quantity{S,D,U}}) where {T,S,D,U} =

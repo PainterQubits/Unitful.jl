@@ -448,8 +448,19 @@ Unitfu.uconvert(U::Unitfu.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
         @test Unitfu.numtype(typeof(1.0kg)) <: Float64
         @test Unitfu.numtype(1.0kg) <: Float64
     end
+    @testset "> Promotion for nested, real-valued structures" begin
+        T1 = typeof(1.0kg)
+        T2 = typeof(1cm)
+        T3 = typeof(1kg)
+        T4 = typeof(1)
+        TT1 = promote_rule(T1, T2)
+        TT3 = promote_rule(T3, T4)
+        TTT1 = promote_rule(TT1, TT3)
+        @test TT1 <: Quantity{Float64}
+        @test TT3 <: Quantity{Int64}
+        @test TTT1 <: Quantity{Float64}
+    end
 end
-
 @testset "Unit string parsing" begin
     @test uparse("m") == m
     @test uparse("m,s") == (m,s)
