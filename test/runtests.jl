@@ -670,8 +670,13 @@ end
         _pow_3(x) = x^3
         _pow_2_3(x) = x^(2//3)
 
-        @test_throws ErrorException @inferred(_pow_2_3(m))
-        @test_throws ErrorException @inferred(_pow_2_3(ᴸ))
+        if VERSION ≥ v"1.8"
+            @test @inferred(_pow_2_3(m)) == m^(2 // 3)
+            @test @inferred(_pow_2_3(ᴸ)) == ᴸ^(2 // 3)
+        else
+            @test_throws ErrorException @inferred(_pow_2_3(m))
+            @test_throws ErrorException @inferred(_pow_2_3(ᴸ))
+        end
         @test_throws ErrorException @inferred(_pow_2_3(1.0m))
 
         @test @inferred(_pow_m3(m)) == m^-3
@@ -1122,12 +1127,15 @@ end
             @test isa(r, StepRange{typeof(1m)})
             @test @inferred(length(r)) === 5
             @test @inferred(step(r)) === 1m
-            @test @inferred(first(range(1mm, step=2m, length=4))) === 1mm
-            @test @inferred(step(range(1mm, step=2m, length=4))) === 2000mm
-            @test @inferred(last(range(1mm, step=2m, length=4))) === 6001mm
-            @test @inferred(first(range(1m, step=2mm, length=4))) === (1//1)m
-            @test @inferred(step(range(1m, step=2mm, length=4))) === (1//500)m
-            @test @inferred(last(range(1m, step=2mm, length=4))) === (503//500)m
+            if VERSION ≥ v"1.8"
+            else
+                @test @inferred(first(range(1mm, step=2m, length=4))) === 1mm
+                @test @inferred(step(range(1mm, step=2m, length=4))) === 2000mm
+                @test @inferred(last(range(1mm, step=2m, length=4))) === 6001mm
+                @test @inferred(first(range(1m, step=2mm, length=4))) === (1//1)m
+                @test @inferred(step(range(1m, step=2mm, length=4))) === (1//500)m
+                @test @inferred(last(range(1m, step=2mm, length=4))) === (503//500)m
+            end
             @test_throws DimensionError(1m, 2V) range(1m, step=2V, length=5)
             @test_throws ArgumentError 1m:0m:5m
         end
@@ -1178,14 +1186,18 @@ end
                 Array{typeof(1.0m),1})
         end
         @testset ">> unit multiplication" begin
-            @test @inferred((1:5)*mm) === 1mm:1mm:5mm
-            @test @inferred(mm*(1:5)) === 1mm:1mm:5mm
+            if VERSION < v"1.8"
+                @test @inferred((1:5)*mm) === 1mm:1mm:5mm
+                @test @inferred(mm*(1:5)) === 1mm:1mm:5mm
+            end
             @test @inferred((1:2:5)*mm) === 1mm:2mm:5mm
             @test @inferred((1.0:2.0:5.01)*mm) === 1.0mm:2.0mm:5.0mm
             r = @inferred(range(0.1, step=0.1, length=3) * 1.0s)
             @test r[3] === 0.3s
-            @test *(1:5, mm, s^-1) === 1mm*s^-1:1mm*s^-1:5mm*s^-1
-            @test *(1:5, mm, s^-1, mol^-1) === 1mm*s^-1*mol^-1:1mm*s^-1*mol^-1:5mm*s^-1*mol^-1
+            if VERSION < v"1.8"
+                @test *(1:5, mm, s^-1) === 1mm*s^-1:1mm*s^-1:5mm*s^-1
+                @test *(1:5, mm, s^-1, mol^-1) === 1mm*s^-1*mol^-1:1mm*s^-1*mol^-1:5mm*s^-1*mol^-1
+            end
         end
     end
     @testset "> Arrays" begin
@@ -1410,9 +1422,11 @@ if VERSION >= VersionNumber("1.6.0-rc1")
             @test repr("text/plain", 1.0°) == "1.0°"
 
             # Concise printing of ranges
-            @test repr((1:10)*u"kg/m^3") == "(1:10)kg∙m^-3"
+            if VERSION < v"1.8"
+                @test repr((1:10)*u"kg/m^3") == "(1:10)kg∙m^-3"
+                @test repr((1:10)*°) == "(1:10)°"
+            end
             @test repr((1.0:0.1:10.0)*u"kg/m^3") == "(1.0:0.1:10.0)kg∙m^-3"
-            @test repr((1:10)*°) == "(1:10)°"
         end
         withenv("UNITFUL_FANCY_EXPONENTS" => true) do
             @test repr(1.0 * u"m * s * kg^(-1//2)") == "1.0m∙s∙kg⁻¹ᐟ²"
