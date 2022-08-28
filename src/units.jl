@@ -18,9 +18,9 @@
     sort!(linunits, by=x->tens(x))
     sort!(linunits, by=x->name(x))
 
-    # [m,m,cm,cm^2,cm^3,nm,m^4,µs,µs^2,s]
+    # [m,m,cm,cm^2,cm^3,nm,m^4,μs,μs^2,s]
     # reordered as:
-    # [nm,cm,cm^2,cm^3,m,m,m^4,µs,µs^2,s]
+    # [nm,cm,cm^2,cm^3,m,m,m^4,μs,μs^2,s]
 
     # Collect powers of a given unit into `c`
     c = Vector{Unit}()
@@ -46,7 +46,7 @@
         end
     end
     # results in:
-    # [nm,cm^6,m^6,µs^3,s]
+    # [nm,cm^6,m^6,μs^3,s]
 
     d = (c...,)
     f = mapreduce(dimension, *, d; init=NoDims)

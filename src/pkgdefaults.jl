@@ -237,8 +237,6 @@ const Å = Å = angstrom
 @logunit  dBΩ   "dBΩ"      Decibel      1Ω
 @logunit  dBS   "dBS"      Decibel      1S
 
-const dBµV = dBμV   # different character encoding of μ
-
 # TODO: some more dimensions?
 isrootpower_dim(::typeof(dimension(W)))         = false
 isrootpower_dim(::typeof(dimension(V)))         = true

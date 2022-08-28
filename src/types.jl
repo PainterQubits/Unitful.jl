@@ -27,6 +27,8 @@ struct Dimensions{N} <: Unitlike
 Instances of this object represent dimensions, possibly combinations thereof.
 """
 struct Dimensions{N} <: Unitlike end
+"    Unitful.NoDims
+\nA dimension representing quantities without dimensions."
 const NoDims = Dimensions{()}()
 
 """

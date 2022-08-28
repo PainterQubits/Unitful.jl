@@ -28,6 +28,9 @@ import Base.FastMath: @fastmath,
     le_fast,
     pow_fast,
     sqrt_fast,
+    cos_fast,
+    sin_fast,
+    tan_fast,
     atan_fast,
     hypot_fast,
     max_fast,
@@ -168,10 +171,8 @@ for f in (:acos, :acosh, :angle, :asin, :asinh, :atan, :atanh, :cbrt,
     :tanh)
     f_fast = fast_op[f]
     @eval begin
-        $f_fast(x::DimensionlessQuantity{Float32,U}) where {U} = $f(uconvert(x,NoUnits))
-    end
-    @eval begin
-        $f_fast(x::DimensionlessQuantity{Float64,U}) where {U} = $f(uconvert(x,NoUnits))
+        $(f_fast)(x::DimensionlessQuantity{<:Union{Float32,Float64}}) =
+            $(f_fast)(uconvert(NoUnits, x))
     end
 end
 

@@ -29,11 +29,6 @@ Quantity(x::Number, y::Units{()}) = x
 *(x::AbstractQuantity, y::Units, z::Units...) = Quantity(x.val, *(unit(x),y,z...))
 *(x::AbstractQuantity, y::AbstractQuantity) = Quantity(x.val*y.val, unit(x)*unit(y))
 
-# Next two lines resolves some method ambiguity:
-*(x::Bool, y::T) where {T <: AbstractQuantity} =
-    ifelse(x, y, ifelse(signbit(y), -zero(y), zero(y)))
-*(x::AbstractQuantity, y::Bool) = Quantity(x.val*y, unit(x))
-
 *(y::Number, x::AbstractQuantity) = *(x,y)
 function *(x::AbstractQuantity, y::Number)
     x isa AffineQuantity &&
@@ -140,6 +135,7 @@ end
 Base.mod2pi(x::DimensionlessQuantity) = mod2pi(strict_uconvert(NoUnits, x))
 Base.mod2pi(x::AbstractQuantity{S, NoDims, <:Units{(Unitfu.Unit{:Degree, NoDims}(0, 1//1),),
     NoDims}}) where S = mod(x, 360°)
+Base.modf(x::DimensionlessQuantity) = modf(uconvert(NoUnits, x))
 
 # Addition / subtraction
 for op in [:+, :-]
@@ -497,7 +493,11 @@ Base.literal_pow(::typeof(^), x::AbstractQuantity, ::Val{v}) where {v} =
 
 # All of these are needed for ambiguity resolution
 ^(x::AbstractQuantity, y::Integer) = Quantity((x.val)^y, unit(x)^y)
-^(x::AbstractQuantity, y::Rational) = Quantity((x.val)^y, unit(x)^y)
+@static if VERSION ≥ v"1.8.0-DEV.501"
+    Base.@constprop(:aggressive, ^(x::AbstractQuantity, y::Rational) = Quantity((x.val)^y, unit(x)^y))
+else
+    ^(x::AbstractQuantity, y::Rational) = Quantity((x.val)^y, unit(x)^y)
+end
 ^(x::AbstractQuantity, y::Real) = Quantity((x.val)^y, unit(x)^y)
 
 Base.rand(r::Random.AbstractRNG, ::Random.SamplerType{<:AbstractQuantity{T,D,U}}) where {T,D,U} =
