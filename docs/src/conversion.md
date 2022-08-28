@@ -302,7 +302,7 @@ whether or not units on a dimensionless quantity seem "intentional" or not.
 It is however possible to cancel units manually, by passing the dimensionless
 quantity to the [`NoUnits`](@ref) constructor. This takes into account different SI-prefixes:
 ```jldoctest
-julia> using Unitful
+julia> using Unitfu
 
 julia>  julia> 1u"kN*m"/4u"J" |> NoUnits
 250.0

@@ -119,4 +119,17 @@ Base.promote_rule(::Type{Quantity{T}}, ::Type{Quantity{S,D,U}}) where {T,S,D,U} 
 Base.promote_rule(::Type{Quantity{S,D,U}}, ::Type{Quantity{T}}) where {T,S,D,U} =
     Quantity{promote_type(T,S)}
 
-Base.promote_typejoin(::Type{T}, ::Type{Quantity{T,D,U}}) where {T,D,U} = Quantity{T}
+## Unsure if removing this was fully advantageous. 
+## Ref. https://github.com/PainterQubits/Unitful.jl/commit/0d3b586a0b9999d8491c5c59bcd691b77eccd512
+## After the change, this is unexpected behaviour. TODO: consider changing the first type to Number.
+#=
+julia> b = [0.0, 0.0m]
+2-element Vector{Quantity{Float64}}:
+            0.0
+ 0.0m
+julia> b+b
+2-element Vector{Number}:
+              0.0
+ 0.0m
+=#
+# Base.promote_typejoin(::Type{T}, ::Type{Quantity{T,D,U}}) where {T,D,U} = Quantity{T}
