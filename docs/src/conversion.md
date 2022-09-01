@@ -136,17 +136,17 @@ the following three cases:
 
 ```jldoctest
 julia> [1.0u"m", 2.0u"m"]
-2-element Array{Quantity{Float64,ᴸ,Unitfu.FreeUnits{(m,),ᴸ,nothing}},1}:
+2-element Vector{Quantity{Float64, ᴸ, Unitful.FreeUnits{(m,), ᴸ, nothing}}}:
  1.0 m
  2.0 m
 
 julia> [1.0u"m", 2.0u"cm"]
-2-element Array{Quantity{Float64,ᴸ,Unitfu.FreeUnits{(m,),ᴸ,nothing}},1}:
+2-element Vector{Quantity{Float64, ᴸ, Unitful.FreeUnits{(m,), ᴸ, nothing}}}:
   1.0 m
  0.02 m
 
 julia> [1.0u"m", 2.0]
-2-element Array{Quantity{Float64,D,U} where U where D,1}:
+2-element Vector{Quantity{Float64, D, U} where {D, U}}:
  1.0 m
    2.0
 ```
@@ -166,7 +166,7 @@ julia> f([1.0u"m", 2.0u"cm"])
 1.02 m
 
 julia> f([1.0u"g", 2.0u"cm"])
-ERROR: MethodError: no method matching f(::Array{Quantity{Float64,D,U} where U where D,1})
+ERROR: MethodError: no method matching f(::Vector{Quantity{Float64, D, U} where {D, U}})
 [...]
 ```
 

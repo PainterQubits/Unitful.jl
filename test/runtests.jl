@@ -218,11 +218,16 @@ end
             @test 1u"rps" == 2π/s
             @test 1u"rpm" == 360°/minute
             @test 1u"rpm" == 2π/minute
+
+            # Issue 458:
+            @test deg2rad(360°) ≈ 2π * rad
+            @test rad2deg(2π * rad) ≈ 360°
         end
     end
 end
 
 include("dates.jl")
+
 
 @testset "Temperature and affine quantities" begin
     @testset "Affine transforms and quantities" begin
@@ -341,6 +346,16 @@ Unitfu.uconvert(U::Unitfu.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
 
 @testset "Promotion" begin
     @testset "> Unit preferences" begin
+        # Should warn on possible redundant units issue (ms and s)
+        @test_logs (:warn, r"^Preferred units contain complex units") Unitfu.preferunits(C/ms)
+        # Test for wacky prefered units functionality
+        Unitfu.preferunits(C/s)
+        @test @inferred(upreferred(V/m)) == kg*m*C^-1*s^-2
+        @test dimension(upreferred(V/m)) == dimension(V/m)
+        # Reset preferred units to default, except for units of dimension 𝐋*𝐌*𝐈^-1*𝐓^-3,
+        # because upreferred has already been called for that dimension
+        Unitfu.preferunits(A)
+
         # Only because we favor SI, we have the following:
         @test @inferred(upreferred(N)) === kg*m/s^2
         @test @inferred(upreferred(dimension(N))) === kg*m/s^2
@@ -398,7 +413,7 @@ Unitfu.uconvert(U::Unitfu.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
         @test @inferred(promote(1g, 1.0kg)) === (0.001kg, 1.0kg)
         @test @inferred(promote(1.0m, 1kg)) === (1.0m, 1.0kg)
         @test @inferred(promote(1kg, 1.0m)) === (1.0kg, 1.0m)
-        @test_broken @inferred(promote(1.0m, 1)) === (1.0m, 1.0)         # issue 52
+        @test @inferred(promote(1.0m, 1)) == (1.0m, 1.0)         # issue 52
         @test @inferred(promote(π, 180°)) === (float(π), float(π))       # issue 168
         @test @inferred(promote(180°, π)) === (float(π), float(π))       # issue 168
 
@@ -461,7 +476,22 @@ Unitfu.uconvert(U::Unitfu.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
         @test TT3 <: Quantity{Int64}
         @test TTT1 <: Quantity{Float64}
     end
+    @testset "> Promotion for nested, real-valued structures" begin
+        T1 = typeof(1.0kg)
+        T2 = typeof(1cm)
+        T3 = typeof(1kg)
+        T4 = typeof(1)
+        TT1 = promote_rule(T1, T2)
+        TT3 = promote_rule(T3, T4)
+        TTT1 = promote_rule(TT1, TT3)
+        @test TT1 <: Quantity{Float64}
+        @test TT3 <: Quantity{Int64}
+        @test TTT1 <: Quantity{Float64}
+    end
 end
+
+
+
 @testset "Unit string parsing" begin
     @test uparse("m") == m
     @test uparse("m,s") == (m,s)
@@ -619,6 +649,12 @@ end
         @test @inferred((3m)*m) === 3*(m*m)               # Associative multiplication
         @test @inferred(true*1kg) === 1kg                 # Boolean multiplication (T)
         @test @inferred(false*1kg) === 0kg                # Boolean multiplication (F)
+        @test @inferred(true*(1+im)kg) === (1+im)kg       # Boolean-complex multiplication (T)
+        @test @inferred(false*(1+im)kg) === (0+0im)kg     # Boolean-complex multiplication (F)
+        @test @inferred((1+im)kg*true) === (1+im)kg       # Complex-boolean multiplication (T)
+        @test @inferred((1+im)kg*false) === (0+0im)kg     # Complex-boolean multiplication (F)
+        @test @inferred((NaN*kg)*false) === 0.0kg         # `false` acts as "strong zero"
+        @test @inferred(false*(-Inf*kg)) === -0.0kg       # `false` acts as "strong zero"
         @test typeof(one(eltype([1.0s, 1kg]))) <: Float64 # issue 159, multiplicative identity
     end
     @testset "> Division" begin
@@ -646,6 +682,9 @@ end
         @test mod(1hr+3minute+5s, 24s) == 17s
         @test mod2pi(360°) === 0°           # 2pi is 360°
         @test mod2pi(0.5pi*u"m/dm") ≈ pi    # just testing the dimensionless fallback
+        @test modf(2.5rad) === (0.5, 2.0)
+        @test modf(-250cm/m) === (-1//2, -2//1)
+        @test_throws MethodError modf(1m)
         @test @inferred(inv(s)) === s^-1
         @test inv(ContextUnits(m,km)) === ContextUnits(m^-1,km^-1)
         @test inv(FixedUnits(m)) === FixedUnits(m^-1)
@@ -665,7 +704,7 @@ end
         @test (8m)^(1//3) === 2.0*m^(1//3)
         @test @inferred(cis(90°)) ≈ im
 
-        # Test inferrability of integer literal powers
+        # Test inferrability of literal powers
         _pow_m3(x) = x^-3
         _pow_0(x) = x^0
         _pow_3(x) = x^3
@@ -716,7 +755,7 @@ end
 
         @test @inferred(sinh(0.0rad)) == 0.0
         @test @inferred(sinh(1J/N/m) + cosh(1rad)) ≈ MathConstants.e
-        @test @inferred(tanh(1m/1µm)) == 1
+        @test @inferred(tanh(1m/1μm)) == 1
         @test @inferred(csch(0.0°)) == Inf
         @test @inferred(sech(0K/Ra)) == 1
         @test @inferred(coth(1e3m*mm^-1)) == 1
@@ -731,6 +770,12 @@ end
         @test @inferred(cospi(1rad)) == -1
         @test @inferred(sinc(1rad)) === 0
         @test @inferred(cosc(1ft/3inch)) === 0.25
+        if isdefined(Base, :cispi)
+            @test @inferred(cispi(rad/2)) === complex(0.0, 1.0)
+        end
+        if isdefined(Base, :sincospi)
+            @test @inferred(sincospi(rad/2)) === (1.0, 0.0)
+        end
 
         @test @inferred(atan(m*sqrt(3),1m)) ≈ 60°
         @test @inferred(atan(m*sqrt(3),1.0m)) ≈ 60°
@@ -780,6 +825,11 @@ end
         @test !isapprox(1.0u"m", 1.1u"m"; atol=50u"mm")
         @test isapprox(1.0u"m", 1.1u"m"; rtol=0.2)
         @test !isapprox(1.0u"m", 1.1u"m"; rtol=0.05)
+
+        # Issue 465:
+        z = fill((1+im)m, 2, 3)
+        @test !isapprox(z, 2z)
+        @test isapprox(z, z * (1 + 1e-15))
 
         # Test eps
         @test eps(1.0u"s") == eps(1.0)u"s"
@@ -834,6 +884,7 @@ end
         @test_throws DimensionError fma(2, 1m, 1V)
         @test muladd(1s, 1.0mol/s, 2.0mol) === 3.0mol               # issue 138
     end
+
     @testset "> @fastmath" begin
         one32 = one(Float32)*m
         eps32 = eps(Float32)*m
@@ -1163,6 +1214,7 @@ end
             @test (range(0, stop=2, length=5) * u"°")[2:end] ==
                 range(0.5, stop=2, length=4) * u"°"  # issue 241
             @test range(big(1.0)m, step=big(1.0)m, length=5) == (big(1.0):big(1.0):big(5.0))*m
+            @test range(big(1.0)m, step=big(1.0)m, length=5) == (big(1.0):big(1.0):big(5.0))*m
         end
         @testset ">> LinSpace" begin
             # Not using Compat.range for these because kw args don't infer in julia 0.6.2
@@ -1219,7 +1271,92 @@ end
             @test @inferred(LinRange(0f0, 1f0, 3) .* 3f0m) === LinRange(0f0m, 3f0m, 3)
             @test @inferred(3f0m .* LinRange(0.0, 1.0, 3)) === LinRange(0.0m, 3.0m, 3)
             @test @inferred(1.0s .* range(0.1, step=0.1, length=3)) === @inferred(range(0.1, step=0.1, length=3) * 1.0s)
-
+            @test @inferred((1:2:5) .* cm .|> mm) === 10mm:20mm:50mm
+            @test mm.((1:2:5) .* cm) === 10mm:20mm:50mm
+            @test @inferred((1:2:5) .* km .|> upreferred) === 1000m:2000m:5000m
+            @test @inferred((1:2:5) .* cm .|> mm .|> ustrip) === 10:20:50
+            @test @inferred((1f0:2f0:5f0) .* cm .|> mm .|> ustrip) === 10f0:20f0:50f0
+        end
+        @testset ">> quantities and non-quantities" begin
+            @test range(1, step=1m/mm, length=5) == 1:1000:4001
+            @test range(1, step=1mm/m, length=5) == (1//1):(1//1000):(251//250)
+            @test eltype(range(1, step=1m/mm, length=5)) == Int
+            @test eltype(range(1, step=1mm/m, length=5)) == Rational{Int}
+            @test range(1m/mm, step=1, length=5) == ((1//1):(1//1000):(251//250)) * m/mm
+            @test range(1mm/m, step=1, length=5) == (1:1000:4001) * mm/m
+            @test eltype(range(1m/mm, step=1, length=5)) == typeof((1//1)m/mm)
+            @test eltype(range(1mm/m, step=1, length=5)) == typeof(1mm/m)
+        end
+        @testset ">> complex" begin
+            @test range((1+2im)m, step=(1+2im)m, length=5) == range(1+2im, step=1+2im, length=5) * m
+            @test range((1+2im)m, step=(1+2im)mm, length=5) == range(1//1+(2//1)im, step=1//1000+(1//500)im, length=5) * m
+            @test range((1.0+2.0im)m, stop=(3.0+4.0im)m, length=5) == LinRange(1.0+2.0im, 3.0+4.0im, 5) * m
+            @test range((1.0+2.0im)mm, stop=(3.0+4.0im)m, length=3) == LinRange(0.001+0.002im, 3.0+4.0im, 3) * m
+        end
+        @testset ">> step defaults to 1" begin
+            @test range(1.0mm/m, length=5) == (1.0mm/m):(1000.0mm/m):(4001.0mm/m)
+            @test range((1+2im)mm/m, length=5) == range(1+2im, step=1000, length=5)*mm/m
+            @test_throws DimensionError range(1.0m, length=5)
+            @test_throws DimensionError range((1+2im)m, length=5)
+            @test (1mm/m):(5001mm/m) == (1:1000:5001) * mm/m
+            @test (1m/mm):(5m/mm) == (1//1:1//1000:5//1) * m/mm
+            @test (1mm/m):(1m/mm) == 1//1000:999001//1000
+            @test (1m/mm):(1mm/m) == 1000//1:999//1
+            @test (1.0mm/m):(5001mm/m) == (1.0:1000.0:5001.0) * mm/m
+            @test (1m/mm):(5.0m/mm) == (1.0:0.001:5.0) * m/mm
+            @test (1.0mm/m):(1m/mm) == 0.001:999.001
+            @test (1m/mm):(1.0mm/m) == 1000.0:1.0:999.0
+            @test_throws DimensionError (1m):(1m)
+            @test_throws DimensionError (1m):(1000cm)
+            @test_throws DimensionError (1m):(1s)
+            @test (1m/cm):1 == 100:99
+            @test (1m/cm):1000 == 100:1000
+            @test (1m/cm):1.0 == 100.0:99.0
+            @test (1.0m/cm):1000 == 100.0:1000.0
+            @test_throws DimensionError (1m):1
+            @test 1:(1m/mm) == 1:1000
+            @test 1000:(1m/mm) == 1000:1000
+            @test 1.0:(1m/mm) == 1.0:1000.0
+            @test 1000:(1.0m/mm) == 1000.0:1000.0
+            @test_throws DimensionError 1:(1m)
+        end
+        @static if VERSION ≥ v"1.7"
+            @testset ">> no start argument" begin
+                @test range(stop=1.0m, step=2.0m, length=5) == -7.0m:2.0m:1.0m
+                @test range(stop=1.0mm, step=1.0m, length=5) == -3999.0mm:1000.0mm:1.0mm
+                @test range(stop=(1.0+2.0im)mm, step=(1.0+1.0im)m, length=5) == range(stop=1.0+2.0im, step=(1000+1000im), length=5)*mm
+                @test range(stop=1.0mm/m, length=5) == (-3999.0mm/m):(1000.0mm/m):(1.0mm/m)
+                @test range(stop=(1+2im)mm/m, length=5) == range(stop=1+2im, step=1000, length=5)*mm/m
+                @test range(stop=1.0mm/m, step=1, length=5) == (-3999.0mm/m):(1000.0mm/m):(1.0mm/m)
+                @test_throws DimensionError range(stop=1.0m, step=1V, length=5)
+                @test_throws DimensionError range(stop=(1+2im)m, step=1V, length=5)
+                @test_throws DimensionError range(stop=1.0m, length=5)
+                @test_throws DimensionError range(stop=(1+2im)m, length=5)
+                @test range(stop=1, step=1m/mm, length=5) == -3999:1000:1
+                @test range(stop=1, step=1mm/m, length=5) == (249//250):(1//1000):(1//1)
+                @test eltype(range(stop=1, step=1m/mm, length=5)) == Int
+                @test eltype(range(stop=1, step=1mm/m, length=5)) == Rational{Int}
+                @test range(stop=1m/mm, step=1, length=5) == ((249//250):(1//1000):(1//1)) * m/mm
+                @test range(stop=1mm/m, step=1, length=5) == (-3999:1000:1) * mm/m
+                @test eltype(range(stop=1m/mm, step=1, length=5)) == typeof((1//1)m/mm)
+                @test eltype(range(stop=1mm/m, step=1, length=5)) == typeof(1mm/m)
+                @test_throws ArgumentError range(step=1m, length=5)
+            end
+        end
+        @testset ">> broadcasting" begin
+            @test @inferred((1:5) .* mm) === 1mm:1mm:5mm
+            @test @inferred(mm .* (1:5)) === 1mm:1mm:5mm
+            @test @inferred((1:2:5) .* mm) === 1mm:2mm:5mm
+            @test @inferred((1.0:2.0:5.01) .* mm) === 1.0mm:2.0mm:5.0mm
+            r = @inferred(range(0.1, step=0.1, length=3) .* 1.0s)
+            @test r[3] === 0.3s
+            @test @inferred((0:2) .* 3f0m) === StepRangeLen{typeof(0f0m)}(0.0m, 3.0m, 3) # issue #477
+            @test @inferred(3f0m .* (0:2)) === StepRangeLen{typeof(0f0m)}(0.0m, 3.0m, 3) # issue #477
+            @test @inferred((0f0:2f0) .* 3f0m) === 0f0m:3f0m:6f0m
+            @test @inferred(3f0m .* (0.0:2.0)) === 0.0m:3.0m:6.0m
+            @test @inferred(LinRange(0f0, 1f0, 3) .* 3f0m) === LinRange(0f0m, 3f0m, 3)
+            @test @inferred(3f0m .* LinRange(0.0, 1.0, 3)) === LinRange(0.0m, 3.0m, 3)
+            @test @inferred(1.0s .* range(0.1, step=0.1, length=3)) === @inferred(range(0.1, step=0.1, length=3) * 1.0s)
             @test @inferred((1:2:5) .* cm .|> mm) === 10mm:20mm:50mm
             @test mm.((1:2:5) .* cm) === 10mm:20mm:50mm
             @test @inferred((1:2:5) .* km .|> upreferred) === 1000m:2000m:5000m
@@ -1339,7 +1476,6 @@ end
             @test @inferred([1V, 2V] .* [true, false])   == [1V, 0V]
             @test @inferred([1.0m, 2.0m] ./ 3)           == [1m/3, 2m/3]
             @test @inferred([1V, 2.0V] ./ [3m, 4m])      == [1V/(3m), 0.5V/m]
-
             @test @inferred([1, 2]kg)                  == [1, 2] * kg
             @test @inferred([1, 2]kg .* [2, 3]kg^-1)   == [2, 6]
             @test @inferred([1, 2]/kg)                 == [1/kg, 2/kg]
@@ -1400,12 +1536,14 @@ end
             @test typeof(ustrip(SymTridiagonal([1,2,3]u"m", [4,5]u"m"))) <:
                 SymTridiagonal{Int}
         end
+
         @testset ">> Linear algebra" begin
             @test istril([1 1; 0 1]u"m") == false
             @test istriu([1 1; 0 1]u"m") == true
         end
 
         @testset ">> Array initialization" begin
+            Q = typeof(1u"m")
             Q = typeof(1u"m")
             @test @inferred(zeros(Q, 2)) == [0, 0]u"m"
             @test @inferred(zeros(Q, (2,))) == [0, 0]u"m"
@@ -1418,12 +1556,37 @@ end
             @test size(rand(Q, 2)) == (2,)
             @test size(rand(Q, 2, 3)) == (2,3)
             @test eltype(@inferred(rand(Q, 2))) == Q
-            @test @inferred(zero([1.0u"m", 2.0u"m"])) == [0.0u"m", 0.0u"m"]
-            @test @inferred(zero([1.0u"m", 1.0u"s"])) == [0.0, 0.0]
-            @test @inferred(zero([1u"m", 1u"s"])) == [0, 0]
-            @test zero(Quantity{Int,ᴸ}[1u"m", 1u"mm"]) == [0, 0]u"m"
-            r0 = [1.0km, 2km, 3m/s, 4m/s]
-            @test @inferred(zero(r0)) == [0.0, 0.0, 0.0, 0.0]
+            @test zero([1m, 2m]) == [0m, 0m]
+            @test zero(Quantity{Int,ᴸ}[1m, 1mm]) == [0m, 0mm]
+            @test zero(Quantity{Int}[1m, 1s]) == [0m, 0s]
+            @test zero(Quantity[1m, 1s]) == [0m, 0s]
+            @test zero([1mm, missing]) == [0mm, 0mm]
+            @test zero(Union{typeof(0.0s),Missing}[missing]) == [0.0s]
+            @test_broken zero(Union{Quantity{Int,ᴸ},Missing}[1mm, missing]) == [0mm, 0m]
+            @test_broken zero(Union{Quantity{Float64,ᴸ},Missing}[1.0mm, missing]) == [0.0mm, 0.0m]
+            @test_broken zero(Union{Quantity,Missing}[1m, 1mm]) == [0m, 0mm]
+            @test zero([1°C, 2°C]) == [0K, 0K]
+            @test zero(Quantity[1°C, 2°F]) == [0K, 0K]
+            @test zero(Union{typeof(0°C),Missing}[missing]) == [0K]
+            @test_broken zero(Union{Quantity{Int,ᶿ},Missing}[1°C, 2°F, missing]) == [0K, 0K, 0K]
+            @test zero(Vector{typeof(big(1)mm)}(undef, 1)) == [big(0)mm]
+            @test zero(Vector{Union{typeof(big(1)mm),Missing}}(undef, 1)) == [big(0)mm]
+            @test zero(Vector{Quantity{Float64,ᴸ}}(undef, 1)) == [0.0m]
+            @test_broken zero(Vector{Union{Quantity{Float64,ᴸ},Missing}}(undef, 1)) == [0.0m]
+            @test_throws MethodError zero(Union{Quantity,Missing}[1m, 1s, missing])
+            @test_throws MethodError zero(Vector{Quantity}(undef, 1))
+            @test_throws MethodError zero(Vector{Union{Quantity,Missing}}(undef, 1))
+        end
+        @testset ">> Tuple addition" begin
+            # Dimensionless quantities
+            @test @inferred((1mm/m) .+ (1.0cm/m))     == (0.011)
+            @test typeof((1mm/m,) .+ (1.0cm/m,))        == Tuple{Float64}
+            @test @inferred((1mm/m,) .+ (1cm/m,))       == (11//1000,)
+            @test typeof((1mm/m,) .+ (1cm/m,))          == Tuple{Rational{Int}}
+            @test @inferred((1mm/m,) .+ (2,))           == (2001//1000,)
+            @test typeof((1mm/m,) .+ (2,))              == Tuple{Rational{Int}}
+            @test_throws DimensionError (1m,) .+ (2V,)
+            @test_throws DimensionError (1,) .+ (1m,)
         end
     end
     @testset "> Tuples and NTuples" begin
@@ -1469,8 +1632,10 @@ end
         end
     end
 end
-if VERSION >= VersionNumber("1.5.0-rc1")
-    @testset "Display" begin
+
+
+@static if VERSION >= VersionNumber("1.5.0-rc1")
+    @testset "Display no fancy exponents" begin
         withenv("UNITFUL_FANCY_EXPONENTS" => false) do
             @test string(typeof(1.0m/s)) ==
                 "Quantity{Float64,  ᴸ∙ ᵀ^-1, FreeUnits{(m, s^-1),  ᴸ∙ ᵀ^-1, nothing}}" ||
@@ -1490,11 +1655,12 @@ if VERSION >= VersionNumber("1.5.0-rc1")
     end
 end
 
+
 struct Foo <: Number end
 Base.show(io::IO, x::Foo) = print(io, "1")
 Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
 
-if VERSION >= VersionNumber("1.6.0-rc1")
+@static if VERSION >= VersionNumber("1.6.0-rc1")
     @testset "Show quantities" begin
         withenv("UNITFUL_FANCY_EXPONENTS" => false) do
             @test repr(1.0 * u"m * s * kg^-1") == "1.0m∙s∙kg^-1"
@@ -1532,7 +1698,7 @@ if VERSION >= VersionNumber("1.6.0-rc1")
     end
 end
 
-if VERSION >= VersionNumber("1.5.0-rc1")
+@static if VERSION >= VersionNumber("1.5.0-rc1")
     @testset "Show quantities in collection" begin
         shortp(x) = repr(x, context = :color=>true)
         longp(x) = repr(:"text/plain", x, context = :color=>true)
@@ -1609,6 +1775,7 @@ if VERSION >= VersionNumber("1.5.0-rc1")
         end
     end
 end
+
 
 @testset "DimensionError message" begin
     function errorstr(e)
@@ -1960,6 +2127,7 @@ end
     end
 end
 
+
 @testset "Output ordered by unit exponent" begin
     ordered = Unitfu.sortexp(typeof(u"J*mol^-1*K^-1").parameters[1])
     @test typeof(ordered[1]) <: Unitfu.Unit{:Joule,<:Any}
@@ -1971,6 +2139,8 @@ end
     @test typeof(ordered[2]) <: Unitfu.Unit{:Joule,<:Any}
     @test typeof(ordered[3]) <: Unitfu.Unit{:Kelvin,<:Any}
 end
+
+
 
 # Test that the @u_str macro will find units in other modules.
 module ShadowUnits

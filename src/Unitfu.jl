@@ -52,7 +52,7 @@ end
 const basefactors = _basefactors(Unitfu)
 
 include("types.jl")
-const promotion = Dict{Symbol,Unit}()
+const promotion = Dict{Symbol,FreeUnits}()
 
 include("user.jl")
 include("utils.jl")

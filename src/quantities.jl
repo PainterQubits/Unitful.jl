@@ -135,7 +135,7 @@ end
 Base.mod2pi(x::DimensionlessQuantity) = mod2pi(strict_uconvert(NoUnits, x))
 Base.mod2pi(x::AbstractQuantity{S, NoDims, <:Units{(Unitfu.Unit{:Degree, NoDims}(0, 1//1),),
     NoDims}}) where S = mod(x, 360°)
-Base.modf(x::DimensionlessQuantity) = modf(uconvert(NoUnits, x))
+Base.modf(x::DimensionlessQuantity) = modf(strict_uconvert(NoUnits, x))
 
 # Addition / subtraction
 for op in [:+, :-]
@@ -223,8 +223,10 @@ sqrt(x::AbstractQuantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
 cbrt(x::AbstractQuantity) = Quantity(cbrt(x.val), cbrt(unit(x)))
 
 for _y in (:sin, :cos, :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
-           :sinpi, :cospi, :sinc, :cosc, :cis)
-    @eval ($_y)(x::DimensionlessQuantity) = ($_y)(strict_uconvert(NoUnits, x))
+           :sinpi, :cospi, :sinc, :cosc, :cis, :cispi, :sincospi)
+    if isdefined(Base, _y)
+        @eval Base.$(_y)(x::DimensionlessQuantity) = Base.$(_y)(strict_uconvert(NoUnits, x))
+    end
 end
 
 atan(y::AbstractQuantity{T1,D,U1}, x::AbstractQuantity{T2,D,U2}) where {T1,T2,D,U1,U2} =
@@ -287,18 +289,31 @@ for (i,j) in zip((:<, :isless), (:_lt, :_isless))
 end
 
 Base.rtoldefault(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = Base.rtoldefault(T)
-isapprox(x::AbstractQuantity{T,D,U}, y::AbstractQuantity{T,D,U}; atol=zero(Quantity{real(T),D,U}), kwargs...) where {T,D,U} =
-    isapprox(x.val, y.val; atol=strict_uconvert(unit(y), atol).val, kwargs...)
+
+function isapprox(
+    x::AbstractQuantity{T,D,U},
+    y::AbstractQuantity{T,D,U};
+    atol = zero(Quantity{real(T),D,U}),
+    kwargs...,
+) where {T,D,U}
+    return isapprox(x.val, y.val; atol=strict_uconvert(unit(y), atol).val, kwargs...)
+end
+
 function isapprox(x::AbstractQuantity, y::AbstractQuantity; kwargs...)
     dimension(x) != dimension(y) && return false
     return isapprox(promote(x,y)...; kwargs...)
 end
+
 isapprox(x::AbstractQuantity, y::Number; kwargs...) = isapprox(promote(x,y)...; kwargs...)
 isapprox(x::Number, y::AbstractQuantity; kwargs...) = isapprox(y, x; kwargs...)
 
-function isapprox(x::AbstractArray{<:AbstractQuantity{T1,D,U1}},
-        y::AbstractArray{<:AbstractQuantity{T2,D,U2}}; rtol::Real=Base.rtoldefault(T1,T2,0),
-        atol=zero(Quantity{T1,D,U1}), norm::Function=norm) where {T1,D,U1,T2,U2}
+function isapprox(
+    x::AbstractArray{<:AbstractQuantity{T1,D,U1}},
+    y::AbstractArray{<:AbstractQuantity{T2,D,U2}};
+    rtol::Real=Base.rtoldefault(T1,T2,0),
+    atol=zero(Quantity{real(T1),D,U1}),
+    norm::Function=norm,
+) where {T1,D,U1,T2,U2}
 
     d = norm(x - y)
     if isfinite(d)
@@ -308,6 +323,7 @@ function isapprox(x::AbstractArray{<:AbstractQuantity{T1,D,U1}},
         return all(ab -> isapprox(ab[1], ab[2]; rtol=rtol, atol=atol), zip(x, y))
     end
 end
+
 isapprox(x::AbstractArray{S}, y::AbstractArray{T};
     kwargs...) where {S <: AbstractQuantity,T <: AbstractQuantity} = false
 function isapprox(x::AbstractArray{S}, y::AbstractArray{N};
@@ -318,6 +334,7 @@ function isapprox(x::AbstractArray{S}, y::AbstractArray{N};
         false
     end
 end
+
 isapprox(y::AbstractArray{N}, x::AbstractArray{S};
     kwargs...) where {S <: AbstractQuantity,N <: Number} = isapprox(x,y; kwargs...)
 
@@ -356,11 +373,11 @@ round(x::AbstractQuantity, r::RoundingMode=RoundNearest; kwargs...) =
     _rounderr()
 round(x::DimensionlessQuantity; kwargs...) = round(strict_uconvert(NoUnits, x); kwargs...)
 round(x::DimensionlessQuantity, r::RoundingMode; kwargs...) =
-    round(strict_uconvert(NoUnits, x), r; kwargs...)
+    round(uconvert(NoUnits, x), r; kwargs...)
 round(::Type{T}, x::AbstractQuantity, r=RoundingMode=RoundNearest;
     kwargs...) where {T<:Number} = _dimerr(:round)
 round(::Type{T}, x::DimensionlessQuantity, r::RoundingMode=RoundNearest;
-    kwargs...) where {T<:Number} = round(T, strict_uconvert(NoUnits, x), r; kwargs...)
+    kwargs...) where {T<:Number} = round(T, uconvert(NoUnits, x), r; kwargs...)
 function round(::Type{T}, x::AbstractQuantity;
         kwargs...) where {S, T <: Quantity{S}}
     u = unit(T)
@@ -388,6 +405,30 @@ zero(x::Type{<:AbstractQuantity}) = zero(get_T(x))
 zero(x::Type{<:AbstractQuantity{T,D}}) where {T,D} = zero(T) * upreferred(D)
 zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:ScalarUnits} = zero(T)*U()
 zero(x::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U<:AffineUnits} = zero(T)*absoluteunit(U())
+
+function zero(x::AbstractArray{T}) where T<:AbstractQuantity
+    if isconcretetype(T)
+        z = zero(T)
+        fill!(similar(x, typeof(z)), z)
+    else
+        dest = similar(x)
+        for i = eachindex(x)
+            if isassigned(x, i...)
+                dest[i] = zero(x[i])
+            else
+                dest[i] = zero(T)
+            end
+        end
+        dest
+    end
+end
+@static if VERSION < v"1.8.0-DEV.107"
+    function zero(x::AbstractArray{Union{T,Missing}}) where T<:AbstractQuantity # only matches _concrete_ T ...
+        @assert isconcretetype(T) # ... but check anyway
+        z = zero(T)
+        fill!(similar(x, typeof(z)), z)
+    end
+end
 
 one(x::AbstractQuantity) = one(x.val)
 one(x::AffineQuantity) =
@@ -422,8 +463,7 @@ real(x::AbstractQuantity) = Quantity(real(x.val), unit(x))
 imag(x::AbstractQuantity) = Quantity(imag(x.val), unit(x))
 conj(x::AbstractQuantity) = Quantity(conj(x.val), unit(x))
 
-@inline norm(x::AbstractQuantity, p::Real=2) =
-    p == 0 ? (x==zero(x) ? typeof(abs(x))(0) : typeof(abs(x))(1)) : abs(x)
+@inline norm(x::AbstractQuantity, p::Real=2) = Quantity(norm(x.val, p), unit(x))
 
 """
     sign(x::AbstractQuantity)
