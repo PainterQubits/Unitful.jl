@@ -136,7 +136,7 @@ function show(io::IO, r::StepRange{T}) where T<:Quantity
     U = unit(a)
     V = absoluteunit(U)
     print(io, '(')
-    if ustrip(U, s) == 1
+    if ustrip(V, s) == 1
         show(io, ustrip(U, a):ustrip(U, b))
     else
         show(io, ustrip(U, a):ustrip(V, s):ustrip(U, b))
