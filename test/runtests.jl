@@ -1480,6 +1480,8 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
         @test repr((1:10)*°) == "(1:10)°"
         @test repr(range(1.0+2.0im, length=5)*u"m") == "(1.0 + 2.0im:1.0 + 0.0im:5.0 + 2.0im) m"
         @test repr(range(1+2im, step=1+1im, length=5)*u"m") == "(1 + 2im:1 + 1im:5 + 6im) m"
+        @test repr(StepRange((1//1)u"m", 1u"cm", (2//1)u"m")) == "(1//1:1//100:2//1) m"
+        @test repr(StepRangeLen(1.0u"m", 1.0u"cm", 101)) == "(1.0:0.01:2.0) m"
 
         # Concise printing of affine ranges with mixed step unit
         @test repr(StepRange(1u"°C", 1u"K", 3u"°C")) == "(1:1:3) °C"
