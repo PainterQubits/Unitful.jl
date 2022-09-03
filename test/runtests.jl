@@ -1486,8 +1486,10 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
         # Concise printing of affine ranges with mixed step unit
         @test repr(StepRange(1u"°C", 1u"K", 3u"°C")) == "(1:1:3) °C"
         @test repr(StepRange(1u"°C", 1.0u"K", 3u"°C")) == "(1.0:1.0:3.0) °C"
+        @test repr(StepRange((0//1)u"°F", 1u"K", (9//1)u"°F")) == "(0//1:9//5:9//1) °F"
         @test repr(StepRangeLen{typeof(1u"°C"),typeof(1u"°C"),typeof(1u"K")}(1u"°C", 1u"K", 3, 1)) == "(1:1:3) °C"
         @test repr(StepRangeLen{typeof(1.0u"°C"),typeof(1.0u"°C"),typeof(1u"K")}(1.0u"°C", 1u"K", 3, 1)) == "(1.0:1.0:3.0) °C"
+        @test repr(StepRangeLen{typeof(1.0u"°F"),typeof(1.0u"°F"),typeof(1u"K")}(0.0u"°F", 1u"K", 6)) == "(0.0:1.8:9.0) °F"
     end
     withenv("UNITFUL_FANCY_EXPONENTS" => true) do
         @test repr(1.0 * u"m * s * kg^(-1//2)") == "1.0 m s kg⁻¹ᐟ²"
