@@ -134,7 +134,7 @@ end
 function show(io::IO, r::StepRange{T}) where T<:Quantity
     a,s,b = first(r), step(r), last(r)
     U = unit(a)
-    V = unit(s)
+    V = absoluteunit(U)
     print(io, '(')
     if ustrip(U, s) == 1
         show(io, ustrip(U, a):ustrip(U, b))
@@ -149,7 +149,7 @@ end
 function show(io::IO, r::StepRangeLen{T}) where T<:Quantity
     a,s,b = first(r), step(r), last(r)
     U = unit(a)
-    V = unit(s)
+    V = absoluteunit(U)
     print(io, '(')
     show(io, StepRangeLen(ustrip(U, a), ustrip(V, s), length(r)))
     print(io, ')')
