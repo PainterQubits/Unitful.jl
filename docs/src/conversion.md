@@ -146,7 +146,7 @@ julia> [1.0u"m", 2.0u"cm"]
  0.02 m
 
 julia> [1.0u"m", 2.0]
-2-element Vector{Quantity{Float64, D, U} where {D, U}}:
+2-element Vector{Quantity{Float64}}:
  1.0 m
    2.0
 ```
@@ -166,7 +166,7 @@ julia> f([1.0u"m", 2.0u"cm"])
 1.02 m
 
 julia> f([1.0u"g", 2.0u"cm"])
-ERROR: MethodError: no method matching f(::Vector{Quantity{Float64, D, U} where {D, U}})
+ERROR: MethodError: no method matching f(::Vector{Quantity{Float64}})
 [...]
 ```
 
