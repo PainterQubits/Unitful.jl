@@ -208,9 +208,7 @@ cbrt(x::AbstractQuantity) = Quantity(cbrt(x.val), cbrt(unit(x)))
 
 for _y in (:sin, :cos, :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
            :sinpi, :cospi, :sinc, :cosc, :cis, :cispi, :sincospi)
-    if isdefined(Base, _y)
-        @eval Base.$(_y)(x::DimensionlessQuantity) = Base.$(_y)(uconvert(NoUnits, x))
-    end
+    @eval Base.$(_y)(x::DimensionlessQuantity) = Base.$(_y)(uconvert(NoUnits, x))
 end
 
 atan(y::AbstractQuantity{T1,D,U1}, x::AbstractQuantity{T2,D,U2}) where {T1,T2,D,U1,U2} =
