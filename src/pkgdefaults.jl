@@ -37,7 +37,7 @@ const AbsoluteScaleTemperature = Quantity{T, ᶿ, <:ScalarUnits} where T
 @derived_dimension Acceleration             ᴸ / ᵀ^2 true
 @derived_dimension Force                    ᴹ * ᴸ / ᵀ^2 true
 @derived_dimension Pressure                 ᴹ * ᴸ^-1 * ᵀ^-2 true
-@derived_dimension Energy                   ᴹ * ᴸ^2 * ᵀ^2 true
+@derived_dimension Energy                   ᴹ * ᴸ^2 / ᵀ^2 true
 @derived_dimension Momentum                 ᴹ * ᴸ / ᵀ true
 @derived_dimension Power                    ᴸ^2 * ᴹ * ᵀ^-3 true
 @derived_dimension Charge                   ᴵ * ᵀ true
