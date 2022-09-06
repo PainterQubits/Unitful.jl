@@ -43,9 +43,9 @@ The changes in this fork are:
   10000  12500  15000
 ```
 
-* Quantities are considered as the immutable object, while unit conversions are leniently allowed. Converting `1kg∙m` to `mm` will result in `1000kg∙mm` and not an error. This is useful because unexpected output often hints towards what dimension (mass, length...) is missing before the conversion. For use in packages, use `strict_uconvert' instead.
+* ~~ Quantities are considered as the immutable object, while unit conversions are leniently allowed. Converting `1kg∙m` to `mm` will result in `1000kg∙mm` and not an error. This is useful because unexpected output often hints towards what dimension (mass, length...) is missing before the conversion. For use in packages, use `strict_uconvert' instead.~~ (currently disabled).
 
-Brief example, which would trigger an error in [PainterQubits/Unitful](https://github.com/PainterQubits/Unitful.jl/blob/master/src/display.jl):
+~~ Brief example, which would trigger an error in [PainterQubits/Unitful](https://github.com/PainterQubits/Unitful.jl/blob/master/src/display.jl)~~:
 ```julia
 julia> import Unitful: mg, dyn
 
