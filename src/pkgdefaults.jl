@@ -333,13 +333,6 @@ end
 \nSee Also: [`Unitful.L`](@ref), [`Unitful.mol`](@ref)."
 @unit M      "M"        Molar       1mol/L                  true true
 
-# Energy
-"    Unitful.eV
-\nThe electron-volt, a unit of energy, defined as q*V.
-\nDimension: 𝐋^2 𝐌 𝐓^-2.
-\nSee also: [`Unitful.q`](@ref), [`Unitful.V`](@ref)."
-@unit eV     "eV"       eV          q*V                     true true
-
 # For convenience
 "    Unitful.Hz2π
 \nA unit for convenience in angular frequency, equal to 2π Hz.
@@ -492,6 +485,13 @@ mass of an unbound neutral atom of carbon-12, equal to 1.660,539,066,60 × 10^-2
 \nSee Also: [`Unitful.kg`](@ref)."
 @unit u      "u" UnifiedAtomicMassUnit 1.660_539_066_60e-27*kg false # (50)
 
+# Energy
+"    Unitful.eV
+\nThe electron-volt, a unit of energy, defined as q*V.
+\nDimension: 𝐋^2 𝐌 𝐓^-2.
+\nSee also: [`Unitful.q`](@ref), [`Unitful.V`](@ref)."
+@unit eV     "eV"       eV          q*V                     true true
+
 # Acceleration
 "    Unitful.ge
 \nThe nominal acceleration due to gravity in a vacuum near the surface of the
@@ -500,7 +500,6 @@ earth, a unit of acceleration, defined by standard to be exactly 9.806,65 m / s^
 \nDimension: 𝐋 𝐓^-2.
 \nSee also: [`Unitful.m`](@ref), [`Unitful.s`](@ref)."
 @unit ge     "ge"       EarthGravity gn                     false
-
 
 # CGS units
 "    Unitful.Gal
