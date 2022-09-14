@@ -80,6 +80,23 @@ end
         Base._range(nothing, one(stop), stop, len)
 end
 
+Base.steprange_last(start::AbstractQuantity, step, stop::AbstractQuantity) =
+    unitful_steprange_last(start, step, stop)
+Base.steprange_last(start, step::AbstractQuantity, stop) =
+    unitful_steprange_last(start, step, stop)
+Base.steprange_last(start::AbstractQuantity, step::AbstractQuantity, stop::AbstractQuantity) =
+    unitful_steprange_last(start, step, stop)
+
+function unitful_steprange_last(start, step, stop)
+    if isa(start, AbstractQuantity{<:AbstractFloat}) || isa(step, AbstractQuantity{<:AbstractFloat})
+        throw(ArgumentError("StepRange should not be used with floating point"))
+    end
+    if isa(start, AbstractQuantity{<:Integer}) && !isinteger(ustrip(unit(start), start + step))
+        throw(ArgumentError("invalid step for StepRange of Integer-based quantities"))
+    end
+    invoke(Base.steprange_last, Tuple{Any,Any,Any}, start, step, stop)
+end
+
 *(r::AbstractRange, y::Units) = range(first(r)*y, step=step(r)*y, length=length(r))
 
 # first promote start and stop, leaving step alone
