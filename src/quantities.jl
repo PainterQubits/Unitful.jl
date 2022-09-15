@@ -307,37 +307,6 @@ end
 isapprox(x::AbstractQuantity, y::Number; kwargs...) = isapprox(promote(x,y)...; kwargs...)
 isapprox(x::Number, y::AbstractQuantity; kwargs...) = isapprox(y, x; kwargs...)
 
-function isapprox(
-    x::AbstractArray{<:AbstractQuantity{T1,D,U1}},
-    y::AbstractArray{<:AbstractQuantity{T2,D,U2}};
-    rtol::Real=Base.rtoldefault(T1,T2,0),
-    atol=zero(Quantity{real(T1),D,U1}),
-    norm::Function=norm,
-) where {T1,D,U1,T2,U2}
-
-    d = norm(x - y)
-    if isfinite(d)
-        return d <= atol + rtol*max(norm(x), norm(y))
-    else
-        # Fall back to a component-wise approximate comparison
-        return all(ab -> isapprox(ab[1], ab[2]; rtol=rtol, atol=atol), zip(x, y))
-    end
-end
-
-isapprox(x::AbstractArray{S}, y::AbstractArray{T};
-    kwargs...) where {S <: AbstractQuantity,T <: AbstractQuantity} = false
-function isapprox(x::AbstractArray{S}, y::AbstractArray{N};
-    kwargs...) where {S <: AbstractQuantity,N <: Number}
-    if dimension(N) == dimension(S)
-        isapprox(map(x->strict_uconvert(NoUnits,x),x),y; kwargs...)
-    else
-        false
-    end
-end
-
-isapprox(y::AbstractArray{N}, x::AbstractArray{S};
-    kwargs...) where {S <: AbstractQuantity,N <: Number} = isapprox(x,y; kwargs...)
-
 for cmp in [:(==), :isequal]
     @eval $cmp(x::AbstractQuantity{S,D,U}, y::AbstractQuantity{T,D,U}) where {S,T,D,U} = $cmp(x.val, y.val)
     @eval function $cmp(x::AbstractQuantity, y::AbstractQuantity)

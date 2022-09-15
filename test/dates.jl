@@ -763,15 +763,7 @@
         @test_throws DimensionError isapprox(CompoundPeriod(Day(1)), 1u"d", atol=0.1)
         @test_throws DimensionError isapprox(1u"d", CompoundPeriod(Day(1)), atol=0.1u"m")
 
-        # array arguments
-        @test isapprox([Second(-5), Second(5)], [-5.0u"s", 5.0u"s"])
-        @test isapprox([Second(-5), Second(5)], [-4.99u"s", 5.01u"s"], rtol=1e-2)
-        @test_broken isapprox([1u"s", 60u"s"], Period[Second(1), Minute(1)], rtol=0)
-        @test !isapprox([1.0u"kg"], [Second(1)])
 
-        @test isapprox([CompoundPeriod(Day(2), Hour(12)), CompoundPeriod(Day(-3), Hour(12))], [2.5u"d", -2.5u"d"])
-        @test isapprox([2.51u"d", -2.49u"d"], [CompoundPeriod(Day(2), Hour(12)), CompoundPeriod(Day(-3), Hour(12))], rtol=1e-2)
-        @test isapprox([1u"s", 60u"s"], CompoundPeriod[Second(1), Minute(1)], rtol=0)
         @test !isapprox([CompoundPeriod(Day(1))], [1.0u"kg"])
         @test_throws MethodError isapprox([CompoundPeriod(Year(1))], [1.0u"yr"])
         @test_throws MethodError isapprox([1.0u"yr"], [CompoundPeriod(Month(12))], rtol=1)

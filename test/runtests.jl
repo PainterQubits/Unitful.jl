@@ -790,7 +790,7 @@ end
         end
     end
     @testset "> Matrix inversion" begin
-        @test inv([1 1; -1 1]u"nm") ≈ [0.5 -0.5; 0.5 0.5]u"nm^-1"
+        @test inv([1 1; -1 1]u"nm") == [0.5 -0.5; 0.5 0.5]u"nm^-1"
     end
     @testset "> Is functions" begin
         @test_throws ErrorException isinteger(1.0m)
@@ -825,11 +825,6 @@ end
         @test !isapprox(1.0u"m", 1.1u"m"; atol=50u"mm")
         @test isapprox(1.0u"m", 1.1u"m"; rtol=0.2)
         @test !isapprox(1.0u"m", 1.1u"m"; rtol=0.05)
-
-        # Issue 465:
-        z = fill((1+im)m, 2, 3)
-        @test !isapprox(z, 2z)
-        @test isapprox(z, z * (1 + 1e-15))
 
         # Test eps
         @test eps(1.0u"s") == eps(1.0)u"s"
@@ -1515,13 +1510,6 @@ end
             for j in (<, <=, >, >=, ==)
                 @test @inferred(Base.promote_op(j, typeof(1.0m), typeof(1.0μm))) == Bool
             end
-        end
-        @testset ">> isapprox on arrays" begin
-            @test !isapprox([1.0m], [1.0V])
-            @test isapprox([1.0μm/m], [1e-6])
-            @test isapprox([1cm, 200cm], [0.01m, 2.0m])
-            @test !isapprox([1.0], [1.0m])
-            @test !isapprox([1.0m], [1.0])
         end
         @testset ">> Unit stripping" begin
             @test @inferred(ustrip([1u"m", 2u"m"])) == [1,2]
