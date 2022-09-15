@@ -1145,8 +1145,8 @@ end
             @test_throws ArgumentError StepRange{Int,typeof(1mm/m)}(1, 1mm/m, 2)
             @test @inferred(StepRange(1m, (1000//1)mm, 2m)) isa StepRange{typeof(1m), typeof((1000//1)mm)}
             @test @inferred(StepRange(1m, 1000mm, 2m)) isa StepRange{typeof(1m), typeof(1000mm)}
-            @test_broken @inferred(StepRange(1m/mm, 1000, 2m/mm)) isa StepRange{typeof(1m/mm), Int}
-            @test_broken @inferred(StepRange(1, 1000mm/m, 2)) isa StepRange{Int, typeof(1000mm/m)}
+            @test @inferred(StepRange(1m/mm, 1000, 2m/mm)) isa StepRange{typeof(1m/mm), Int}
+            @test @inferred(StepRange(1, 1000mm/m, 2)) isa StepRange{Int, typeof(1000mm/m)}
         end
         @testset ">> StepRangeLen" begin
             @test isa(@inferred(colon(1.0m, 1m, 5m)), StepRangeLen{typeof(1.0m)})
