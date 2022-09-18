@@ -774,7 +774,7 @@ of quantities:
 - `J*s` (joule-second) for action
 
 If you want this as default behavior (it was for versions of Unitful prior to 0.1.0),
-consider invoking this function in your `.juliarc.jl` file which is loaded when
+consider invoking this function in your `startup.jl` file which is loaded when
 you open Julia. This function is not exported.
 """
 function promote_to_derived()
