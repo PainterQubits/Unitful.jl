@@ -5,8 +5,8 @@
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://PainterQubits.github.io/Unitful.jl/stable)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://PainterQubits.github.io/Unitful.jl/dev)
 
-<p align=center>
-<img src=./docs/src/assets/logo.svg>
+<p align=left>
+<img height=100px src=./docs/src/assets/logo.svg>
 </p>
 
 # Unitful.jl
