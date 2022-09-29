@@ -6,8 +6,7 @@
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://PainterQubits.github.io/Unitful.jl/dev)
 
 <p align=center>
-<img src=https://raw.githubusercontent.com/lmiq/Unitful.jl/main/docs/src/asse
-ts/logo.svg>
+<img src=./docs/src/assets/logo.svg>
 </p>
 
 # Unitful.jl
