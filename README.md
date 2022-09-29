@@ -5,10 +5,6 @@
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://PainterQubits.github.io/Unitful.jl/stable)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://PainterQubits.github.io/Unitful.jl/dev)
 
-<p align=left>
-<img height=100px src=./docs/src/assets/logo.svg>
-</p>
-
 # Unitful.jl
 
 Unitful is a Julia package for physical units. We want to support not only
