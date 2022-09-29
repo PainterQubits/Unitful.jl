@@ -5,6 +5,11 @@
 [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://PainterQubits.github.io/Unitful.jl/stable)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://PainterQubits.github.io/Unitful.jl/dev)
 
+<p align=center>
+<img src=https://raw.githubusercontent.com/lmiq/Unitful.jl/main/docs/src/asse
+ts/logo.svg>
+</p>
+
 # Unitful.jl
 
 Unitful is a Julia package for physical units. We want to support not only
