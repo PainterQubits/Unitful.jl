@@ -1358,6 +1358,7 @@ end
         end
         @testset ">> Element-wise addition" begin
             @test @inferred(5m .+ [1m, 2m, 3m])      == [6m, 7m, 8m]
+            @test Any[1.0m, 2.0m] .+ 3.0m == [4.0m, 5.0m] # issue 557 (actually a bug in Julia 1.8.1)
         end
         @testset ">> Element-wise comparison" begin
             @test @inferred([0.0m, 2.0m] .< [3.0m, 2.0μm]) == BitArray([true,false])
