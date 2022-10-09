@@ -171,10 +171,6 @@ function inv(x::StridedMatrix{T}) where {T <: AbstractQuantity}
     reinterpret(Quantity{iq, inv(dimension(T)), typeof(inv(unit(T)))}, m)
 end
 
-for x in (:istriu, :istril)
-    @eval ($x)(A::AbstractMatrix{T}) where {T <: AbstractQuantity} = ($x)(ustrip(A))
-end
-
 # Other mathematical functions
 
 # `fma` and `muladd`

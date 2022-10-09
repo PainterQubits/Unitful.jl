@@ -1393,8 +1393,16 @@ end
                 SymTridiagonal{Int}
         end
         @testset ">> Linear algebra" begin
-            @test istril([1 1; 0 1]u"m") == false
-            @test istriu([1 1; 0 1]u"m") == true
+            @test istril(1m) === true
+            @test istril([1 1; 0 1]m) === false
+            @test istril([1 0; 1 1]K) === true
+            @test istril([1 0; 1 1]°C) === false
+            @test istril([1//1  -5463//20; 1//1 1//1]°C) === true
+            @test istriu(1m) === true
+            @test istriu([1 1; 0 1]m) === true
+            @test istriu([1 1; 0 1]K) === true
+            @test istriu([1 1; 0 1]°C) === false
+            @test istriu([1//1  1//1; -5463//20 1//1]°C) === true
         end
 
         @testset ">> Array initialization" begin
