@@ -182,7 +182,7 @@ end
     sortexp(xs)
 Sort units to show positive exponents first.
 """
-sortexp(xs)= sort!(collect(xs), by = u->power(u)>0 ? 1 : -1, rev=true)
+sortexp(xs)= sort!(collect(xs), by = u->power(u)<0)
 @generated sortexp(::Dimensions{D}) where D = (sortexp(D)...,)
 @generated sortexp(::Units{U}) where U = (sortexp(U)...,)
 
