@@ -1214,6 +1214,11 @@ end
             @test @inferred((1:2:5) .* cm .|> mm) === 10mm:20mm:50mm
             @test mm.((1:2:5) .* cm) === 10mm:20mm:50mm
             @test @inferred((1:2:5) .* km .|> upreferred) === 1000m:2000m:5000m
+            @test @inferred((1:2:5)km .|> upreferred) === 1000m:2000m:5000m
+            @test @inferred((1:2:5) .|> upreferred) === 1:2:5
+            @test @inferred((1.0:2.0:5.0) .* km .|> upreferred) === 1000.0m:2000.0m:5000.0m
+            @test @inferred((1.0:2.0:5.0)km .|> upreferred) === 1000.0m:2000.0m:5000.0m
+            @test @inferred((1.0:2.0:5.0) .|> upreferred) === 1.0:2.0:5.0
             @test @inferred((1:2:5) .* cm .|> mm .|> ustrip) === 10:20:50
             @test @inferred((1f0:2f0:5f0) .* cm .|> mm .|> ustrip) === 10f0:20f0:50f0
         end
