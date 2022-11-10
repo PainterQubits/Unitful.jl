@@ -39,6 +39,16 @@
 
 * ![Feature:](https://img.shields.io/badge/-feature-green) `deg2rad` and `rad2deg` can now be used to convert between `°` and `rad` ([#459](https://github.com/PainterQubits/Unitful.jl/pull/459)).
 
+## v1.8.0
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) The `IOContext` property `:fancy_exponent` can be used to control the printing of exponents in units (i.e., `m²` or `m^2`). Previously, this could only be done by setting the environment variable `UNITFUL_FANCY_EXPONENTS`. The `:fancy_exponent` property overrides the environment variable ([#446](https://github.com/PainterQubits/Unitful.jl/pull/446)).
+
+## v1.7.0
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) The functions `dimension`, `unit`, `absoluteunit`, `upreferred`, and `numtype` now support `AbstractQuantity` (instead of just `Quantity`) arguments ([#431](https://github.com/PainterQubits/Unitful.jl/pull/431)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) Support for conversion between `Unitful.Time` and `Dates.FixedPeriod` types is added ([#331](https://github.com/PainterQubits/Unitful.jl/pull/331)).
+
+
 ## Older changes
 
 - v0.14.0
