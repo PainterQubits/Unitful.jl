@@ -61,7 +61,16 @@
 
 ## v1.5.0
 
-* ![Feature:](https://img.shields.io/badge/-feature-green) Dimensionless quantities now support inverse and hyperbolic trig functions ([#406](https://github.com/PainterQubits/Unitful.jl/pull/406)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) Dimensionless quantities now support inverse and hyperbolic trig functions ([#387](https://github.com/PainterQubits/Unitful.jl/pull/387)).
+
+## v1.4.1
+
+* ![Maintenance:](https://img.shields.io/badge/-maintenance-grey) Adapt test suite to Julia ≥ 1.6 type parameter printing ([#380](https://github.com/PainterQubits/Unitful.jl/pull/380)).
+
+## v1.4.0
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) It is now possible to divide an array by units ([#369](https://github.com/PainterQubits/Unitful.jl/pull/369)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Complex and mixed quantities are now printed with brackets ([#366](https://github.com/PainterQubits/Unitful.jl/pull/366)).
 
 
 ## Older changes
