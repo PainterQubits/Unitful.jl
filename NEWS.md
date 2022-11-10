@@ -82,6 +82,11 @@
 
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Fix an error when converting units with fractional power ([#335](https://github.com/PainterQubits/Unitful.jl/pull/335)).
 
+## v1.2.0
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) The unit `Year` now allows SI prefixes ([#320](https://github.com/PainterQubits/Unitful.jl/pull/320)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Unit conversions can now return integer-valued quantities if the conversion factor is whole ([#323](https://github.com/PainterQubits/Unitful.jl/pull/323)).
+
 
 ## Older changes
 
