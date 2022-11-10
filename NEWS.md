@@ -35,6 +35,10 @@
 * ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Make `^(::AbstractQuantity, ::Rational)` inferrable on Julia ≥ 1.8 ([#487](https://github.com/PainterQubits/Unitful.jl/pull/487)).
 * ![Maintenance:](https://img.shields.io/badge/-maintenance-grey) Updated multiplication of range and quantity for Julia ≥ 1.8 compatibility ([#489](https://github.com/PainterQubits/Unitful.jl/pull/489), [#495](https://github.com/PainterQubits/Unitful.jl/pull/495)).
 
+## v1.9.0
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) `deg2rad` and `rad2deg` can now be used to convert between `°` and `rad` ([#459](https://github.com/PainterQubits/Unitful.jl/pull/459)).
+
 ## Older changes
 
 - v0.14.0
