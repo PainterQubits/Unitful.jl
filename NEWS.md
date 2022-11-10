@@ -72,6 +72,16 @@
 * ![Feature:](https://img.shields.io/badge/-feature-green) It is now possible to divide an array by units ([#369](https://github.com/PainterQubits/Unitful.jl/pull/369)).
 * ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Complex and mixed quantities are now printed with brackets ([#366](https://github.com/PainterQubits/Unitful.jl/pull/366)).
 
+## v1.3.0
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) `isless` is now defined for logarithmic quantities ([#315](https://github.com/PainterQubits/Unitful.jl/pull/315)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Calling `div`, `rem`, etc. with affine quantities now errors ([#354](https://github.com/PainterQubits/Unitful.jl/pull/354)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Custom printing of types was removed ([#322](https://github.com/PainterQubits/Unitful.jl/pull/322)).
+
+## v1.2.1
+
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Fix an error when converting units with fractional power ([#335](https://github.com/PainterQubits/Unitful.jl/pull/335)).
+
 
 ## Older changes
 
