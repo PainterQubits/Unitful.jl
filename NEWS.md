@@ -25,6 +25,10 @@
 * ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Broadcasting `ustrip`, `upreferred`, and `*` over a range now returns another range instead of a `Vector` ([#501](https://github.com/PainterQubits/Unitful.jl/pull/501), [#503](https://github.com/PainterQubits/Unitful.jl/pull/503)).
 * ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) `LinearAlgebra.norm` now returns a floating-point quantity, which matches the behavior for `Base` numbers ([#500](https://github.com/PainterQubits/Unitful.jl/pull/500)).
 
+## v1.9.2
+
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) The functions `Unitful.cos_fast`, `Unitful.sin_fast`, and `Unitful.tan_fast` are removed. Due to an implementation error, they always threw a `MethodError`, so removing them is not breaking. This fixes a warning during precompilation ([#478](https://github.com/PainterQubits/Unitful.jl/pull/478)).
+
 ## Older changes
 
 - v0.14.0
