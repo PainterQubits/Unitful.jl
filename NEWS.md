@@ -59,6 +59,11 @@
 * ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) It is no longer possible to create a `Level` with non-real value or reference quantity ([#400](https://github.com/PainterQubits/Unitful.jl/pull/400), [#421](https://github.com/PainterQubits/Unitful.jl/pull/421)).
 * ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Macro hygiene is improved ([#390](https://github.com/PainterQubits/Unitful.jl/pull/390)).
 
+## v1.5.0
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) Dimensionless quantities now support inverse and hyperbolic trig functions ([#406](https://github.com/PainterQubits/Unitful.jl/pull/406)).
+
+
 ## Older changes
 
 - v0.14.0
