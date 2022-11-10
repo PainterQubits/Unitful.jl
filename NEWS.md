@@ -6,6 +6,13 @@
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Ranges of affine quantities are now printed correctly ([#551](https://github.com/PainterQubits/Unitful.jl/pull/551)).
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) The non-existent functions `convertr` and `convertrp` are no longer exported ([#530](https://github.com/PainterQubits/Unitful.jl/pull/530)).
 
+## v1.11.0
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) `Base.zero` now works on heterogeneous arrays of quantities, e.g., `zero([1m, 1s]) == [0m, 0s]` ([#533](https://github.com/PainterQubits/Unitful.jl/pull/533), [#516](https://github.com/PainterQubits/Unitful.jl/pull/516)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `StepRangeLen`s of complex-valued quantities are now printed correctly ([#513](https://github.com/PainterQubits/Unitful.jl/pull/513)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Method ambiguities of `Base._range` are resolved ([#514](https://github.com/PainterQubits/Unitful.jl/pull/514)).
+* ![Maintenance:](https://img.shields.io/badge/-maintenance-grey) Updated `Base.range` implementation for Julia ≥ 1.8 ([#514](https://github.com/sostock/HalfIntegers.jl/pull/514)).
+
 ## Older changes
 
 - v0.14.0
