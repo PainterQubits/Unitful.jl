@@ -1,3 +1,13 @@
+# Unitful.jl changelog
+
+## v1.12.0
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) Dimensionless quantities now support the `Base` functions `cispi`, `sincospi`, and `modf` ([#533](https://github.com/PainterQubits/Unitful.jl/pull/533), [#539](https://github.com/PainterQubits/Unitful.jl/pull/539)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Ranges of affine quantities are now printed correctly ([#551](https://github.com/PainterQubits/Unitful.jl/pull/551)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) The non-existent functions `convertr` and `convertrp` are no longer exported ([#530](https://github.com/PainterQubits/Unitful.jl/pull/530)).
+
+## Older changes
+
 - v0.14.0
   - Support for `digits` kwarg (#196).
   - Try to support precompilation with `u_str` macro (#201).
