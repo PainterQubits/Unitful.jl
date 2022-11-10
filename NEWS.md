@@ -29,6 +29,12 @@
 
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) The functions `Unitful.cos_fast`, `Unitful.sin_fast`, and `Unitful.tan_fast` are removed. Due to an implementation error, they always threw a `MethodError`, so removing them is not breaking. This fixes a warning during precompilation ([#478](https://github.com/PainterQubits/Unitful.jl/pull/478)).
 
+## v1.9.1
+
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Multiplying a `StepRangeLen` by `Units` now preserves the floating-point precision ([#485](https://github.com/PainterQubits/Unitful.jl/pull/485)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Make `^(::AbstractQuantity, ::Rational)` inferrable on Julia ≥ 1.8 ([#487](https://github.com/PainterQubits/Unitful.jl/pull/487)).
+* ![Maintenance:](https://img.shields.io/badge/-maintenance-grey) Updated multiplication of range and quantity for Julia ≥ 1.8 compatibility ([#489](https://github.com/PainterQubits/Unitful.jl/pull/489), [#495](https://github.com/PainterQubits/Unitful.jl/pull/495)).
+
 ## Older changes
 
 - v0.14.0
