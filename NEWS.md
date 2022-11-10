@@ -2,7 +2,7 @@
 
 ## v1.12.0
 
-* ![Feature:](https://img.shields.io/badge/-feature-green) Dimensionless quantities now support the `Base` functions `cispi`, `sincospi`, and `modf` ([#533](https://github.com/PainterQubits/Unitful.jl/pull/533), [#539](https://github.com/PainterQubits/Unitful.jl/pull/539)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) Dimensionless quantities now support `cispi`, `sincospi`, and `modf` ([#533](https://github.com/PainterQubits/Unitful.jl/pull/533), [#539](https://github.com/PainterQubits/Unitful.jl/pull/539)).
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Ranges of affine quantities are now printed correctly ([#551](https://github.com/PainterQubits/Unitful.jl/pull/551)).
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) The non-existent functions `convertr` and `convertrp` are no longer exported ([#530](https://github.com/PainterQubits/Unitful.jl/pull/530)).
 
@@ -11,7 +11,11 @@
 * ![Feature:](https://img.shields.io/badge/-feature-green) `Base.zero` now works on heterogeneous arrays of quantities, e.g., `zero([1m, 1s]) == [0m, 0s]` ([#533](https://github.com/PainterQubits/Unitful.jl/pull/533), [#516](https://github.com/PainterQubits/Unitful.jl/pull/516)).
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `StepRangeLen`s of complex-valued quantities are now printed correctly ([#513](https://github.com/PainterQubits/Unitful.jl/pull/513)).
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Method ambiguities of `Base._range` are resolved ([#514](https://github.com/PainterQubits/Unitful.jl/pull/514)).
-* ![Maintenance:](https://img.shields.io/badge/-maintenance-grey) Updated `Base.range` implementation for Julia ≥ 1.8 ([#514](https://github.com/sostock/HalfIntegers.jl/pull/514)).
+* ![Maintenance:](https://img.shields.io/badge/-maintenance-grey) Updated `range` implementation for Julia ≥ 1.8 ([#514](https://github.com/sostock/HalfIntegers.jl/pull/514)).
+
+## v1.10.1
+
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Fixed `isapprox` for arrays of complex-valued quantities ([#468](https://github.com/PainterQubits/Unitful.jl/pull/468)).
 
 ## Older changes
 
