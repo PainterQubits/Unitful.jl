@@ -48,6 +48,16 @@
 * ![Feature:](https://img.shields.io/badge/-feature-green) The functions `dimension`, `unit`, `absoluteunit`, `upreferred`, and `numtype` now support `AbstractQuantity` (instead of just `Quantity`) arguments ([#431](https://github.com/PainterQubits/Unitful.jl/pull/431)).
 * ![Feature:](https://img.shields.io/badge/-feature-green) Support for conversion between `Unitful.Time` and `Dates.FixedPeriod` types is added ([#331](https://github.com/PainterQubits/Unitful.jl/pull/331)).
 
+## v1.6.0
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) Support for the `Base.unordered` function is added ([#406](https://github.com/PainterQubits/Unitful.jl/pull/406)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) The CGS units Gauss (`Gauss`), Oersted (`Oe`), and Maxwell (`Mx`) are added ([#397](https://github.com/PainterQubits/Unitful.jl/pull/397)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Removed a wrong use of `@eval` that broke precompilation ([#417](https://github.com/PainterQubits/Unitful.jl/pull/417)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) The traits `Base.ArithmeticStyle` and `Base.OrderStyle` are now implemented correctly to support number types that are not defined in `Base` ([#407](https://github.com/PainterQubits/Unitful.jl/pull/407)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `==` and `isequal` now work correctly for `Gain`s and `Level`s with bignums ([#404](https://github.com/PainterQubits/Unitful.jl/pull/404)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) `range(start; step, length)` now always creates a functioning range when `start` and `step` have different units ([#411](https://github.com/PainterQubits/Unitful.jl/pull/411)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) It is no longer possible to create a `Level` with non-real value or reference quantity ([#400](https://github.com/PainterQubits/Unitful.jl/pull/400), [#421](https://github.com/PainterQubits/Unitful.jl/pull/421)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Macro hygiene is improved ([#390](https://github.com/PainterQubits/Unitful.jl/pull/390)).
 
 ## Older changes
 
