@@ -94,6 +94,13 @@
 * ![Feature:](https://img.shields.io/badge/-feature-green) The unit `Year` (`yr`) is defined, equal to 365.25 days ([#288](https://github.com/PainterQubits/Unitful.jl/pull/288)).
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `round` with the `digits`/`sigdigits` keyword now works correctly for quantities that are not based on floating-point numbers. It returns a float-based quantity in those cases ([#308](https://github.com/PainterQubits/Unitful.jl/pull/308)).
 
+## v1.0.0
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) The `uparse` function can be used to parse units and quantities from a string ([#298](https://github.com/PainterQubits/Unitful.jl/pull/298)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) The constructors `Float16`, `Float32`, `Float64`, and `BigFloat` can be used to convert a quantity to one based on the specified floating-point type, e.g., `Float64(1m) === 1.0m`. The `float` function can be used to convert a quantity to an appropriate floating-point type ([#296](https://github.com/PainterQubits/Unitful.jl/pull/296)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) The unit `Pertenthousand` (`‱`) is added ([#294](https://github.com/PainterQubits/Unitful.jl/pull/294)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Calling the two-argument `atan` with quantities that have the same numeric type and dimension but different units no longer errors ([#293](https://github.com/PainterQubits/Unitful.jl/pull/293)).
+
 ## Older changes
 
 - v0.14.0
