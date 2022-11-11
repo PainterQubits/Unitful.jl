@@ -87,6 +87,12 @@
 * ![Feature:](https://img.shields.io/badge/-feature-green) The unit `Year` now allows SI prefixes ([#320](https://github.com/PainterQubits/Unitful.jl/pull/320)).
 * ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Unit conversions can now return integer-valued quantities if the conversion factor is whole ([#323](https://github.com/PainterQubits/Unitful.jl/pull/323)).
 
+## v1.1.0
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) `div`, `fld`, `cld` now allow arguments of different dimensions as long as one of them is a plain number (i.e., not an `AbstractQuantity`), e.g., `div(10m, 3) == 3m` and `cld(10, 3m) == 4/m` ([#317](https://github.com/PainterQubits/Unitful.jl/pull/317)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) Unicode superscript can now be used to to display powers in units and dimensions (e.g., `m²` instead of `m^2`). The `UNITFUL_FANCY_EXPONENTS` environment variable can be used to control whether unicode powers are used or not ([#297](https://github.com/PainterQubits/Unitful.jl/pull/297)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) The unit `Year` (`yr`) is defined, equal to 365.25 days ([#288](https://github.com/PainterQubits/Unitful.jl/pull/288)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `round` with the `digits`/`sigdigits` keyword now works correctly for quantities that are not based on floating-point numbers. It returns a float-based quantity in those cases ([#308](https://github.com/PainterQubits/Unitful.jl/pull/308)).
 
 ## Older changes
 
