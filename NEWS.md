@@ -1,5 +1,9 @@
 # Unitful.jl changelog
 
+## v1.12.1
+
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Fixed `istriu`/`istril` for affine quantities ([#572](https://github.com/PainterQubits/Unitful.jl/pull/572)).
+
 ## v1.12.0
 
 * ![Feature:](https://img.shields.io/badge/-feature-green) Dimensionless quantities now support `cispi`, `sincospi`, and `modf` ([#533](https://github.com/PainterQubits/Unitful.jl/pull/533), [#539](https://github.com/PainterQubits/Unitful.jl/pull/539)).
