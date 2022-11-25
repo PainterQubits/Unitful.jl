@@ -15,16 +15,16 @@ to avoid overflow issues and general ugliness.
 
 Usually, the user interacts only with `Units` objects, not `Unit` objects.
 This is because generically, more than one unit is needed to describe a quantity.
-An abstract type [`Unitful.Units{N,D}`](@ref) is defined, where `N` is always a tuple
-of `Unit` objects, and `D` is a [`Unitful.Dimensions{N}`](@ref) object such as `𝐋`, the
-object representing the length dimension.
+An abstract type [`Unitful.Units{N,D,A}`](@ref) is defined, where `N` is always a tuple
+of `Unit` objects, `D` is a [`Unitful.Dimensions{N}`](@ref) object such as `𝐋`, the
+object representing the length dimension, and `A` is a translation for affine quantities.
 
-Subtypes of `Unitful.Units{N,D}` are used to implement different behaviors
+Subtypes of `Unitful.Units{N,D,A}` are used to implement different behaviors
 for how to promote dimensioned quantities. The concrete subtypes have no fields and
-are therefore immutable singletons. Currently implemented subtypes of `Unitful.Units{N,D}`
-include [`Unitful.FreeUnits{N,D}`](@ref), [`Unitful.ContextUnits{N,D,P}`](@ref), and
-[`Unitful.FixedUnits{N,D}`](@ref). Units defined in the Unitful.jl package itself are all
-`Unitful.FreeUnits{N,D}` objects.
+are therefore immutable singletons. Currently implemented subtypes of `Unitful.Units{N,D,A}`
+include [`Unitful.FreeUnits{N,D,A}`](@ref), [`Unitful.ContextUnits{N,D,P,A}`](@ref), and
+[`Unitful.FixedUnits{N,D,A}`](@ref). Units defined in the Unitful.jl package itself are all
+`Unitful.FreeUnits{N,D,A}` objects.
 
 Finally, we define physical quantity types as [`Quantity{T<:Number, D, U}`](@ref), where
 `D :: Dimensions` and `U <: Units`. By putting units in the type signature of a
