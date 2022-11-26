@@ -171,7 +171,7 @@ end
 
 
 """
-    @refunit(symb, name, abbr, dimension, tf, autodocs=false)
+    @refunit(symb, abbr, name, dimension, tf, autodocs=false)
 Define a reference unit, typically SI. Rather than define
 conversion factors between each and every unit of a given dimension, conversion
 factors are given between each unit and a reference unit, defined by this macro.
