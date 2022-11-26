@@ -173,11 +173,11 @@ ERROR: MethodError: no method matching f(::Vector{Quantity{Float64}})
 ## Advanced promotion mechanisms
 
 There are some new types as of Unitful.jl v0.2.0 that enable some fairly sophisticated
-promotion logic. Three concrete subtypes of [`Unitful.Units{N,D}`](@ref) are defined:
-[`Unitful.FreeUnits{N,D}`](@ref), [`Unitful.ContextUnits{N,D,P}`](@ref), and
-[`Unitful.FixedUnits{N,D}`](@ref).
+promotion logic. Three concrete subtypes of [`Unitful.Units{N,D,A}`](@ref) are defined:
+[`Unitful.FreeUnits{N,D,A}`](@ref), [`Unitful.ContextUnits{N,D,P,A}`](@ref), and
+[`Unitful.FixedUnits{N,D,A}`](@ref).
 
-Units defined in the Unitful.jl package itself are all `Unitful.FreeUnits{N,D}` objects.
+Units defined in the Unitful.jl package itself are all `Unitful.FreeUnits{N,D,A}` objects.
 The "free" in `FreeUnits` indicates that the object carries no information on its own about
 how it should respond during promotion. Other code in Unitful dictates that by default,
 quantities should promote to SI units. `FreeUnits` use the promotion mechanisms described
