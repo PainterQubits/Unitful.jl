@@ -189,8 +189,8 @@ in prior versions of Unitful.
 Sometimes, a package may want to default to a particular behavior for promotion, in the
 presence of other packages that may require differing default behaviors. An example would be
 a CAD package for nanoscale device design: it makes more sense to promote to nanometers or
-microns than to meters. For this purpose we define `Unitful.ContextUnits{N,D,P}`. The `P` in
-this type signature should be some type `Unitful.FreeUnits{M,D}` (the dimensions must be the
+microns than to meters. For this purpose we define `Unitful.ContextUnits{N,D,P,A}`. The `P` in
+this type signature should be some type `Unitful.FreeUnits{M,D,A}` (the dimensions must be the
 same). We refer to this as the "context." `ContextUnits` may be easily instantiated by e.g.
 `ContextUnits(nm, μm)` for a `nm` unit that will promote to `μm`. Here's an example:
 
@@ -245,7 +245,7 @@ kg μm
 ### FixedUnits
 
 Sometimes, there may be times where it is required to disable automatic conversion between
-quantities with different units. For this purpose there are `Unitful.FixedUnits{N,D}`.
+quantities with different units. For this purpose there are `Unitful.FixedUnits{N,D,A}`.
 Trying to add or compare two quantities with `FixedUnits` will throw an error, provided the
 units are not the same. Note that you can still add/compare a quantity with `FixedUnits` to
 a quantity with another kind of units; in that case, the result units (if applicable) are
