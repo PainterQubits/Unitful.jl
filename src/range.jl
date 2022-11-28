@@ -115,6 +115,9 @@ _colon(::Any, ::Any, start::T, step, stop::T) where {T} =
 *(x::Base.TwicePrecision, y::Units) = Base.TwicePrecision(x.hi*y, x.lo*y)
 *(x::Base.TwicePrecision, y::Quantity) = (x * ustrip(y)) * unit(y)
 uconvert(y, x::Base.TwicePrecision) = Base.TwicePrecision(uconvert(y, x.hi), uconvert(y, x.lo))
+@inline upreferred(x::Base.TwicePrecision{T}) where T<:Number = x
+@inline upreferred(x::Base.TwicePrecision{T}) where T<:AbstractQuantity =
+    uconvert(upreferred(unit(x)), x)
 
 colon(start::T, step::T, stop::T) where {T<:Quantity{<:Base.IEEEFloat}} =
     colon(ustrip(start), ustrip(step), ustrip(stop)) * unit(T) # This will always return a StepRangeLen
