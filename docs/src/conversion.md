@@ -190,7 +190,7 @@ Sometimes, a package may want to default to a particular behavior for promotion,
 presence of other packages that may require differing default behaviors. An example would be
 a CAD package for nanoscale device design: it makes more sense to promote to nanometers or
 microns than to meters. For this purpose we define `Unitful.ContextUnits{N,D,P,A}`. The `P` in
-this type signature should be some type `Unitful.FreeUnits{M,D,A}` (the dimensions must be the
+this type signature should be some type `Unitful.FreeUnits{M,D,B}` (the dimensions must be the
 same). We refer to this as the "context." `ContextUnits` may be easily instantiated by e.g.
 `ContextUnits(nm, μm)` for a `nm` unit that will promote to `μm`. Here's an example:
 
