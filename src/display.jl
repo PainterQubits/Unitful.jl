@@ -100,7 +100,7 @@ function showval(io::IO, mime::MIME, x::Number, brackets::Bool=true)
 end
 
 # Space between numerical value and unit should always be included
-# except for angular degress, minutes and seconds (° ′ ″)
+# except for angular degrees, minutes and seconds (° ′ ″)
 # See SI 9th edition, section 5.4.3; "Formatting the value of a quantity"
 # https://www.bipm.org/utils/common/pdf/si-brochure/SI-Brochure-9.pdf
 has_unit_spacing(u) = true
