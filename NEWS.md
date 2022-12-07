@@ -1,5 +1,9 @@
 # Unitful.jl changelog
 
+## v1.12.2
+
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Broadcasting `upreferred` over floating-point ranges now works again ([#577](https://github.com/PainterQubits/Unitful.jl/pull/577)).
+
 ## v1.12.1
 
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Fixed `istriu`/`istril` for affine quantities ([#572](https://github.com/PainterQubits/Unitful.jl/pull/572)).
