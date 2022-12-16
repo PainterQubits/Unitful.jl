@@ -512,6 +512,8 @@ end
 
 Base.rand(r::Random.AbstractRNG, ::Random.SamplerType{<:AbstractQuantity{T,D,U}}) where {T,D,U} =
     rand(r, T) * U()
+Base.randn(r::Random.AbstractRNG, ::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} =
+    randn(r, T) * U()
 Base.ones(Q::Type{<:AbstractQuantity}, dims::NTuple{N,Integer}) where {N} =
     fill!(Array{Q,N}(undef, map(Base.to_dim, dims)), oneunit(Q))
 Base.ones(Q::Type{<:AbstractQuantity}, dims::Tuple{}) = fill!(Array{Q}(undef), oneunit(Q))
