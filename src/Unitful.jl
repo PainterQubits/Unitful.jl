@@ -46,7 +46,7 @@ function _basefactors(m::Module)
     if isdefined(m, basefactors_name)
         getproperty(m, basefactors_name)
     else
-        m.eval(:(const $basefactors_name = Dict{Symbol,Tuple{Float64,Rational{Int}}}()))
+        Core.eval(m, :(const $basefactors_name = Dict{Symbol,Tuple{Float64,Rational{Int}}}()))
     end
 end
 
