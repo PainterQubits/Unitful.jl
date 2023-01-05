@@ -41,7 +41,7 @@ In the unlikely case that you've used `@dimension`, you will also need the
 following incantation:
 
 ```julia
-const localpromotion = Unitful.promotion
+const localpromotion = copy(Unitful.promotion)
 function __init__()
     Unitful.register(YourModule)
     merge!(Unitful.promotion, localpromotion)
