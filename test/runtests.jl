@@ -1993,6 +1993,11 @@ end
     @test u"ɛ0" === u"ε0"
     @test uparse("ɛ0") === uparse("ε0")
     @test @doc(Unitful.ɛ0) == @doc(Unitful.ε0)
+    # Julia treats Å (U+00C5) and Å (U+212B) as the same
+    @test Unitful.Å === Unitful.Å === Unitful.angstrom
+    @test u"Å" === u"Å"
+    @test uparse("Å") === uparse("Å")
+    @test @doc(Unitful.Å) == @doc(Unitful.Å)
 end
 
 module DocUnits
