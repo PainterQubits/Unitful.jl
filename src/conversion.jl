@@ -1,6 +1,6 @@
 """
     convfact(s::Units, t::Units)
-Find the conversion factor from unit `t` to unit `s`, e.g. `convfact(m,cm) = 0.01`.
+Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m,cm) == 1//100`.
 """
 @generated function convfact(s::Units, t::Units)
     sunits = s.parameters[1]

@@ -581,13 +581,12 @@ earth, a unit of acceleration, defined by standard to be exactly 9.806,65 m / s^
 \nSee Also: [`Unitful.yd`](@ref)."
 @unit mi        "mi"       Mile                 1760yd                  false
 "    Unitful.angstrom
-    Unitful.Å
+    Unitful.Å
 \nThe angstrom, a metric unit of length defined as 1/10 nm.
 \nDimension: [`Unitful.𝐋`](@ref).
 \nSee Also: [`Unitful.nm`](@ref)."
-@unit angstrom  "Å"        Angstrom             (1//10)*nm      false
-# U+00c5 (opt-shift-A on macOS) and U+212b ('\Angstrom' in REPL) look identical:
-@doc @doc(angstrom) const Å = Å = angstrom
+@unit angstrom  "Å"        Angstrom             (1//10)*nm      false
+@doc @doc(angstrom) const Å = angstrom
 
 # Area
 "    Unitful.ac
@@ -774,7 +773,7 @@ of quantities:
 - `J*s` (joule-second) for action
 
 If you want this as default behavior (it was for versions of Unitful prior to 0.1.0),
-consider invoking this function in your `.juliarc.jl` file which is loaded when
+consider invoking this function in your `startup.jl` file which is loaded when
 you open Julia. This function is not exported.
 """
 function promote_to_derived()

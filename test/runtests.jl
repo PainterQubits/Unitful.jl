@@ -1214,6 +1214,11 @@ end
             @test @inferred((1:2:5) .* cm .|> mm) === 10mm:20mm:50mm
             @test mm.((1:2:5) .* cm) === 10mm:20mm:50mm
             @test @inferred((1:2:5) .* km .|> upreferred) === 1000m:2000m:5000m
+            @test @inferred((1:2:5)km .|> upreferred) === 1000m:2000m:5000m
+            @test @inferred((1:2:5) .|> upreferred) === 1:2:5
+            @test @inferred((1.0:2.0:5.0) .* km .|> upreferred) === 1000.0m:2000.0m:5000.0m
+            @test @inferred((1.0:2.0:5.0)km .|> upreferred) === 1000.0m:2000.0m:5000.0m
+            @test @inferred((1.0:2.0:5.0) .|> upreferred) === 1.0:2.0:5.0
             @test @inferred((1:2:5) .* cm .|> mm .|> ustrip) === 10:20:50
             @test @inferred((1f0:2f0:5f0) .* cm .|> mm .|> ustrip) === 10f0:20f0:50f0
         end
@@ -1358,6 +1363,7 @@ end
         end
         @testset ">> Element-wise addition" begin
             @test @inferred(5m .+ [1m, 2m, 3m])      == [6m, 7m, 8m]
+            @test Any[1.0m, 2.0m] .+ 3.0m == [4.0m, 5.0m] # issue 557 (actually a bug in Julia 1.8.1)
         end
         @testset ">> Element-wise comparison" begin
             @test @inferred([0.0m, 2.0m] .< [3.0m, 2.0μm]) == BitArray([true,false])
@@ -1392,8 +1398,16 @@ end
                 SymTridiagonal{Int}
         end
         @testset ">> Linear algebra" begin
-            @test istril([1 1; 0 1]u"m") == false
-            @test istriu([1 1; 0 1]u"m") == true
+            @test istril(1m) === true
+            @test istril([1 1; 0 1]m) === false
+            @test istril([1 0; 1 1]K) === true
+            @test istril([1 0; 1 1]°C) === false
+            @test istril([1//1  -5463//20; 1//1 1//1]°C) === true
+            @test istriu(1m) === true
+            @test istriu([1 1; 0 1]m) === true
+            @test istriu([1 1; 0 1]K) === true
+            @test istriu([1 1; 0 1]°C) === false
+            @test istriu([1//1  1//1; -5463//20 1//1]°C) === true
         end
 
         @testset ">> Array initialization" begin
@@ -1979,6 +1993,11 @@ end
     @test u"ɛ0" === u"ε0"
     @test uparse("ɛ0") === uparse("ε0")
     @test @doc(Unitful.ɛ0) == @doc(Unitful.ε0)
+    # Julia treats Å (U+00C5) and Å (U+212B) as the same
+    @test Unitful.Å === Unitful.Å === Unitful.angstrom
+    @test u"Å" === u"Å"
+    @test uparse("Å") === uparse("Å")
+    @test @doc(Unitful.Å) == @doc(Unitful.Å)
 end
 
 module DocUnits
