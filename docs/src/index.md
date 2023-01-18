@@ -118,3 +118,8 @@ A^2 s^4 kg^-1 m^-3
     temperature differences.
 
 See `test/runtests.jl` for more usage examples.
+
+## About the logo
+
+The logo is a pictorial representation of the [International Prototype of the Kilogram](https://en.wikipedia.org/wiki/International_Prototype_of_the_Kilogram), which was the standard definition of one kilogram from 1889 to 2019,
+when it was replaced by a definition based on Planck constant, the speed of light and hyperfine transition frequency of <sup>133</sup>Cs.
