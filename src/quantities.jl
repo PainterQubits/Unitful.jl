@@ -185,8 +185,7 @@ for (_x,_y) in [(:fma, :_fma), (:muladd, :_muladd)]
     @eval @inline ($_x)(x::AbstractQuantity, y::Number, z::AbstractQuantity) = ($_y)(x,y,z)
 
     # Post-promotion
-    @eval @inline ($_x)(x::AbstractQuantity{A}, y::AbstractQuantity{B}, z::AbstractQuantity{C}) where {
-        A <: Number, B <: Number, C <: Number} = ($_y)(x,y,z)
+    @eval @inline ($_x)(x::AbstractQuantity, y::AbstractQuantity, z::AbstractQuantity) = ($_y)(x,y,z)
 
     # It seems like most of this is optimized out by the compiler, including the
     # apparent runtime check of dimensions, which does not appear in @code_llvm.
