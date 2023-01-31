@@ -522,6 +522,13 @@ end
     @test isa(1m^3/s, VolumeFlow)
 end
 
+# A number type with non-commutative multiplication
+struct MatNum <: Number
+    mat::Matrix{Int}
+end
+Base.:(==)(x::MatNum, y::MatNum) = x.mat == y.mat
+Base.:*(x::MatNum, y::MatNum) = MatNum(x.mat*y.mat)
+
 @testset "Mathematics" begin
     @testset "> Comparisons" begin
         # make sure we are just picking one of the arguments, without surprising conversions
@@ -605,11 +612,6 @@ end
         @test @inferred(false*(-Inf*kg)) === -0.0kg       # `false` acts as "strong zero"
         @test typeof(one(eltype([1.0s, 1kg]))) <: Float64 # issue 159, multiplicative identity
         # Multiplicaton can be non-commutative
-        struct MatNum <: Number
-            mat::Matrix{Int}
-        end
-        Base.:(==)(x::MatNum, y::MatNum) = x.mat == y.mat
-        Base.:*(x::MatNum, y::MatNum) = MatNum(x.mat*y.mat)
         @test Quantity(MatNum([1 2; 3 4]), m) * MatNum([5 6; 7 8]) == Quantity(MatNum([19 22; 43 50]), m)
         @test MatNum([5 6; 7 8]) * Quantity(MatNum([1 2; 3 4]), m) == Quantity(MatNum([23 34; 31 46]), m)
     end
