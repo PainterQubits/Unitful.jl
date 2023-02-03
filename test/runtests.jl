@@ -1066,8 +1066,19 @@ end
     @test @inferred(signbit(-0.0m)) == true
     @test @inferred(copysign(3.0m, -4.0s)) == -3.0m
     @test @inferred(copysign(3.0m, 4)) == 3.0m
+    @test @inferred(copysign(3, -4.0m)) == -3
     @test @inferred(flipsign(3.0m, -4)) == -3.0m
     @test @inferred(flipsign(-3.0m, -4)) == 3.0m
+    @test @inferred(flipsign(-3.0, -4m)) == 3.0
+    @test @inferred(flipsign(-3, 4.0m)) == -3
+    @test @inferred(flipsign(3.0m, -4s)) == -3.0m
+    @test @inferred(flipsign(-3m, 4.0s)) == -3m
+    @test @inferred(flipsign((3.0+4.0im)m, -4)) == (-3.0-4.0im)m
+    @test @inferred(flipsign((-3.0+4.0im)m, -4)) == (3.0-4.0im)m
+    @test @inferred(flipsign(-3+4im, -4m)) == 3-4im
+    @test @inferred(flipsign(-3.0+4.0im, 4m)) == -3.0+4.0im
+    @test @inferred(flipsign((3.0+4.0im)m, -4s)) == (-3.0-4.0im)m
+    @test @inferred(flipsign((-3+4im)m, 4.0s)) == (-3+4im)m
     @test @inferred(real(3m)) == 3.0m
     @test @inferred(real((3+4im)V)) == 3V
     @test @inferred(imag(3m)) == 0m
