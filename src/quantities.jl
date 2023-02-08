@@ -29,7 +29,11 @@ Quantity(x::Number, y::Units{()}) = x
 *(x::AbstractQuantity, y::Units, z::Units...) = Quantity(x.val, *(unit(x),y,z...))
 *(x::AbstractQuantity, y::AbstractQuantity) = Quantity(x.val*y.val, unit(x)*unit(y))
 
-*(y::Number, x::AbstractQuantity) = *(x,y)
+function *(x::Number, y::AbstractQuantity)
+    y isa AffineQuantity &&
+        throw(AffineError("an invalid operation was attempted with affine quantities: $x*$y"))
+    return Quantity(x*y.val, unit(y))
+end
 function *(x::AbstractQuantity, y::Number)
     x isa AffineQuantity &&
         throw(AffineError("an invalid operation was attempted with affine quantities: $x*$y"))
