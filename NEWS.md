@@ -1,5 +1,10 @@
 # Unitful.jl changelog
 
+## v1.12.3
+
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Multiplication is no longer assumed to be commutative, which is wrong for, e.g., quaternions ([#608](https://github.com/PainterQubits/Unitful.jl/pull/608)).
+* ![Maintenance:](https://img.shields.io/badge/-maintenance-grey) Adapt the documentation on extending Unitful for Julia ≥ 1.9 ([#600](https://github.com/PainterQubits/Unitful.jl/pull/600)).
+
 ## v1.12.2
 
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Broadcasting `upreferred` over floating-point ranges now works again ([#577](https://github.com/PainterQubits/Unitful.jl/pull/577)).
