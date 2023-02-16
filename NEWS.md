@@ -40,7 +40,7 @@
 
 ## v1.9.2
 
-* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) The functions `Unitful.cos_fast`, `Unitful.sin_fast`, and `Unitful.tan_fast` are removed. Due to an implementation error, they always threw a `MethodError`, so removing them is not breaking. This fixes a warning during precompilation ([#478](https://github.com/PainterQubits/Unitful.jl/pull/478)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) The functions `Unitful.cos_fast`, `Unitful.sin_fast`, and `Unitful.tan_fast` are removed. Due to an implementation error, they always threw a `MethodError`, so removing them is not breaking. This fixes a warning during precompilation ([#497](https://github.com/PainterQubits/Unitful.jl/pull/497)).
 
 ## v1.9.1
 
