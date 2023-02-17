@@ -233,8 +233,7 @@ Mathematical operations are forwarded to the logarithmic part, so that for examp
 for convenience, though the association is understood (e.g. `s^-1*(3dBm) == (3dBm)/s`).
 
 The behavior of multiplication is summarized in the following table, with entries marked by
-† indicating prohibited operations. This table is populated automatically whenever the docs
-are built.
+† indicating prohibited operations.
 
 ```@eval
 using Latexify, Unitful
@@ -328,8 +327,7 @@ julia> 20u"dBm" + @dB 1u"W"/u"W"
 i.e. `1.1 W`.
 
 Rules for addition are summarized in the following table, with entries marked by †
-indicating prohibited operations. This table is populated automatically whenever the docs
-are built.
+indicating prohibited operations.
 
 ```@eval
 using Latexify, Unitful
