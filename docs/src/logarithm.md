@@ -233,7 +233,7 @@ Mathematical operations are forwarded to the logarithmic part, so that for examp
 for convenience, though the association is understood (e.g. `s^-1*(3dBm) == (3dBm)/s`).
 
 The behavior of multiplication is summarized in the following table, with entries marked by
-† indicate prohibited operations. This table is populated automatically whenever the docs
+† indicating prohibited operations. This table is populated automatically whenever the docs
 are built.
 
 ```@eval
