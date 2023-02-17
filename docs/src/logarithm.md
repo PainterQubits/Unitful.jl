@@ -244,7 +244,7 @@ quantities = uparse.(head)
 tab = fill("", length(head), length(head))
 for col = eachindex(head), row = 1:col
     try
-        tab[row, col] = string(quantities[row] * quantities[col])
+        tab[row, col] = sprint(show, quantities[row] * quantities[col], context = :compact => true)
     catch
         if quantities[row] === u"1/Hz" && quantities[col] === u"3dB"
             tab[row, col] = "† ‡"
@@ -339,7 +339,7 @@ quantities = uparse.(head)
 tab = fill("", length(head), length(head))
 for col = eachindex(head), row = 1:col
     try
-        tab[row, col] = string(quantities[row] + quantities[col])
+        tab[row, col] = sprint(show, quantities[row] + quantities[col], context = :compact => true)
     catch
         tab[row, col] = "†"
     end
