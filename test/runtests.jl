@@ -86,8 +86,8 @@ const colon = Base.:(:)
 end
 
 VERSION >= v"1.9-" && @testset "inverse" begin
-    InverseFunctions.test_inverse(Base.Fix1(ustrip, u"m"), 2u"m")
-    InverseFunctions.test_inverse(Base.Fix1(ustrip, u"m"), 2u"mm")
+    InverseFunctions.test_inverse(Base.Fix1(ustrip, m), 2m)
+    InverseFunctions.test_inverse(Base.Fix1(ustrip, m), 2mm)
 end
 
 @testset "Types" begin
