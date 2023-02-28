@@ -1,5 +1,9 @@
 # Unitful.jl changelog
 
+## v1.12.4
+
+* ![Maintenance:](https://img.shields.io/badge/-maintenance-grey) `@fastmath` with quantities now uses functions from `Base.FastMath` instead of intrinsic functions, because the latter may be removed at any time ([#617](https://github.com/PainterQubits/Unitful.jl/pull/617)).
+
 ## v1.12.3
 
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Multiplication is no longer assumed to be commutative, which is wrong for, e.g., quaternions ([#608](https://github.com/PainterQubits/Unitful.jl/pull/608)).
