@@ -42,15 +42,19 @@ results in behavior identical to calling [`uconvert`](@ref).
 
 ### Dimensionless quantities
 
-For dimensionless quantities, `uconvert` can be used to strip the units without
-losing power-of-ten information:
+For dimensionless quantities, `uconvert` can be used with the [`NoUnits`](@ref) unit to
+strip the units without losing power-of-ten information:
 
 ```jldoctest
-julia> uconvert(Unitful.NoUnits, 1.0u"μm/m")
+julia> uconvert(NoUnits, 1.0u"μm/m")
 1.0e-6
 
-julia> uconvert(Unitful.NoUnits, 1.0u"m")
+julia> uconvert(NoUnits, 1.0u"m")
 ERROR: DimensionError:  and m are not dimensionally compatible.
+```
+
+```@docs
+Unitful.NoUnits
 ```
 
 You can also directly convert to a subtype of `Real` or `Complex`:
@@ -299,8 +303,8 @@ For multiplication and division, note that powers-of-ten prefixes are significan
 in unit cancellation. For instance, `mV/V` is not simplified, although `V/V` is.
 Also, `N*m/J` is not simplified: there is currently no logic to decide
 whether or not units on a dimensionless quantity seem "intentional" or not.
-It is however possible to cancel units manually, by passing the dimensionless
-quantity to the [`NoUnits`](@ref) constructor. This takes into account different SI-prefixes:
+It is however possible to cancel units manually, by converting the dimensionless
+quantity to the [`NoUnits`](@ref) unit. This takes into account different SI-prefixes:
 ```jldoctest
 julia> using Unitful
 

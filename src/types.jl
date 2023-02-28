@@ -95,6 +95,17 @@ struct FreeUnits{N,D,A} <: Units{N,D,A} end
 FreeUnits{N,D}() where {N,D} = FreeUnits{N,D,nothing}()
 FreeUnits(::Units{N,D,A}) where {N,D,A} = FreeUnits{N,D,A}()
 
+"""
+    NoUnits
+An object that represents "no units", i.e., the units of a unitless number. The type of
+the object is `Unitful.FreeUnits{(), NoDims}`. It is displayed as an empty string.
+
+Example:
+```jldoctest
+julia> unit(1.0) == NoUnits
+true
+```
+"""
 const NoUnits = FreeUnits{(), NoDims}()
 (y::FreeUnits)(x) = uconvert(y,x)
 
