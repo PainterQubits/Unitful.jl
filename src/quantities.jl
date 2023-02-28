@@ -256,7 +256,12 @@ abs2(x::AbstractQuantity) = Quantity(abs2(x.val), unit(x)*unit(x))
 angle(x::AbstractQuantity{<:Complex}) = angle(x.val)
 
 copysign(x::AbstractQuantity, y::Number) = Quantity(copysign(x.val,y/unit(y)), unit(x))
+copysign(x::Number, y::AbstractQuantity) = copysign(x,y/unit(y))
+copysign(x::AbstractQuantity, y::AbstractQuantity) = Quantity(copysign(x.val,y/unit(y)), unit(x))
+
 flipsign(x::AbstractQuantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
+flipsign(x::Number, y::AbstractQuantity) = flipsign(x,y/unit(y))
+flipsign(x::AbstractQuantity, y::AbstractQuantity) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
 
 for (i,j) in zip((:<, :isless), (:_lt, :_isless))
     @eval ($i)(x::AbstractQuantity, y::AbstractQuantity) = ($j)(x,y)
