@@ -256,7 +256,7 @@ For example, given a gain of `20dB`, we have `val===20`. This type differs from
 struct Gain{L, S, T<:Real} <: LogScaled{L}
     val::T
 end
-Unitful.Gain{L, S, T}(x::Unitful.Gain{L, S, T}) where {L,S,T<:Real} = x # for method ambiguity on 1.9
+Unitful.Gain{L, S, T}(x::Unitful.Gain{L, S, T}) where {L,S,T<:Real} = x # for ambiguity resolution
 
 """
     struct MixedUnits{T<:LogScaled, U<:Units}
