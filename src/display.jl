@@ -117,7 +117,7 @@ function show(io::IO, mime::MIME"text/plain", x::Quantity)
     end
 end
 
-function show(io::IO, mime::MIME"text/plain", r::Union{StepRange{T},StepRangeLen{T}}) where T<:Quantity
+function show(io::IO, mime::MIME"text/plain", r::StepRange{T}) where T<:Quantity
     a,s,b = first(r), step(r), last(r)
     U = unit(a)
     V = absoluteunit(U)
@@ -127,6 +127,17 @@ function show(io::IO, mime::MIME"text/plain", r::Union{StepRange{T},StepRangeLen
     else
         show(io, mime, ustrip(U, a):ustrip(V, s):ustrip(U, b))
     end
+    print(io, ')')
+    has_unit_spacing(U) && print(io,' ')
+    show(io, mime, U)
+end
+
+function show(io::IO, mime::MIME"text/plain", r::StepRangeLen{T}) where T<:Quantity
+    a,s,b = first(r), step(r), last(r)
+    U = unit(a)
+    V = absoluteunit(U)
+    print(io, '(')
+    show(io, mime, StepRangeLen(ustrip(U, a), ustrip(V, s), length(r)))
     print(io, ')')
     has_unit_spacing(U) && print(io,' ')
     show(io, mime, U)
