@@ -1482,11 +1482,6 @@ end
                 "Quantity{Float64, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}}"
             @test string(typeof(m/s)) ==
                 "FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}"
-        else
-            @test string(typeof(1.0m/s)) ==
-                "Quantity{Float64, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}}"
-            @test string(typeof(m/s)) ==
-                "FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}"
         end
         @test string(dimension(1u"m/s")) == "𝐋 𝐓^-1"
         @test string(NoDims) == "NoDims"
@@ -1503,17 +1498,19 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
 
 @testset "Show quantities" begin
     withenv("UNITFUL_FANCY_EXPONENTS" => false) do
-        @test repr(1.0 * u"m * s * kg^-1") == "Quantity{Float64, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Mass}(-1//1), Unitful.Dimension{:Time}(1//1))}(), FreeUnits{(Unitful.Unit{:Gram, Unitful.Dimensions{(Unitful.Dimension{:Mass}(1//1),)}()}(3, -1//1), Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, 1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Mass}(-1//1), Unitful.Dimension{:Time}(1//1))}(), nothing}}(1.0)"
+        @static if VERSION ≥ v"1.6.0-DEV.770"
+            @test repr(1.0 * u"m * s * kg^-1") == "Quantity{Float64, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Mass}(-1//1), Unitful.Dimension{:Time}(1//1))}(), FreeUnits{(Unitful.Unit{:Gram, Unitful.Dimensions{(Unitful.Dimension{:Mass}(1//1),)}()}(3, -1//1), Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, 1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Mass}(-1//1), Unitful.Dimension{:Time}(1//1))}(), nothing}}(1.0)"
+            @test repr(Foo() * u"m * s * kg^-1") == "Quantity{Foo, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Mass}(-1//1), Unitful.Dimension{:Time}(1//1))}(), FreeUnits{(Unitful.Unit{:Gram, Unitful.Dimensions{(Unitful.Dimension{:Mass}(1//1),)}()}(3, -1//1), Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, 1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Mass}(-1//1), Unitful.Dimension{:Time}(1//1))}(), nothing}}(1)"
+            @test repr((1+2im) * u"m/s") == "Quantity{Complex{Int64}, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}}(1 + 2im)"
+            @test sprint(show, 1.0°)       == "Quantity{Float64, Unitful.Dimensions{()}(), FreeUnits{(Unitful.Unit{:Degree, Unitful.Dimensions{()}()}(0, 1//1),), Unitful.Dimensions{()}(), nothing}}(1.0)"
+        end
         @test repr("text/plain", 1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
-        @test repr(Foo() * u"m * s * kg^-1") == "Quantity{Foo, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Mass}(-1//1), Unitful.Dimension{:Time}(1//1))}(), FreeUnits{(Unitful.Unit{:Gram, Unitful.Dimensions{(Unitful.Dimension{:Mass}(1//1),)}()}(3, -1//1), Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, 1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Mass}(-1//1), Unitful.Dimension{:Time}(1//1))}(), nothing}}(1)"
         @test repr("text/plain", Foo() * u"m * s * kg^-1") == "42.0 m s kg^-1"
 
         # Complex quantities
-        @test repr((1+2im) * u"m/s") == "Quantity{Complex{Int64}, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}}(1 + 2im)"
         @test repr("text/plain", (1+2im) * u"m/s") == "(1 + 2im) m s^-1"
 
         # Angular degree printing #253
-        @test sprint(show, 1.0°)       == "Quantity{Float64, Unitful.Dimensions{()}(), FreeUnits{(Unitful.Unit{:Degree, Unitful.Dimensions{()}()}(0, 1//1),), Unitful.Dimensions{()}(), nothing}}(1.0)"
         @test repr("text/plain", 1.0°) == "1.0°"
 
         # Concise printing of ranges
@@ -1894,7 +1891,9 @@ end
 
     @testset "> Display" begin
         withenv("UNITFUL_FANCY_EXPONENTS" => false) do
-            @test repr(3u"dB/Hz") == "Quantity{Gain{LogInfo{:Decibel, 10, 10}, :?, Int64}, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}(), FreeUnits{(Unitful.Unit{:Hertz, Unitful.Dimensions{(Unitful.Dimension{:Time}(-1//1),)}()}(0, -1//1),), Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}(), nothing}}(Gain{LogInfo{:Decibel, 10, 10}, :?, Int64}(3))"
+            @static if VERSION ≥ v"1.6.0-DEV.770"
+                @test repr(3u"dB/Hz") == "Quantity{Gain{LogInfo{:Decibel, 10, 10}, :?, Int64}, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}(), FreeUnits{(Unitful.Unit{:Hertz, Unitful.Dimensions{(Unitful.Dimension{:Time}(-1//1),)}()}(0, -1//1),), Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}(), nothing}}(Gain{LogInfo{:Decibel, 10, 10}, :?, Int64}(3))"
+            end
             @test repr("text/plain", 3u"dB/Hz") == "[3 dB] Hz^-1"
         end
         @test Unitful.abbr(3u"dBm") == "dBm"
