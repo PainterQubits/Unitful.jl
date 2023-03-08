@@ -291,7 +291,7 @@ macro affineunit(symb, abbr, offset)
     s = Symbol(symb)
     return esc(quote
         Base.@__doc__ const global $s = $affineunit($offset)
-        $Base.show(io::$IO, ::$genericunit($s)) = $print(io, $abbr)
+        $Base.show(io::$IO, mime::$(MIME"text/plain"), ::$genericunit($s)) = $print(io, $abbr)
     end)
 end
 
