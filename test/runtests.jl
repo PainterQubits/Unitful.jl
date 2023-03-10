@@ -2145,3 +2145,7 @@ finally
     rm(load_path, recursive=true)
     rm(load_cache_path, recursive=true)
 end
+
+using Aqua
+
+Aqua.test_all(Unitful, ambiguities=false, unbound_args=false, piracy=VERSION≥v"1.8")
