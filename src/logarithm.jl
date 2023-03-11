@@ -277,16 +277,10 @@ function (Base.promote_rule(::Type{Level{L1,S1,T1}}, ::Type{Level{L2,S2,T2}})
     end
 end
 
-function Base.promote_rule(::Type{Level{L,R,S}}, ::Type{Quantity{T,D,U}}) where {L,R,S,T,D,U}
-    return promote_type(S, Quantity{T,D,U})
-end
 function Base.promote_rule(::Type{Quantity{T,D,U}}, ::Type{Level{L,R,S}}) where {L,R,S,T,D,U}
     return promote_type(S, Quantity{T,D,U})
 end
 function Base.promote_rule(::Type{Level{L,R,S}}, ::Type{T}) where {L,R,S,T<:Real}
-    return promote_type(S,T)
-end
-function Base.promote_rule(::Type{T}, ::Type{Level{L,R,S}}) where {L,R,S,T<:Real}
     return promote_type(S,T)
 end
 function (Base.promote_rule(::Type{Gain{L1,S1,T1}}, ::Type{Gain{L2,S2,T2}})

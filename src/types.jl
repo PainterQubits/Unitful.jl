@@ -164,7 +164,7 @@ struct Quantity{T,D,U} <: AbstractQuantity{T,D,U}
 end
 
 # Field-only constructor
-Quantity{<:Any,D,U}(val) where {D,U} = Quantity{typeof(val),D,U}(val)
+Quantity{<:Any,D,U}(val::Number) where {D,U} = Quantity{typeof(val),D,U}(val)
 
 constructorof(::Type{Unitful.Quantity{_,D,U}}) where {_,D,U} =
     Unitful.Quantity{T,D,U} where T
@@ -249,7 +249,7 @@ field, `val::T`, and the log of the ratio `val/S` is taken. This type differs fr
 """
 struct Level{L, S, T<:RealOrRealQuantity} <: LogScaled{L}
     val::T
-    function Level{L,S,T}(x) where {L,S,T}
+    function Level{L,S,T}(x::Number) where {L,S,T}
         S isa ReferenceQuantity || throw(DomainError(S, "Reference quantity must be real."))
         dimension(S) != dimension(x) && throw(DimensionError(S,x))
         return new{L,S,T}(x)
@@ -266,8 +266,8 @@ For example, given a gain of `20dB`, we have `val===20`. This type differs from
 """
 struct Gain{L, S, T<:Real} <: LogScaled{L}
     val::T
+    Gain{L, S, T}(x::Number) where {L,S,T<:Real} = new{L,S,T}(x)
 end
-Unitful.Gain{L, S, T}(x::Unitful.Gain{L, S, T}) where {L,S,T<:Real} = x # for ambiguity resolution
 
 """
     struct MixedUnits{T<:LogScaled, U<:Units}

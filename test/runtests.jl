@@ -2148,4 +2148,4 @@ end
 
 using Aqua
 
-Aqua.test_all(Unitful, ambiguities=false, unbound_args=false, piracy=VERSION≥v"1.8")
+Aqua.test_all(Unitful, ambiguities=VERSION≥v"1.1", unbound_args=false, piracy=VERSION≥v"1.8")
