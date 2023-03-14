@@ -1049,6 +1049,14 @@ end
     @test round(typeof(1mm), 1.0314m) === 1031mm
     @test round(typeof(1.0mm), 1.0314m) === 1031.0mm
     @test round(typeof(1.0mm), 1.0314m; digits=1) === 1031.4mm
+    @test round(typeof(1.0°), 1.125°) === 1.0°
+    @test round(typeof(1.0°), 1.125°, RoundUp) === 2.0°
+    @test round(typeof(1.0°), 1.125°, digits=1) === 1.1°
+    @test round(typeof(1.0°), 1.125°, RoundUp, digits=1) === 1.2°
+    @test round(typeof(1.0°), 1rad) === 57.0°
+    @test round(typeof(1.0°), 1rad, RoundUp) === 58.0°
+    @test floor(typeof(1.0°), 1.125°) === 1.0°
+    @test floor(typeof(1.0°), 1.125°, digits=1) === 1.1°
     @test round(u"inch", 1.0314m) === 41.0u"inch"
     @test round(Int, u"inch", 1.0314m) === 41u"inch"
     @test round(typeof(1m), 137cm) === 1m
