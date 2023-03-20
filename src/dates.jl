@@ -187,4 +187,4 @@ end
 isapprox(x::AbstractArray{Dates.CompoundPeriod}, y::AbstractArray{<:AbstractQuantity};
          kwargs...) = isapprox(y, x; kwargs...)
 
-sleep(x::AbstractQuantity) = sleep(ustrip(u"s", x))
+sleep(x::AbstractQuantity) = sleep(ustrip(s, x))
