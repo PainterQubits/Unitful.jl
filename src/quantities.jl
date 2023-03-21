@@ -379,6 +379,10 @@ function round(::Type{T}, x::AbstractQuantity, r::RoundingMode;
     unitless = ustrip(u, x)
     return Quantity{S, dimension(T), typeof(u)}(round(unitless, r; kwargs...))
 end
+round(::Type{T}, x::DimensionlessQuantity; kwargs...) where {S, T <: Quantity{S}} =
+    invoke(round, Tuple{Type{T},AbstractQuantity}, T, x; kwargs...) # for ambiguity resolution
+round(::Type{T}, x::DimensionlessQuantity, r::RoundingMode; kwargs...) where {S, T <: Quantity{S}} =
+    invoke(round, Tuple{Type{T},AbstractQuantity,RoundingMode}, T, x, r; kwargs...) # for ambiguity resolution
 
 # that should actually be fixed in Base ↓
 for (f,r) = ((:trunc, :RoundToZero), (:floor, :RoundDown), (:ceil, :RoundUp))
