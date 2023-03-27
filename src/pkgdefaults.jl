@@ -202,7 +202,7 @@ rad2deg(r::Quantity{T, NoDims, typeof(rad)}) where {T} = rad2deg(ustrip(rad, r))
 \nSee also: [`Unitful.s`](@ref)."
 @unit Bq              "Bq"   Becquerel       1/s                true true
 "    Unitful.Gy
-\nThe gray, an SI unit of ionizing radiation dose, defined as the absorbtion of 1 J per kg of matter.
+\nThe gray, an SI unit of ionizing radiation dose, defined as the absorption of 1 J per kg of matter.
 \nDimension: 𝐋^2 𝐓^-2.
 \nSee also: [`Unitful.lm`](@ref), [`Unitful.m`](@ref)."
 @unit Gy              "Gy"   Gray            1J/kg              true true

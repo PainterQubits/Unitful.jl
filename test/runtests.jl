@@ -323,7 +323,7 @@ Unitful.uconvert(U::Unitful.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
     @testset "> Unit preferences" begin
         # Should warn on possible redundant units issue (ms and s)
         @test_logs (:warn, r"^Preferred units contain complex units") Unitful.preferunits(C/ms)
-        # Test for wacky prefered units functionality
+        # Test for wacky preferred units functionality
         Unitful.preferunits(C/s)
         @test @inferred(upreferred(V/m)) == kg*m*C^-1*s^-2
         @test dimension(upreferred(V/m)) == dimension(V/m)
@@ -611,7 +611,7 @@ Base.:*(x::MatNum, y::MatNum) = MatNum(x.mat*y.mat)
         @test @inferred((NaN*kg)*false) === 0.0kg         # `false` acts as "strong zero"
         @test @inferred(false*(-Inf*kg)) === -0.0kg       # `false` acts as "strong zero"
         @test typeof(one(eltype([1.0s, 1kg]))) <: Float64 # issue 159, multiplicative identity
-        # Multiplicaton can be non-commutative
+        # Multiplication can be non-commutative
         @test Quantity(MatNum([1 2; 3 4]), m) * MatNum([5 6; 7 8]) == Quantity(MatNum([19 22; 43 50]), m)
         @test MatNum([5 6; 7 8]) * Quantity(MatNum([1 2; 3 4]), m) == Quantity(MatNum([23 34; 31 46]), m)
     end
