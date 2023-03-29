@@ -657,12 +657,12 @@ julia> uparse("1.0*dB")
 1.0 dB
 ```
 """
-function uparse(str; unit_context=Unitful)
+function uparse(str; unit_context=vcat(Unitful, Unitful.unitmodules))
     ex = Meta.parse(str)
     eval(lookup_units(unit_context, ex))
 end
 
-const allowed_funcs = [:*, :/, :^, :sqrt, :√, :+, :-, ://]
+const allowed_funcs = [:*, :/, :^, :sqrt, :√, :+, :-, ://, :colon, :(:)]
 function lookup_units(unitmods, ex::Expr)
     if ex.head == :call
         ex.args[1] in allowed_funcs ||
@@ -684,6 +684,11 @@ function lookup_units(unitmods, ex::Expr)
             end
         end
         return ex
+    elseif ex.head == :macrocall 
+        if ex.args[1] != Symbol("@u_str")
+            throw(ArgumentError("Cannot use macro $(ex.args[1]), only use macro @u_str"))
+        end
+        return eval(ex)
     else
         throw(ArgumentError("Expr head $(ex.head) must equal :call or :tuple"))
     end
