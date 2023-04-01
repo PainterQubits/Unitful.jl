@@ -783,4 +783,6 @@
         @test_throws ErrorException promote(1u"m", Second(1))
         @test_throws ErrorException promote(Day(1), 3u"T")
     end
+
+    sleep(10u"ms")    # not tested explicitly, because sleep doesn't come with guarantees
 end
