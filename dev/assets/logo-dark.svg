@@ -38,30 +38,30 @@
   </defs>
   <path
      id="rect1480"
-     style="fill:#adb1b3;fill-opacity:0.00902297;stroke:#000000;stroke-width:0.475789"
+     style="fill:#adb1b3;fill-opacity:0.00902297;stroke:#bababa;stroke-width:0.475789"
      d="M 12.30167,9.647231 C 5.6184,9.647231 0.2379,15.02759 0.2379,21.710855 v 19.06976 c 9.32696,3.073352 18.46178,3.148843 27.58032,-0.03421 v -19.03555 c 0,-6.683265 -5.38036,-12.063624 -12.06362,-12.063624 z" />
   <circle
-     style="fill:#cb392e;stroke:#000000;stroke-width:0.475789"
+     style="fill:#cb392e;stroke:#bababa;stroke-width:0.475789"
      id="path972"
      cx="14.028058"
      cy="4.8167992"
      r="4.5789037" />
   <circle
-     style="fill:#369844;stroke:#000000;stroke-width:0.475789"
+     style="fill:#369844;stroke:#bababa;stroke-width:0.475789"
      id="circle1054"
      cx="14.028058"
      cy="14.753242"
      r="3.2553825" />
   <path
      id="rect1581"
-     style="fill:#adb1b3;fill-opacity:0.040089;stroke:#000000;stroke-width:0.475789"
+     style="fill:#adb1b3;fill-opacity:0.040089;stroke:#bababa;stroke-width:0.475789"
      d="m 13.26805,18.354517 c -3.51218,0 -6.33973,2.82754 -6.33973,6.339725 v 15.205607 c 5.81004,1.283045 9.02471,1.386981 14.19948,0 V 24.694242 c 0,-3.512185 -2.82755,-6.339725 -6.33973,-6.339725 z" />
   <path
      id="rect1352"
-     style="fill:#4c64b0;stroke:#000000;stroke-width:0.475789"
+     style="fill:#4c64b0;stroke:#bababa;stroke-width:0.475789"
      d="m 9.24249,28.573675 v 8.124379 c 2.25446,1.652616 7.61814,1.700468 9.55,0 v -8.124379 z" />
   <ellipse
-     style="fill:#4c64b0;stroke:#000000;stroke-width:0.489202"
+     style="fill:#4c64b0;stroke:#bababa;stroke-width:0.489202"
      id="path1078"
      cx="14.017499"
      cy="28.401054"
