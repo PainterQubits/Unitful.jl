@@ -1,5 +1,12 @@
 # Unitful.jl changelog
 
+## v1.13.0
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) `Base.sleep` now accepts quantities of time as argument ([#628](https://github.com/PainterQubits/Unitful.jl/pull/628)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) `Base.copysign` and `Base.flipsign` can now be called with a plain number as first argument and a quantity as second argument ([#612](https://github.com/PainterQubits/Unitful.jl/pull/612)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) All known method ambiguities of the package are resolved ([#606](https://github.com/PainterQubits/Unitful.jl/pull/606), [#626](https://github.com/PainterQubits/Unitful.jl/pull/626)).
+* The package now has a logo. It was created by Leandro Martínez and shows the International Prototype of the Kilogram ([#567](https://github.com/PainterQubits/Unitful.jl/pull/567), [#634](https://github.com/PainterQubits/Unitful.jl/pull/634)).
+
 ## v1.12.4
 
 * ![Maintenance:](https://img.shields.io/badge/-maintenance-grey) `@fastmath` with quantities now uses functions from `Base.FastMath` instead of intrinsic functions, because the latter may be removed at any time ([#617](https://github.com/PainterQubits/Unitful.jl/pull/617)).
