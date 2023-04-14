@@ -565,10 +565,13 @@ Base.:*(x::MatNum, y::MatNum) = MatNum(x.mat*y.mat)
         @test @inferred(1 > 1μm/m)
         @test @inferred(1μm/m < 1mm/m)
         @test @inferred(1mm/m > 1μm/m)
+        @test @inferred(0 < 2m)
+        @test !@inferred(2mm < 0)
         @test_throws DimensionError 1m < 1kg
         @test_throws DimensionError 1m < 1
         @test_throws DimensionError 1 < 1m
         @test_throws DimensionError 1mm/m < 1m
+        @test_throws DimensionError 0 < 100°C
         @test Base.rtoldefault(typeof(1.0u"m")) === Base.rtoldefault(typeof(1.0))
         @test Base.rtoldefault(typeof(1u"m")) === Base.rtoldefault(Int)
     end

@@ -274,6 +274,19 @@ for (i,j) in zip((:<, :isless), (:_lt, :_isless))
     @eval @inline ($j)(x::AbstractQuantity{T,D,U}, y::AbstractQuantity{T,D,U}) where {T,D,U} = ($i)(x.val,y.val)
     @eval @inline ($j)(x::AbstractQuantity{T,D,U1}, y::AbstractQuantity{T,D,U2}) where {T,D,U1,U2} = ($i)(promote(x,y)...)
     @eval @inline ($j)(x::AbstractQuantity{T,D1,U1}, y::AbstractQuantity{T,D2,U2}) where {T,D1,D2,U1,U2} = throw(DimensionError(x,y))
+
+    # comparison with dimensionless zero:
+    NodimsQuantity{T} = DimensionlessQuantity{T,FreeUnits{(),NoDims,nothing}}
+    @eval @inline ($j)(x::$NodimsQuantity{T}, y::ScalarQuantity{T,D,U}) where {T,D,U} =
+        iszero(x) && !(y isa AffineQuantity) ?
+            ($i)(x.val,y.val) :
+            throw(DimensionError(x,y))
+    @eval @inline ($j)(x::ScalarQuantity{T,D,U}, y::$NodimsQuantity{T}) where {T,D,U} =
+        iszero(y) && !(x isa AffineQuantity) ?
+            ($i)(x.val,y.val) :
+            throw(DimensionError(x,y))
+    # disambiguation:
+    @eval @inline ($j)(x::$NodimsQuantity{T}, y::$NodimsQuantity{T}) where {T} = ($i)(x.val,y.val)
 end
 
 Base.rtoldefault(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = Base.rtoldefault(T)
