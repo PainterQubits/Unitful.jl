@@ -1458,7 +1458,7 @@ end
             @test zero(Quantity[1m, 1s]) == [0m, 0s]
             @test zero([1mm, missing]) == [0mm, 0mm]
             @test zero(Union{typeof(0.0s),Missing}[missing]) == [0.0s]
-            if VERSION ≥ v"1.10.0-DEV.425"
+            if VERSION ≥ v"1.9.0-rc1"
                 @test zero(Union{Quantity{Int,𝐋},Missing}[1mm, missing]) == [0m, 0m]
                 @test zero(Union{Quantity{Float64,𝐋},Missing}[1.0mm, missing]) == [0.0m, 0.0m]
                 @test zero(Union{Quantity{Int,𝚯},Missing}[1°C, 2°F, missing]) == [0K, 0K, 0K]
