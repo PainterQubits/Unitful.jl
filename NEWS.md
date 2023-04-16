@@ -1,5 +1,9 @@
 # Unitful.jl changelog
 
+## v1.13.1 (2023-04-15)
+
+* ![Maintenance:](https://img.shields.io/badge/-maintenance-grey) Adapt test suite for Julia 1.9 ([#643](https://github.com/PainterQubits/Unitful.jl/pull/643)).
+
 ## v1.13.0 (2023-04-11)
 
 * ![Feature:](https://img.shields.io/badge/-feature-green) `Base.sleep` now accepts quantities of time as argument ([#628](https://github.com/PainterQubits/Unitful.jl/pull/628)).
