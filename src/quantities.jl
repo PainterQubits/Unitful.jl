@@ -262,7 +262,7 @@ flipsign(x::AbstractQuantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), u
 flipsign(x::Number, y::AbstractQuantity) = flipsign(x,y/unit(y))
 flipsign(x::AbstractQuantity, y::AbstractQuantity) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
 
-for (i,j) in zip((:<, :isless), (:_lt, :_isless))
+for (i,j) in zip((:<, :<=, :isless), (:_lt, :_le, :_isless))
     @eval ($i)(x::AbstractQuantity, y::AbstractQuantity) = ($j)(x,y)
     @eval ($i)(x::AbstractQuantity, y::Number) = ($i)(promote(x,y)...)
     @eval ($i)(x::Number, y::AbstractQuantity) = ($i)(promote(x,y)...)
@@ -339,7 +339,6 @@ for cmp in [:(==), :isequal]
     end
     @eval $cmp(x::Number, y::AbstractQuantity) = $cmp(y,x)
 end
-<=(x::AbstractQuantity, y::AbstractQuantity) = <(x,y) || x==y
 
 _dimerr(f) = error("$f can only be well-defined for dimensionless ",
         "numbers. For dimensionful numbers, different input units yield physically ",
