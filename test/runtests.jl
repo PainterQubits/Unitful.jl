@@ -529,6 +529,14 @@ end
 Base.:(==)(x::MatNum, y::MatNum) = x.mat == y.mat
 Base.:*(x::MatNum, y::MatNum) = MatNum(x.mat*y.mat)
 
+# A number type that defines only `<=`, not `==` or `<`
+struct Issue399 <: Integer
+    num::Int
+end
+Base.:<(::Issue399, ::Issue399) = error("< not defined")
+Base.:(==)(::Issue399, ::Issue399) = error("== not defined")
+Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
+
 @testset "Mathematics" begin
     @testset "> Comparisons" begin
         # make sure we are just picking one of the arguments, without surprising conversions
@@ -559,8 +567,13 @@ Base.:*(x::MatNum, y::MatNum) = MatNum(x.mat*y.mat)
         @test !(@inferred 3.0m .< 3.0m)
         @test @inferred(2.0m <= 3.0m)
         @test @inferred(3.0m <= 3.0m)
+        @test @inferred(3.0m <= 3000.0mm)
         @test @inferred(2.0m .<= 3.0m)
         @test @inferred(3.0m .<= 3.0m)
+        @test !@inferred(1.0m/mm <= 999)
+        @test @inferred(1.0m/mm <= 1000)
+        @test !@inferred(1.1 <= 1000mm/m)
+        @test @inferred(1.0 <= 1000mm/m)
         @test @inferred(1μm/m < 1)
         @test @inferred(1 > 1μm/m)
         @test @inferred(1μm/m < 1mm/m)
@@ -569,8 +582,12 @@ Base.:*(x::MatNum, y::MatNum) = MatNum(x.mat*y.mat)
         @test_throws DimensionError 1m < 1
         @test_throws DimensionError 1 < 1m
         @test_throws DimensionError 1mm/m < 1m
+        @test_throws DimensionError 1mm/m <= 1m
         @test Base.rtoldefault(typeof(1.0u"m")) === Base.rtoldefault(typeof(1.0))
         @test Base.rtoldefault(typeof(1u"m")) === Base.rtoldefault(Int)
+        @test_throws ErrorException Issue399(1)m < Issue399(2)m
+        @test_throws ErrorException Issue399(1)m == Issue399(1)m
+        @test @inferred(Issue399(1)m <= Issue399(2)m)
     end
     @testset "> Addition and subtraction" begin
         @test @inferred(+(1A)) == 1A                    # Unary addition
