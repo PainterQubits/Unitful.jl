@@ -194,7 +194,7 @@ end
 function basefactor(inex, ex, eq, tens, p)
     # Sometimes (x::Rational)^1 can fail for large rationals because the result
     # is of type x*x so we do a hack here
-    function dpow(x,p)
+    function dpow(x, p)
         if p == 0
             1
         elseif p == 1
@@ -232,19 +232,23 @@ function basefactor(inex, ex, eq, tens, p)
             # Note that sometimes x^1 can cause an overflow error if x is large because
             # of how power_by_squaring is implemented for Rationals, so we use dpow.
             x = dpow(eq*ex*(10//1)^tens, p)
-            return (inex^p, isinteger(x) ? Int(x) : x)
+            result = (inex^p, isinteger(x) ? Int(x) : x)
         else
             x = dpow(ex*(10//1)^tens, p)
-            return ((inex*eq)^p, isinteger(x) ? Int(x) : x)
+            result = ((inex * eq)^p, isinteger(x) ? Int(x) : x)
         end
     else
         if eq_is_exact && can_exact2
-            x = dpow(eq,p)
-            return ((inex * ex * 10.0^tens)^p, isinteger(x) ? Int(x) : x)
+            x = dpow(eq, p)
+            result = ((inex * ex * 10.0^tens)^p, isinteger(x) ? Int(x) : x)
         else
-            return ((inex * ex * 10.0^tens * eq)^p, 1)
+            result = ((inex * ex * 10.0^tens * eq)^p, 1)
         end
     end
+    if isfinite(inex) && !isfinite(first(result)) || !iszero(inex) && iszero(first(result))
+        throw(ArgumentError("Floating point overflow/underflow, probably due to large exponent ($p)"))
+    end
+    return result
 end
 
 """
