@@ -217,39 +217,6 @@ atan(y::AbstractQuantity{T1,D,U1}, x::AbstractQuantity{T2,D,U2}) where {T1,T2,D,
 atan(y::AbstractQuantity{T,D,U}, x::AbstractQuantity{T,D,U}) where {T,D,U} = atan(y.val,x.val)
 atan(y::AbstractQuantity, x::AbstractQuantity) = throw(DimensionError(x,y))
 
-for (f, F) in [(:min, :<), (:max, :>)]
-    @eval @generated function ($f)(x::AbstractQuantity, y::AbstractQuantity)    #TODO
-        xdim = x.parameters[2]
-        ydim = y.parameters[2]
-        if xdim != ydim
-            return :(throw(DimensionError(x,y)))
-        end
-
-        isa(x.parameters[3](), FixedUnits) &&
-            isa(y.parameters[3](), FixedUnits) &&
-            x.parameters[3] !== y.parameters[3] &&
-            error("automatic conversion prohibited.")
-
-        xunits = x.parameters[3].parameters[1]
-        yunits = y.parameters[3].parameters[1]
-
-        factx = mapreduce((x,y)->broadcast(*,x,y), xunits) do x
-            vcat(basefactor(x)...)
-        end
-        facty = mapreduce((x,y)->broadcast(*,x,y), yunits) do x
-            vcat(basefactor(x)...)
-        end
-
-        tensx = mapreduce(tensfactor, +, xunits)
-        tensy = mapreduce(tensfactor, +, yunits)
-
-        convx = *(factx..., (10.0)^tensx)
-        convy = *(facty..., (10.0)^tensy)
-
-        :($($F)(x.val*$convx, y.val*$convy) ? x : y)
-    end
-end
-
 abs(x::AbstractQuantity) = Quantity(abs(x.val), unit(x))
 abs2(x::AbstractQuantity) = Quantity(abs2(x.val), unit(x)*unit(x))
 angle(x::AbstractQuantity{<:Complex}) = angle(x.val)

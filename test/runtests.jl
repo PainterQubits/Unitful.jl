@@ -231,6 +231,21 @@ end
             @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"Tb^11", 1u"ab^11"))
             @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"b^11 * eV", 1u"m^22 * J"))
             @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"m^22 * J", 1u"b^11 * eV"))
+
+            # min/max had code doing the equivalent of uconvert, and suffering
+            # from similar problems as issue 647 (see above)
+            @test_or_throws ArgumentError max(1u"Ym^18", 1u"Em^18") === 1u"Ym^18"
+            @test_or_throws ArgumentError max(1u"Em^18", 1u"Ym^18") === 1u"Ym^18"
+            @test_or_throws ArgumentError min(1u"Ym^18", 1u"Em^18") === 1u"Em^18"
+            @test_or_throws ArgumentError min(1u"Em^18", 1u"Ym^18") === 1u"Em^18"
+            @test_or_throws ArgumentError minmax(1u"Ym^18", 1u"Em^18") ===
+                (1u"Em^18", 1u"Em^18")
+            @test_or_throws ArgumentError max(1u"fb^8", 1u"ab^8") === 1u"fb^8"
+            @test_or_throws ArgumentError max(1u"ab^8", 1u"fb^8") === 1u"fb^8"
+            @test_or_throws ArgumentError min(1u"fb^8", 1u"ab^8") === 1u"ab^8"
+            @test_or_throws ArgumentError min(1u"ab^8", 1u"fb^8") === 1u"ab^8"
+            @test_or_throws ArgumentError minmax(1u"fb^8", 1u"ab^8") ===
+                (1u"ab^8", 1u"fb^8")
         end
     end
 end
