@@ -1,6 +1,6 @@
 """
     convfact(s::Units, t::Units)
-Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m,cm) == 1//100`.
+Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 1//100`.
 """
 @generated function convfact(s::Units, t::Units)
     sunits = s.parameters[1]
@@ -12,14 +12,12 @@ Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m,cm) == 1
     sdim != tdim && throw(DimensionError(s(),t()))
 
     # first convert to base SI units.
-    # fact1 is what would need to be multiplied to get to base SI units
-    # fact2 is what would be multiplied to get from the result to base SI units
 
     inex1, ex1 = basefactor(t())
     inex2, ex2 = basefactor(s())
 
     a = inex1 / inex2
-    ex = ex1 // ex2     # do overflow checking?
+    ex = ex1 // ex2
 
     tens1 = mapreduce(tensfactor, +, tunits; init=0)
     tens2 = mapreduce(tensfactor, +, sunits; init=0)
