@@ -7,30 +7,23 @@ Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 
     tunits = t.parameters[1]
 
     # Check if conversion is possible in principle
-    sdim = dimension(s())
-    tdim = dimension(t())
-    sdim != tdim && throw(DimensionError(s(),t()))
+    dimension(s()) != dimension(t()) && throw(DimensionError(s(), t()))
 
-    # first convert to base SI units.
-
-    inex1, ex1 = basefactor(t())
-    inex2, ex2 = basefactor(s())
-
-    a = inex1 / inex2
-    ex = ex1 // ex2
-
-    tens1 = mapreduce(tensfactor, +, tunits; init=0)
-    tens2 = mapreduce(tensfactor, +, sunits; init=0)
-
-    pow = tens1-tens2
+    # first convert to base SI units
+    # use absoluteunit because division is invalid for AffineUnits;
+    # convert to FreeUnits first because absolute ContextUnits might still
+    # promote to AffineUnits
+    conv_units = absoluteunit(FreeUnits(t())) / absoluteunit(FreeUnits(s()))
+    inex_a, ex = basefactor(conv_units)
+    pow = tensfactor(conv_units)
 
     fpow = 10.0^pow
-    if fpow > typemax(Int) || 1/(fpow) > typemax(Int)
-        a *= fpow
+    if fpow > typemax(Int) || 1/fpow > typemax(Int)
+        inex_a *= fpow
     else
         comp = (pow > 0 ? fpow * numerator(ex) : 1/fpow * denominator(ex))
         if comp > typemax(Int)
-            a *= fpow
+            inex_a *= fpow
         else
             ex *= (10//1)^pow
         end
@@ -39,7 +32,7 @@ Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 
     if ex isa Rational && denominator(ex) == 1
         ex = numerator(ex)
     end
-    a ≈ 1.0 ? (inex = 1) : (inex = a)
+    inex = (inex_a ≈ 1.0 ? 1 : inex_a)
     y = inex * ex
     :($y)
 end
