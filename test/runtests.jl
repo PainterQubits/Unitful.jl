@@ -194,10 +194,12 @@ end
             @test 1u"rps" == 2π/s
             @test 1u"rpm" == 360°/minute
             @test 1u"rpm" == 2π/minute
-
             # Issue 458:
             @test deg2rad(360°) ≈ 2π * rad
             @test rad2deg(2π * rad) ≈ 360°
+            # Issue 647:
+            @test uconvert(u"kb^1000", 1u"kb^1001 * b^-1") === 1000u"kb^1000"
+            @test uconvert(u"kOe^1000", 1u"kOe^1001 * Oe^-1") === 1000u"kOe^1000"
         end
     end
 end
