@@ -21,9 +21,6 @@ Base.widen(::Type{Quantity{T,D,U}}) where {T,D,U} =
 # skip Base.float, Base.real, Base.imag because it is already
 # implemented
 
-Base.reim(z::Quantity{T,D,U}) where {T<:Complex,D,U} =
-    (real(z), imag(z))
-
 # Base.real for types has a general implementation in julia; a faster
 # method could be provided but is not strictly required.
 

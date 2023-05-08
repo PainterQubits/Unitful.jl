@@ -233,8 +233,7 @@ Mathematical operations are forwarded to the logarithmic part, so that for examp
 for convenience, though the association is understood (e.g. `s^-1*(3dBm) == (3dBm)/s`).
 
 The behavior of multiplication is summarized in the following table, with entries marked by
-† indicate prohibited operations. This table is populated automatically whenever the docs
-are built.
+† indicating prohibited operations.
 
 ```@eval
 using Latexify, Unitful
@@ -244,7 +243,7 @@ quantities = uparse.(head)
 tab = fill("", length(head), length(head))
 for col = eachindex(head), row = 1:col
     try
-        tab[row, col] = string(quantities[row] * quantities[col])
+        tab[row, col] = sprint(show, quantities[row] * quantities[col], context = :compact => true)
     catch
         if quantities[row] === u"1/Hz" && quantities[col] === u"3dB"
             tab[row, col] = "† ‡"
@@ -328,8 +327,7 @@ julia> 20u"dBm" + @dB 1u"W"/u"W"
 i.e. `1.1 W`.
 
 Rules for addition are summarized in the following table, with entries marked by †
-indicating prohibited operations. This table is populated automatically whenever the docs
-are built.
+indicating prohibited operations.
 
 ```@eval
 using Latexify, Unitful
@@ -339,7 +337,7 @@ quantities = uparse.(head)
 tab = fill("", length(head), length(head))
 for col = eachindex(head), row = 1:col
     try
-        tab[row, col] = string(quantities[row] + quantities[col])
+        tab[row, col] = sprint(show, quantities[row] + quantities[col], context = :compact => true)
     catch
         tab[row, col] = "†"
     end

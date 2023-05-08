@@ -328,7 +328,7 @@ Unitful.uconvert(U::Unitful.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
     @testset "> Unit preferences" begin
         # Should warn on possible redundant units issue (ms and s)
         @test_logs (:warn, r"^Preferred units contain complex units") Unitful.preferunits(C/ms)
-        # Test for wacky prefered units functionality
+        # Test for wacky preferred units functionality
         Unitful.preferunits(C/s)
         @test @inferred(upreferred(V/m)) == kg*m*C^-1*s^-2
         @test dimension(upreferred(V/m)) == dimension(V/m)
@@ -534,6 +534,14 @@ end
 Base.:(==)(x::MatNum, y::MatNum) = x.mat == y.mat
 Base.:*(x::MatNum, y::MatNum) = MatNum(x.mat*y.mat)
 
+# A number type that defines only `<=`, not `==` or `<`
+struct Issue399 <: Integer
+    num::Int
+end
+Base.:<(::Issue399, ::Issue399) = error("< not defined")
+Base.:(==)(::Issue399, ::Issue399) = error("== not defined")
+Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
+
 @testset "Mathematics" begin
     @testset "> Comparisons" begin
         # make sure we are just picking one of the arguments, without surprising conversions
@@ -564,8 +572,13 @@ Base.:*(x::MatNum, y::MatNum) = MatNum(x.mat*y.mat)
         @test !(@inferred 3.0m .< 3.0m)
         @test @inferred(2.0m <= 3.0m)
         @test @inferred(3.0m <= 3.0m)
+        @test @inferred(3.0m <= 3000.0mm)
         @test @inferred(2.0m .<= 3.0m)
         @test @inferred(3.0m .<= 3.0m)
+        @test !@inferred(1.0m/mm <= 999)
+        @test @inferred(1.0m/mm <= 1000)
+        @test !@inferred(1.1 <= 1000mm/m)
+        @test @inferred(1.0 <= 1000mm/m)
         @test @inferred(1μm/m < 1)
         @test @inferred(1 > 1μm/m)
         @test @inferred(1μm/m < 1mm/m)
@@ -574,8 +587,12 @@ Base.:*(x::MatNum, y::MatNum) = MatNum(x.mat*y.mat)
         @test_throws DimensionError 1m < 1
         @test_throws DimensionError 1 < 1m
         @test_throws DimensionError 1mm/m < 1m
+        @test_throws DimensionError 1mm/m <= 1m
         @test Base.rtoldefault(typeof(1.0u"m")) === Base.rtoldefault(typeof(1.0))
         @test Base.rtoldefault(typeof(1u"m")) === Base.rtoldefault(Int)
+        @test_throws ErrorException Issue399(1)m < Issue399(2)m
+        @test_throws ErrorException Issue399(1)m == Issue399(1)m
+        @test @inferred(Issue399(1)m <= Issue399(2)m)
     end
     @testset "> Addition and subtraction" begin
         @test @inferred(+(1A)) == 1A                    # Unary addition
@@ -616,7 +633,7 @@ Base.:*(x::MatNum, y::MatNum) = MatNum(x.mat*y.mat)
         @test @inferred((NaN*kg)*false) === 0.0kg         # `false` acts as "strong zero"
         @test @inferred(false*(-Inf*kg)) === -0.0kg       # `false` acts as "strong zero"
         @test typeof(one(eltype([1.0s, 1kg]))) <: Float64 # issue 159, multiplicative identity
-        # Multiplicaton can be non-commutative
+        # Multiplication can be non-commutative
         @test Quantity(MatNum([1 2; 3 4]), m) * MatNum([5 6; 7 8]) == Quantity(MatNum([19 22; 43 50]), m)
         @test MatNum([5 6; 7 8]) * Quantity(MatNum([1 2; 3 4]), m) == Quantity(MatNum([23 34; 31 46]), m)
     end
@@ -1054,6 +1071,14 @@ end
     @test round(typeof(1mm), 1.0314m) === 1031mm
     @test round(typeof(1.0mm), 1.0314m) === 1031.0mm
     @test round(typeof(1.0mm), 1.0314m; digits=1) === 1031.4mm
+    @test round(typeof(1.0°), 1.125°) === 1.0°
+    @test round(typeof(1.0°), 1.125°, RoundUp) === 2.0°
+    @test round(typeof(1.0°), 1.125°, digits=1) === 1.1°
+    @test round(typeof(1.0°), 1.125°, RoundUp, digits=1) === 1.2°
+    @test round(typeof(1.0°), 1rad) === 57.0°
+    @test round(typeof(1.0°), 1rad, RoundUp) === 58.0°
+    @test floor(typeof(1.0°), 1.125°) === 1.0°
+    @test floor(typeof(1.0°), 1.125°, digits=1) === 1.1°
     @test round(u"inch", 1.0314m) === 41.0u"inch"
     @test round(Int, u"inch", 1.0314m) === 41u"inch"
     @test round(typeof(1m), 137cm) === 1m
@@ -1081,8 +1106,19 @@ end
     @test @inferred(signbit(-0.0m)) == true
     @test @inferred(copysign(3.0m, -4.0s)) == -3.0m
     @test @inferred(copysign(3.0m, 4)) == 3.0m
+    @test @inferred(copysign(3, -4.0m)) == -3
     @test @inferred(flipsign(3.0m, -4)) == -3.0m
     @test @inferred(flipsign(-3.0m, -4)) == 3.0m
+    @test @inferred(flipsign(-3.0, -4m)) == 3.0
+    @test @inferred(flipsign(-3, 4.0m)) == -3
+    @test @inferred(flipsign(3.0m, -4s)) == -3.0m
+    @test @inferred(flipsign(-3m, 4.0s)) == -3m
+    @test @inferred(flipsign((3.0+4.0im)m, -4)) == (-3.0-4.0im)m
+    @test @inferred(flipsign((-3.0+4.0im)m, -4)) == (3.0-4.0im)m
+    @test @inferred(flipsign(-3+4im, -4m)) == 3-4im
+    @test @inferred(flipsign(-3.0+4.0im, 4m)) == -3.0+4.0im
+    @test @inferred(flipsign((3.0+4.0im)m, -4s)) == (-3.0-4.0im)m
+    @test @inferred(flipsign((-3+4im)m, 4.0s)) == (-3+4im)m
     @test @inferred(real(3m)) == 3.0m
     @test @inferred(real((3+4im)V)) == 3V
     @test @inferred(imag(3m)) == 0m
@@ -1444,7 +1480,7 @@ end
             @test zero(Quantity[1m, 1s]) == [0m, 0s]
             @test zero([1mm, missing]) == [0mm, 0mm]
             @test zero(Union{typeof(0.0s),Missing}[missing]) == [0.0s]
-            if VERSION ≥ v"1.10.0-DEV.425"
+            if VERSION ≥ v"1.9.0-rc1"
                 @test zero(Union{Quantity{Int,𝐋},Missing}[1mm, missing]) == [0m, 0m]
                 @test zero(Union{Quantity{Float64,𝐋},Missing}[1.0mm, missing]) == [0.0m, 0.0m]
                 @test zero(Union{Quantity{Int,𝚯},Missing}[1°C, 2°F, missing]) == [0K, 0K, 0K]
@@ -1894,12 +1930,12 @@ end
 end
 
 @testset "Output ordered by unit exponent" begin
-    ordered = Unitful.sortexp(typeof(u"J*mol^-1*K^-1").parameters[1])
+    ordered = Unitful.sortexp(u"J*mol^-1*K^-1")
     @test typeof(ordered[1]) <: Unitful.Unit{:Joule,<:Any}
     @test typeof(ordered[2]) <: Unitful.Unit{:Kelvin,<:Any}
     @test typeof(ordered[3]) <: Unitful.Unit{:Mole,<:Any}
 
-    ordered = Unitful.sortexp(typeof(u"mol*J^-1*K^-1").parameters[1])
+    ordered = Unitful.sortexp(u"mol*J^-1*K^-1")
     @test typeof(ordered[1]) <: Unitful.Unit{:Mole,<:Any}
     @test typeof(ordered[2]) <: Unitful.Unit{:Joule,<:Any}
     @test typeof(ordered[3]) <: Unitful.Unit{:Kelvin,<:Any}
@@ -2139,3 +2175,7 @@ finally
     rm(load_path, recursive=true)
     rm(load_cache_path, recursive=true)
 end
+
+using Aqua
+
+Aqua.test_all(Unitful, ambiguities=VERSION≥v"1.1", unbound_args=false, piracy=VERSION≥v"1.8")

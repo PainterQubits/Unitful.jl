@@ -202,24 +202,24 @@ Base. -(x::Gain, y::Level) = throw(ArgumentError("cannot subtract a level from a
 leveltype(x::Level{L,S}) where {L,S} = Level{L,S}
 Base. *(x::Level, y::Number) = (leveltype(x))(x.val * y)
 Base. *(x::Level, y::Bool) = (leveltype(x))(x.val * y)    # for method ambiguity
-Base. *(x::Level, y::Quantity) = *(x.val, y)
+Base. *(x::Level, y::AbstractQuantity) = *(x.val, y)
 Base. *(x::Level, y::Level) = *(x.val, y.val)
 Base. *(x::Level, y::Gain) = *(promote(x,y)...)
 
 Base. *(x::Number, y::Level) = *(y,x)
 Base. *(x::Bool, y::Level) = *(y,x)                       # for method ambiguity
-Base. *(x::Quantity, y::Level) = *(y,x)                   # for method ambiguity
+Base. *(x::AbstractQuantity, y::Level) = *(y,x)           # for method ambiguity
 
 gaintype(::Gain{L,S}) where {L,S} = Gain{L,S}
 Base. *(x::Gain, y::Number) = (gaintype(x))(x.val * y)
 Base. *(x::Gain, y::Bool) = (gaintype(x))(x.val * y)      # for method ambiguity
-Base. *(x::Gain, y::Quantity) = *(y,x)
+Base. *(x::Gain, y::AbstractQuantity) = *(y,x)
 Base. *(x::Gain, y::Level) = *(promote(x,y)...)
 Base. *(x::Gain, y::Gain) = *(promote(x,y)...)
 
 Base. *(x::Number, y::Gain) = *(y,x)
 Base. *(x::Bool, y::Gain) = *(y,x)                        # for method ambiguity
-Base. *(x::Quantity, y::Gain) =
+Base. *(x::AbstractQuantity, y::Gain) =
     isrootpower(x) ? uconvertrp(NoUnits, y) * x : uconvertp(NoUnits, y) * x
 
 for (op1,op2) in ((:*, :+), (:/, :-))
@@ -242,18 +242,18 @@ Base. /(x::Gain, y::Level) = throw(ArgumentError("cannot divide a gain by a leve
 
 Base. /(x::Level, y::Number) = (leveltype(x))(linear(x) / y)
 Base. //(x::Level, y::Number) = (leveltype(x))(linear(x) // y)
-Base. /(x::Level, y::Quantity) = linear(x) / y
-Base. //(x::Level, y::Quantity) = linear(x) // y
+Base. /(x::Level, y::AbstractQuantity) = linear(x) / y
+Base. //(x::Level, y::AbstractQuantity) = linear(x) // y
 Base. /(x::Level, y::Level) = linear(x) / linear(y)
 Base. //(x::Level, y::Level) = linear(x) // linear(y)
 Base. //(x::Level, y::Complex) = linear(x) // y     # ambiguity resolution
 
 Base. //(x::Number, y::Level) = x // linear(y)
-Base. /(x::Quantity, y::Level) = x / linear(y)
-Base. //(x::Quantity, y::Level) = x // linear(y)
-Base. /(x::Quantity, y::Gain) =
+Base. /(x::AbstractQuantity, y::Level) = x / linear(y)
+Base. //(x::AbstractQuantity, y::Level) = x // linear(y)
+Base. /(x::AbstractQuantity, y::Gain) =
     isrootpower(x) ? x / uconvertrp(NoUnits, y) : x / uconvertp(NoUnits, y)
-Base. //(x::Quantity, y::Gain) =
+Base. //(x::AbstractQuantity, y::Gain) =
     isrootpower(x) ? x // uconvertrp(NoUnits, y) : x // uconvertp(NoUnits, y)
 
 Base. //(x::Level, y::Units) = x/y
@@ -277,16 +277,10 @@ function (Base.promote_rule(::Type{Level{L1,S1,T1}}, ::Type{Level{L2,S2,T2}})
     end
 end
 
-function Base.promote_rule(::Type{Level{L,R,S}}, ::Type{Quantity{T,D,U}}) where {L,R,S,T,D,U}
-    return promote_type(S, Quantity{T,D,U})
-end
 function Base.promote_rule(::Type{Quantity{T,D,U}}, ::Type{Level{L,R,S}}) where {L,R,S,T,D,U}
     return promote_type(S, Quantity{T,D,U})
 end
 function Base.promote_rule(::Type{Level{L,R,S}}, ::Type{T}) where {L,R,S,T<:Real}
-    return promote_type(S,T)
-end
-function Base.promote_rule(::Type{T}, ::Type{Level{L,R,S}}) where {L,R,S,T<:Real}
     return promote_type(S,T)
 end
 function (Base.promote_rule(::Type{Gain{L1,S1,T1}}, ::Type{Gain{L2,S2,T2}})

@@ -189,8 +189,7 @@ for (_x,_y) in [(:fma, :_fma), (:muladd, :_muladd)]
     @eval @inline ($_x)(x::AbstractQuantity, y::Number, z::AbstractQuantity) = ($_y)(x,y,z)
 
     # Post-promotion
-    @eval @inline ($_x)(x::AbstractQuantity{A}, y::AbstractQuantity{B}, z::AbstractQuantity{C}) where {
-        A <: Number, B <: Number, C <: Number} = ($_y)(x,y,z)
+    @eval @inline ($_x)(x::AbstractQuantity, y::AbstractQuantity, z::AbstractQuantity) = ($_y)(x,y,z)
 
     # It seems like most of this is optimized out by the compiler, including the
     # apparent runtime check of dimensions, which does not appear in @code_llvm.
@@ -256,9 +255,14 @@ abs2(x::AbstractQuantity) = Quantity(abs2(x.val), unit(x)*unit(x))
 angle(x::AbstractQuantity{<:Complex}) = angle(x.val)
 
 copysign(x::AbstractQuantity, y::Number) = Quantity(copysign(x.val,y/unit(y)), unit(x))
-flipsign(x::AbstractQuantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
+copysign(x::Number, y::AbstractQuantity) = copysign(x,y/unit(y))
+copysign(x::AbstractQuantity, y::AbstractQuantity) = Quantity(copysign(x.val,y/unit(y)), unit(x))
 
-for (i,j) in zip((:<, :isless), (:_lt, :_isless))
+flipsign(x::AbstractQuantity, y::Number) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
+flipsign(x::Number, y::AbstractQuantity) = flipsign(x,y/unit(y))
+flipsign(x::AbstractQuantity, y::AbstractQuantity) = Quantity(flipsign(x.val,y/unit(y)), unit(x))
+
+for (i,j) in zip((:<, :<=, :isless), (:_lt, :_le, :_isless))
     @eval ($i)(x::AbstractQuantity, y::AbstractQuantity) = ($j)(x,y)
     @eval ($i)(x::AbstractQuantity, y::Number) = ($i)(promote(x,y)...)
     @eval ($i)(x::Number, y::AbstractQuantity) = ($i)(promote(x,y)...)
@@ -335,7 +339,6 @@ for cmp in [:(==), :isequal]
     end
     @eval $cmp(x::Number, y::AbstractQuantity) = $cmp(y,x)
 end
-<=(x::AbstractQuantity, y::AbstractQuantity) = <(x,y) || x==y
 
 _dimerr(f) = error("$f can only be well-defined for dimensionless ",
         "numbers. For dimensionful numbers, different input units yield physically ",
@@ -375,6 +378,10 @@ function round(::Type{T}, x::AbstractQuantity, r::RoundingMode;
     unitless = ustrip(u, x)
     return Quantity{S, dimension(T), typeof(u)}(round(unitless, r; kwargs...))
 end
+round(::Type{T}, x::DimensionlessQuantity; kwargs...) where {S, T <: Quantity{S}} =
+    invoke(round, Tuple{Type{T},AbstractQuantity}, T, x; kwargs...) # for ambiguity resolution
+round(::Type{T}, x::DimensionlessQuantity, r::RoundingMode; kwargs...) where {S, T <: Quantity{S}} =
+    invoke(round, Tuple{Type{T},AbstractQuantity,RoundingMode}, T, x, r; kwargs...) # for ambiguity resolution
 
 # that should actually be fixed in Base ↓
 for (f,r) = ((:trunc, :RoundToZero), (:floor, :RoundDown), (:ceil, :RoundUp))

@@ -170,7 +170,7 @@ function show(io::IO, x::Unitlike)
     showoperators = get(io, :showoperators, false)
     first = ""
     sep = showoperators ? "*" : " "
-    foreach(sortexp(typeof(x).parameters[1])) do y
+    foreach(sortexp(x)) do y
         print(io,first)
         showrep(io,y)
         first = sep
@@ -182,10 +182,9 @@ end
     sortexp(xs)
 Sort units to show positive exponents first.
 """
-function sortexp(xs)
-    vcat([x for x in xs if power(x) >= 0],
-         [x for x in xs if power(x) < 0])
-end
+sortexp(xs) = sort!(collect(xs), by = u->signbit(power(u)), alg = InsertionSort)
+@generated sortexp(::Dimensions{D}) where D = (sortexp(D)...,)
+@generated sortexp(::Units{U}) where U = (sortexp(U)...,)
 
 """
     showrep(io::IO, x::Unit)

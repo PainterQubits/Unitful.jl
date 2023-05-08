@@ -16,6 +16,7 @@ import Base: length, float, last, one, oneunit, zero, range
 import Base: getindex, eltype, step, last, first, frexp
 import Base: Integer, Rational, typemin, typemax
 import Base: steprange_last, unsigned
+import Base: sleep
 @static if VERSION ≥ v"1.7.0-DEV.119"
     import Base: isunordered
 end

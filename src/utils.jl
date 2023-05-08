@@ -112,9 +112,8 @@ true
 
 """
     unit(x::Number)
-Returns a `Unitful.FreeUnits{(), NoDims}` object to indicate that ordinary
-numbers have no units. This is a singleton, which we export as `NoUnits`.
-The unit is displayed as an empty string.
+Returns the [`NoUnits`](@ref) object to indicate that ordinary numbers have no units. The
+unit is displayed as an empty string.
 
 Examples:
 
