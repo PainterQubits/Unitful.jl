@@ -1,5 +1,5 @@
 using Unitful
-using Test, LinearAlgebra, Random, ConstructionBase
+using Test, LinearAlgebra, Random, ConstructionBase, InverseFunctions
 import Unitful: DimensionError, AffineError
 import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
 import Unitful: FreeUnits, ContextUnits, FixedUnits, AffineUnits, AffineQuantity
@@ -83,6 +83,11 @@ const colon = Base.:(:)
     @test ContextUnits(m, ContextUnits(mm, mm)) === ContextUnits(m, mm)
     @test_throws DimensionError ContextUnits(m,kg)
     @test ConstructionBase.constructorof(typeof(1.0m))(2) === 2m
+end
+
+VERSION >= v"1.9-" && @testset "inverse" begin
+    InverseFunctions.test_inverse(Base.Fix1(ustrip, m), 2m)
+    InverseFunctions.test_inverse(Base.Fix1(ustrip, m), 2mm)
 end
 
 @testset "Types" begin
