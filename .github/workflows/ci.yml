@@ -17,7 +17,6 @@ jobs:
         julia-version:
           - "1.0"
           - "1"
-          - '~1.9.0-0'
           - "nightly"
         os:
           - ubuntu-latest
