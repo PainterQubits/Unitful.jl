@@ -1,5 +1,10 @@
 # Unitful.jl changelog
 
+## v1.14.0 (2023-05-11)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) On Julia ≥ 1.9, [InverseFunctions.jl](https://github.com/JuliaMath/InverseFunctions.jl) can be used to get the inverse function of `Base.Fix1(ustrip, u::Units)` ([#622](https://github.com/PainterQubits/Unitful.jl/pull/622)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `<=` now works correctly for `AbstractQuantity{T}` when `T` is a type for which `<=(x::T,y::T)` is different than `x < y || x == y` ([#646](https://github.com/PainterQubits/Unitful.jl/pull/646)).
+
 ## v1.13.1 (2023-04-15)
 
 * ![Maintenance:](https://img.shields.io/badge/-maintenance-grey) Adapt test suite for Julia 1.9 ([#643](https://github.com/PainterQubits/Unitful.jl/pull/643)).
