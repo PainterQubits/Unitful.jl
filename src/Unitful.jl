@@ -71,4 +71,8 @@ include("complex.jl")
 include("pkgdefaults.jl")
 include("dates.jl")
 
+if !isdefined(Base, :get_extension)
+    include("../ext/InverseFunctionsUnitfulExt.jl")
+end
+
 end

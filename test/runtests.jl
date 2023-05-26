@@ -85,7 +85,7 @@ const colon = Base.:(:)
     @test ConstructionBase.constructorof(typeof(1.0m))(2) === 2m
 end
 
-VERSION >= v"1.9-" && @testset "inverse" begin
+@testset "inverse" begin
     InverseFunctions.test_inverse(Base.Fix1(ustrip, m), 2m)
     InverseFunctions.test_inverse(Base.Fix1(ustrip, m), 2mm)
 end
@@ -2178,4 +2178,10 @@ end
 
 using Aqua
 
-Aqua.test_all(Unitful, ambiguities=VERSION≥v"1.1", unbound_args=false, piracy=VERSION≥v"1.8")
+Aqua.test_all(Unitful, ambiguities=VERSION≥v"1.1", unbound_args=false, piracy=VERSION≥v"1.8", stale_deps=false, project_toml_formatting = false)
+# Workaround for https://github.com/JuliaTesting/Aqua.jl/issues/107:
+Aqua.test_stale_deps(Unitful, ignore=[:InverseFunctions])
+# Project.toml seems to get formatted differently on older Julia versions:
+if VERSION ≥ v"1.6"
+    Aqua.test_project_toml_formatting(Unitful)
+end 
