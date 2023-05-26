@@ -74,6 +74,13 @@ julia> a[1] = 3u"m"; b
  3
  2
 ```
+
+`ustrip`` supports `InverseFunctions.inverse`:
+
+```jldoctest
+julia> inverse(Base.Fix1(ustrip, u"m"))(5)
+5 m
+```
 """
 @inline ustrip(A::Array{Q}) where {Q <: Quantity} = reinterpret(numtype(Q), A)
 
