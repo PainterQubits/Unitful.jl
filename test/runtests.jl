@@ -2184,4 +2184,4 @@ Aqua.test_stale_deps(Unitful, ignore=[:InverseFunctions])
 # Project.toml seems to get formatted differently on older Julia versions:
 if VERSION ≥ v"1.6"
     Aqua.test_project_toml_formatting(Unitful)
-end 
+end
