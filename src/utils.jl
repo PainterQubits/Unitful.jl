@@ -24,6 +24,13 @@ true
 julia> ustrip(Float64, u"m", 2u"mm") == 0.002
 true
 ```
+
+`ustrip`` supports `InverseFunctions.inverse`:
+
+```jldoctest
+julia> inverse(Base.Fix1(ustrip, u"m"))(5)
+5 m
+```
 """
 @inline ustrip(u::Units, x) = ustrip(uconvert(u, x))
 @inline ustrip(T::Type, u::Units, x) = convert(T, ustrip(u, x))
@@ -73,13 +80,6 @@ julia> a[1] = 3u"m"; b
 2-element reinterpret(Int64, ::Vector{Quantity{Int64, 𝐋, Unitful.FreeUnits{(m,), 𝐋, nothing}}}):
  3
  2
-```
-
-`ustrip`` supports `InverseFunctions.inverse`:
-
-```jldoctest
-julia> inverse(Base.Fix1(ustrip, u"m"))(5)
-5 m
 ```
 """
 @inline ustrip(A::Array{Q}) where {Q <: Quantity} = reinterpret(numtype(Q), A)
