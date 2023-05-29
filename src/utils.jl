@@ -25,7 +25,7 @@ julia> ustrip(Float64, u"m", 2u"mm") == 0.002
 true
 ```
 
-`ustrip`` supports `InverseFunctions.inverse`:
+`ustrip` supports `InverseFunctions.inverse`:
 
 ```jldoctest
 julia> inverse(Base.Fix1(ustrip, u"m"))(5)
