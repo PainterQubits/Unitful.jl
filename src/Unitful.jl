@@ -28,6 +28,8 @@ import Random
 
 import ConstructionBase: constructorof
 
+using JuliaInterpreter: JuliaInterpreter
+
 export logunit, unit, absoluteunit, dimension, uconvert, ustrip, upreferred
 export @dimension, @derived_dimension, @refunit, @unit, @affineunit, @u_str
 export Quantity, DimensionlessQuantity, NoUnits, NoDims

@@ -659,7 +659,10 @@ julia> uparse("1.0*dB")
 """
 function uparse(str; unit_context=Unitful)
     ex = Meta.parse(str)
-    eval(lookup_units(unit_context, ex))
+    isa(ex, Symbol) && return lookup_units(unit_context, ex)
+    isa(ex, Number) && return lookup_units(unit_context, ex)
+    ex_processed = lookup_units(unit_context, ex)
+    return JuliaInterpreter.finish_and_return!(JuliaInterpreter.Frame(Unitful, ex_processed))
 end
 
 const allowed_funcs = [:*, :/, :^, :sqrt, :√, :+, :-, ://]
