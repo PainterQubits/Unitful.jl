@@ -2178,6 +2178,4 @@ end
 
 using Aqua
 
-Aqua.test_all(Unitful, ambiguities=VERSION≥v"1.1", unbound_args=false, piracy=VERSION≥v"1.8", stale_deps=false, project_toml_formatting=VERSION≥v"1.6")
-# Workaround for https://github.com/JuliaTesting/Aqua.jl/issues/107:
-Aqua.test_stale_deps(Unitful, ignore=[:InverseFunctions])
+Aqua.test_all(Unitful, ambiguities=VERSION≥v"1.1", unbound_args=false, piracy=VERSION≥v"1.8", project_toml_formatting=VERSION≥v"1.6")
