@@ -24,6 +24,13 @@ true
 julia> ustrip(Float64, u"m", 2u"mm") == 0.002
 true
 ```
+
+`ustrip` supports `InverseFunctions.inverse`:
+
+```jldoctest
+julia> inverse(Base.Fix1(ustrip, u"m"))(5)
+5 m
+```
 """
 @inline ustrip(u::Units, x) = ustrip(uconvert(u, x))
 @inline ustrip(T::Type, u::Units, x) = convert(T, ustrip(u, x))
