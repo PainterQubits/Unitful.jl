@@ -11,16 +11,16 @@ Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 
     # convert to FreeUnits first because absolute ContextUnits might still
     # promote to AffineUnits
     conv_units = absoluteunit(FreeUnits(t())) / absoluteunit(FreeUnits(s()))
-    inex_a, ex = basefactor(conv_units)
+    inex, ex = basefactor(conv_units)
     pow = tensfactor(conv_units)
 
     fpow = 10.0^pow
     if fpow > typemax(Int) || 1/fpow > typemax(Int)
-        inex_a *= fpow
+        inex *= fpow
     else
         comp = (pow > 0 ? fpow * numerator(ex) : 1/fpow * denominator(ex))
         if comp > typemax(Int)
-            inex_a *= fpow
+            inex *= fpow
         else
             ex *= (10//1)^pow
         end
@@ -29,8 +29,7 @@ Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 
     if ex isa Rational && denominator(ex) == 1
         ex = numerator(ex)
     end
-    inex = (inex_a ≈ 1.0 ? 1 : inex_a)
-    y = inex * ex
+    y = (inex ≈ 1.0 ? 1 : inex) * ex
     :($y)
 end
 
