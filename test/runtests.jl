@@ -200,6 +200,20 @@ end
             # Issue 647:
             @test uconvert(u"kb^1000", 1u"kb^1001 * b^-1") === 1000u"kb^1000"
             @test uconvert(u"kOe^1000", 1u"kOe^1001 * Oe^-1") === 1000u"kOe^1000"
+            # Floating point overflow/underflow in uconvert can happen if the
+            # conversion factor is large, because uconvert does not cancel
+            # common basefactors. This test makes sure that uconvert does not
+            # silently return NaN in this case, i.e. either returns a finite
+            # result or throws an error indicating that it cannot handle the
+            # conversion.
+            try
+                # if the first line throws, go to @test_throws in catch clause
+                # if not: make sure that result is finite
+                uconvert(u"kb^12", 1u"b^12")
+                @test isfinite(uconvert(u"kb^12", 1u"b^12"))
+            catch
+                @test_throws ArgumentError uconvert(u"kb^12", 1u"b^12")
+            end
         end
     end
 end
