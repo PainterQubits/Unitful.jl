@@ -166,9 +166,6 @@ end
 # Field-only constructor
 Quantity{<:Any,D,U}(val::Number) where {D,U} = Quantity{typeof(val),D,U}(val)
 
-constructorof(::Type{Unitful.Quantity{_,D,U}}) where {_,D,U} =
-    Unitful.Quantity{T,D,U} where T
-
 """
     DimensionlessUnits{U}
 Useful for dispatching on [`Unitful.Units`](@ref) types that have no dimensions.
