@@ -6,7 +6,6 @@ Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 
     # Check if conversion is possible in principle
     dimension(s()) != dimension(t()) && throw(DimensionError(s(), t()))
 
-    # first convert to base SI units
     # use absoluteunit because division is invalid for AffineUnits;
     # convert to FreeUnits first because absolute ContextUnits might still
     # promote to AffineUnits
