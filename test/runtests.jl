@@ -202,17 +202,24 @@ end
             @test uconvert(u"kOe^1000", 1u"kOe^1001 * Oe^-1") === 1000u"kOe^1000"
             # Floating point overflow/underflow in uconvert can happen if the
             # conversion factor is large, because uconvert does not cancel
-            # common basefactors. This test makes sure that uconvert does not
-            # silently return NaN in this case, i.e. either returns a finite
+            # common basefactors (or just for really large exponents and/or
+            # SI prefixes). This test makes sure that uconvert does not silently
+            # return NaN, Inf, or 0 in these cases, i.e. either returns a finite
             # result or throws an error indicating that it cannot handle the
             # conversion.
-            try
-                # if the first line throws, go to @test_throws in catch clause
-                # if not: make sure that result is finite
-                uconvert(u"kb^12", 1u"b^12")
-                @test isfinite(uconvert(u"kb^12", 1u"b^12"))
-            catch
-                @test_throws ArgumentError uconvert(u"kb^12", 1u"b^12")
+            let test_finite_or_throws(extype, ex) =
+                    @eval try
+                        # if the first line throws, go to @test_throws in
+                        # catch clause if not: make sure that result is finite
+                        $ex
+                        @test isfinite($ex)
+                        @test !iszero($ex)
+                    catch
+                        @test_throws $extype $ex
+                    end
+                test_finite_or_throws(ArgumentError, :(uconvert(u"kb^12", 1u"b^12")))
+                test_finite_or_throws(ArgumentError, :(uconvert(u"ab^11", 1u"Tb^11")))
+                test_finite_or_throws(ArgumentError, :(uconvert(u"Tb^11", 1u"ab^11")))
             end
         end
     end

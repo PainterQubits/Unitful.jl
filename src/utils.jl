@@ -246,3 +246,6 @@ struct AffineError <: Exception
 end
 
 Base.showerror(io::IO, e::AffineError) = print(io, "AffineError: $(e.x)")
+
+fp_overflow_underflow(input, result) =
+    isfinite(input) && !isfinite(result) || !iszero(input) && iszero(result)

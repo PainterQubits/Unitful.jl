@@ -12,6 +12,7 @@ Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 
     conv_units = absoluteunit(FreeUnits(t())) / absoluteunit(FreeUnits(s()))
     inex, ex = basefactor(conv_units)
     pow = tensfactor(conv_units)
+    inex_orig = inex
 
     fpow = 10.0^pow
     if fpow > typemax(Int) || 1/fpow > typemax(Int)
@@ -28,8 +29,15 @@ Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 
     if ex isa Rational && denominator(ex) == 1
         ex = numerator(ex)
     end
-    y = (inex ≈ 1.0 ? 1 : inex) * ex
-    :($y)
+
+    result = (inex ≈ 1.0 ? 1 : inex) * ex
+    if fp_overflow_underflow(inex_orig, result)
+        throw(ArgumentError(
+            "Floating point overflow/underflow, probably due to large \
+            exponents and/or SI prefixes in units"
+        ))
+    end
+    return :($result)
 end
 
 """

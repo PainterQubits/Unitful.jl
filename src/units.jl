@@ -245,7 +245,7 @@ function basefactor(inex, ex, eq, tens, p)
             result = ((inex * ex * 10.0^tens * eq)^p, 1)
         end
     end
-    if isfinite(inex) && !isfinite(first(result)) || !iszero(inex) && iszero(first(result))
+    if fp_overflow_underflow(inex, first(result))
         throw(ArgumentError("Floating point overflow/underflow, probably due to large exponent ($p)"))
     end
     return result
