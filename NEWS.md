@@ -1,5 +1,10 @@
 # Unitful.jl changelog
 
+## v1.15.0 (2023-07-05)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) Support for [InverseFunctions.jl](https://github.com/JuliaMath/InverseFunctions.jl) is extended to all supported Julia versions. On Julia < 1.9, InverseFunctions.jl is added as a regular dependency ([#652](https://github.com/PainterQubits/Unitful.jl/pull/652)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) On Julia ≥ 1.9, [ConstructionBase.jl](https://github.com/JuliaObjects/ConstructionBase.jl) is now a weak dependency. On older versions, it is still a regular dependency. ([#658](https://github.com/PainterQubits/Unitful.jl/pull/658)).
+
 ## v1.14.0 (2023-05-11)
 
 * ![Feature:](https://img.shields.io/badge/-feature-green) On Julia ≥ 1.9, [InverseFunctions.jl](https://github.com/JuliaMath/InverseFunctions.jl) can be used to get the inverse function of `Base.Fix1(ustrip, u::Units)` ([#622](https://github.com/PainterQubits/Unitful.jl/pull/622)).
