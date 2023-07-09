@@ -60,6 +60,7 @@ const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 @derived_dimension MagneticDipoleMoment     𝐋^2*𝐈 true
 @derived_dimension Molarity                 𝐍/𝐋^3 true
 @derived_dimension Molality                 𝐍/𝐌 true
+@derived_dimension MolarMass                𝐌/𝐍 true
 @derived_dimension MassFlow                 𝐌/𝐓 true
 @derived_dimension MolarFlow                𝐍/𝐓 true
 @derived_dimension VolumeFlow               𝐋^3/𝐓 true
