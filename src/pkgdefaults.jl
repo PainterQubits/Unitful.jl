@@ -362,7 +362,7 @@ const q = 1.602_176_634e-19*C        # CODATA 2018; `e` means 2.718...
 \nThe standard atmosphere, a unit of pressure, defined as 101,325 Pa.
 \nDimension: 𝐌 𝐋^-1 𝐓^-2.
 \nSee also: [`Unitful.Pa`](@ref)."
-@unit atm    "atm"      Atmosphere  101325Pa                false
+@unit atm    "atm"      Atmosphere  101325Pa                true true
 "    Unitful.Torr
 \nThe torr, a unit of pressure, defined as 1/760 atm.
 \nDimension: 𝐌 𝐋^-1 𝐓^-2.
