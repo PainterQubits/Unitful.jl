@@ -26,8 +26,6 @@ import LinearAlgebra: Diagonal, Bidiagonal, Tridiagonal, SymTridiagonal
 import LinearAlgebra: istril, istriu, norm
 import Random
 
-import ConstructionBase: constructorof
-
 using JuliaInterpreter: JuliaInterpreter
 
 export logunit, unit, absoluteunit, dimension, uconvert, ustrip, upreferred
@@ -72,5 +70,10 @@ include("logarithm.jl")
 include("complex.jl")
 include("pkgdefaults.jl")
 include("dates.jl")
+
+if !isdefined(Base, :get_extension)
+    include("../ext/ConstructionBaseUnitfulExt.jl")
+    include("../ext/InverseFunctionsUnitfulExt.jl")
+end
 
 end

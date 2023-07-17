@@ -1,6 +1,7 @@
 ```@meta
 DocTestSetup = quote
     using Unitful
+    using InverseFunctions
 end
 ```
 # Manipulating units
