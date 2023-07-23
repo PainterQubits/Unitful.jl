@@ -1,5 +1,5 @@
 using Unitful
-using Test, LinearAlgebra, Random, ConstructionBase, InverseFunctions
+using Test, LinearAlgebra, Random, ConstructionBase, InverseFunctions, Latexify
 import Unitful: DimensionError, AffineError
 import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
 import Unitful: FreeUnits, ContextUnits, FixedUnits, AffineUnits, AffineQuantity
@@ -39,6 +39,8 @@ using Dates:
     Nanosecond, Microsecond, Millisecond, Second, Minute, Hour, Day, Week,
     Month, Year,
     CompoundPeriod
+
+import Latexify.LaTeXStrings: LaTeXString
 
 const colon = Base.:(:)
 
@@ -2058,6 +2060,181 @@ end
     @test @doc(Unitful.Å) == @doc(Unitful.Å)
 end
 
+@testset "Latexify" begin
+
+function unitfullatexifytest(val, mathrmexpected, siunitxexpected, siunitxsimpleexpected)
+    @test latexify(val; unitformat=:mathrm) ==
+        LaTeXString(replace(mathrmexpected, "\r\n" => "\n"))
+    @test latexify(val; unitformat=:siunitx) ==
+        LaTeXString(replace(siunitxexpected, "\r\n" => "\n"))
+    @test latexify(val; unitformat=:siunitxsimple) ==
+        LaTeXString(replace(siunitxsimpleexpected, "\r\n" => "\n"))
+end
+
+@testset "Latexify units" begin
+    unitfullatexifytest(
+        u"H*J/kg",
+        raw"$\mathrm{H}\,\mathrm{J}\,\mathrm{kg}^{-1}$",
+        raw"\unit{\henry\joule\per\kilo\gram}",
+        raw"\unit{H.J.kg^{-1}}",
+    )
+    unitfullatexifytest(
+        24.7e9u"Gm/s^2",
+        raw"$2.47 \cdot 10^{10}\;\mathrm{Gm}\,\mathrm{s}^{-2}$",
+        raw"\qty{2.47e10}{\giga\meter\per\second\tothe{2}}",
+        raw"\qty{2.47e10}{Gm.s^{-2}}",
+    )
+    unitfullatexifytest(
+        6.02214076e23u"One",
+        raw"$6.022 \cdot 10^{23}$",
+        raw"\num{6.02214076e23}",
+        raw"\num{6.02214076e23}",
+    )
+    unitfullatexifytest(
+        u"percent", raw"$\mathrm{\%}$", raw"\unit{\percent}", raw"\unit{\%}"
+    )
+    unitfullatexifytest(
+        2u"°C", raw"$2\;\mathrm{^\circ C}$", raw"\qty{2}{\celsius}", raw"\qty{2}{\celsius}"
+    )
+    unitfullatexifytest(
+        1u"°", raw"$1\mathrm{^{\circ}}$", raw"\qty{1}{\degree}", raw"\qty{1}{\degree}"
+    )
+    unitfullatexifytest(
+        [1, 2, 3]*m,
+        raw"""
+        \begin{equation}
+        \left[
+        \begin{array}{c}
+        1 \\
+        2 \\
+        3 \\
+        \end{array}
+        \right]\;\mathrm{m}
+        \end{equation}
+        """,
+        raw"""
+        \begin{equation}
+        \left[
+        \begin{array}{c}
+        \num{1} \\
+        \num{2} \\
+        \num{3} \\
+        \end{array}
+        \right]\;\unit{\meter}
+        \end{equation}
+        """,
+        raw"""
+        \begin{equation}
+        \left[
+        \begin{array}{c}
+        \num{1} \\
+        \num{2} \\
+        \num{3} \\
+        \end{array}
+        \right]\;\unit{m}
+        \end{equation}
+        """,
+    )
+    unitfullatexifytest((1:3)*m,
+        raw"""
+        \begin{equation}
+        \left[
+        \begin{array}{c}
+        1 \\
+        2 \\
+        3 \\
+        \end{array}
+        \right]\;\mathrm{m}
+        \end{equation}
+        """,
+        raw"\qtyrange{1}{3}{\meter}",
+        raw"\qtyrange{1}{3}{m}",
+    )
+    unitfullatexifytest((1,2,3).*m,
+        raw"""
+        \begin{equation}
+        \left[
+        \begin{array}{c}
+        1 \\
+        2 \\
+        3 \\
+        \end{array}
+        \right]\;\mathrm{m}
+        \end{equation}
+        """,
+        raw"\qtylist{1;2;3}{\meter}",
+        raw"\qtylist{1;2;3}{m}",
+    )
+    unitfullatexifytest((1:3)*u"One",
+        raw"""
+        \begin{equation}
+        \left[
+        \begin{array}{c}
+        1 \\
+        2 \\
+        3 \\
+        \end{array}
+        \right]
+        \end{equation}
+        """,
+        raw"\numrange{1}{3}",
+        raw"\numrange{1}{3}",
+    )
+    unitfullatexifytest((1,2,3).*u"One",
+        raw"""
+        \begin{equation}
+        \left[
+        \begin{array}{c}
+        1 \\
+        2 \\
+        3 \\
+        \end{array}
+        \right]
+        \end{equation}
+        """,
+        raw"\numlist{1;2;3}",
+        raw"\numlist{1;2;3}",
+    )
+    @test latexify(24.7e9u"Gm/s^2"; fmt="%.1e") ==
+        LaTeXString("\$2.5e+10\\;\\mathrm{Gm}\\,\\mathrm{s}^{-2}\$")
+
+    @test latexify(5.9722e24u"kg"; unitformat=:siunitx, siunitxlegacy=true) ==
+        raw"\SI{5.9722e24}{\kilo\gram}"
+    @test latexify(u"eV"; unitformat=:siunitx, siunitxlegacy=true) ==
+        raw"\si{\electronvolt}"
+end
+
+@testset "permode" begin
+    p = 5u"m^3*s^2/H/kg^4"
+    @test latexify(p) == LaTeXString(
+        raw"$5\;\mathrm{m}^{3}\,\mathrm{s}^{2}\,\mathrm{kg}^{-4}\,\mathrm{H}^{-1}$"
+    )
+    @test latexify(p; permode=:power) == LaTeXString(
+        raw"$5\;\mathrm{m}^{3}\,\mathrm{s}^{2}\,\mathrm{kg}^{-4}\,\mathrm{H}^{-1}$"
+    )
+    @test latexify(p; permode=:slash) == LaTeXString(
+        raw"$5\;\mathrm{m}^{3}\,\mathrm{s}^{2}\,/\,\mathrm{kg}^{4}\,\mathrm{H}$"
+    )
+    @test latexify(p; permode=:frac) == LaTeXString(
+        raw"$5\;\frac{\mathrm{m}^{3}\,\mathrm{s}^{2}}{\mathrm{kg}^{4}\,\mathrm{H}}$"
+    )
+    @test latexify(p; unitformat=:siunitx, permode=:frac) ==
+        latexify(p; unitformat=:siunitx)
+    @test latexify(u"m"; permode=:frac) == latexify(u"m")
+    @test latexify(u"m^-1"; permode=:frac) == LaTeXString(raw"$\frac{1}{\mathrm{m}}$")
+    @test_throws ErrorException latexify(p; permode=:wrogn)
+end
+
+@testset "Labels" begin
+    @test latexify("x", m) == raw"$x\;\left/\;\mathrm{m}\right.$"
+    @test latexify("x", m; labelformat=:slash) == raw"$x\;\left/\;\mathrm{m}\right.$"
+    @test latexify("x", m; labelformat=:square) == raw"$x\;\left[\mathrm{m}\right]$"
+    @test latexify("x", m; labelformat=:round) == raw"$x\;\left(\mathrm{m}\right)$"
+    @test latexify("x", m; labelformat=:frac) == raw"$\frac{x}{\mathrm{m}}$"
+end
+
+end
+
 module DocUnits
     using Unitful
     using Unitful: 𝐋
@@ -2179,3 +2356,5 @@ end
 using Aqua
 
 Aqua.test_all(Unitful, ambiguities=VERSION≥v"1.1", unbound_args=false, piracy=VERSION≥v"1.8", project_toml_formatting=VERSION≥v"1.6")
+
+
