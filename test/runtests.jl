@@ -745,12 +745,8 @@ Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
         @test @inferred(cospi(1rad)) == -1
         @test @inferred(sinc(1rad)) === 0
         @test @inferred(cosc(1ft/3inch)) === 0.25
-        if isdefined(Base, :cispi)
-            @test @inferred(cispi(rad/2)) === complex(0.0, 1.0)
-        end
-        if isdefined(Base, :sincospi)
-            @test @inferred(sincospi(rad/2)) === (1.0, 0.0)
-        end
+        @test @inferred(cispi(rad/2)) === complex(0.0, 1.0)
+        @test @inferred(sincospi(rad/2)) === (1.0, 0.0)
 
         @test @inferred(atan(m*sqrt(3),1m)) ≈ 60°
         @test @inferred(atan(m*sqrt(3),1.0m)) ≈ 60°
@@ -1507,17 +1503,10 @@ end
 
 @testset "Display" begin
     withenv("UNITFUL_FANCY_EXPONENTS" => false) do
-        @static if VERSION ≥ v"1.6.0-DEV.770"
-            @test string(typeof(1.0m/s)) ==
-                "Quantity{Float64, 𝐋 𝐓^-1, FreeUnits{(m, s^-1), 𝐋 𝐓^-1, nothing}}"
-            @test string(typeof(m/s)) ==
-                "FreeUnits{(m, s^-1), 𝐋 𝐓^-1, nothing}"
-        else
-            @test string(typeof(1.0m/s)) ==
-                "Quantity{Float64,𝐋 𝐓^-1,FreeUnits{(m, s^-1),𝐋 𝐓^-1,nothing}}"
-            @test string(typeof(m/s)) ==
-                "FreeUnits{(m, s^-1),𝐋 𝐓^-1,nothing}"
-        end
+        @test string(typeof(1.0m/s)) ==
+            "Quantity{Float64, 𝐋 𝐓^-1, FreeUnits{(m, s^-1), 𝐋 𝐓^-1, nothing}}"
+        @test string(typeof(m/s)) ==
+            "FreeUnits{(m, s^-1), 𝐋 𝐓^-1, nothing}"
         @test string(dimension(1u"m/s")) == "𝐋 𝐓^-1"
         @test string(NoDims) == "NoDims"
     end
