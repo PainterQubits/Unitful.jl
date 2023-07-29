@@ -139,6 +139,12 @@
 * ![Feature:](https://img.shields.io/badge/-feature-green) The unit `Pertenthousand` (`‱`) is added ([#294](https://github.com/PainterQubits/Unitful.jl/pull/294)).
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Calling the two-argument `atan` with quantities that have the same numeric type and dimension but different units no longer errors ([#293](https://github.com/PainterQubits/Unitful.jl/pull/293)).
 
+## v0.18.0 (2019-11-27)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) `Quantity` types now support the `constructorof` function from the [ConstructionBase.jl](https://github.com/JuliaObjects/ConstructionBase.jl) package ([#280](https://github.com/PainterQubits/Unitful.jl/pull/280)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) Using units as conversion functions now supports `missing` ([#278](https://github.com/PainterQubits/Unitful.jl/pull/278)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) The unit `Angstrom` (`Å` or `angstrom`) is added ([#271](https://github.com/PainterQubits/Unitful.jl/pull/271)).
+
 ## Older changes
 
 - v0.14.0
