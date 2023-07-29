@@ -362,7 +362,7 @@ round(x::AbstractQuantity, r::RoundingMode=RoundNearest; kwargs...) =
 round(x::DimensionlessQuantity; kwargs...) = round(uconvert(NoUnits, x); kwargs...)
 round(x::DimensionlessQuantity, r::RoundingMode; kwargs...) =
     round(uconvert(NoUnits, x), r; kwargs...)
-round(::Type{T}, x::AbstractQuantity, r=RoundingMode=RoundNearest;
+round(::Type{T}, x::AbstractQuantity, r::RoundingMode=RoundNearest;
     kwargs...) where {T<:Number} = _dimerr(:round)
 round(::Type{T}, x::DimensionlessQuantity, r::RoundingMode=RoundNearest;
     kwargs...) where {T<:Number} = round(T, uconvert(NoUnits, x), r; kwargs...)
