@@ -145,6 +145,19 @@
 * ![Feature:](https://img.shields.io/badge/-feature-green) Using units as conversion functions now supports `missing` ([#278](https://github.com/PainterQubits/Unitful.jl/pull/278)).
 * ![Feature:](https://img.shields.io/badge/-feature-green) The unit `Angstrom` (`Å` or `angstrom`) is added ([#271](https://github.com/PainterQubits/Unitful.jl/pull/271)).
 
+## v0.17.0 (2019-09-08)
+
+* ![BREAKING:](https://img.shields.io/badge/-BREAKING-red) The unit `rps` (revolutions per second) is now equal to `2π*rad/s` instead of `1/s` and the unit `rpm` (revolutions per minute) is now equal to `2π*rad/minute` instead of `1/minute` ([#268](https://github.com/PainterQubits/Unitful.jl/pull/268)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) The derived dimensions `MassFlow` (`𝐌/𝐓`), `MolarFlow` (`𝐍/𝐓`), and `VolumeFlow` (`𝐋^3/𝐓`) are added ([#269](https://github.com/PainterQubits/Unitful.jl/pull/269)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) The dimensions power density (`𝐌 𝐋^-1 𝐓^-3`) and work (`𝐋^2 𝐌 𝐓^-2`) are marked as power-like for use with logarithmic quantities ([#267](https://github.com/PainterQubits/Unitful.jl/pull/267)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) `zero(::Type{<:AbstractQuantity{T,D}}) where {T,D}` can be used to get an additive identity with numeric type `T` and dimension `D` ([#266](https://github.com/PainterQubits/Unitful.jl/pull/266)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) The unit `Molar` (`M`) is added ([#258](https://github.com/PainterQubits/Unitful.jl/pull/258)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) `Unitful.register` now extends `Unitful.basefactors`, so packages that define units don’t have to do it themselves ([#251](https://github.com/PainterQubits/Unitful.jl/pull/251)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Ranges of quantities are now printed in a more concise way ([#256](https://github.com/PainterQubits/Unitful.jl/pull/256)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Angular degrees are now printed without a space between the number and unit, in compliance with the SI standard ([#255](https://github.com/PainterQubits/Unitful.jl/pull/255)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `zero` now errors if the dimension of its argument is unspecified ([#266](https://github.com/PainterQubits/Unitful.jl/pull/266)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `Unitful.promote_to_derived` works again ([#252](https://github.com/PainterQubits/Unitful.jl/pull/252)).
+
 ## Older changes
 
 - v0.14.0
