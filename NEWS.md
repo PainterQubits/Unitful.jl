@@ -169,6 +169,14 @@
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Ranges which use `Base.TwicePrecision` internally now work correctly ([#245](https://github.com/PainterQubits/Unitful.jl/pull/245)).
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Fixed some issues around use of `@generated` functions that could lead to world-age errors or wrong behavior ([#233](https://github.com/PainterQubits/Unitful.jl/pull/233), [#243](https://github.com/PainterQubits/Unitful.jl/pull/243)).
 
+## v0.15.0 (2019-03-05)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) The functions `uconvert`, `ustrip`, `unit`, and `dimension` as well as arithmetic with units now support `missing` ([#208](https://github.com/PainterQubits/Unitful.jl/pull/208)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) Two-argument `ustrip(unit, x)` and three-argument `ustrip(T, unit, x)` methods are added ([#205](https://github.com/PainterQubits/Unitful.jl/pull/205)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) The `AbstractQuantity{T,D,U}` type is defined to support defining quantity types other than `Quantity{T,D,U}` ([#204](https://github.com/PainterQubits/Unitful.jl/pull/204)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) The derived dimensions `Molarity` (`𝐍/𝐋^3`) and `Molality` (`𝐍/𝐌`) are added ([#198](https://github.com/PainterQubits/Unitful.jl/pull/198)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Multiplying a range by units now works correctly ([#206](https://github.com/PainterQubits/Unitful.jl/pull/206)).
+
 ## Older changes
 
 - v0.14.0
