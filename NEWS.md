@@ -158,6 +158,17 @@
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `zero` now errors if the dimension of its argument is unspecified ([#266](https://github.com/PainterQubits/Unitful.jl/pull/266)).
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `Unitful.promote_to_derived` works again ([#252](https://github.com/PainterQubits/Unitful.jl/pull/252)).
 
+## v0.16.0 (2019-07-01)
+
+* ![BREAKING:](https://img.shields.io/badge/-BREAKING-red) The physical constants are updated to the CODATA 2018 recommended values ([#235](https://github.com/PainterQubits/Unitful.jl/pull/235)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) On Julia v1, the rounding functions `round`, `ceil`, `floor`, and `trunc` now accept all keyword arguments that are supported for plain numbers. In addition, the first argument to these functions can be a unit instead of a type ([#246](https://github.com/PainterQubits/Unitful.jl/pull/246), [#249](https://github.com/PainterQubits/Unitful.jl/pull/249), [#250](https://github.com/PainterQubits/Unitful.jl/pull/250)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) The functions `Base.complex`, `Base.reim`, and `Base.widen` can now be called with unitful quantities ([#227](https://github.com/PainterQubits/Unitful.jl/pull/227)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) The function `upreferred` now supports `missing` ([#224](https://github.com/PainterQubits/Unitful.jl/pull/224)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) Two-argument and three-argument `ustrip` now support dimensionless quantities and `missing` ([#212](https://github.com/PainterQubits/Unitful.jl/pull/212)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Better support for number types that customize their `MIME"text/plain"` printing ([#213](https://github.com/PainterQubits/Unitful.jl/pull/213)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Ranges which use `Base.TwicePrecision` internally now work correctly ([#245](https://github.com/PainterQubits/Unitful.jl/pull/245)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Fixed some issues around use of `@generated` functions that could lead to world-age errors or wrong behavior ([#233](https://github.com/PainterQubits/Unitful.jl/pull/233), [#243](https://github.com/PainterQubits/Unitful.jl/pull/243)).
+
 ## Older changes
 
 - v0.14.0
