@@ -206,7 +206,7 @@ sqrt(x::AbstractQuantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
 cbrt(x::AbstractQuantity) = Quantity(cbrt(x.val), cbrt(unit(x)))
 
 for _y in (:sin, :cos, :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
-           :sinpi, :cospi, :sinc, :cosc, :cis, :cispi, :sincospi)
+           :sinpi, :cospi, :tanpi, :sinc, :cosc, :cis, :cispi, :sincospi)
     if isdefined(Base, _y)
         @eval Base.$(_y)(x::DimensionlessQuantity) = Base.$(_y)(uconvert(NoUnits, x))
     end

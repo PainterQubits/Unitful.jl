@@ -9,7 +9,7 @@ import Unitful:
     ac,
     mg, g, kg,
     Ra, °F, °C, K,
-    rad, °,
+    rad, mrad, °,
     ms, s, minute, hr, d, yr, Hz,
     J, A, N, mol, V,
     mW, W,
@@ -750,6 +750,11 @@ Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
         end
         if isdefined(Base, :sincospi)
             @test @inferred(sincospi(rad/2)) === (1.0, 0.0)
+        end
+        if isdefined(Base, :tanpi)
+            @test @inferred(tanpi(1f0rad)) === tanpi(1f0)
+            @test @inferred(tanpi(250mrad)) === tanpi(0.25)
+            @test @inferred(tanpi(-100mm/m)) === tanpi(-1//10)
         end
 
         @test @inferred(atan(m*sqrt(3),1m)) ≈ 60°
