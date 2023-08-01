@@ -1514,21 +1514,16 @@ end
     withenv("UNITFUL_FANCY_EXPONENTS" => false) do
         @static if VERSION ≥ v"1.6.0-DEV.770"
             @test string(typeof(1.0m/s)) ==
-                "Quantity{Float64, 𝐋 𝐓^-1, FreeUnits{(m, s^-1), 𝐋 𝐓^-1, nothing}}"
+                "Quantity{Float64, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}}"
             @test string(typeof(m/s)) ==
-                "FreeUnits{(m, s^-1), 𝐋 𝐓^-1, nothing}"
-        else
-            @test string(typeof(1.0m/s)) ==
-                "Quantity{Float64,𝐋 𝐓^-1,FreeUnits{(m, s^-1),𝐋 𝐓^-1,nothing}}"
-            @test string(typeof(m/s)) ==
-                "FreeUnits{(m, s^-1),𝐋 𝐓^-1,nothing}"
+                "FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}"
         end
         @test string(dimension(1u"m/s")) == "𝐋 𝐓^-1"
         @test string(NoDims) == "NoDims"
     end
     @testset ":fancy_exponent IOContext property" begin
-        @test sprint(io -> show(IOContext(io, :fancy_exponent => true), u"m/s")) == "m s⁻¹"
-        @test sprint(io -> show(IOContext(io, :fancy_exponent => false), u"m/s")) == "m s^-1"
+        @test sprint(print, u"m/s", context = :fancy_exponent => true) == "m s⁻¹"
+        @test sprint(print, u"m/s", context = :fancy_exponent => false) == "m s^-1"
     end
 end
 
@@ -1538,49 +1533,65 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
 
 @testset "Show quantities" begin
     withenv("UNITFUL_FANCY_EXPONENTS" => false) do
-        @test repr(1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
+        @static if VERSION ≥ v"1.6.0-DEV.770"
+            @test repr(1.0 * u"m * s * kg^-1") == "Quantity{Float64, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Mass}(-1//1), Unitful.Dimension{:Time}(1//1))}(), FreeUnits{(Unitful.Unit{:Gram, Unitful.Dimensions{(Unitful.Dimension{:Mass}(1//1),)}()}(3, -1//1), Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, 1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Mass}(-1//1), Unitful.Dimension{:Time}(1//1))}(), nothing}}(1.0)"
+            @test repr(Foo() * u"m * s * kg^-1") == "Quantity{Foo, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Mass}(-1//1), Unitful.Dimension{:Time}(1//1))}(), FreeUnits{(Unitful.Unit{:Gram, Unitful.Dimensions{(Unitful.Dimension{:Mass}(1//1),)}()}(3, -1//1), Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, 1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Mass}(-1//1), Unitful.Dimension{:Time}(1//1))}(), nothing}}(1)"
+            @test repr((1+2im) * u"m/s") == "Quantity{Complex{Int64}, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), FreeUnits{(Unitful.Unit{:Meter, Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1),)}()}(0, 1//1), Unitful.Unit{:Second, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}()}(0, -1//1)), Unitful.Dimensions{(Unitful.Dimension{:Length}(1//1), Unitful.Dimension{:Time}(-1//1))}(), nothing}}(1 + 2im)"
+            @test sprint(show, 1.0°)       == "Quantity{Float64, Unitful.Dimensions{()}(), FreeUnits{(Unitful.Unit{:Degree, Unitful.Dimensions{()}()}(0, 1//1),), Unitful.Dimensions{()}(), nothing}}(1.0)"
+        end
         @test repr("text/plain", 1.0 * u"m * s * kg^-1") == "1.0 m s kg^-1"
-        @test repr(Foo() * u"m * s * kg^-1") == "1 m s kg^-1"
         @test repr("text/plain", Foo() * u"m * s * kg^-1") == "42.0 m s kg^-1"
 
         # Complex quantities
-        @test repr((1+2im) * u"m/s") == "(1 + 2im) m s^-1"
         @test repr("text/plain", (1+2im) * u"m/s") == "(1 + 2im) m s^-1"
 
         # Angular degree printing #253
-        @test sprint(show, 1.0°)       == "1.0°"
         @test repr("text/plain", 1.0°) == "1.0°"
 
         # Concise printing of ranges
-        @test repr((1:10)*u"kg/m^3") == "(1:10) kg m^-3"
-        @test repr((1.0:0.1:10.0)*u"kg/m^3") == "(1.0:0.1:10.0) kg m^-3"
-        @test repr((1:10)*°) == "(1:10)°"
-        @test repr(range(1.0+2.0im, length=5)*u"m") == "(1.0 + 2.0im:1.0 + 0.0im:5.0 + 2.0im) m"
-        @test repr(range(1+2im, step=1+1im, length=5)*u"m") == "(1 + 2im:1 + 1im:5 + 6im) m"
-        @test repr(StepRange((1//1)u"m", 1u"cm", (2//1)u"m")) == "(1//1:1//100:2//1) m"
-        @test repr(StepRangeLen(1.0u"m", 1.0u"cm", 101)) == "(1.0:0.01:2.0) m"
+        @test repr("text/plain", (1:10)*u"kg/m^3") == "(1:10) kg m^-3"
+        @test repr("text/plain", (1.0:0.1:10.0)*u"kg/m^3") == "(1.0:0.1:10.0) kg m^-3"
+        @test repr("text/plain", (1:10)*°) == "(1:10)°"
+        @test repr("text/plain", range(1.0+2.0im, length=5)*u"m") == "(1.0 + 2.0im:1.0 + 0.0im:5.0 + 2.0im) m"
+        @test repr("text/plain", range(1+2im, step=1+1im, length=5)*u"m") == "(1 + 2im:1 + 1im:5 + 6im) m"
+        @test repr("text/plain", StepRange((1//1)u"m", 1u"cm", (2//1)u"m")) == "(1//1:1//100:2//1) m"
+        @test repr("text/plain", StepRangeLen(1.0u"m", 1.0u"cm", 101)) == "(1.0:0.01:2.0) m"
 
         # Concise printing of affine ranges with mixed step unit
-        @test repr(StepRange(1u"°C", 1u"K", 3u"°C")) == "(1:3) °C"
-        @test repr(StepRange(1u"°C", 1.0u"K", 3u"°C")) == "(1:3) °C"
-        @test repr(StepRange(1.0u"°C", 1u"K", 3.0u"°C")) == "(1.0:1.0:3.0) °C"
-        @test repr(StepRange(1.0u"°C", 1.0u"K", 3.0u"°C")) == "(1.0:1.0:3.0) °C"
-        @test repr(StepRange((0//1)u"°F", 1u"K", (9//1)u"°F")) == "(0//1:9//5:9//1) °F"
-        @test repr(StepRangeLen{typeof(1.0u"°C"),typeof(1.0u"°C"),typeof(1u"K")}(1.0u"°C", 1u"K", 3, 1)) == "(1.0:1.0:3.0) °C"
+        @test repr("text/plain", StepRange(1u"°C", 1u"K", 3u"°C")) == "(1:3) °C"
+        @test repr("text/plain", StepRange(1u"°C", 1.0u"K", 3u"°C")) == "(1:3) °C"
+        @test repr("text/plain", StepRange(1.0u"°C", 1u"K", 3.0u"°C")) == "(1.0:1.0:3.0) °C"
+        @test repr("text/plain", StepRange(1.0u"°C", 1.0u"K", 3.0u"°C")) == "(1.0:1.0:3.0) °C"
+        @test repr("text/plain", StepRange((0//1)u"°F", 1u"K", (9//1)u"°F")) == "(0//1:9//5:9//1) °F"
+        @test repr("text/plain", StepRangeLen{typeof(1.0u"°C"),typeof(1.0u"°C"),typeof(1u"K")}(1.0u"°C", 1u"K", 3, 1)) == "(1.0:1.0:3.0) °C"
         @static if VERSION < v"1.5"
             @test_broken repr(StepRangeLen{typeof(1u"°C"),typeof(1u"°C"),typeof(1u"K")}(1u"°C", 1u"K", 3, 1)) == "(1:1:3) °C"
             @test_broken repr(StepRangeLen{typeof(1.0u"°F"),typeof(1.0u"°F"),typeof(1u"K")}(0.0u"°F", 1u"K", 6)) == "(0.0:1.8:9.0) °F"
         else
-            @test repr(StepRangeLen{typeof(1u"°C"),typeof(1u"°C"),typeof(1u"K")}(1u"°C", 1u"K", 3, 1)) == "(1:1:3) °C"
-            @test repr(StepRangeLen{typeof(1.0u"°F"),typeof(1.0u"°F"),typeof(1u"K")}(0.0u"°F", 1u"K", 6)) == "(0.0:1.8:9.0) °F"
+            @test repr("text/plain", StepRangeLen{typeof(1u"°C"),typeof(1u"°C"),typeof(1u"K")}(1u"°C", 1u"K", 3, 1)) == "(1:1:3) °C"
+            @test repr("text/plain", StepRangeLen{typeof(1.0u"°F"),typeof(1.0u"°F"),typeof(1u"K")}(0.0u"°F", 1u"K", 6)) == "(0.0:1.8:9.0) °F"
         end
     end
     withenv("UNITFUL_FANCY_EXPONENTS" => true) do
-        @test repr(1.0 * u"m * s * kg^(-1//2)") == "1.0 m s kg⁻¹ᐟ²"
+        @test repr("text/plain", 1.0 * u"m * s * kg^(-1//2)") == "1.0 m s kg⁻¹ᐟ²"
     end
     withenv("UNITFUL_FANCY_EXPONENTS" => nothing) do
-        @test repr(1.0 * u"m * s * kg^(-1//2)") ==
+        @test repr("text/plain", 1.0 * u"m * s * kg^(-1//2)") ==
             (Sys.isapple() ? "1.0 m s kg⁻¹ᐟ²" : "1.0 m s kg^-1/2")
+    end
+
+    @testset "roundtripping show" begin 
+        u = u"m/s"
+        u2 = eval(Meta.parse(repr(u)))
+        @test u == u2 
+
+        q = Quantity(5, u"m")
+        q2 = eval(Meta.parse(repr(q)))
+        @test q == q2 
+        
+        d = u"𝐌*𝐋/𝐓^2"
+        d2 = eval(Meta.parse(repr(d)))
+        @test d == d2 
     end
 end
 
@@ -1915,7 +1926,9 @@ end
 
     @testset "> Display" begin
         withenv("UNITFUL_FANCY_EXPONENTS" => false) do
-            @test repr(3u"dB/Hz") == "[3 dB] Hz^-1"
+            @static if VERSION ≥ v"1.6.0-DEV.770"
+                @test repr(3u"dB/Hz") == "Quantity{Gain{LogInfo{:Decibel, 10, 10}, :?, Int64}, Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}(), FreeUnits{(Unitful.Unit{:Hertz, Unitful.Dimensions{(Unitful.Dimension{:Time}(-1//1),)}()}(0, -1//1),), Unitful.Dimensions{(Unitful.Dimension{:Time}(1//1),)}(), nothing}}(Gain{LogInfo{:Decibel, 10, 10}, :?, Int64}(3))"
+            end
             @test repr("text/plain", 3u"dB/Hz") == "[3 dB] Hz^-1"
         end
         @test Unitful.abbr(3u"dBm") == "dBm"

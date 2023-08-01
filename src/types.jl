@@ -284,7 +284,7 @@ struct IsRootPowerRatio{S,T}
     val::T
 end
 IsRootPowerRatio{S}(x) where {S} = IsRootPowerRatio{S, typeof(x)}(x)
-Base.show(io::IO, x::IsRootPowerRatio{S}) where {S} =
+Base.show(io::IO, ::MIME"text/plain", x::IsRootPowerRatio{S}) where {S} =
     print(io, ifelse(S, "root-power ratio", "power ratio"), " with reference ", x.val)
 const PowerRatio{T} = IsRootPowerRatio{false,T}
 const RootPowerRatio{T} = IsRootPowerRatio{true,T}
