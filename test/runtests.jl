@@ -2057,10 +2057,21 @@ end
     @test uparse("ɛ0") === uparse("ε0")
     @test @doc(Unitful.ɛ0) == @doc(Unitful.ε0)
     # Julia treats Å (U+00C5) and Å (U+212B) as the same
-    @test Unitful.Å === Unitful.Å === Unitful.angstrom
+    @test Unitful.Å === Unitful.Å
     @test u"Å" === u"Å"
     @test uparse("Å") === uparse("Å")
     @test @doc(Unitful.Å) == @doc(Unitful.Å)
+end
+
+@testset "Units aliases" begin
+    @test Unitful.L === Unitful.l
+    @test Unitful.mL === Unitful.ml
+    @test 1Unitful.L === 1Unitful.l
+    @test 2Unitful.mL === 2Unitful.ml
+    @test Unitful.ϵ0 === Unitful.ε0
+    @test (1//2)Unitful.ϵ0 === (1//2)Unitful.ε0
+    @test Unitful.Å === Unitful.angstrom
+    @test 1.0Unitful.Å === 1.0Unitful.angstrom
 end
 
 module DocUnits
@@ -2076,6 +2087,10 @@ module DocUnits
 end
 
 @testset "Docs" begin
+    @test string(@doc(Unitful.L)) == string(@doc(Unitful.l))
+    @test string(@doc(Unitful.cL)) == string(@doc(Unitful.cl))
+    @test string(@doc(Unitful.ϵ0)) == string(@doc(Unitful.ε0))
+    @test string(@doc(Unitful.Å)) == string(@doc(Unitful.angstrom))
     @test string(@doc DocUnits.𝐃) == "dimension docs\n"
     @test string(@doc DocUnits.dRefFoo) == "refunit docs\n"
     @test string(@doc DocUnits.dFoo) == "unit docs\n"

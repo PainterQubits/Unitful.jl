@@ -302,12 +302,7 @@ const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, 𝐋^2}(2, 1//1),), 𝐋^2}()
 \nThe liter, a metric unit of volume, defined as 1000 cm^3.
 \nDimension: 𝐋^3.
 \nSee Also: [`Unitful.cm`](@ref)."
-@unit L      "L"        Liter       m^3//1000                true
-for p in (:y, :z, :a, :f, :p, :n, :μ, :m, :c, :d,
-    Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
-    Core.eval(Unitful, :(const $(Symbol(p,:l)) = $(Symbol(p,:L))))
-end
-@doc @doc(L) l
+(@unit(L,    "L",       Liter,      m^3//1000,              true), const l = L)
 for (k,v) in prefixdict
     if k != 0
         sym_L = Symbol(v,:L)
@@ -322,7 +317,7 @@ for (k,v) in prefixdict
 
                     See also: [`Unitful.L`](@ref).
                     """
-        run = quote @doc $docstring $sym_l; @doc $docstring $sym_L end
+        run = quote @doc $docstring ((const $sym_l = $sym_L), $sym_L) end
         eval(run)
     end
 end
@@ -395,8 +390,7 @@ const μ0 = 4π*(1//10)^7*H/m         # exact (but gets promoted to Float64...),
 \nA quantity representing the vacuum permittivity constant, defined as 1 / (μ0 × c^2).
 \nDimension: 𝐈^2 𝐓^4 𝐋^-3 𝐌^-1.
 \nSee also: [`Unitful.μ0`](@ref), [`Unitful.c`](@ref)."
-const ε0 = 1/(μ0*c^2)               # exact, electric constant; changes here may affect
-@doc @doc(ε0) const ϵ0 = ε0         # test of issue 79.
+((const ε0 = 1/(μ0*c^2)), const ϵ0 = ε0) # exact, electric constant; changes here may affect
 "    Unitful.Z0
 \nA quantity representing the impedance of free space, a constant defined as μ0 × c.
 \nDimension: 𝐋^2 𝐌 𝐈^-2 𝐓^-3.
@@ -586,8 +580,7 @@ earth, a unit of acceleration, defined by standard to be exactly 9.806,65 m / s^
 \nThe angstrom, a metric unit of length defined as 1/10 nm.
 \nDimension: [`Unitful.𝐋`](@ref).
 \nSee Also: [`Unitful.nm`](@ref)."
-@unit angstrom  "Å"        Angstrom             (1//10)*nm      false
-@doc @doc(angstrom) const Å = angstrom
+(@unit(angstrom,"Å",       Angstrom,            (1//10)*nm,             false), const Å = angstrom)
 
 # Area
 "    Unitful.ac
