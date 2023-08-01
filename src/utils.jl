@@ -253,3 +253,15 @@ struct AffineError <: Exception
 end
 
 Base.showerror(io::IO, e::AffineError) = print(io, "AffineError: $(e.x)")
+
+"""
+        doc(unit::Units)
+return the @doc of the unit
+"""
+function doc(unit::Union{Units,AbstractQuantity})
+    try
+        return @doc(unit)
+    catch
+        return ""
+    end
+end

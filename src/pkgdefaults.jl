@@ -307,7 +307,7 @@ for p in (:y, :z, :a, :f, :p, :n, :μ, :m, :c, :d,
     Symbol(""), :da, :h, :k, :M, :G, :T, :P, :E, :Z, :Y)
     Core.eval(Unitful, :(const $(Symbol(p,:l)) = $(Symbol(p,:L))))
 end
-@doc @doc(L) l
+@doc doc(L) l
 for (k,v) in prefixdict
     if k != 0
         sym_L = Symbol(v,:L)
@@ -396,7 +396,7 @@ const μ0 = 4π*(1//10)^7*H/m         # exact (but gets promoted to Float64...),
 \nDimension: 𝐈^2 𝐓^4 𝐋^-3 𝐌^-1.
 \nSee also: [`Unitful.μ0`](@ref), [`Unitful.c`](@ref)."
 const ε0 = 1/(μ0*c^2)               # exact, electric constant; changes here may affect
-@doc @doc(ε0) const ϵ0 = ε0         # test of issue 79.
+@doc doc(ε0) const ϵ0 = ε0         # test of issue 79.
 "    Unitful.Z0
 \nA quantity representing the impedance of free space, a constant defined as μ0 × c.
 \nDimension: 𝐋^2 𝐌 𝐈^-2 𝐓^-3.
@@ -587,7 +587,7 @@ earth, a unit of acceleration, defined by standard to be exactly 9.806,65 m / s^
 \nDimension: [`Unitful.𝐋`](@ref).
 \nSee Also: [`Unitful.nm`](@ref)."
 @unit angstrom  "Å"        Angstrom             (1//10)*nm      false
-@doc @doc(angstrom) const Å = angstrom
+@doc doc(angstrom) const Å = angstrom
 
 # Area
 "    Unitful.ac
