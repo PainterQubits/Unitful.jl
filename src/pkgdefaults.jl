@@ -369,6 +369,10 @@ const q = 1.602_176_634e-19*C        # CODATA 2018; `e` means 2.718...
 \nDimension: 𝐌 𝐋^-1 𝐓^-2.
 \nSee also: [`Unitful.atm`](@ref)."
 @unit Torr   "Torr"     Torr        101325Pa//760           true true
+"    Unitful.One
+\nUnitless number, less fragile than NoUnits.
+\nDimension: [`Unitful.NoDims`](@ref)."
+@unit One "" One 1 false
 
 # Constants (2018 CODATA values)        (uncertainties in final digits)
 "    Unitful.c0

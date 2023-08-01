@@ -12,15 +12,18 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 [weakdeps]
 ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
 InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
+Latexify = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
 
 [extensions]
 ConstructionBaseUnitfulExt = "ConstructionBase"
 InverseFunctionsUnitfulExt = "InverseFunctions"
+LatexifyUnitfulExt = "Latexify"
 
 [compat]
 Aqua = "0.6.3"
 ConstructionBase = "1"
 InverseFunctions = "0.1"
+Latexify = "0.15.1, 0.16"
 julia = "1"
 
 [extras]
@@ -32,4 +35,4 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "ConstructionBase", "InverseFunctions", "LinearAlgebra", "Test", "Random"]
+test = ["Aqua", "ConstructionBase", "InverseFunctions", "LinearAlgebra", "Test", "Random", "Latexify"]

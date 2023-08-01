@@ -72,6 +72,7 @@ include("dates.jl")
 if !isdefined(Base, :get_extension)
     include("../ext/ConstructionBaseUnitfulExt.jl")
     include("../ext/InverseFunctionsUnitfulExt.jl")
+    include("../ext/LatexifyUnitfulExt.jl")
 end
 
 end
