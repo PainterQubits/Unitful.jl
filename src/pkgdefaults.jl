@@ -390,7 +390,7 @@ const μ0 = 4π*(1//10)^7*H/m         # exact (but gets promoted to Float64...),
 \nA quantity representing the vacuum permittivity constant, defined as 1 / (μ0 × c^2).
 \nDimension: 𝐈^2 𝐓^4 𝐋^-3 𝐌^-1.
 \nSee also: [`Unitful.μ0`](@ref), [`Unitful.c`](@ref)."
-((const ε0 = 1/(μ0*c^2)), const ϵ0 = ε0) # exact, electric constant; changes here may affect
+((const ε0 = 1/(μ0*c^2)), const ϵ0 = ε0) # exact, electric constant; changes here may affect test of issue 79.
 "    Unitful.Z0
 \nA quantity representing the impedance of free space, a constant defined as μ0 × c.
 \nDimension: 𝐋^2 𝐌 𝐈^-2 𝐓^-3.
