@@ -1,5 +1,10 @@
 # Unitful.jl changelog
 
+## v1.16.0 (2023-08-01)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) The derived dimensions `MolarMass` (`𝐌/𝐍`) is added ([#663](https://github.com/PainterQubits/Unitful.jl/pull/663)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) Dimensionless quantities now support the `tanpi` function added in Julia 1.10 ([#620](https://github.com/PainterQubits/Unitful.jl/pull/620)).
+
 ## v1.15.0 (2023-07-05)
 
 * ![Feature:](https://img.shields.io/badge/-feature-green) Support for [InverseFunctions.jl](https://github.com/JuliaMath/InverseFunctions.jl) is extended to all supported Julia versions. On Julia < 1.9, InverseFunctions.jl is added as a regular dependency ([#652](https://github.com/PainterQubits/Unitful.jl/pull/652)).
