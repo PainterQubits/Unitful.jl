@@ -42,6 +42,19 @@ using Dates:
 
 const colon = Base.:(:)
 
+macro test_or_throws(extype, ex)
+    return :(
+        try
+            # if the first line throws, go to @test_throws in catch clause
+            # if not: test expression normally
+            result = $ex
+            @test result
+        catch
+            @test_throws $extype $ex
+        end
+    )
+end
+
 @testset "Construction" begin
     @test isa(NoUnits, FreeUnits)
     @test typeof(𝐋) === Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
@@ -207,20 +220,12 @@ end
             # return NaN, Inf, or 0 in these cases, i.e. either returns a finite
             # result or throws an error indicating that it cannot handle the
             # conversion.
-            let test_finite_or_throws(extype, ex) =
-                    @eval try
-                        # if the first line throws, go to @test_throws in
-                        # catch clause if not: make sure that result is finite
-                        $ex
-                        @test isfinite($ex)
-                        @test !iszero($ex)
-                    catch
-                        @test_throws $extype $ex
-                    end
-                test_finite_or_throws(ArgumentError, :(uconvert(u"kb^12", 1u"b^12")))
-                test_finite_or_throws(ArgumentError, :(uconvert(u"ab^11", 1u"Tb^11")))
-                test_finite_or_throws(ArgumentError, :(uconvert(u"Tb^11", 1u"ab^11")))
-            end
+            @test_or_throws ArgumentError isfinite(uconvert(u"kb^12", 1u"b^12"))
+            @test_or_throws ArgumentError !iszero(uconvert(u"kb^12", 1u"b^12"))
+            @test_or_throws ArgumentError isfinite(uconvert(u"ab^11", 1u"Tb^11"))
+            @test_or_throws ArgumentError !iszero(uconvert(u"ab^11", 1u"Tb^11"))
+            @test_or_throws ArgumentError isfinite(uconvert(u"Tb^11", 1u"ab^11"))
+            @test_or_throws ArgumentError !iszero(uconvert(u"Tb^11", 1u"ab^11"))
         end
     end
 end
