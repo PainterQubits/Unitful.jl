@@ -302,7 +302,7 @@ const ha = Unitful.FreeUnits{(Unitful.Unit{:Are, 𝐋^2}(2, 1//1),), 𝐋^2}()
 \nThe liter, a metric unit of volume, defined as 1000 cm^3.
 \nDimension: 𝐋^3.
 \nSee Also: [`Unitful.cm`](@ref)."
-(@unit(L,    "L",       Liter,      m^3//1000,              true), const l = L)
+((@unit L    "L"        Liter       m^3//1000               true), const l = L)
 for (k,v) in prefixdict
     if k != 0
         sym_L = Symbol(v,:L)
@@ -580,7 +580,7 @@ earth, a unit of acceleration, defined by standard to be exactly 9.806,65 m / s^
 \nThe angstrom, a metric unit of length defined as 1/10 nm.
 \nDimension: [`Unitful.𝐋`](@ref).
 \nSee Also: [`Unitful.nm`](@ref)."
-(@unit(angstrom,"Å",       Angstrom,            (1//10)*nm,             false), const Å = angstrom)
+((@unit angstrom "Å"       Angstrom             (1//10)*nm              false), const Å = angstrom)
 
 # Area
 "    Unitful.ac
