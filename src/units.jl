@@ -261,18 +261,21 @@ reference units.
 """
 @inline basefactor(x::Unit{U}) where {U} = basefactor(basefactors[U]..., 1, 0, power(x))
 
-function basefactor(x::Units{U}) where {U}
+function basefactor(::Units{U}) where {U}
     fact1 = map(basefactor, U)
-    inex1 = mapreduce(x->getfield(x,1), *, fact1, init=1.0)
-    float_num = mapreduce(x->float(numerator(getfield(x,2))), *, fact1, init=1.0)
-    float_den = mapreduce(x->float(denominator(getfield(x,2))), *, fact1, init=1.0)
-    can_exact = (float_num < typemax(Int))
-    can_exact &= (float_den < typemax(Int))
+    inex1 = mapreduce(first, *, fact1, init=1.0)
+    float_num = mapreduce(x -> float(numerator(last(x))), *, fact1, init=1.0)
+    float_den = mapreduce(x -> float(denominator(last(x))), *, fact1, init=1.0)
+    can_exact = float_num < typemax(Int) && float_den < typemax(Int)
     if can_exact
-        return inex1, mapreduce(x->getfield(x,2), *, fact1, init=1)
+        result = (inex1, mapreduce(last, *, fact1, init=1))
     else
-        return inex1*float_num/float_den, 1
+        result = (inex1 * (float_num / float_den), 1)
     end
+    if any(fp_overflow_underflow(first(x), first(result)) for x in fact1)
+        throw(ArgumentError("Floating point overflow/underflow, probably due to a large exponent in some of the units"))
+    end
+    return result
 end
 
 Base.broadcastable(x::Units) = Ref(x)

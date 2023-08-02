@@ -220,12 +220,12 @@ end
             # return NaN, Inf, or 0 in these cases, i.e. either returns a finite
             # result or throws an error indicating that it cannot handle the
             # conversion.
-            @test_or_throws ArgumentError isfinite(uconvert(u"kb^12", 1u"b^12"))
-            @test_or_throws ArgumentError !iszero(uconvert(u"kb^12", 1u"b^12"))
-            @test_or_throws ArgumentError isfinite(uconvert(u"ab^11", 1u"Tb^11"))
-            @test_or_throws ArgumentError !iszero(uconvert(u"ab^11", 1u"Tb^11"))
-            @test_or_throws ArgumentError isfinite(uconvert(u"Tb^11", 1u"ab^11"))
-            @test_or_throws ArgumentError !iszero(uconvert(u"Tb^11", 1u"ab^11"))
+            is_finite_nonzero(x) = isfinite(x) && !iszero(x)
+            @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"kb^12", 1u"b^12"))
+            @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"ab^11", 1u"Tb^11"))
+            @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"Tb^11", 1u"ab^11"))
+            @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"b^11 * eV", 1u"m^22 * J"))
+            @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"m^22 * J", 1u"b^11 * eV"))
         end
     end
 end
