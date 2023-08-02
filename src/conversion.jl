@@ -33,8 +33,8 @@ Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 
     result = (inex ≈ 1.0 ? 1 : inex) * ex
     if fp_overflow_underflow(inex_orig, result)
         throw(ArgumentError(
-            "Floating point overflow/underflow, probably due to large \
-            exponents and/or SI prefixes in units"
+            "Floating point overflow/underflow, probably due to large " *
+            "exponents and/or SI prefixes in units"
         ))
     end
     return :($result)
