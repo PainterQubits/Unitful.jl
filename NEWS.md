@@ -1,5 +1,9 @@
 # Unitful.jl changelog
 
+## v1.16.1 (2023-08-02)
+
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Replaced occurrences of single-argument `@doc` for duplicating docstrings, which could lead to errors when creating a Docker image with Julia 1.9 and Unitful ([#671](https://github.com/PainterQubits/Unitful.jl/pull/671)).
+
 ## v1.16.0 (2023-08-01)
 
 * ![Feature:](https://img.shields.io/badge/-feature-green) The derived dimension `MolarMass` (`𝐌/𝐍`) is added ([#663](https://github.com/PainterQubits/Unitful.jl/pull/663)).
