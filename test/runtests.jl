@@ -1130,6 +1130,8 @@ end
     @test @inferred(imag((3+4im)V)) == 4V
     @test @inferred(conj(3m)) == 3m
     @test @inferred(conj((3+4im)V)) == (3-4im)V
+    @test @inferred(Base.hastypemax(typeof(1.0m))) === Base.hastypemax(typeof(1.0))
+    @test @inferred(Base.hastypemax(typeof(big(1)m))) === Base.hastypemax(typeof(big(1)))
     @test @inferred(typemin(1.0m)) == -Inf*m
     @test @inferred(typemax(typeof(1.0m))) == Inf*m
     @test @inferred(typemin(0x01*m)) == 0x00*m
