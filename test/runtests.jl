@@ -42,6 +42,19 @@ using Dates:
 
 const colon = Base.:(:)
 
+macro test_or_throws(extype, ex)
+    return :(
+        try
+            # if the first line throws, go to @test_throws in catch clause
+            # if not: test expression normally
+            result = $ex
+            @test result
+        catch
+            @test_throws $extype $ex
+        end
+    )
+end
+
 @testset "Construction" begin
     @test isa(NoUnits, FreeUnits)
     @test typeof(𝐋) === Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
@@ -199,10 +212,25 @@ end
             @test 1u"rps" == 2π/s
             @test 1u"rpm" == 360°/minute
             @test 1u"rpm" == 2π/minute
-
             # Issue 458:
             @test deg2rad(360°) ≈ 2π * rad
             @test rad2deg(2π * rad) ≈ 360°
+            # Issue 647:
+            @test uconvert(u"kb^1000", 1u"kb^1001 * b^-1") === 1000u"kb^1000"
+            @test uconvert(u"kOe^1000", 1u"kOe^1001 * Oe^-1") === 1000u"kOe^1000"
+            # Floating point overflow/underflow in uconvert can happen if the
+            # conversion factor is large, because uconvert does not cancel
+            # common basefactors (or just for really large exponents and/or
+            # SI prefixes). This test makes sure that uconvert does not silently
+            # return NaN, Inf, or 0 in these cases, i.e. either returns a finite
+            # result or throws an error indicating that it cannot handle the
+            # conversion.
+            is_finite_nonzero(x) = isfinite(x) && !iszero(x)
+            @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"kb^12", 1u"b^12"))
+            @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"ab^11", 1u"Tb^11"))
+            @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"Tb^11", 1u"ab^11"))
+            @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"b^11 * eV", 1u"m^22 * J"))
+            @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"m^22 * J", 1u"b^11 * eV"))
         end
     end
 end

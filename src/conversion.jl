@@ -1,38 +1,26 @@
 """
     convfact(s::Units, t::Units)
-Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m,cm) == 1//100`.
+Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 1//100`.
 """
 @generated function convfact(s::Units, t::Units)
-    sunits = s.parameters[1]
-    tunits = t.parameters[1]
-
     # Check if conversion is possible in principle
-    sdim = dimension(s())
-    tdim = dimension(t())
-    sdim != tdim && throw(DimensionError(s(),t()))
+    dimension(s()) != dimension(t()) && throw(DimensionError(s(), t()))
 
-    # first convert to base SI units.
-    # fact1 is what would need to be multiplied to get to base SI units
-    # fact2 is what would be multiplied to get from the result to base SI units
-
-    inex1, ex1 = basefactor(t())
-    inex2, ex2 = basefactor(s())
-
-    a = inex1 / inex2
-    ex = ex1 // ex2     # do overflow checking?
-
-    tens1 = mapreduce(tensfactor, +, tunits; init=0)
-    tens2 = mapreduce(tensfactor, +, sunits; init=0)
-
-    pow = tens1-tens2
+    # use absoluteunit because division is invalid for AffineUnits;
+    # convert to FreeUnits first because absolute ContextUnits might still
+    # promote to AffineUnits
+    conv_units = absoluteunit(FreeUnits(t())) / absoluteunit(FreeUnits(s()))
+    inex, ex = basefactor(conv_units)
+    pow = tensfactor(conv_units)
+    inex_orig = inex
 
     fpow = 10.0^pow
-    if fpow > typemax(Int) || 1/(fpow) > typemax(Int)
-        a *= fpow
+    if fpow > typemax(Int) || 1/fpow > typemax(Int)
+        inex *= fpow
     else
         comp = (pow > 0 ? fpow * numerator(ex) : 1/fpow * denominator(ex))
         if comp > typemax(Int)
-            a *= fpow
+            inex *= fpow
         else
             ex *= (10//1)^pow
         end
@@ -41,9 +29,15 @@ Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m,cm) == 1
     if ex isa Rational && denominator(ex) == 1
         ex = numerator(ex)
     end
-    a ≈ 1.0 ? (inex = 1) : (inex = a)
-    y = inex * ex
-    :($y)
+
+    result = (inex ≈ 1.0 ? 1 : inex) * ex
+    if fp_overflow_underflow(inex_orig, result)
+        throw(ArgumentError(
+            "Floating point overflow/underflow, probably due to large " *
+            "exponents and/or SI prefixes in units"
+        ))
+    end
+    return :($result)
 end
 
 """
