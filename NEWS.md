@@ -1,5 +1,9 @@
 # Unitful.jl changelog
 
+## v1.16.2 (2023-08-05)
+
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) The conversion factors between units can no longer be wrongly calculated as `NaN`, `Inf`, or `0` (which could happen, e.g., in the case of large exponents). The conversion factor is now calculated correctly in more cases, and an error is thrown if it cannot be calculated due to floating-point over- or underflow ([#648](https://github.com/PainterQubits/Unitful.jl/pull/648)).
+
 ## v1.16.1 (2023-08-02)
 
 * ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Replaced occurrences of single-argument `@doc` for duplicating docstrings, which could lead to errors when creating a Docker image with Julia 1.9 and Unitful ([#671](https://github.com/PainterQubits/Unitful.jl/pull/671)).
