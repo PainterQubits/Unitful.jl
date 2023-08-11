@@ -636,6 +636,12 @@ Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
         @test_throws ErrorException Issue399(1)m < Issue399(2)m
         @test_throws ErrorException Issue399(1)m == Issue399(1)m
         @test @inferred(Issue399(1)m <= Issue399(2)m)
+
+        # check NaN handling in min, max (consistent with isless)
+        @test isequal(min(NaN * u"m", 1.0u"m"), 1.0u"m")
+        @test isequal(min(1.0u"m", NaN * u"m"), 1.0u"m")
+        @test isequal(max(NaN * u"m", 1.0u"m"), NaN * u"m")
+        @test isequal(max(1.0u"m", NaN * u"m"), NaN * u"m")
     end
     @testset "> Addition and subtraction" begin
         @test @inferred(+(1A)) == 1A                    # Unary addition
