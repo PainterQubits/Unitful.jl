@@ -1,5 +1,11 @@
 # Unitful.jl changelog
 
+## v1.16.3 (2023-08-14)
+
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Calling `min` and `max` with quantities of different units can no longer return wrong results due to floating-point overflow in the unit conversion ([#675](https://github.com/PainterQubits/Unitful.jl/pull/675)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `min` and `max` now handle quantities with `NaN` values correctly ([#675](https://github.com/PainterQubits/Unitful.jl/pull/675)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `Base.hastypemax` is now correctly implemented for quantity types ([#674](https://github.com/PainterQubits/Unitful.jl/pull/674)).
+
 ## v1.16.2 (2023-08-05)
 
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) The conversion factors between units can no longer be wrongly calculated as `NaN`, `Inf`, or `0` (which could happen, e.g., in the case of large exponents). The conversion factor is now calculated correctly in more cases, and an error is thrown if it cannot be calculated due to floating-point over- or underflow ([#648](https://github.com/PainterQubits/Unitful.jl/pull/648)).
