@@ -118,8 +118,8 @@ end
 
 # conversion between degrees and radians
 import Base: deg2rad, rad2deg
-deg2rad(d::Quantity{T, NoDims, typeof(°)}) where {T} = deg2rad(ustrip(°, d))u"rad"
-rad2deg(r::Quantity{T, NoDims, typeof(rad)}) where {T} = rad2deg(ustrip(rad, r))u"°"
+deg2rad(d::Quantity{T, NoDims, typeof(°)}) where {T} = deg2rad(ustrip(°, d)) * rad
+rad2deg(r::Quantity{T, NoDims, typeof(rad)}) where {T} = rad2deg(ustrip(rad, r)) * °
 
 # SI and related units
 "    Unitful.Hz
