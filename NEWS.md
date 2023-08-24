@@ -1,5 +1,9 @@
 # Unitful.jl changelog
 
+## v1.17.0 (2023-08-24)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) The standard atmosphere (`atm`) now accepts SI prefixes, e.g., `μatm` is defined ([#664](https://github.com/PainterQubits/Unitful.jl/pull/664)).
+
 ## v1.16.3 (2023-08-14)
 
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Calling `min` and `max` with quantities of different units can no longer return wrong results due to floating-point overflow in the unit conversion ([#675](https://github.com/PainterQubits/Unitful.jl/pull/675)).
