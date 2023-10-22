@@ -5,6 +5,7 @@ DocMeta.setdocmeta!(Unitful, :DocTestSetup, :(using Unitful))
 makedocs(
     sitename = "Unitful.jl",
     format = Documenter.HTML(prettyurls = get(ENV, "CI", nothing) == "true"),
+    warnonly = [:missing_docs],
     modules = [Unitful],
     workdir = joinpath(@__DIR__, ".."),
     pages = [
