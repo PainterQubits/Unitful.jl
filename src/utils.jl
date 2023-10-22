@@ -28,6 +28,8 @@ true
 `ustrip` supports `InverseFunctions.inverse`:
 
 ```jldoctest
+julia> using InverseFunctions: inverse
+
 julia> inverse(Base.Fix1(ustrip, u"m"))(5)
 5 m
 ```
