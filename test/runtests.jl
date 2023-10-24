@@ -2137,6 +2137,8 @@ module DocUnits
     @unit dFoo "dFoo" DFoo 1*dRefFoo*u"m" true true
 end
 
+using REPL # This is necessary to make `@doc` work correctly
+
 @testset "Docs" begin
     @test string(@doc(Unitful.L)) == string(@doc(Unitful.l))
     @test string(@doc(Unitful.cL)) == string(@doc(Unitful.cl))
