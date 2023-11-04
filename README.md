@@ -13,10 +13,8 @@ cases eliminate the run-time penalty of units. There should be facilities
 for dimensional analysis. All of this should integrate easily with the usual
 mathematical operations and collections that are found in Julia base.
 
-## Documentation
+### Documentation: [Stable](http://PainterQubits.github.io/Unitful.jl/stable)
 
-[Stable](http://PainterQubits.github.io/Unitful.jl/stable) and
-[latest](https://PainterQubits.github.io/Unitful.jl/latest) versions available.
 
 ## Other packages in the Unitful family
 
