@@ -2,8 +2,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/PainterQubits/Unitful.jl/badge.svg?branch=master)](https://coveralls.io/github/PainterQubits/Unitful.jl?branch=master)
 [![codecov.io](https://codecov.io/github/PainterQubits/Unitful.jl/coverage.svg?branch=master)](https://codecov.io/github/PainterQubits/Unitful.jl?branch=master)
 
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://PainterQubits.github.io/Unitful.jl/stable)
-[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://PainterQubits.github.io/Unitful.jl/dev)
+
 
 # Unitful.jl
 
@@ -13,10 +12,8 @@ cases eliminate the run-time penalty of units. There should be facilities
 for dimensional analysis. All of this should integrate easily with the usual
 mathematical operations and collections that are found in Julia base.
 
-## Documentation
+### Documentation: [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://PainterQubits.github.io/Unitful.jl/stable) [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://PainterQubits.github.io/Unitful.jl/dev)
 
-[Stable](http://PainterQubits.github.io/Unitful.jl/stable) and
-[latest](https://PainterQubits.github.io/Unitful.jl/latest) versions available.
 
 ## Other packages in the Unitful family
 
