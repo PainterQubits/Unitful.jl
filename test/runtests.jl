@@ -842,7 +842,11 @@ Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
         @test !isapprox(1.0u"m",5)
         @test frexp(1.5m) == (0.75m, 1.0)
         @test unit(nextfloat(0.0m)) == m
+        @test unit(nextfloat(0.0m, 4)) == m
+        @test ustrip(nextfloat(0.0m, 4)) == nextfloat(0.0, 4)
         @test unit(prevfloat(0.0m)) == m
+        @test unit(prevfloat(0.0m, 4)) == m
+        @test ustrip(prevfloat(0.0m, 4)) == prevfloat(0.0, 4)
 
         # NaN behavior
         @test NaN*m != NaN*m
