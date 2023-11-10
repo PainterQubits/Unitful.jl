@@ -436,8 +436,10 @@ Returns the sign bit of the underlying numeric value of `x`.
 """
 signbit(x::AbstractQuantity) = signbit(x.val)
 
-prevfloat(x::AbstractQuantity{T}) where {T <: AbstractFloat} = Quantity(prevfloat(x.val), unit(x))
-nextfloat(x::AbstractQuantity{T}) where {T <: AbstractFloat} = Quantity(nextfloat(x.val), unit(x))
+prevfloat(x::AbstractQuantity{T}, d::Integer) where {T <: AbstractFloat} = Quantity(prevfloat(x.val, d), unit(x))
+prevfloat(x::AbstractQuantity{T}) where {T <: AbstractFloat} = prevfloat(x, 1)
+nextfloat(x::AbstractQuantity{T}, d::Integer) where {T <: AbstractFloat} = Quantity(nextfloat(x.val, d), unit(x))
+nextfloat(x::AbstractQuantity{T}) where {T <: AbstractFloat} = nextfloat(x, 1)
 
 function frexp(x::AbstractQuantity{T}) where {T <: AbstractFloat}
     a,b = frexp(x.val)
