@@ -148,7 +148,9 @@ The type parameter `T` represents the numeric backing type. The type parameters
 Of course, the dimensions follow from the units, but the type parameters are
 kept separate to permit convenient dispatch on dimensions.
 """
-abstract type AbstractQuantity{T,D,U} <: Number end
+abstract type AbstractQuantity{T,D,U} <: Real end
+
+const AbstractQuantityOrComplex{T,D,U} = Union{AbstractQuantity{T,D,U},Complex{<:AbstractQuantity{T,D,U}}}
 
 """
     struct Quantity{T,D,U} <: AbstractQuantity{T,D,U}
@@ -159,9 +161,11 @@ The type parameter `T` represents the numeric backing type. The type parameters
 """
 struct Quantity{T,D,U} <: AbstractQuantity{T,D,U}
     val::T
-    Quantity{T,D,U}(v::Number) where {T,D,U} = new{T,D,U}(v)
+    Quantity{T,D,U}(v::Real) where {T,D,U} = new{T,D,U}(v)
     Quantity{T,D,U}(v::Quantity) where {T,D,U} = convert(Quantity{T,D,U}, v)
 end
+
+Quantity{T,D,U}(v::Complex) where {T,D,U} = complex(Quantity{real(T),D,U}(real(v)), Quantity{real(T),D,U}(imag(v)))
 
 # Field-only constructor
 Quantity{<:Any,D,U}(val::Number) where {D,U} = Quantity{typeof(val),D,U}(val)
@@ -233,7 +237,7 @@ struct LogInfo{N,B,P} end
 Abstract supertype of [`Unitful.Level`](@ref) and [`Unitful.Gain`](@ref). It is only
 used in promotion to put levels and gains onto a common log scale.
 """
-abstract type LogScaled{L<:LogInfo} <: Number end
+abstract type LogScaled{L<:LogInfo} <: Real end
 
 const RealOrRealQuantity = Union{Real, AbstractQuantity{<:Real}}
 

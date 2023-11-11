@@ -55,6 +55,8 @@ true
 ```
 """
 @inline ustrip(x::Number) = x / unit(x)
+@inline ustrip(x::Real) = x
+@inline ustrip(x::Complex) = complex(ustrip(real(x)), ustrip(imag(x)))
 @inline ustrip(x::Quantity) = ustrip(x.val)
 @inline ustrip(x::Missing) = missing
 
@@ -116,7 +118,9 @@ true
 ```
 """
 @inline unit(x::AbstractQuantity{T,D,U}) where {T,D,U} = U()
+@inline unit(x::Complex{T}) where {T} = unit(T)
 @inline unit(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = U()
+@inline unit(::Type{<:Complex{T}}) where {T} = unit(T)
 
 
 """
