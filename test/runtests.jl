@@ -55,6 +55,8 @@ macro test_or_throws(extype, ex)
     )
 end
 
+is_finite_nonzero(x) = isfinite(x) && !iszero(x)
+
 @testset "Construction" begin
     @test isa(NoUnits, FreeUnits)
     @test typeof(𝐋) === Unitful.Dimensions{(Unitful.Dimension{:Length}(1),)}
@@ -225,7 +227,6 @@ end
             # return NaN, Inf, or 0 in these cases, i.e. either returns a finite
             # result or throws an error indicating that it cannot handle the
             # conversion.
-            is_finite_nonzero(x) = isfinite(x) && !iszero(x)
             @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"kb^12", 1u"b^12"))
             @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"ab^11", 1u"Tb^11"))
             @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"Tb^11", 1u"ab^11"))
