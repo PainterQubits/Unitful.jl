@@ -1,5 +1,9 @@
 # Unitful.jl changelog
 
+## v1.18.0 (2023-11-13)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) The two-argument versions of `nextfloat` and `prefloat` now allow quantities as their first argument ([#692](https://github.com/PainterQubits/Unitful.jl/pull/692)).
+
 ## v1.17.0 (2023-08-24)
 
 * ![Feature:](https://img.shields.io/badge/-feature-green) The standard atmosphere (`atm`) now accepts SI prefixes, e.g., `μatm` is defined ([#664](https://github.com/PainterQubits/Unitful.jl/pull/664)).
