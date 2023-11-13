@@ -37,7 +37,7 @@ Base._range(a::T, step::T, ::Nothing, len::Integer) where {T<:Quantity} =
     else
         Base._rangestyle(OrderStyle(a), ArithmeticStyle(a), a, step, len)
     end
-Base._range(a::Quantity{<:Real}, step::Quantity{<:AbstractFloat}, ::Nothing, len::Integer) =
+Base._range(a::Quantity, step::Quantity{<:AbstractFloat}, ::Nothing, len::Integer) =
     _unitful_start_step_length(float(a), step, len)
 Base._range(a::Quantity{<:AbstractFloat}, step::Quantity{<:Real}, ::Nothing, len::Integer) =
     _unitful_start_step_length(a, float(step), len)
@@ -86,7 +86,10 @@ end
 colon(start::A, step, stop::C) where {A<:Real,C<:Quantity} = colonstartstop(start,step,stop)
 colon(start::A, step, stop::C) where {A<:Quantity,C<:Real} = colonstartstop(start,step,stop)
 colon(a::T, b::Quantity, c::T) where {T<:Real} = colon(promote(a,b,c)...)
-colon(start::Quantity{<:Real}, step, stop::Quantity{<:Real}) =
+colon(a::T, b::Quantity, c::T) where {T<:AbstractFloat} = colon(promote(a,b,c)...)  # disambiguation
+colon(start::Quantity, step, stop::Quantity) =
+    colon(promote(start, step, stop)...)
+colon(start::Quantity, step::AbstractFloat, stop::Quantity) =  # disambiguation
     colon(promote(start, step, stop)...)
 
 # promotes start and stop
@@ -123,8 +126,8 @@ colon(start::T, step::T, stop::T) where {T<:Quantity{<:Base.IEEEFloat}} =
     colon(ustrip(start), ustrip(step), ustrip(stop)) * unit(T) # This will always return a StepRangeLen
 
 # two-argument colon
-colon(start, stop::Quantity) = _unitful_start_stop(start, stop)
-colon(start::Quantity, stop) = _unitful_start_stop(start, stop)
+colon(start::Real, stop::Quantity) = _unitful_start_stop(start, stop)
+colon(start::Quantity, stop::Real) = _unitful_start_stop(start, stop)
 colon(start::Quantity, stop::Quantity) = _unitful_start_stop(start, stop)
 function _unitful_start_stop(start, stop)
     dimension(start) != dimension(stop) && throw(DimensionError(start, stop))

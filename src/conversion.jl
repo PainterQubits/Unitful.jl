@@ -73,7 +73,9 @@ function uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
     end
 end
 
-function uconvert(a::Units, x::Number)
+uconvert(a::Units, x::Complex) = complex(uconvert(a, real(x)), uconvert(a, imag(x)))
+
+function uconvert(a::Units, x::Real)
     if dimension(a) == NoDims
         Quantity(x * convfact(a, NoUnits), a)
     else
@@ -99,7 +101,15 @@ uconvert(a::Units, x::Missing) = missing
     end
 end
 
-function convert(::Type{Quantity{T,D,U}}, x::Number) where {T,D,U}
+function convert(::Type{Quantity{T,D,U}}, x::Real) where {T,D,U}
+    if dimension(x) == D
+        Quantity(T(uconvert(U(),x).val), U())
+    else
+        throw(DimensionError(U(),x))
+    end
+end
+# disambiguation:
+function convert(::Type{Quantity{T,D,U}}, x::Quantity) where {T,D,U}
     if dimension(x) == D
         Quantity(T(uconvert(U(),x).val), U())
     else
@@ -136,7 +146,8 @@ function convert(::Type{DimensionlessQuantity{T,U}}, x::Quantity) where {T,U}
 end
 
 convert(::Type{Number}, y::Quantity) = y
+convert(::Type{Real}, y::Quantity) = y
 convert(::Type{T}, y::Quantity) where {T <: Real} =
     T(uconvert(NoUnits, y))
 convert(::Type{T}, y::Quantity) where {T <: Complex} =
-    T(uconvert(NoUnits, y))
+    T(convert(real(T), y), zero(real(T)))

@@ -94,7 +94,7 @@ function Base.promote_rule(::Type{Quantity{S1,D,U1}},
 end
 
 # number, quantity
-function Base.promote_rule(::Type{Quantity{S,D,U}}, ::Type{T}) where {S,T <: Number,D,U}
+function Base.promote_rule(::Type{Quantity{S,D,U}}, ::Type{T}) where {S,T <: Real,D,U}
     if D == NoDims
         promote_type(S,T,typeof(convfact(NoUnits,U())))
     else
@@ -105,7 +105,7 @@ end
 Base.promote_rule(::Type{S}, ::Type{T}) where {S<:AbstractIrrational,S2,T<:Quantity{S2}} =
     promote_type(promote_type(S, real(S2)), T)
 
-Base.promote_rule(::Type{Quantity{S}}, ::Type{T}) where {S,T <: Number} =
+Base.promote_rule(::Type{Quantity{S}}, ::Type{T}) where {S,T <: Real} =
     Quantity{promote_type(S,T)}
 
 # With only one of these, you can get a segmentation fault because you # fall back to the
@@ -115,3 +115,6 @@ Base.promote_rule(::Type{Quantity{T}}, ::Type{Quantity{S,D,U}}) where {T,S,D,U} 
 
 Base.promote_rule(::Type{Quantity{S,D,U}}, ::Type{Quantity{T}}) where {T,S,D,U} =
     Quantity{promote_type(T,S)}
+
+Base.promote_rule(::Type{<:AbstractFloat}, ::Type{<:AbstractQuantity}) = Union{}
+Base.promote_rule(::Type{BigFloat}, ::Type{<:AbstractQuantity}) = Union{}
