@@ -2071,6 +2071,7 @@ end
 Base.:+(a::Num, b::Num) = Num(a.x + b.x)
 Base.:-(a::Num, b::Num) = Num(a.x - b.x)
 Base.:*(a::Num, b::Num) = Num(a.x * b.x)
+Base.:<(a::Num, b::Num) = a.x < b.x
 Base.promote_rule(::Type{Num}, ::Type{<:Real}) = Num
 Base.ArithmeticStyle(::Type{Num}) = Base.ArithmeticRounds()
 Base.OrderStyle(::Type{Num}) = Base.Unordered()
@@ -2078,6 +2079,18 @@ Base.OrderStyle(::Type{Num}) = Base.Unordered()
 @testset "Custom types" begin
     # Test that @generated functions work with Quantities + custom types (#231)
     @test uconvert(u"°C", Num(373.15)u"K") == Num(100)u"°C"
+end
+area_of_circle(radius::similar_dims(u"m")) = pi*radius^2
+area_of_square(side::similar_units(u"m")) = side^2
+
+@testset "Unitful interfaces" begin
+    @test area_of_circle(Num(1.0)u"m") ≈ pi*m^2
+    @test area_of_circle(Num(1.0)u"km") ≈ pi*km^2
+    @test_throws MethodError area_of_circle(Num(1.0)u"s")
+
+    @test area_of_square(Num(0.5)u"m") ≈ 0.25*m^2
+    @test_throws MethodError area_of_square(Num(0.5)u"km")
+    @test_throws MethodError area_of_square(Num(0.5)u"s")
 end
 
 @testset "Traits" begin
