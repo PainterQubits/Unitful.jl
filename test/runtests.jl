@@ -2080,8 +2080,8 @@ Base.OrderStyle(::Type{Num}) = Base.Unordered()
     # Test that @generated functions work with Quantities + custom types (#231)
     @test uconvert(u"°C", Num(373.15)u"K") == Num(100)u"°C"
 end
-area_of_circle(radius::similar_dims(u"m")) = pi*radius^2
-area_of_square(side::similar_units(u"m")) = side^2
+area_of_circle(radius::WithDims(u"m")) = pi*radius^2
+area_of_square(side::WithUnits(u"m")) = side^2
 
 @testset "Unitful interfaces" begin
     @test area_of_circle(Num(1.0)u"m") ≈ pi*m^2

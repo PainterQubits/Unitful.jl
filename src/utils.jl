@@ -244,8 +244,8 @@ struct DimensionError <: Exception
 end
 
 """
-    similar_dims(q::Quantity)
-    similar_dims(u::Units)
+    WithDims(q::Quantity)
+    WithDims(u::Units)
 Returns a type of [`Unitful.Quantity`](@ref) with the dimensions contrained to the
 dimension of `q` or `u`.
 Useful to build unitful interfaces that don't contrain the numeric type of the specific unit.
@@ -253,21 +253,21 @@ Useful to build unitful interfaces that don't contrain the numeric type of the s
 Examples:
 
 ```jldoctest
-julia> circumference_of_square(side::similar_dims(u"m")) = 4*side;
+julia> circumference_of_square(side::WithDims(u"m")) = 4*side;
 julia> circumference_of_square((1//2)m)  # works
 2//1 m
 julia> circumference_of_square((1//2)km)  # also works
 2//1 km
 ```
 
-See also [`Unitful.similar_units`](@ref).
+See also [`Unitful.WithUnits`](@ref).
 """
-similar_dims(q::Quantity)  = Quantity{T, dimension(q),         U} where {T<:Real, U<:Unitlike}
-similar_dims(u::Units)     = Quantity{T, dimension(u),         U} where {T<:Real, U<:Unitlike}
+WithDims(q::Quantity)  = Quantity{T, dimension(q),         U} where {T<:Real, U<:Unitlike}
+WithDims(u::Units)     = Quantity{T, dimension(u),         U} where {T<:Real, U<:Unitlike}
 
 """
-    similar_units(q::Quantity)
-    similar_units(u::Units)
+    WithUnits(q::Quantity)
+    WithUnits(u::Units)
 Returns a type of [`Unitful.Quantity`](@ref) with the dimensions and units contrained to the
 dimension and units of `q` or `u`.
 Useful to build unitful interfaces that don't contrain the numeric type.
@@ -275,16 +275,16 @@ Useful to build unitful interfaces that don't contrain the numeric type.
 Examples:
 
 ```jldoctest
-julia> circumference_of_square(side::similar_units(u"m")) = 4*side;
+julia> circumference_of_square(side::WithUnits(u"m")) = 4*side;
 julia> circumference_of_square((1//2)m)  # works
 2//1 m
 julia> # circumference_of_square((1//2)km)  # doesn't work, constrained to exactly meters
 ```
 
-See also [`Unitful.similar_dims`](@ref).
+See also [`Unitful.WithDims`](@ref).
 """
-similar_units(q::Quantity) = Quantity{T, dimension(q),   unit(q)} where {T<:Real}
-similar_units(u::Units)    = Quantity{T, dimension(u), typeof(u)} where {T<:Real}
+WithUnits(q::Quantity) = Quantity{T, dimension(q),   unit(q)} where {T<:Real}
+WithUnits(u::Units)    = Quantity{T, dimension(u), typeof(u)} where {T<:Real}
 
 Base.showerror(io::IO, e::DimensionError) =
     print(io, "DimensionError: $(e.x) and $(e.y) are not dimensionally compatible.");
