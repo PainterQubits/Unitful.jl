@@ -231,22 +231,22 @@ substrate per s.
 \nPermyriad, a unit meaning parts per ten thousand. Printed as \"‱\".
 \nDimension: [`Unitful.NoDims`](@ref)."
 @unit pertenthousand  "‱"    Pertenthousand  1//10000           false
-"    Unitful.permillion
-\nPermillion, a unit meaning parts per million. Printed as \"ppm\".
+"    Unitful.ppm
+\nPermillion, a unit meaning parts per million.
 \nDimension: [`Unitful.NoDims`](@ref)."
-@unit permillion      "ppm"  Permillion      1//1000000         false
-"    Unitful.perbillion
-\nPerbillion, a unit meaning parts per billion. Printed as \"ppb\".
+@unit ppm             "ppm"  Permillion      1//1000000         false
+"    Unitful.ppb
+\nPerbillion, a unit meaning parts per billion.
 \nDimension: [`Unitful.NoDims`](@ref)."
-@unit perbillion      "ppb"  Perbillion      1//1000000000      false
-"    Unitful.pertrillion
-\nPertrillion, a unit meaning parts per trillion. Printed as \"ppt\".
+@unit ppb             "ppb"  Perbillion      1//1000000000      false
+"    Unitful.ppt
+\nPertrillion, a unit meaning parts per trillion.
 \nDimension: [`Unitful.NoDims`](@ref)."
-@unit pertrillion     "ppt"  Pertrillion     1//1000000000000   false
-"    Unitful.perquadrillion
-\nPerquadrillion, a unit meaning parts per quadrillion. Printed as \"ppq\".
+@unit ppt             "ppt"  Pertrillion     1//1000000000000   false
+"    Unitful.ppq
+\nPerquadrillion, a unit meaning parts per quadrillion.
 \nDimension: [`Unitful.NoDims`](@ref)."
-@unit perquadrillion  "ppq"  Perquadrillion  1//1000000000000000  false
+@unit ppq             "ppq"  Perquadrillion  1//1000000000000000  false
 
 # Temperature
 "    Unitful.°C
