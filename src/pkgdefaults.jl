@@ -232,7 +232,7 @@ substrate per s.
 \nDimension: [`Unitful.NoDims`](@ref)."
 @unit pertenthousand  "‱"    Pertenthousand  1//10000           false
 "    Unitful.pcm
-\nPercentmille, a unit meaning part per hundred thousand.
+\nPercentmille, a unit meaning parts per hundred thousand.
 \nDimension: [`Unitful.NoDims`](@ref)."
 @unit pcm             "pcm"  Percentmille    1//100000          false
 "    Unitful.ppm
