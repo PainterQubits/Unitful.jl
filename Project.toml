@@ -18,7 +18,7 @@ ConstructionBaseUnitfulExt = "ConstructionBase"
 InverseFunctionsUnitfulExt = "InverseFunctions"
 
 [compat]
-Aqua = "0.6.3, 0.7"
+Aqua = "0.8"
 ConstructionBase = "1"
 Dates = "<0.0.1, 1"
 InverseFunctions = "0.1"
