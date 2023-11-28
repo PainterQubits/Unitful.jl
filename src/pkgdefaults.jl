@@ -231,6 +231,26 @@ substrate per s.
 \nPermyriad, a unit meaning parts per ten thousand. Printed as \"‱\".
 \nDimension: [`Unitful.NoDims`](@ref)."
 @unit pertenthousand  "‱"    Pertenthousand  1//10000           false
+"    Unitful.pcm
+\nPercentmille, a unit meaning parts per hundred thousand.
+\nDimension: [`Unitful.NoDims`](@ref)."
+@unit pcm             "pcm"  Percentmille    1//100000          false
+"    Unitful.ppm
+\nPermillion, a unit meaning parts per million.
+\nDimension: [`Unitful.NoDims`](@ref)."
+@unit ppm             "ppm"  Permillion      1//1000000         false
+"    Unitful.ppb
+\nPerbillion, a unit meaning parts per billion (in the short-scale sense), i.e., 10^-9.
+\nDimension: [`Unitful.NoDims`](@ref)."
+@unit ppb             "ppb"  Perbillion      1//1000000000      false
+"    Unitful.ppt
+\nPertrillion, a unit meaning parts per trillion (in the short-scale sense), i.e., 10^-12.
+\nDimension: [`Unitful.NoDims`](@ref)."
+@unit ppt             "ppt"  Pertrillion     1//1000000000000   false
+"    Unitful.ppq
+\nPerquadrillion, a unit meaning parts per quadrillion (in the short-scale sense), i.e., 10^-15.
+\nDimension: [`Unitful.NoDims`](@ref)."
+@unit ppq             "ppq"  Perquadrillion  1//1000000000000000  false
 
 # Temperature
 "    Unitful.°C
