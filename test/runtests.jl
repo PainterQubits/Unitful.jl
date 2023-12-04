@@ -2071,7 +2071,6 @@ end
 Base.:+(a::Num, b::Num) = Num(a.x + b.x)
 Base.:-(a::Num, b::Num) = Num(a.x - b.x)
 Base.:*(a::Num, b::Num) = Num(a.x * b.x)
-Base.:<(a::Num, b::Num) = a.x < b.x
 Base.promote_rule(::Type{Num}, ::Type{<:Real}) = Num
 Base.ArithmeticStyle(::Type{Num}) = Base.ArithmeticRounds()
 Base.OrderStyle(::Type{Num}) = Base.Unordered()
@@ -2080,17 +2079,23 @@ Base.OrderStyle(::Type{Num}) = Base.Unordered()
     # Test that @generated functions work with Quantities + custom types (#231)
     @test uconvert(u"°C", Num(373.15)u"K") == Num(100)u"°C"
 end
-area_of_circle(radius::WithDims(u"m")) = pi*radius^2
-area_of_square(side::WithUnits(u"m")) = side^2
 
-@testset "Unitful interfaces" begin
-    @test area_of_circle(Num(1.0)u"m") ≈ pi*m^2
-    @test area_of_circle(Num(1.0)u"km") ≈ pi*km^2
-    @test_throws MethodError area_of_circle(Num(1.0)u"s")
-
-    @test area_of_square(Num(0.5)u"m") ≈ 0.25*m^2
-    @test_throws MethodError area_of_square(Num(0.5)u"km")
-    @test_throws MethodError area_of_square(Num(0.5)u"s")
+@testset "WithDims, WithUnits" begin
+    # built-in types
+    @test   1m    isa WithDims(m)
+    @test   1.0m  isa WithDims(m)
+    @test   1//1m isa WithDims(m)
+    @test   1.0m  isa WithUnits(m)
+    # user-defined types
+    @test   Num(1.0)m  isa WithDims(m)
+    @test   Num(1.0)km isa WithDims(m)
+    @test !(Num(1.0)s  isa WithDims(m))
+    @test   Num(1.0)m  isa WithUnits(m)
+    @test !(Num(1.0)km isa WithUnits(m))
+    @test !(Num(1.0)s  isa WithUnits(m))
+    # composite units
+    @test  1kg*(1.0m/s)^2 isa WithDims(J)
+    @test  1kg*(1.0m/s)^2 isa WithUnits(kg*m^2/s^2)
 end
 
 @testset "Traits" begin
