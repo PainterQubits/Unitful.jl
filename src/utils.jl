@@ -246,9 +246,9 @@ end
 """
     WithDims(q::Quantity)
     WithDims(u::Units)
-Returns a type of [`Unitful.Quantity`](@ref) with the dimensions contrained to the
+Returns a subtype of [`Unitful.Quantity`](@ref) with the dimensions constrained to the
 dimension of `q` or `u`.
-Useful to build unitful interfaces that don't contrain the numeric type of the specific unit.
+Useful to build unitful interfaces that don't constrain the numeric type or the unit, just the dimension of a quantity.
 
 Examples:
 
@@ -262,15 +262,15 @@ julia> circumference_of_square((1//2)km)  # also works
 
 See also [`Unitful.WithUnits`](@ref).
 """
-WithDims(q::Quantity)  = Quantity{T, dimension(q),         U} where {T<:Real, U<:Unitlike}
-WithDims(u::Units)     = Quantity{T, dimension(u),         U} where {T<:Real, U<:Unitlike}
+WithDims(q::Quantity)  = Quantity{T, dimension(q), U} where {T<:Real, U<:Unitlike}
+WithDims(u::Units)     = Quantity{T, dimension(u), U} where {T<:Real, U<:Unitlike}
 
 """
     WithUnits(q::Quantity)
     WithUnits(u::Units)
-Returns a type of [`Unitful.Quantity`](@ref) with the dimensions and units contrained to the
+Returns a subtype of [`Unitful.Quantity`](@ref) with the dimensions and units constrained to the
 dimension and units of `q` or `u`.
-Useful to build unitful interfaces that don't contrain the numeric type.
+Useful to build unitful interfaces that don't constrain the unit, but not the numeric type of a quantity.
 
 Examples:
 
