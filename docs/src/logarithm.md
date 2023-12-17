@@ -5,9 +5,11 @@ end
 ```
 # Logarithmic scales
 
-!!! note Logarithmic scales should be considered experimental 
-because they break some of the basic assumptions about equality and hashing 
-(see  [#402][https://link-url-here.org](https://github.com/PainterQubits/Unitful.jl/issues/402))
+!!! note 
+
+    Logarithmic scales should be considered experimental 
+    because they break some of the basic assumptions about equality and hashing 
+    (see [#402](https://github.com/PainterQubits/Unitful.jl/issues/402))
 
 Unitful provides a way to use logarithmically-scaled quantities. Some
 compromises have been made in striving for logarithmic quantities to be both usable and
