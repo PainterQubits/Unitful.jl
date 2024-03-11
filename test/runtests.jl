@@ -1402,7 +1402,7 @@ end
         end
         @testset ">> broadcast ustrip" begin
             @test ustrip.(1:0.1:1.0) == 1:0.1:1.0
-            @test ustrip.(1m:0.1m:1.0) == 1:0.1:1.0
+            @test ustrip.(1m:0.1m:1.0m) == 1:0.1:1.0
         end
     end
     @testset "> Arrays" begin
