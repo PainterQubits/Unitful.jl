@@ -5,10 +5,13 @@ end
 ```
 # Logarithmic scales
 
-!!! note
-    Logarithmic scales are new to Unitful and should be considered experimental.
+!!! note 
 
-Unitful provides a way to use logarithmically-scaled quantities as of v0.4.0. Some
+    Logarithmic scales should be considered experimental 
+    because they break some of the basic assumptions about equality and hashing 
+    (see [#402](https://github.com/PainterQubits/Unitful.jl/issues/402))
+
+Unitful provides a way to use logarithmically-scaled quantities. Some
 compromises have been made in striving for logarithmic quantities to be both usable and
 consistent. In the following discussion, for pedagogical purposes, we will assume prior
 familiarity with the definitions of `dB` and `dBm`.
