@@ -35,7 +35,9 @@ mathematical operations and collections that are found in Julia base.
 - [NaturallyUnitful.jl](https://github.com/MasonProtter/NaturallyUnitful.jl): Convert to and from natural units in physics.
 - [UnitfulChainRules.jl](https://github.com/SBuercklin/UnitfulChainRules.jl): Enables use of Unitful quantities with [ChainRules.jl](https://github.com/JuliaDiff/ChainRules.jl)-compatible autodifferentiation systems
 - [DimensionfulAngles.jl](https://github.com/cmichelenstrofer/DimensionfulAngles.jl): Adds angle as a dimension. This allows dispatching on angles and derived quantities.
-- [UnitfulRecipes.jl](https://github.com/jw3126/UnitfulRecipes.jl) (deprecated): Adds automatic labels and supports plot axes with units for [Plots.jl](https://github.com/JuliaPlots/Plots.jl). (UnitfulRecipes.jl is now included in Plots.jl.) 
+- [UnitfulRecipes.jl](https://github.com/jw3126/UnitfulRecipes.jl) (deprecated): Adds automatic labels and supports plot axes with units for [Plots.jl](https://github.com/JuliaPlots/Plots.jl). (UnitfulRecipes.jl is now included in Plots.jl.)
+- [Dimensionless.jl](https://github.com/martinkosch/Dimensionless.jl): Contains tools to conduct dimensional analysis and solve similitude problems
+
 
 ## Related packages
 
