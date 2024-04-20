@@ -1348,6 +1348,8 @@ end
             @test @inferred(StepRangeLen{typeof(1f0m)}(1.0m, 1.0cm, 101) .|> ustrip) === StepRangeLen{Float32}(1.0, 0.01, 101)
             @test @inferred(StepRangeLen{typeof(1.0m)}(Base.TwicePrecision(1.0m), Base.TwicePrecision(1.0cm), 101) .|> ustrip) === StepRangeLen{Float64}(Base.TwicePrecision(1.0), Base.TwicePrecision(0.01), 101)
             @test @inferred(StepRangeLen{typeof(1.0mm)}(Base.TwicePrecision(1.0m), Base.TwicePrecision(1.0cm), 101) .|> ustrip) === 1000.0:10.0:2000.0
+            @test ustrip.(1:0.1:1.0) == 1:0.1:1.0
+            @test ustrip.(1m:0.1m:1.0m) == 1:0.1:1.0
         end
         @testset ">> quantities and non-quantities" begin
             @test range(1, step=1m/mm, length=5) == 1:1000:4001
@@ -1414,10 +1416,6 @@ end
                 @test eltype(range(stop=1mm/m, step=1, length=5)) == typeof(1mm/m)
                 @test_throws ArgumentError range(step=1m, length=5)
             end
-        end
-        @testset ">> broadcast ustrip" begin
-            @test ustrip.(1:0.1:1.0) == 1:0.1:1.0
-            @test ustrip.(1m:0.1m:1.0m) == 1:0.1:1.0
         end
     end
     @testset "> Arrays" begin
