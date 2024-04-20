@@ -11,7 +11,7 @@ import Unitful:
     Ra, °F, °C, K,
     rad, mrad, °,
     ms, s, minute, hr, d, yr, Hz,
-    J, A, N, mol, V,
+    J, A, N, mol, V, mJ, eV,
     mW, W,
     dB, dB_rp, dB_p, dBm, dBV, dBSPL, Decibel,
     Np, Np_rp, Np_p, Neper,
@@ -1325,14 +1325,29 @@ end
 
             @test @inferred((1:2:5) .* cm .|> mm) === 10mm:20mm:50mm
             @test mm.((1:2:5) .* cm) === 10mm:20mm:50mm
+            @test @inferred(StepRange(1cm,1mm,2cm) .|> km) === (1//100_000)km:(1//1_000_000)km:(2//100_000)km
+            @test @inferred((1eV:1eV:5eV) .|> mJ) === mJ(1eV):mJ(1eV):mJ(5eV)
+
             @test @inferred((1:2:5) .* km .|> upreferred) === 1000m:2000m:5000m
             @test @inferred((1:2:5)km .|> upreferred) === 1000m:2000m:5000m
             @test @inferred((1:2:5) .|> upreferred) === 1:2:5
             @test @inferred((1.0:2.0:5.0) .* km .|> upreferred) === 1000.0m:2000.0m:5000.0m
             @test @inferred((1.0:2.0:5.0)km .|> upreferred) === 1000.0m:2000.0m:5000.0m
             @test @inferred((1.0:2.0:5.0) .|> upreferred) === 1.0:2.0:5.0
+            @test @inferred(StepRange(1cm,1mm,2cm) .|> upreferred) === (1//100)m:(1//1000)m:(2//100)m
+            @test @inferred((1eV:1eV:5eV) .|> upreferred) === upreferred(1eV):upreferred(1eV):upreferred(5eV)
+
             @test @inferred((1:2:5) .* cm .|> mm .|> ustrip) === 10:20:50
             @test @inferred((1f0:2f0:5f0) .* cm .|> mm .|> ustrip) === 10f0:20f0:50f0
+            @test @inferred(StepRange{typeof(1m),typeof(1cm)}(1m,1cm,2m) .|> ustrip) === 1:1//100:2
+            @test @inferred(StepRangeLen{typeof(1f0m)}(1.0m, 1.0cm, 101) .|> ustrip) === StepRangeLen{Float32}(1.0, 0.01, 101)
+            @test @inferred(StepRangeLen{typeof(1.0m)}(Base.TwicePrecision(1.0m), Base.TwicePrecision(1.0cm), 101) .|> ustrip) === StepRangeLen{Float64}(Base.TwicePrecision(1.0), Base.TwicePrecision(0.01), 101)
+            @test @inferred((1:0.1:1.0) .|> ustrip) == 1:0.1:1.0
+            @test @inferred((1m:0.1m:1.0m) .|> ustrip) == 1:0.1:1.0
+            @test @inferred(StepRange{typeof(0m),typeof(1cm)}(1m,1cm,2m) .|> ustrip) === 1:1//100:2
+            @test @inferred(StepRangeLen{typeof(1f0m)}(1.0m, 1.0cm, 101) .|> ustrip) === StepRangeLen{Float32}(1.0, 0.01, 101)
+            @test @inferred(StepRangeLen{typeof(1.0m)}(Base.TwicePrecision(1.0m), Base.TwicePrecision(1.0cm), 101) .|> ustrip) === StepRangeLen{Float64}(Base.TwicePrecision(1.0), Base.TwicePrecision(0.01), 101)
+            @test @inferred(StepRangeLen{typeof(1.0mm)}(Base.TwicePrecision(1.0m), Base.TwicePrecision(1.0cm), 101) .|> ustrip) === 1000.0:10.0:2000.0
         end
         @testset ">> quantities and non-quantities" begin
             @test range(1, step=1m/mm, length=5) == 1:1000:4001
