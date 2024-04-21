@@ -4,7 +4,7 @@ using Unitful, OrderedCollections
 
 mdfile = "docs/src/defaultunits.md"
 mdheader = "docs/src/assets/defaultunits-header.md"
-# mdfooter = "docs/src/assets/defaultunits-footer.md"
+mdfooter = "docs/src/assets/defaultunits-footer.md"
 mdlogunits = "docs/src/assets/defaultunits-logunits.md"
 vfile = "docs/src/assets/vfile.txt"
 
@@ -258,7 +258,7 @@ end
 
 
 header() = read(mdheader, String) 
-# footer() = read(mdfooter, String) 
+footer() = read(mdfooter, String)
 logunits() = read(mdlogunits, String)
 
 function makefulltext(sections, nodims_units, phys_consts)
@@ -270,7 +270,7 @@ function makefulltext(sections, nodims_units, phys_consts)
     s *= logunits()
     s *= make_simple_section_text("Physical constants", phys_consts; isunit=false)
     s *= makeprefixsection(prefnamesvals())
-    # s *= footer()
+    s *= footer()
     return s
 end
 
