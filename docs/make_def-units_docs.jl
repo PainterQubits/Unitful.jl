@@ -87,11 +87,11 @@ end
     getphysdims(uids::Vector{Symbol})
 Filters the list of `Unitful` identifiers to return those which denote physical dimensions (e.g. `Area`, `Power`)
 """
-getphysdims(uids) = [n for n in uids 
-        if (getproperty(Unitful, n) isa UnionAll) && 
-            !endswith(string(n), "Units") &&
-            !occursin("Scale", string(n)) &&
-            !isempty(gettypes(getproperty(Unitful, n)))]
+getphysdims(uids) = filter(isphysdim, uids)
+
+isphysdim(n::Symbol) = _isphysdim(getproperty(Unitful, n))
+_isphysdim(_) = false
+_isphysdim(::Type{Union{Quantity{T,D,U}, Level{L,S,Quantity{T,D,U}} where {L,S}} where {T,U}}) where D = true
 
 """
 # Examples
@@ -100,7 +100,7 @@ julia> getdim(Unitful.Area)
 𝐋^2
 ```
 """
-getdim(x::Type) = gettypes(x)[1].parameters[2]
+getdim(::Type{Union{Quantity{T,D,U}, Level{L,S,Quantity{T,D,U}} where {L,S}} where {T,U}}) where D = D
 getdim(x::Symbol) = getdim(getproperty(Unitful, x))
 
 """
@@ -110,11 +110,12 @@ julia> getdimpars(Unitful.Power)
 svec((Unitful.Dimension{:Length}(2//1), Unitful.Dimension{:Mass}(1//1), Unitful.Dimension{:Time}(-3//1)))
 ```
 """
-getdimpars(x) = getproperty(typeof(getdim(x)), :parameters)
-getdimpar(x) = getdimpars(x)[1][1]
-getdimpow(x) = getdimpar(x).power
+getdimpars(x) = getdimpars(getdim(x))
+getdimpars(::Unitful.Dimensions{N}) where N = N
 
-isbasicdim(x) = length(getdimpars(x)[1])== 1 && getdimpow(x) == 1
+getdimpow(x) = only(getdimpars(x)).power
+
+isbasicdim(x) = length(getdimpars(x)) == 1 && getdimpow(x) == 1
 
 function physdims_categories(physdims)
     basicdims = Symbol[]
@@ -181,7 +182,7 @@ end
 
 function isnodims(u) 
     u isa Unitful.FreeUnits || return false
-    return getproperty(typeof(u), :parameters)[2] == NoDims
+    return dimension(u) == NoDims
 end
 isnodims(u::Symbol) = isnodims(getproperty(Unitful, u))
 
