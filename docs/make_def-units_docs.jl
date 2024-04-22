@@ -175,16 +175,13 @@ udoc(s) = match(r"(?ms)(.+)\n\nDimension: ", docstr(s)).captures[1] |> removeref
 function nameofunit(u)
     special = Dict(u"ha" => "Hectare", u"kg" => "Kilogram", u"°F" => "Degree Fahrenheit", u"°C" => "Degree Celcius")
     u in keys(special) && return special[u]
-    t = typeof(u)
-    ps = getproperty(t, :parameters)
-    u1 = ps[1][1]
-    @assert u1 isa Unitful.Unit
-    t1 = typeof(u1)
-    uname = getproperty(t1, :parameters)[1]
-    return string(uname)
+    return string(_nameofunit(u))
 end
 
 nameofunit(s::Symbol) = nameofunit(getproperty(Unitful, s))
+
+_nameofunit(::Unitful.Units{N}) where N = _nameofunit(only(N))
+_nameofunit(::Unitful.Unit{U}) where U = U
 
 function make_subsection_text(uvec; isunit=true)
     s = ""
