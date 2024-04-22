@@ -60,30 +60,6 @@ isprefixed(u::Symbol) = occursin("A prefixed unit, equal", docstr(u))
 isdocumented(n::Symbol) = !startswith(docstr(n), "No documentation found.")
 
 """
-# Examples
-```julia-repl
-julia> gettypes(Unitful.Power)
-1-element Vector{DataType}:
- Quantity{T, 𝐋^2 𝐌 𝐓^-3, U}
-```
-"""
-function gettypes(x::Type)
-    if x isa UnionAll
-        return gettypes(x.body)
-    elseif x isa Union
-        pns = propertynames(x)
-        ts = [getproperty(x, pn) for pn in pns]
-        ts = [t for t in ts if (t isa Type) && (t <: Unitful.Quantity)]
-        return ts
-    elseif x <: Unitful.Quantity
-        return [x]
-    else
-        return []
-    end
-end
-
-
-"""
     getphysdims(uids::Vector{Symbol})
 Filters the list of `Unitful` identifiers to return those which denote physical dimensions (e.g. `Area`, `Power`)
 """
