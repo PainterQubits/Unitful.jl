@@ -49,15 +49,15 @@ function prefnamesvals()
     return OrderedDict(pd[k] => (prefixnames[pd[k]], k) for k in sxp if pd[k] != "")
 end
 
-regularid(n) = ! startswith(string(n), r"#|@")
+regularid(n) = !startswith(string(n), r"#|@")
 
-uful_ids() = [n for n in names(Unitful; all=true) if regularid(n)]
+uful_ids() = filter(regularid, names(Unitful; all=true))
 
 docstr(n::Symbol) = Base.Docs.doc(Base.Docs.Binding(Unitful, n)) |> string
 
 isprefixed(u::Symbol) = occursin("A prefixed unit, equal", docstr(u))
 
-isdocumented(n::Symbol) = ! startswith(docstr(n), "No documentation found.")
+isdocumented(n::Symbol) = !startswith(docstr(n), "No documentation found.")
 
 """
 # Examples
@@ -89,8 +89,8 @@ Filters the list of `Unitful` identifiers to return those which denote physical 
 """
 getphysdims(uids) = [n for n in uids 
         if (getproperty(Unitful, n) isa UnionAll) && 
-            ! endswith(string(n), "Units") &&
-            ! occursin("Scale", string(n)) &&
+            !endswith(string(n), "Units") &&
+            !occursin("Scale", string(n)) &&
             !isempty(gettypes(getproperty(Unitful, n)))]
 
 """
