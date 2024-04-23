@@ -272,8 +272,8 @@ function make_chapter(wr = true; verbose = false)
     basic_units =  unitsdict(basicdims, uids)
     compound_units = unitsdict(compounddims, uids)
     nodims_units = nodimsunits(uids) 
-    sections = OrderedDict(["Basic dimensions" => basic_units, 
-        "Compound dimensions" => compound_units])
+    sections = OrderedDict(["Base dimensions" => basic_units,
+        "Derived dimensions" => compound_units])
     phys_consts = physconstants(uids)
 
     fulltext = makefulltext(sections, nodims_units, phys_consts)
