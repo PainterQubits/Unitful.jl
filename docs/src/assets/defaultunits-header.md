@@ -1,4 +1,4 @@
-# Units and сonstants pre-defined in the `Unitful` package
+# Pre-defined units and сonstants
 
 In the following, only non-prefixed units are listed. To get a more detailed information about a unit, and to get information about prefixed units, use `Julia` help, e.g.
 

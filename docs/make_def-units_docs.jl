@@ -192,19 +192,19 @@ function make_subsection_text(uvec; isunit=true)
             n = string(u)
         end
         d = udoc(u) 
-        s *= "#### $n \n\n$d \n\n"
+        s *= "#### $n\n\n$d\n\n"
     end
     return s
 end
 
 function make_simple_section_text(sectiontitle, uvec; isunit=true)
-    s = "## $sectiontitle \n\n"
+    s = "## $sectiontitle\n\n"
     s *= make_subsection_text(uvec; isunit)
     return s
 end
 
 function make_structured_section_text(sectiontitle, sectiondict)
-    s = "## $sectiontitle \n\n"
+    s = "## $sectiontitle\n\n"
     for (dim, uvec) in sectiondict 
         s *= "### $dim\n\n"
         s *= make_subsection_text(uvec)
@@ -220,7 +220,7 @@ function makeprefixsection(pnv)
 |--------|--------|--------|
 """
     for (k,v) in pnv
-        s *= "| $k | $(v[1]) | $(v[2]) | \n"
+        s *= "| $k | $(v[1]) | $(v[2]) |\n"
     end
 
     return s
