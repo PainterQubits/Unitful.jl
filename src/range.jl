@@ -158,9 +158,40 @@ const BCAST_PROPAGATE_CALLS = Union{typeof(upreferred), Units}
 broadcasted(::DefaultArrayStyle{1}, ::typeof(*), r::AbstractRange, x::Ref{<:Units}) = r * x[]
 broadcasted(::DefaultArrayStyle{1}, ::typeof(*), x::Ref{<:Units}, r::AbstractRange) = x[] * r
 broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::StepRangeLen) = StepRangeLen{typeof(x(zero(eltype(r))))}(x(r.ref), x(r.step), r.len, r.offset)
-broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::StepRange) = x(r.start):x(r.step):x(r.stop)
+function broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::StepRange)
+    start = x(r.start)
+    au_to = isa(start, AbstractQuantity) ? absoluteunit(start) : NoUnits # absoluteunit doesn’t work on non-quantities
+    step = uconvert(au_to, r.step)
+    if Base.ArithmeticStyle(start) == Base.ArithmeticRounds() || Base.ArithmeticStyle(step) == Base.ArithmeticRounds()
+        au_from = isa(start, AbstractQuantity) ? absoluteunit(r.start) : NoUnits # absoluteunit doesn’t work on non-quantities
+        astart = ustrip(au_from, r.start)
+        astop = ustrip(au_from, r.stop)
+        len = length(r)
+        offset = _offset_for_steprangelen(astart, astop, len)
+        nb = Base.top_set_bit(max(offset-1, len-offset))
+        T = promote_type(numtype(start), numtype(step))
+        unitless_range = Base.steprangelen_hp(T, ustrip(au_to, r[offset]), ustrip(au_to, step), nb, len, offset)
+        return unitless_range * unit(start)
+    else
+        return StepRange(start, step, x(r.stop))
+    end
+end
 broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::LinRange) = LinRange(x(r.start), x(r.stop), r.len)
 broadcasted(::DefaultArrayStyle{1}, ::typeof(|>), r::AbstractRange, x::Ref{<:BCAST_PROPAGATE_CALLS}) = broadcasted(DefaultArrayStyle{1}(), x[], r)
+
+function _offset_for_steprangelen(start, stop, len)
+    if iszero(start)
+        return oneunit(len)
+    elseif iszero(stop)
+        return len
+    elseif signbit(start) == signbit(stop)
+        return abs(start) < abs(stop) ? oneunit(len) : len
+    else
+        fstart = Float64(start)
+        fstop = Float64(stop)
+        return round(typeof(len), (fstop-len*fstart)/(fstop-fstart))
+    end
+end
 
 broadcasted(::DefaultArrayStyle{1}, ::typeof(ustrip), r::StepRangeLen) =
     StepRangeLen{typeof(ustrip(zero(eltype(r))))}(ustrip(unit(eltype(r)), r.ref), ustrip(unit(eltype(r)), r.step), r.len, r.offset)

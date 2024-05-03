@@ -1326,7 +1326,6 @@ end
             @test @inferred((1:2:5) .* cm .|> mm) === 10mm:20mm:50mm
             @test mm.((1:2:5) .* cm) === 10mm:20mm:50mm
             @test @inferred(StepRange(1cm,1mm,2cm) .|> km) === (1//100_000)km:(1//1_000_000)km:(2//100_000)km
-            @test @inferred((1eV:1eV:5eV) .|> mJ) === mJ(1eV):mJ(1eV):mJ(5eV)
 
             @test @inferred((1:2:5) .* km .|> upreferred) === 1000m:2000m:5000m
             @test @inferred((1:2:5)km .|> upreferred) === 1000m:2000m:5000m
@@ -1335,7 +1334,17 @@ end
             @test @inferred((1.0:2.0:5.0)km .|> upreferred) === 1000.0m:2000.0m:5000.0m
             @test @inferred((1.0:2.0:5.0) .|> upreferred) === 1.0:2.0:5.0
             @test @inferred(StepRange(1cm,1mm,2cm) .|> upreferred) === (1//100)m:(1//1000)m:(2//100)m
-            @test @inferred((1eV:1eV:5eV) .|> upreferred) === upreferred(1eV):upreferred(1eV):upreferred(5eV)
+
+            for r = [1eV:1eV:5eV, 1eV:1eV:5_000_000eV, 5_000_000eV:-1eV:-1eV, -123_456_789eV:2eV:987_654_321eV, (-11//12)eV:(1//3)eV:(11//4)eV]
+                for f = (mJ, upreferred)
+                    rf = @inferred(r .|> f)
+                    @test first(rf) === f(first(r))
+                    @test step(rf) === f(step(r))
+                    @test last(rf) === f(last(r))
+                    test_indices = length(r) ≤ 10_000 ? eachindex(r) : rand(eachindex(r), 10_000)
+                    @test all(≈(rf[i], f(r[i]); rtol=eps()) for i = test_indices)
+                end
+            end
 
             @test @inferred((1:2:5) .* cm .|> mm .|> ustrip) === 10:20:50
             @test @inferred((1f0:2f0:5f0) .* cm .|> mm .|> ustrip) === 10f0:20f0:50f0
