@@ -168,7 +168,7 @@ function broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::StepRa
         astop = ustrip(au_from, r.stop)
         len = length(r)
         offset = _offset_for_steprangelen(astart, astop, len)
-        nb = Base.top_set_bit(max(offset-1, len-offset))
+        nb = ndigits(max(offset-1, len-offset), base=2, pad=0)
         T = promote_type(numtype(start), numtype(step))
         unitless_range = Base.steprangelen_hp(T, ustrip(au_to, r[offset]), ustrip(au_to, step), nb, len, offset)
         return unitless_range * unit(start)
