@@ -1335,16 +1335,37 @@ end
             @test @inferred((1.0:2.0:5.0) .|> upreferred) === 1.0:2.0:5.0
             @test @inferred(StepRange(1cm,1mm,2cm) .|> upreferred) === (1//100)m:(1//1000)m:(2//100)m
 
+            # float conversion, dimensionful
             for r = [1eV:1eV:5eV, 1eV:1eV:5_000_000eV, 5_000_000eV:-1eV:-1eV, -123_456_789eV:2eV:987_654_321eV, (-11//12)eV:(1//3)eV:(11//4)eV]
                 for f = (mJ, upreferred)
                     rf = @inferred(r .|> f)
-                    @test first(rf) === f(first(r))
-                    @test step(rf) === f(step(r))
-                    @test last(rf) === f(last(r))
                     test_indices = length(r) ≤ 10_000 ? eachindex(r) : rand(eachindex(r), 10_000)
+                    @test eltype(rf) === typeof(f(zero(eltype(r))))
                     @test all(≈(rf[i], f(r[i]); rtol=eps()) for i = test_indices)
                 end
             end
+
+            # float conversion from unitless
+            r = 1:1:360
+            rf = °.(r)
+            @test all(≈(rf[i], °(r[i]); rtol=eps()) for i = eachindex(r))
+
+            # float conversion to unitless
+            r = (1:1:360)°
+            for f = (mrad, NoUnits, upreferred)
+                rf = f.(r)
+                @test eltype(rf) === typeof(f(zero(eltype(r))))
+                @test all(≈(rf[i], f(r[i]); rtol=eps()) for i = eachindex(r))
+            end
+
+            # exact conversion from and to unitless
+            @test rad.(1:1:360) === (1:1:360)rad
+            @test mrad.(1:1:360) === (1_000:1_000:360_000)mrad
+            @test upreferred.(1:1:360) === 1:1:360
+            @test NoUnits.((1:1:360)rad) === 1:1:360
+            @test upreferred.((1:1:360)rad) === 1:1:360
+            @test NoUnits.((1:2:5)mrad) === 1//1000:1//500:1//200
+            @test upreferred.((1:2:5)mrad) === 1//1000:1//500:1//200
 
             @test @inferred((1:2:5) .* cm .|> mm .|> ustrip) === 10:20:50
             @test @inferred((1f0:2f0:5f0) .* cm .|> mm .|> ustrip) === 10f0:20f0:50f0

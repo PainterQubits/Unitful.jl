@@ -160,16 +160,16 @@ broadcasted(::DefaultArrayStyle{1}, ::typeof(*), x::Ref{<:Units}, r::AbstractRan
 broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::StepRangeLen) = StepRangeLen{typeof(x(zero(eltype(r))))}(x(r.ref), x(r.step), r.len, r.offset)
 function broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::StepRange)
     start = x(r.start)
-    au_to = isa(start, AbstractQuantity) ? absoluteunit(start) : NoUnits # absoluteunit doesn’t work on non-quantities
+    au_to = absoluteunit(unit(start))
     step = uconvert(au_to, r.step)
     if Base.ArithmeticStyle(start) == Base.ArithmeticRounds() || Base.ArithmeticStyle(step) == Base.ArithmeticRounds()
-        au_from = isa(start, AbstractQuantity) ? absoluteunit(r.start) : NoUnits # absoluteunit doesn’t work on non-quantities
+        au_from = absoluteunit(unit(r.start))
         astart = ustrip(au_from, r.start)
         astop = ustrip(au_from, r.stop)
         len = length(r)
         offset = _offset_for_steprangelen(astart, astop, len)
         nb = ndigits(max(offset-1, len-offset), base=2, pad=0)
-        T = promote_type(numtype(start), numtype(step))
+        T = promote_type(typeof(start/unit(start)), typeof(step/unit(step)))
         unitless_range = Base.steprangelen_hp(T, ustrip(au_to, r[offset]), ustrip(au_to, step), nb, len, offset)
         return unitless_range * unit(start)
     else
