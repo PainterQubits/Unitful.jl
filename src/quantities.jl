@@ -266,7 +266,7 @@ function isapprox(
     x::AbstractArray{<:AbstractQuantity{T1,D,U1}},
     y::AbstractArray{<:AbstractQuantity{T2,D,U2}};
     atol=zero(Quantity{real(T1),D,U1}),
-    rtol::Real=Base.rtoldefault(T1,T2,!iszero(atol)),
+    rtol::Real=Base.rtoldefault(T1,T2,atol>zero(atol)),
     nans::Bool=false,
     norm::Function=norm,
 ) where {T1,D,U1,T2,U2}
