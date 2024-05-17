@@ -1542,6 +1542,10 @@ end
             @test isapprox([1cm, 200cm], [0.01m, 2.0m])
             @test !isapprox([1.0], [1.0m])
             @test !isapprox([1.0m], [1.0])
+            @test isapprox([1.0m, NaN*m], [nextfloat(1.0)*m, NaN*m], nans=true)
+            @test !isapprox([1.0m, NaN*m], [nextfloat(1.0)*m, NaN*m], nans=false)
+            @test !isapprox([1.0m, 2.0m], [1.1m, 2.2m], rtol=0.05, atol=0.2m)
+            @test !isapprox([1.0m], [nextfloat(1.0)*m], atol=eps(0.1)*m)
         end
         @testset ">> Unit stripping" begin
             @test @inferred(ustrip([1u"m", 2u"m"])) == [1,2]

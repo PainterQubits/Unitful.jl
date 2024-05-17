@@ -265,17 +265,17 @@ isapprox(x::Number, y::AbstractQuantity; kwargs...) = isapprox(y, x; kwargs...)
 function isapprox(
     x::AbstractArray{<:AbstractQuantity{T1,D,U1}},
     y::AbstractArray{<:AbstractQuantity{T2,D,U2}};
-    rtol::Real=Base.rtoldefault(T1,T2,0),
     atol=zero(Quantity{real(T1),D,U1}),
+    rtol::Real=Base.rtoldefault(T1,T2,atol>zero(atol)),
+    nans::Bool=false,
     norm::Function=norm,
 ) where {T1,D,U1,T2,U2}
-
     d = norm(x - y)
     if isfinite(d)
-        return d <= atol + rtol*max(norm(x), norm(y))
+        return iszero(rtol) ? d <= atol : d <= max(atol, rtol*max(norm(x), norm(y)))
     else
         # Fall back to a component-wise approximate comparison
-        return all(ab -> isapprox(ab[1], ab[2]; rtol=rtol, atol=atol), zip(x, y))
+        return all(ab -> isapprox(ab[1], ab[2]; rtol=rtol, atol=atol, nans=nans), zip(x, y))
     end
 end
 
