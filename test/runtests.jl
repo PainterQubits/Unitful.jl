@@ -2131,6 +2131,24 @@ Base.OrderStyle(::Type{Num}) = Base.Unordered()
     @test uconvert(u"°C", Num(373.15)u"K") == Num(100)u"°C"
 end
 
+@testset "WithDims, WithUnits" begin
+    # built-in types
+    @test   1m    isa WithDims(m)
+    @test   1.0m  isa WithDims(m)
+    @test   1//1m isa WithDims(m)
+    @test   1.0m  isa WithUnits(m)
+    # user-defined types
+    @test   Num(1.0)m  isa WithDims(m)
+    @test   Num(1.0)km isa WithDims(m)
+    @test !(Num(1.0)s  isa WithDims(m))
+    @test   Num(1.0)m  isa WithUnits(m)
+    @test !(Num(1.0)km isa WithUnits(m))
+    @test !(Num(1.0)s  isa WithUnits(m))
+    # composite units
+    @test  1kg*(1.0m/s)^2 isa WithDims(J)
+    @test  1kg*(1.0m/s)^2 isa WithUnits(kg*m^2/s^2)
+end
+
 @testset "Traits" begin
     @testset "> ArithmeticStyle" begin
         @test Base.ArithmeticStyle(1m) === Base.ArithmeticWraps()
