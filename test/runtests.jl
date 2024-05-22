@@ -1864,6 +1864,17 @@ end
         @test convert(Float64, u"10dB_p") === 10.0
         @test convert(Float64, u"20dB_rp") === 10.0
 
+        for L = (40u"dB_rp", 20u"dB_p", 40u"dBFS")
+            for U = (NoUnits, FixedUnits(NoUnits), ContextUnits(NoUnits, m/mm))
+                @test convert(Quantity{Int,NoDims,typeof(U)}, L) === Quantity{Int,NoDims,typeof(U)}(100)
+                @test convert(Quantity{Int,NoDims,typeof(U)}, L/rad) === Quantity{Int,NoDims,typeof(U)}(100)
+            end
+            @test convert(Quantity{Int}, L) === Quantity{Int,NoDims,typeof(NoUnits)}(100)
+            @test convert(Quantity{Int}, L/rad) === 100/rad
+            @test convert(Quantity{Int,NoDims}, L) === Quantity{Int,NoDims,typeof(NoUnits)}(100)
+            @test convert(Quantity{Int,NoDims}, L/rad) === 100/rad
+        end
+
         @test isapprox(uconvertrp(NoUnits, 6.02dB), 2.0, atol=0.001)
         @test uconvertrp(NoUnits, 1Np) ≈ MathConstants.e
         @test uconvertrp(Np, MathConstants.e) == 1Np
