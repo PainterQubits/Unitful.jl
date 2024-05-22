@@ -144,6 +144,14 @@ end
         @test convert(Int, 1*FreeUnits(m/mm)) === 1000
         @test convert(Int, 1*FixedUnits(m/mm)) === 1000
         @test convert(Int, 1*ContextUnits(m/mm, NoUnits)) === 1000
+        for U = (NoUnits, FixedUnits(NoUnits), ContextUnits(NoUnits, m/mm))
+            @test convert(Quantity{Int,NoDims,typeof(U)}, 1*FreeUnits(m/mm)) === Quantity{Int,NoDims,typeof(U)}(1000)
+            @test convert(Quantity{Int,NoDims,typeof(U)}, 1*FixedUnits(m/mm)) === Quantity{Int,NoDims,typeof(U)}(1000)
+            @test convert(Quantity{Int,NoDims,typeof(U)}, 1*ContextUnits(m/mm, NoUnits)) === Quantity{Int,NoDims,typeof(U)}(1000)
+            @test convert(Quantity{Int,NoDims,typeof(U)}, 1) === Quantity{Int,NoDims,typeof(U)}(1)
+        end
+        @test convert(Quantity{Int}, 1) === Quantity{Int,NoDims,typeof(NoUnits)}(1)
+        @test convert(Quantity{Int,NoDims}, 1) === Quantity{Int,NoDims,typeof(NoUnits)}(1)
 
         # w/ units distinct from w/o units
         @test 1m != 1
@@ -1810,6 +1818,17 @@ end
         @test_throws ErrorException convert(Float64, u"10dB")
         @test convert(Float64, u"10dB_p") === 10.0
         @test convert(Float64, u"20dB_rp") === 10.0
+
+        for L = (40u"dB_rp", 20u"dB_p", 40u"dBFS")
+            for U = (NoUnits, FixedUnits(NoUnits), ContextUnits(NoUnits, m/mm))
+                @test convert(Quantity{Int,NoDims,typeof(U)}, L) === Quantity{Int,NoDims,typeof(U)}(100)
+                @test convert(Quantity{Int,NoDims,typeof(U)}, L/rad) === Quantity{Int,NoDims,typeof(U)}(100)
+            end
+            @test convert(Quantity{Int}, L) === Quantity{Int,NoDims,typeof(NoUnits)}(100)
+            @test convert(Quantity{Int}, L/rad) === 100/rad
+            @test convert(Quantity{Int,NoDims}, L) === Quantity{Int,NoDims,typeof(NoUnits)}(100)
+            @test convert(Quantity{Int,NoDims}, L/rad) === 100/rad
+        end
 
         @test isapprox(uconvertrp(NoUnits, 6.02dB), 2.0, atol=0.001)
         @test uconvertrp(NoUnits, 1Np) ≈ MathConstants.e
