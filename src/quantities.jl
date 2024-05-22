@@ -478,7 +478,8 @@ Returns a `Quantity` with the same units.
 """
 Rational(x::AbstractQuantity) = Quantity(Rational(x.val), unit(x))
 
-big(x::AbstractQuantity) = Quantity(big(x.val), unit(x))
+big(x::AbstractQuantity{T,D,U}) where {T,D,U} = Quantity{big(T),D,U}(big(x.val))
+big(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = Quantity{big(T),D,U}
 
 Base.hastypemax(::Type{<:AbstractQuantity{T}}) where {T} = Base.hastypemax(T)
 
