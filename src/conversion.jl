@@ -115,7 +115,7 @@ uconvert(a::Units, x::Missing) = missing
     t1 = a <: AffineUnits ? a.parameters[end].parameters[end] :
         :(zero($(x.parameters[1])))
     quote
-        dimension(a) != dimension(x) && return throw(DimensionError(a, x))
+        dimension(a) != dimension(x) && throw(DimensionError(a, x))
         return Quantity(((x.val - $t0) * $conv) + $t1, a)
     end
 end
