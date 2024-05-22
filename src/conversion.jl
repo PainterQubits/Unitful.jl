@@ -121,11 +121,9 @@ uconvert(a::Units, x::Missing) = missing
 end
 
 function convert(::Type{Quantity{T,D,U}}, x::Number) where {T,D,U}
-    if dimension(x) == D
-        Quantity(T(uconvert(U(),x).val), U())
-    else
-        throw(DimensionError(U(),x))
-    end
+    (dimension(x) != D) && throw(DimensionError(U(), x))
+    q = uconvert(U(), x)
+    Quantity{T,D,U}(isa(q, AbstractQuantity) ? q.val : q)
 end
 
 # needed ever since julialang/julia#28216

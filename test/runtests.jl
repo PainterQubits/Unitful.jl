@@ -144,6 +144,14 @@ end
         @test convert(Int, 1*FreeUnits(m/mm)) === 1000
         @test convert(Int, 1*FixedUnits(m/mm)) === 1000
         @test convert(Int, 1*ContextUnits(m/mm, NoUnits)) === 1000
+        for U = (NoUnits, FixedUnits(NoUnits), ContextUnits(NoUnits, m/mm))
+            @test convert(Quantity{Int,NoDims,typeof(U)}, 1*FreeUnits(m/mm)) === Quantity{Int,NoDims,typeof(U)}(1000)
+            @test convert(Quantity{Int,NoDims,typeof(U)}, 1*FixedUnits(m/mm)) === Quantity{Int,NoDims,typeof(U)}(1000)
+            @test convert(Quantity{Int,NoDims,typeof(U)}, 1*ContextUnits(m/mm, NoUnits)) === Quantity{Int,NoDims,typeof(U)}(1000)
+            @test convert(Quantity{Int,NoDims,typeof(U)}, 1) === Quantity{Int,NoDims,typeof(U)}(1)
+        end
+        @test convert(Quantity{Int}, 1) === Quantity{Int,NoDims,typeof(NoUnits)}(1)
+        @test convert(Quantity{Int,NoDims}, 1) === Quantity{Int,NoDims,typeof(NoUnits)}(1)
 
         # w/ units distinct from w/o units
         @test 1m != 1
