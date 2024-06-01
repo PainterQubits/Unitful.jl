@@ -115,6 +115,7 @@ _colon(::Any, ::Any, start::T, step, stop::T) where {T} =
 *(x::Base.TwicePrecision, y::Units) = Base.TwicePrecision(x.hi*y, x.lo*y)
 *(x::Base.TwicePrecision, y::Quantity) = (x * ustrip(y)) * unit(y)
 uconvert(y, x::Base.TwicePrecision) = Base.TwicePrecision(uconvert(y, x.hi), uconvert(y, x.lo))
+ustrip(x::Base.TwicePrecision) = Base.TwicePrecision(ustrip(x.hi), ustrip(x.lo))
 @inline upreferred(x::Base.TwicePrecision{T}) where T<:Number = x
 @inline upreferred(x::Base.TwicePrecision{T}) where T<:AbstractQuantity =
     uconvert(upreferred(unit(x)), x)
@@ -153,13 +154,53 @@ broadcasted(::DefaultArrayStyle{1}, ::typeof(*), r::AbstractRange, x::AbstractQu
 broadcasted(::DefaultArrayStyle{1}, ::typeof(*), x::AbstractQuantity, r::AbstractRange) =
     broadcasted(DefaultArrayStyle{1}(), *, ustrip(x), r) * unit(x)
 
-const BCAST_PROPAGATE_CALLS = Union{typeof(upreferred), typeof(ustrip), Units}
+const BCAST_PROPAGATE_CALLS = Union{typeof(upreferred), Units}
 broadcasted(::DefaultArrayStyle{1}, ::typeof(*), r::AbstractRange, x::Ref{<:Units}) = r * x[]
 broadcasted(::DefaultArrayStyle{1}, ::typeof(*), x::Ref{<:Units}, r::AbstractRange) = x[] * r
 broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::StepRangeLen) = StepRangeLen{typeof(x(zero(eltype(r))))}(x(r.ref), x(r.step), r.len, r.offset)
-broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::StepRange) = StepRange(x(r.start), x(r.step), x(r.stop))
+function broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::StepRange)
+    start = x(r.start)
+    au_to = absoluteunit(unit(start))
+    step = uconvert(au_to, r.step)
+    if Base.ArithmeticStyle(start) == Base.ArithmeticRounds() || Base.ArithmeticStyle(step) == Base.ArithmeticRounds()
+        au_from = absoluteunit(unit(r.start))
+        astart = ustrip(au_from, r.start)
+        astop = ustrip(au_from, r.stop)
+        len = length(r)
+        offset = _offset_for_steprangelen(astart, astop, len)
+        nb = ndigits(max(offset-1, len-offset), base=2, pad=0)
+        T = promote_type(typeof(start/unit(start)), typeof(step/unit(step)))
+        unitless_range = Base.steprangelen_hp(T, ustrip(au_to, r[offset]), ustrip(au_to, step), nb, len, offset)
+        return unitless_range * unit(start)
+    else
+        return StepRange(start, step, x(r.stop))
+    end
+end
 broadcasted(::DefaultArrayStyle{1}, x::BCAST_PROPAGATE_CALLS, r::LinRange) = LinRange(x(r.start), x(r.stop), r.len)
 broadcasted(::DefaultArrayStyle{1}, ::typeof(|>), r::AbstractRange, x::Ref{<:BCAST_PROPAGATE_CALLS}) = broadcasted(DefaultArrayStyle{1}(), x[], r)
+
+function _offset_for_steprangelen(start, stop, len)
+    if iszero(start)
+        return oneunit(len)
+    elseif iszero(stop)
+        return len
+    elseif signbit(start) == signbit(stop)
+        return abs(start) < abs(stop) ? oneunit(len) : len
+    else
+        fstart = Float64(start)
+        fstop = Float64(stop)
+        return round(typeof(len), (fstop-len*fstart)/(fstop-fstart))
+    end
+end
+
+broadcasted(::DefaultArrayStyle{1}, ::typeof(ustrip), r::StepRangeLen) =
+    StepRangeLen{typeof(ustrip(zero(eltype(r))))}(ustrip(unit(eltype(r)), r.ref), ustrip(unit(eltype(r)), r.step), r.len, r.offset)
+broadcasted(::DefaultArrayStyle{1}, ::typeof(ustrip), r::StepRange) =
+    ustrip(unit(eltype(r)), r.start):ustrip(unit(eltype(r)), r.step):ustrip(unit(eltype(r)), r.stop)
+broadcasted(::DefaultArrayStyle{1}, ::typeof(ustrip), r::LinRange) =
+    LinRange(ustrip(unit(eltype(r)), r.start), ustrip(unit(eltype(r)), r.stop), r.len)
+broadcasted(::DefaultArrayStyle{1}, ::typeof(|>), r::AbstractRange, ::Ref{typeof(ustrip)}) =
+    broadcasted(DefaultArrayStyle{1}(), ustrip, r)
 
 # for ambiguity resolution
 broadcasted(::DefaultArrayStyle{1}, ::typeof(*), r::StepRangeLen{T}, x::AbstractQuantity) where T =

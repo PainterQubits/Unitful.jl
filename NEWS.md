@@ -1,5 +1,17 @@
 # Unitful.jl changelog
 
+## v1.20.0 (2024-05-17)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) `isapprox` with arrays of quantities now supports the `nans` keyword argument ([#719](https://github.com/PainterQubits/Unitful.jl/pull/719)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `isapprox` with arrays of quantities now calculates the default `rtol` correctly, i.e., `rtol` defaults to zero if a positive `atol` is specified, like in the scalar or unitless case ([#719](https://github.com/PainterQubits/Unitful.jl/pull/719)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `isapprox` with arrays of quantities now checks whether `norm(x-y) ≤ max(atol, rtol*max(norm(x), norm(y)))`, like in the scalar or unitless case, instead of `norm(x-y) ≤ atol + rtol*max(norm(x),
+  norm(y))` ([#719](https://github.com/PainterQubits/Unitful.jl/pull/719)).
+
+## v1.19.1 (2024-05-13)
+
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Broadcasting `upreferred`, `ustrip`, or a unit (when used as a conversion function) over ranges now works correctly again ([#711](https://github.com/PainterQubits/Unitful.jl/pull/711), [#715](https://github.com/PainterQubits/Unitful.jl/pull/715)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Broadcasting `upreferred`, `ustrip`, or a unit (when used as a conversion function) over a `StepRange` now returns a `StepRangeLen` when the conversion results in floating-point numbers ([#715](https://github.com/PainterQubits/Unitful.jl/pull/715)).
+
 ## v1.19.0 (2023-11-29)
 
 * ![Feature:](https://img.shields.io/badge/-feature-green) The dimensionless units parts per cent mille (`pcm`, 10^-5), parts per million (`ppm`, 10^-6), parts per billion (`ppb`, 10^-9), parts per trillion (`ppt`, 10^-12), and parts per quadrillion (`ppq`, 10^-15) are added ([#699](https://github.com/PainterQubits/Unitful.jl/pull/699)).
