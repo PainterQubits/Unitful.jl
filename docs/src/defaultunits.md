@@ -761,7 +761,7 @@ The degree, a unit of angle. There are 360° in a circle.
 | `Np`       |        Neper |
 | `cNp`      |       Centineper |
 
-### "Dimensionful" logarithmic units
+### Log units related to reference levels
 | Unit           | Reference level                            |
 |----------------|---------------------------------|
 | `dBHz`       |         1Hz |
