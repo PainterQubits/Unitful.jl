@@ -192,10 +192,10 @@ sleep(x::AbstractQuantity) = sleep(ustrip(s, x))
 # Dates, Times, DateTimes
 
 for f in (:+, :-)
-    @eval Base.$f(x::DateTime, y::Quantity) = $f(x, Nanosecond(y))
-    @eval Base.$f(x::Time, y::Quantity) = $f(x, Nanosecond(y))
-    @eval Base.$f(x::Date, y::Quantity) = $f(x, Day(y))
+    @eval Base.$f(x::Dates.DateTime, y::Quantity) = $f(x, Dates.Nanosecond(y))
+    @eval Base.$f(x::Dates.Time, y::Quantity) = $f(x, Dates.Nanosecond(y))
+    @eval Base.$f(x::Dates.Date, y::Quantity) = $f(x, Dates.Day(y))
 end
-Base.:+(y::Quantity, x::DateTime) = x + Nanosecond(y)
-Base.:+(y::Quantity, x::Time) = x + Nanosecond(y)
-Base.:+(y::Quantity, x::Date) = x + Day(y)
+Base.:+(y::Quantity, x::Dates.DateTime) = x + Dates.Nanosecond(y)
+Base.:+(y::Quantity, x::Dates.Time) = x + Dates.Nanosecond(y)
+Base.:+(y::Quantity, x::Dates.Date) = x + Dates.Day(y)
