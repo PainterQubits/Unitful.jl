@@ -31,6 +31,18 @@
             @test 1.0u"wk" - Day(3) === 1.0u"wk" - Int64(3)u"d"
             @test_throws DimensionError 1u"m" + Second(1)
             @test_throws DimensionError 1u"m" - Second(1)
+
+            @test Date(2000, 2, 3) + 1u"ns" == Date(2000, 2, 3)
+            @test Date(2000, 2, 3) + 23u"hr" == Date(2000, 2, 3)
+            @test Date(2000, 2, 3) + 100u"hr" == Date(2000, 2, 7)
+            @test DateTime(2000, 2, 3, 4, 5) + 1u"ns" == DateTime(2000, 2, 3, 4, 5)
+            @test DateTime(2000, 2, 3, 4, 5) + 23u"hr" == DateTime(2000, 2, 4, 3, 5)
+            @test DateTime(2000, 2, 3, 4, 5) + 100u"hr" == DateTime(2000, 2, 7, 8, 5)
+            @test Time(4, 5) + 1u"ps" == Time(4, 5)
+            @test Time(4, 5) + 1u"ms" == Time(4, 5, 0, 1)
+            @test Time(4, 5) + 1.5u"hr" == Time(5, 35)
+            @test Date(2000, 2, 5) - 50u"hr" == Date(2000, 2, 2)
+            @test 50u"hr" + Date(2000, 2, 5) == Date(2000, 2, 7)
         end
 
         @testset ">> Multiplication" begin
