@@ -32,17 +32,18 @@
             @test_throws DimensionError 1u"m" + Second(1)
             @test_throws DimensionError 1u"m" - Second(1)
 
-            @test Date(2000, 2, 3) + 1u"ns" == Date(2000, 2, 3)
-            @test Date(2000, 2, 3) + 23u"hr" == Date(2000, 2, 3)
-            @test Date(2000, 2, 3) + 100u"hr" == Date(2000, 2, 7)
+            @test Date(2000, 2, 3) + 24u"hr" == Date(2000, 2, 4)
+            @test Date(2000, 2, 3) + 48u"hr" == Date(2000, 2, 5)
+            @test_throws Exception Date(2000, 2, 3) + 1u"hr"
+
             @test DateTime(2000, 2, 3, 4, 5) + 1u"ns" == DateTime(2000, 2, 3, 4, 5)
             @test DateTime(2000, 2, 3, 4, 5) + 23u"hr" == DateTime(2000, 2, 4, 3, 5)
             @test DateTime(2000, 2, 3, 4, 5) + 100u"hr" == DateTime(2000, 2, 7, 8, 5)
             @test Time(4, 5) + 1u"ps" == Time(4, 5)
             @test Time(4, 5) + 1u"ms" == Time(4, 5, 0, 1)
             @test Time(4, 5) + 1.5u"hr" == Time(5, 35)
-            @test Date(2000, 2, 5) - 50u"hr" == Date(2000, 2, 2)
-            @test 50u"hr" + Date(2000, 2, 5) == Date(2000, 2, 7)
+            @test Date(2000, 2, 5) - 48u"hr" == Date(2000, 2, 3)
+            @test 24u"hr" + Date(2000, 2, 5) == Date(2000, 2, 6)
         end
 
         @testset ">> Multiplication" begin
