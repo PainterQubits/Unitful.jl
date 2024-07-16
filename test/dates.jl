@@ -32,18 +32,18 @@
             @test_throws DimensionError 1u"m" + Second(1)
             @test_throws DimensionError 1u"m" - Second(1)
 
-            @test Date(2000, 2, 3) + 24u"hr" == Date(2000, 2, 4)
-            @test Date(2000, 2, 3) + 48u"hr" == Date(2000, 2, 5)
-            @test_throws Exception Date(2000, 2, 3) + 1u"hr"
+            @test Dates.Date(2000, 2, 3) + 24.0u"hr" == Dates.Date(2000, 2, 4)
+            @test Dates.Date(2000, 2, 3) + 48.0u"hr" == Dates.Date(2000, 2, 5)
+            @test_throws Exception Dates.Date(2000, 2, 3) + 1.0u"hr"
 
-            @test DateTime(2000, 2, 3, 4, 5) + 1u"ns" == DateTime(2000, 2, 3, 4, 5)
-            @test DateTime(2000, 2, 3, 4, 5) + 23u"hr" == DateTime(2000, 2, 4, 3, 5)
-            @test DateTime(2000, 2, 3, 4, 5) + 100u"hr" == DateTime(2000, 2, 7, 8, 5)
-            @test Time(4, 5) + 1u"ps" == Time(4, 5)
-            @test Time(4, 5) + 1u"ms" == Time(4, 5, 0, 1)
-            @test Time(4, 5) + 1.5u"hr" == Time(5, 35)
-            @test Date(2000, 2, 5) - 48u"hr" == Date(2000, 2, 3)
-            @test 24u"hr" + Date(2000, 2, 5) == Date(2000, 2, 6)
+            @test Dates.DateTime(2000, 2, 3, 4, 5) + 1.0u"ns" == Dates.DateTime(2000, 2, 3, 4, 5)
+            @test Dates.DateTime(2000, 2, 3, 4, 5) + 23.0u"hr" == Dates.DateTime(2000, 2, 4, 3, 5)
+            @test Dates.DateTime(2000, 2, 3, 4, 5) + 100.0u"hr" == Dates.DateTime(2000, 2, 7, 8, 5)
+            @test Dates.Time(4, 5) + 1.0u"ps" == Dates.Time(4, 5)
+            @test Dates.Time(4, 5) + 1.0u"ms" == Dates.Time(4, 5, 0, 1)
+            @test Dates.Time(4, 5) + 1.5u"hr" == Dates.Time(5, 35)
+            @test Dates.Date(2000, 2, 5) - 48.0u"hr" == Dates.Date(2000, 2, 3)
+            @test 24.0u"hr" + Dates.Date(2000, 2, 5) == Dates.Date(2000, 2, 6)
         end
 
         @testset ">> Multiplication" begin

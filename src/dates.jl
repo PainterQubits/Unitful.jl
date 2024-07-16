@@ -194,7 +194,7 @@ sleep(x::AbstractQuantity) = sleep(ustrip(s, x))
 for f in (:+, :-)
     @eval Base.$f(x::Dates.DateTime, y::Quantity) = $f(x, trunc(Dates.Millisecond, y))
     @eval Base.$f(x::Dates.Time, y::Quantity) = $f(x, trunc(Dates.Nanosecond, y))
-    @eval Base.$f(x::Dates.Date, y::Quantity) = $f(x, Day(y))
+    @eval Base.$f(x::Dates.Date, y::Quantity) = $f(x, Dates.Day(y))
 end
 Base.:+(y::Quantity, x::Dates.DateTime) = x + y
 Base.:+(y::Quantity, x::Dates.Time) = x + y
