@@ -188,3 +188,14 @@ isapprox(x::AbstractArray{Dates.CompoundPeriod}, y::AbstractArray{<:AbstractQuan
          kwargs...) = isapprox(y, x; kwargs...)
 
 sleep(x::AbstractQuantity) = sleep(ustrip(s, x))
+
+# Dates, Times, DateTimes
+
+for f in (:+, :-)
+    @eval Base.$f(x::Dates.DateTime, y::Quantity) = $f(x, trunc(Dates.Millisecond, y))
+    @eval Base.$f(x::Dates.Time, y::Quantity) = $f(x, trunc(Dates.Nanosecond, y))
+    @eval Base.$f(x::Dates.Date, y::Quantity) = $f(x, Dates.Day(y))
+end
+Base.:+(y::Quantity, x::Dates.DateTime) = x + y
+Base.:+(y::Quantity, x::Dates.Time) = x + y
+Base.:+(y::Quantity, x::Dates.Date) = x + y
