@@ -1,5 +1,9 @@
 # Unitful.jl changelog
 
+## v1.21.0 (2024-07-19)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) Arithmetic between `Dates.TimeType` and `Unitful.Time` is added, e.g., `Dates.now() + 1u"hr"` now works ([#731](https://github.com/PainterQubits/Unitful.jl/pull/731)).
+
 ## v1.20.0 (2024-05-17)
 
 * ![Feature:](https://img.shields.io/badge/-feature-green) `isapprox` with arrays of quantities now supports the `nans` keyword argument ([#719](https://github.com/PainterQubits/Unitful.jl/pull/719)).
