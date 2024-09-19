@@ -206,6 +206,7 @@
             @test u"μs"(CompoundPeriod(Day(365),Hour(5),Minute(49),Second(12))) === Rational{Int64}(31_556_952_000_000,1)u"μs"
             @test uconvert(u"ns", CompoundPeriod(Day(365),Hour(5),Minute(49),Second(12))) === Int64(31_556_952_000_000_000)u"ns"
             @test u"ns"(CompoundPeriod(Day(365),Hour(5),Minute(49),Second(12))) === Int64(31_556_952_000_000_000)u"ns"
+            @test uconvert(u"ms", 1u"yr") == (Dates.toms(Year(1)))u"ms"  # Compare to Dates stdlib value of a year
             @test uconvert(u"ps", CompoundPeriod(Week(1),Hour(-1))) === Int64(601_200_000_000_000_000)u"ps"
             @test u"ps"(CompoundPeriod(Week(1),Hour(-1))) === Int64(601_200_000_000_000_000)u"ps"
             @test_throws DimensionError uconvert(u"m", CompoundPeriod(Day(365),Hour(5),Minute(49),Second(12)))

@@ -12,7 +12,7 @@ end
 The `Dates.FixedPeriod` union type includes all `Dates.Period`s that represent a fixed period of time, i.e., `Dates.Week`, `Dates.Day`, `Dates.Hour`, `Dates.Minute`, `Dates.Second`, `Dates.Millisecond`, `Dates.Microsecond`, and `Dates.Nanosecond`. These types can be converted to `Quantity`s or used in place of them.
 
 !!! note
-    `Dates.Year` does not represent a fixed period and cannot be converted to a `Quantity`. While Unitful's `yr` unit is exactly equal to 365.2425 days, a `Dates.Year` may contain 365 or 366 days (see [`Dates.isleapyear`](@ref)).
+    `Dates.Year` does not represent a fixed period and cannot be converted to a `Quantity`. While Unitful's `yr` unit is exactly equal to 365.2425 days, a `Dates.Year` may contain 365 or 366 days (see [`Dates.days(::Year)`](@ref) and [`Dates.isleapyear`](@ref)).
 
 Each `FixedPeriod` is considered equivalent to a `Quantity`. For example, `Dates.Millisecond(5)` corresponds to the quantity `Int64(5)*u"ms"`. A `FixedPeriod` can be converted to the equivalent `Quantity` with a constructor:
 
