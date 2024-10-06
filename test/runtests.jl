@@ -197,7 +197,7 @@ end
             @test 1minute == 60s
             @test 1hr == 60minute
             @test 1d == 24hr
-            @test 1yr == 365.25d
+            @test 1yr == 365.2425d
             @test 1J == 1kg*m^2/s^2
             @test typeof(1cm)(1m) === 100cm
             @test (3V+4V*im) != (3m+4m*im)
