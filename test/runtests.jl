@@ -214,6 +214,14 @@ end
             @test 1u"rps" == 2π/s
             @test 1u"rpm" == 360°/minute
             @test 1u"rpm" == 2π/minute
+            # Issue 430:
+            # definition for arcsecond taken from UnitfulAngles.jl
+            # definition for Jy arcsecond taken from UnitfulAstro.jl
+            @unit angles_arcsecond "angles_″" angles_Arcsecond °//3600 false
+            @unit astro_Jy "astro_Jy" astro_Jansky 1e-23u"erg*s^-1*cm^-2*Hz^-1" true
+            @test uconvert(
+                astro_Jy / angles_arcsecond^2, 1.0u"GHz^2 * J * c^-2"
+            ) ≈ 2.6152205956835644e16 * astro_Jy * angles_arcsecond^-2
             # Issue 458:
             @test deg2rad(360°) ≈ 2π * rad
             @test rad2deg(2π * rad) ≈ 360°
@@ -232,7 +240,6 @@ end
             @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"Tb^11", 1u"ab^11"))
             @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"b^11 * eV", 1u"m^22 * J"))
             @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"m^22 * J", 1u"b^11 * eV"))
-
             # min/max had code doing the equivalent of uconvert, and suffering
             # from similar problems as issue 647 (see above)
             @test_or_throws ArgumentError max(1u"Ym^18", 1u"Em^18") === 1u"Ym^18"
@@ -247,6 +254,8 @@ end
             @test_or_throws ArgumentError min(1u"ab^8", 1u"fb^8") === 1u"ab^8"
             @test_or_throws ArgumentError minmax(1u"fb^8", 1u"ab^8") ===
                 (1u"ab^8", 1u"fb^8")
+            # Issue 660:
+            @test uconvert(u"Å * ps^-2", 1.0u"kcal*Å^-1*g^-1") ≈ 418.4u"Å * ps^-2"
         end
     end
 end
