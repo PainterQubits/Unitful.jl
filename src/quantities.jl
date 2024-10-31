@@ -206,11 +206,15 @@ sqrt(x::AbstractQuantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
 cbrt(x::AbstractQuantity) = Quantity(cbrt(x.val), cbrt(unit(x)))
 
 for _y in (:sin, :cos, :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
-           :sinpi, :cospi, :tanpi, :sinc, :cosc, :cis, :cispi, :sincospi)
+           :sinpi, :cospi, :tanpi, :sinc, :cosc, :sincospi)
     if isdefined(Base, _y)
         @eval Base.$(_y)(x::DimensionlessQuantity) = Base.$(_y)(uconvert(NoUnits, x))
     end
 end
+cis(x::DimensionlessQuantity{<:Real}) = Complex(reverse(sincos(x))...)
+cis(x::DimensionlessQuantity{<:Complex}) = exp(-imag(x)) * Complex(reverse(sincos(real(x)))...)
+cispi(x::DimensionlessQuantity{<:Real}) = Complex(reverse(sincospi(x))...)
+cispi(x::DimensionlessQuantity{<:Complex}) = exp(-(π*imag(x))) * Complex(reverse(sincospi(real(x)))...)
 
 atan(y::AbstractQuantity{T1,D,U1}, x::AbstractQuantity{T2,D,U2}) where {T1,T2,D,U1,U2} =
     atan(promote(y,x)...)
