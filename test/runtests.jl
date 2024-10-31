@@ -2212,8 +2212,9 @@ using REPL # This is necessary to make `@doc` work correctly
     @test string(@doc DocUnits.𝐃) == "dimension docs\n"
     @test string(@doc DocUnits.dRefFoo) == "refunit docs\n"
     @test string(@doc DocUnits.dFoo) == "unit docs\n"
+    CODEBLOCK_LANG = VERSION ≥ v"1.12.0-DEV" ? "julia" : ""
     @test string(@doc DocUnits.DocDimension) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.DocDimension{T, U}
         ```
 
@@ -2222,7 +2223,7 @@ using REPL # This is necessary to make `@doc` work correctly
         See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref), `Unitful.Quantity`, `Unitful.Level`.
         """
     @test string(@doc DocUnits.DocDimensionUnits) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.DocDimensionUnits{U}
         ```
 
@@ -2231,7 +2232,7 @@ using REPL # This is necessary to make `@doc` work correctly
         See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref), `Unitful.Units`.
         """
     @test string(@doc DocUnits.DocDimensionFreeUnits) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.DocDimensionFreeUnits{U}
         ```
 
@@ -2240,7 +2241,7 @@ using REPL # This is necessary to make `@doc` work correctly
         See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref).
         """
     @test string(@doc DocUnits.DerivedDocDimension) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.DerivedDocDimension{T, U}
         ```
 
@@ -2249,7 +2250,7 @@ using REPL # This is necessary to make `@doc` work correctly
         See also: `Unitful.Quantity`, `Unitful.Level`.
         """
     @test string(@doc DocUnits.DerivedDocDimensionUnits) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.DerivedDocDimensionUnits{U}
         ```
 
@@ -2258,14 +2259,14 @@ using REPL # This is necessary to make `@doc` work correctly
         See also: `Unitful.Units`.
         """
     @test string(@doc DocUnits.DerivedDocDimensionFreeUnits) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.DerivedDocDimensionFreeUnits{U}
         ```
 
         A supertype for `Unitful.FreeUnits` of dimension `𝐃 * 𝐋`. Equivalent to `Unitful.FreeUnits{U, 𝐃 * 𝐋}`.
         """
     @test string(@doc DocUnits.kdFoo) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.kdFoo
         ```
 
@@ -2276,7 +2277,7 @@ using REPL # This is necessary to make `@doc` work correctly
         See also: [`$(@__MODULE__).DocUnits.dFoo`](@ref).
         """
     @test string(@doc DocUnits.kdRefFoo) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.kdRefFoo
         ```
 
