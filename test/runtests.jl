@@ -828,6 +828,10 @@ Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
         @test @inferred(atan(m*sqrt(3),1e+3mm)) ≈ 60°
         @test_throws DimensionError atan(m*sqrt(3),1e+3s)
         @test @inferred(angle((3im)*V)) ≈ 90°
+
+        if isdefined(Base, :sincosd)
+            @test @inferred(sincosd(5°)) == sincos(5°) == (sind(5°), cosd(5°))
+        end
     end
     @testset "> Exponentials and logarithms" begin
         for f in (exp, exp10, exp2, expm1, log, log10, log1p, log2)
