@@ -119,6 +119,9 @@ if isdefined(Base, :sincosd)
     import Base: sincosd
     sincos(x::Quantity{T, NoDims, typeof(°)}) where {T} = sincosd(ustrip(x))
     sincosd(x::Quantity{T, NoDims, typeof(°)}) where {T} = sincosd(ustrip(x))
+else
+    sincos(x::Quantity{T, NoDims, typeof(°)}) where {T} = (u = ustrip(x); (sind(u), cosd(u)))
+    sincosd(x::Quantity{T, NoDims, typeof(°)}) where {T} = (u = ustrip(x); (sind(u), cosd(u)))
 end
 
 # conversion between degrees and radians
