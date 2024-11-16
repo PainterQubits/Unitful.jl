@@ -788,6 +788,10 @@ Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
         @test @inferred(asec(1m/1nm)) ≈ π/2
         @test @inferred(acot(2sqrt(3)s/2000ms)) ≈ 30°
 
+        @test @inferred(sincos(250mrad)) === sincos(0.25)
+        @test @inferred(sincos((1+2im)rad)) === sincos(1+2im)
+        @test @inferred(sincos(30°)) === sincosd(30)
+
         @test @inferred(sinh(0.0rad)) == 0.0
         @test @inferred(sinh(1J/N/m) + cosh(1rad)) ≈ MathConstants.e
         @test @inferred(tanh(1m/1μm)) == 1
