@@ -741,7 +741,8 @@ Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
         @test @inferred(cbrt(m^3)) === m
         @test (2m)^3 === 8*m^3
         @test (8m)^(1//3) === 2.0*m^(1//3)
-        @test @inferred(cis(90°)) ≈ im
+        @test @inferred(cis(90°)) == im
+        @test @inferred(cis((90 - rad2deg(1)*im)°)) ≈ ℯ*im
 
         # Test inferrability of literal powers
         _pow_m3(x) = x^-3
@@ -787,6 +788,10 @@ Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
         @test @inferred(asec(1m/1nm)) ≈ π/2
         @test @inferred(acot(2sqrt(3)s/2000ms)) ≈ 30°
 
+        @test @inferred(sincos(250mrad)) === sincos(0.25)
+        @test @inferred(sincos((1+2im)rad)) === sincos(1+2im)
+        @test @inferred(sincos(30°)) === (sind(30), cosd(30))
+
         @test @inferred(sinh(0.0rad)) == 0.0
         @test @inferred(sinh(1J/N/m) + cosh(1rad)) ≈ MathConstants.e
         @test @inferred(tanh(1m/1μm)) == 1
@@ -806,6 +811,7 @@ Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
         @test @inferred(cosc(1ft/3inch)) === 0.25
         if isdefined(Base, :cispi)
             @test @inferred(cispi(rad/2)) === complex(0.0, 1.0)
+            @test @inferred(cispi(rad/2 + im*rad)) ≈ complex(0.0, exp(-π))
         end
         if isdefined(Base, :sincospi)
             @test @inferred(sincospi(rad/2)) === (1.0, 0.0)
@@ -822,6 +828,10 @@ Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
         @test @inferred(atan(m*sqrt(3),1e+3mm)) ≈ 60°
         @test_throws DimensionError atan(m*sqrt(3),1e+3s)
         @test @inferred(angle((3im)*V)) ≈ 90°
+
+        if isdefined(Base, :sincosd)
+            @test @inferred(sincosd(5°)) == sincos(5°) == (sind(5°), cosd(5°))
+        end
     end
     @testset "> Exponentials and logarithms" begin
         for f in (exp, exp10, exp2, expm1, log, log10, log1p, log2)
