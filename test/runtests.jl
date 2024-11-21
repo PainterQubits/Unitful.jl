@@ -1056,8 +1056,8 @@ end
                 @test isapprox((@eval @fastmath $f($half)), (@eval $f($half)))
                 @test isapprox((@eval @fastmath $f($third)), (@eval $f($third)))
             end
-            @test all(splat(isapprox), Iterators.zip((@eval @fastmath sincos($half)), (@eval sincos($half))))
-            @test all(splat(isapprox), Iterators.zip((@eval @fastmath sincos($third)), (@eval sincos($third))))
+            @test all(x -> isapprox(x...), Iterators.zip((@eval @fastmath sincos($half)), (@eval sincos($half))))
+            @test all(x -> isapprox(x...), Iterators.zip((@eval @fastmath sincos($third)), (@eval sincos($third))))
         end
 
         # complex arithmetic
