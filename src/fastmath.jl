@@ -19,6 +19,7 @@ import Base.FastMath: @fastmath,
     cos_fast,
     sin_fast,
     tan_fast,
+    sincos_fast,
     atan_fast,
     hypot_fast,
     max_fast,
@@ -153,12 +154,9 @@ pow_fast(x::Quantity, y::Rational) = x^y
 sqrt_fast(x::Quantity{T}) where {T <: FloatTypes} =
     Quantity(sqrt_fast(x.val), sqrt(unit(x)))
 
-for f in (:cos, :sin, :tan)
+for f in (:cos, :sin, :tan, :sincos, :cis)
     f_fast = fast_op[f]
-    @eval begin
-        $(f_fast)(x::DimensionlessQuantity{<:Union{Float32,Float64}}) =
-            $(f_fast)(uconvert(NoUnits, x))
-    end
+    @eval $f_fast(x::DimensionlessQuantity) = $f_fast(ustrip(NoUnits, x))
 end
 
 atan_fast(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} =
@@ -178,9 +176,6 @@ atan_fast(x::Quantity{T,D,U}, y::Quantity{T,D,U}) where {T,D,U} =
         ifelse(y > x, (x,y), (y,x))
 
     # complex numbers
-
-    cis_fast(x::DimensionlessQuantity{T,U}) where {T <: FloatTypes,U} =
-        Complex{T}(cos(x), sin(x))
 
     angle_fast(x::Quantity{T}) where {T <: ComplexTypes} = atan(imag(x), real(x))
 end
