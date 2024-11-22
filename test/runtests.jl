@@ -1052,10 +1052,12 @@ end
 
             half = 1°/convert(T, 2)
             third = 1°/convert(T, 3)
-            for f in (:cos, :sin, :tan)
+            for f in (:cos, :sin, :tan, :cis)
                 @test isapprox((@eval @fastmath $f($half)), (@eval $f($half)))
                 @test isapprox((@eval @fastmath $f($third)), (@eval $f($third)))
             end
+            @test all(x -> isapprox(x...), Iterators.zip((@eval @fastmath sincos($half)), (@eval sincos($half))))
+            @test all(x -> isapprox(x...), Iterators.zip((@eval @fastmath sincos($third)), (@eval sincos($third))))
         end
 
         # complex arithmetic

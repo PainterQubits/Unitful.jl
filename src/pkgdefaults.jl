@@ -122,6 +122,11 @@ if isdefined(Base, :sincosd)
 else
     sincos(x::Quantity{T, NoDims, typeof(°)}) where {T} = (u = ustrip(x); (sind(u), cosd(u)))
 end
+for f in (:cos, :sin, :tan, :sincos, :cis)
+    f_fast = fast_op[f]
+    # Use deg2rad because uncnvert only has Float64 precision
+    @eval $f_fast(x::Quantity{T, NoDims, typeof(°)}) where {T} = $f_fast(deg2rad(x.val))
+end
 
 # conversion between degrees and radians
 import Base: deg2rad, rad2deg
