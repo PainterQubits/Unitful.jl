@@ -1,5 +1,15 @@
 # Unitful.jl changelog
 
+## v1.21.1 (2024-11-29)
+
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) `Base.cis` now returns more accurate results for arguments in degrees. This unfortunately is slower. If you prioritize speed over precision you can convert to `NoUnits` before calling `cis` or use `@fastmath` ([#745](https://github.com/PainterQubits/Unitful.jl/pull/745)).
+
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Trigonometric functions now return more accurate results for arguments in degrees when using `BigFloat` precision and `@fastmath` ([#750](https://github.com/PainterQubits/Unitful.jl/pull/750)).
+
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Performance of trigonometric functions with `@fastmath` is improved for some argument types ([#750](https://github.com/PainterQubits/Unitful.jl/pull/750)).
+
+* The documentation now contains a list of all units and constants defined in this package ([#729](https://github.com/PainterQubits/Unitful.jl/pull/729)).
+
 ## v1.21.0 (2024-07-19)
 
 * ![Feature:](https://img.shields.io/badge/-feature-green) Arithmetic between `Dates.TimeType` and `Unitful.Time` is added, e.g., `Dates.now() + 1u"hr"` now works ([#731](https://github.com/PainterQubits/Unitful.jl/pull/731)).
