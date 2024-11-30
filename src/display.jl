@@ -252,3 +252,13 @@ superscript(i::Integer) = map(repr(i)) do c
     c == '0' ? '\u2070' :
     error("unexpected character")
 end
+
+function Base.alignment(io::IO, x::Quantity)
+    if isunitless(unit(x))
+        return Base.alignment(io, x.val)
+    end
+    length = Base.alignment_from_show(io, x)
+    left, _ = Base.alignment(io, x.val)
+    left += BracketStyle(x.val) != NoBrackets()
+    return left, length - left
+end

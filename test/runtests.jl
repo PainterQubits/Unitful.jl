@@ -1710,6 +1710,12 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
         @test repr(1.0 * u"m * s * kg^(-1//2)") ==
             (Sys.isapple() ? "1.0 m s kg⁻¹ᐟ²" : "1.0 m s kg^-1/2")
     end
+    @test Base.alignment(stdout, (1//3)m)  == Base.alignment(stdout, 1//3) .+ (0, 2)
+    @test Base.alignment(stdout, (2+3im)m) == Base.alignment(stdout, 2+3im) .+ (1, 3)
+    @test Base.alignment(stdout, 3.0dB)    == Base.alignment(stdout, 3.0) .+ (0, 3)
+    @test Base.alignment(stdout, 3.0dBm)   == Base.alignment(stdout, 3.0) .+ (0, 4)
+    @test Base.alignment(stdout, 3.0dB*s)  == Base.alignment(stdout, 3.0) .+ (1, 6)
+    @test Base.alignment(stdout, 3.0dBm*s) == Base.alignment(stdout, 3.0) .+ (1, 7)
 end
 
 @testset "DimensionError message" begin
