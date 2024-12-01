@@ -316,12 +316,12 @@ function Base.show(io::IO, x::Level)
 end
 
 function Base.alignment(io::IO, x::Gain)
-    length = Base.alignment_from_show(io, x)
+    length = printed_length(io, x)
     left, _ = Base.alignment(io, x.val)
     return left, length - left
 end
 function Base.alignment(io::IO, x::Level)
-    length = Base.alignment_from_show(io, x)
+    length = printed_length(io, x)
     left, _ = Base.alignment(io, ustrip(x))
     return left, length - left
 end
