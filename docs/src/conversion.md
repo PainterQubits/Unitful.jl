@@ -146,13 +146,13 @@ julia> [1.0u"m", 2.0u"m"]
 
 julia> [1.0u"m", 2.0u"cm"]
 2-element Vector{Quantity{Float64, 𝐋, Unitful.FreeUnits{(m,), 𝐋, nothing}}}:
-  1.0 m
+ 1.0 m
  0.02 m
 
 julia> [1.0u"m", 2.0]
 2-element Vector{Quantity{Float64}}:
  1.0 m
-   2.0
+ 2.0
 ```
 
 In the first case, an array with a concrete type is created. Good

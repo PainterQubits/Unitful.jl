@@ -315,6 +315,17 @@ function Base.show(io::IO, x::Level)
     nothing
 end
 
+function Base.alignment(io::IO, x::Gain)
+    length = printed_length(io, x)
+    left, _ = Base.alignment(io, x.val)
+    return left, length - left
+end
+function Base.alignment(io::IO, x::Level)
+    length = printed_length(io, x)
+    left, _ = Base.alignment(io, ustrip(x))
+    return left, length - left
+end
+
 BracketStyle(::Type{<:Union{Level,Gain}}) = SquareBrackets()
 
 """
