@@ -47,6 +47,19 @@ Returns 1. (Avoids effort when unnecessary.)
 convfact(s::Units{S}, t::Units{S}) where {S} = 1
 
 """
+    convfact(T::Type, s::Units{S}, t::Units{S})
+Returns a appropriate conversion factor from unit `t` to unit `s` for number type `T`.
+"""
+function convfact(::Type{T}, s::Units, t::Units) where {T<:Number}
+    cf = convfact(s, t)
+    if cf isa AbstractFloat
+        convert(float(real(T)), cf)
+    else
+        cf
+    end
+end
+
+"""
     uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
 Convert a [`Unitful.Quantity`](@ref) to different units. The conversion will
 fail if the target units `a` have a different dimension than the dimension of
@@ -69,7 +82,7 @@ function uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
     elseif (a isa AffineUnits) || (x isa AffineQuantity)
         return uconvert_affine(a, x)
     else
-        return Quantity(x.val * convfact(a, U()), a)
+        return Quantity(x.val * convfact(T, a, U()), a)
     end
 end
 
