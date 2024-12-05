@@ -47,8 +47,8 @@ Returns 1. (Avoids effort when unnecessary.)
 convfact(s::Units{S}, t::Units{S}) where {S} = 1
 
 """
-    convfact(T::Type, s::Units{S}, t::Units{S})
-Returns a appropriate conversion factor from unit `t` to unit `s` for number type `T`.
+    convfact(T::Type, s::Units, t::Units)
+Returns the appropriate conversion factor from unit `t` to unit `s` for the number type `T`.
 """
 function convfact(::Type{T}, s::Units, t::Units) where {T<:Number}
     cf = convfact(s, t)
