@@ -228,6 +228,12 @@ end
             # Issue 647:
             @test uconvert(u"kb^1000", 1u"kb^1001 * b^-1") === 1000u"kb^1000"
             @test uconvert(u"kOe^1000", 1u"kOe^1001 * Oe^-1") === 1000u"kOe^1000"
+            # Issue 753:
+            # avoid converting the float type of quantities
+            @test Unitful.numtype(uconvert(m, 100f0cm)) === Float32
+            @test Unitful.numtype(uconvert(cm, (1f0π + im) * m)) === ComplexF32
+            @test Unitful.numtype(uconvert(rad, 360f0°)) === Float32
+            @test Unitful.numtype(uconvert(°, (2f0π + im) * rad)) === ComplexF32
             # Floating point overflow/underflow in uconvert can happen if the
             # conversion factor is large, because uconvert does not cancel
             # common basefactors (or just for really large exponents and/or
