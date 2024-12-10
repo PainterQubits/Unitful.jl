@@ -1,4 +1,19 @@
 """
+    struct UnitConversionFactor{x} <: AbstractIrrational end
+Conversion factor with value `x`.
+
+Used by the [`convfact`](@ref) function in floating point conversion factors
+to preserve the precision of quantities.
+"""
+struct UnitConversionFactor{x} <: AbstractIrrational end
+
+Base.:(==)(::UnitConversionFactor{a}, ::UnitConversionFactor{b}) where {a, b} = a == b
+Base.hash(x::UnitConversionFactor, h::UInt) = 3 * objectid(x) - h
+Base.BigFloat(::UnitConversionFactor{x}) where {x} = BigFloat(x)
+Base.Float64(::UnitConversionFactor{x}) where {x} = Float64(x)
+Base.Float32(::UnitConversionFactor{x}) where {x} = Float32(x)
+
+"""
     convfact(s::Units, t::Units)
 Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 1//100`.
 """
@@ -30,13 +45,14 @@ Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 
         ex = numerator(ex)
     end
 
-    result = (inex ≈ 1.0 ? 1 : inex) * ex
-    if fp_overflow_underflow(inex_orig, result)
+    ex = (inex ≈ 1.0 ? 1 : inex) * ex
+    if fp_overflow_underflow(inex_orig, ex)
         throw(ArgumentError(
             "Floating point overflow/underflow, probably due to large " *
             "exponents and/or SI prefixes in units"
         ))
     end
+    result = ex isa AbstractFloat ? UnitConversionFactor{ex}() : ex
     return :($result)
 end
 
