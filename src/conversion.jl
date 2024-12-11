@@ -1,12 +1,14 @@
 """
-    UnitConversionFactor(x::Float64)
+    UnitConversionFactor(x::T) where {T<:AbstractFloat}
 Conversion factor with value `x`.
 
 Used by the [`convfact`](@ref) function in floating point conversion factors
 to preserve the precision of quantities.
 """
-struct UnitConversionFactor <: AbstractIrrational
-    x::Float64
+struct UnitConversionFactor{T<:AbstractFloat} <: AbstractIrrational
+    x::T
+    # the inner constructor necessary for ambiguity resolution
+    UnitConversionFactor(x::T) where {T<:AbstractFloat} = new{T}(x) 
 end
 
 Base.:(==)(a::UnitConversionFactor, b::UnitConversionFactor) = a.x == b.x
