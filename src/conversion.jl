@@ -54,7 +54,7 @@ Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 
             "exponents and/or SI prefixes in units"
         ))
     end
-    return :($(result isa AbstractFloat ? UnitConversionFactor(result) : result))
+    return result isa AbstractFloat ? UnitConversionFactor(result) : result
 end
 
 """
