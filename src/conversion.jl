@@ -2,8 +2,8 @@
     UnitConversionFactor(x::T) where {T<:AbstractFloat}
 Conversion factor with value `x`.
 
-Used by the [`convfact`](@ref) function in floating point conversion factors
-to preserve the precision of quantities.
+Used by the [`convfact`](@ref) function to preserve
+the floating-point precision of quantities.
 """
 struct UnitConversionFactor{T<:AbstractFloat} <: AbstractIrrational
     x::T
