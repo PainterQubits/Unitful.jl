@@ -229,7 +229,7 @@ end
             @test uconvert(u"kb^1000", 1u"kb^1001 * b^-1") === 1000u"kb^1000"
             @test uconvert(u"kOe^1000", 1u"kOe^1001 * Oe^-1") === 1000u"kOe^1000"
             # Issue 753:
-            # avoid converting the float type of quantities
+            # preserve the floating point precision of quantities
             @test Unitful.numtype(uconvert(m, BigFloat(100)cm)) === BigFloat
             @test Unitful.numtype(uconvert(cm, (BigFloat(1)π + im) * m)) === Complex{BigFloat}
             @test Unitful.numtype(uconvert(rad, BigFloat(360)°)) === BigFloat
