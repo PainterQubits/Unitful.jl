@@ -1,17 +1,19 @@
 """
-    struct UnitConversionFactor{x} <: AbstractIrrational end
+    UnitConversionFactor(x::AbstractFloat)
 Conversion factor with value `x`.
 
 Used by the [`convfact`](@ref) function in floating point conversion factors
 to preserve the precision of quantities.
 """
-struct UnitConversionFactor{x} <: AbstractIrrational end
+struct UnitConversionFactor{T<:AbstractFloat} <: AbstractIrrational
+    x::T
+end
 
-Base.:(==)(::UnitConversionFactor{a}, ::UnitConversionFactor{b}) where {a, b} = a == b
-Base.hash(x::UnitConversionFactor, h::UInt) = 3 * objectid(x) - h
-Base.BigFloat(::UnitConversionFactor{x}) where {x} = BigFloat(x)
-Base.Float64(::UnitConversionFactor{x}) where {x} = Float64(x)
-Base.Float32(::UnitConversionFactor{x}) where {x} = Float32(x)
+Base.:(==)(a::UnitConversionFactor, b::UnitConversionFactor) = a.x == b.x
+Base.hash(x::UnitConversionFactor, h::UInt) = hash(x.x, h)
+Base.BigFloat(x::UnitConversionFactor) = BigFloat(x.x)
+Base.Float64(x::UnitConversionFactor) = Float64(x.x)
+Base.Float32(x::UnitConversionFactor) = Float32(x.x)
 
 """
     convfact(s::Units, t::Units)
@@ -45,15 +47,14 @@ Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 
         ex = numerator(ex)
     end
 
-    ex = (inex ≈ 1.0 ? 1 : inex) * ex
-    if fp_overflow_underflow(inex_orig, ex)
+    result = (inex ≈ 1.0 ? 1 : inex) * ex
+    if fp_overflow_underflow(inex_orig, result)
         throw(ArgumentError(
             "Floating point overflow/underflow, probably due to large " *
             "exponents and/or SI prefixes in units"
         ))
     end
-    result = ex isa AbstractFloat ? UnitConversionFactor{ex}() : ex
-    return :($result)
+    return :($(result isa AbstractFloat ? UnitConversionFactor(result) : result))
 end
 
 """
