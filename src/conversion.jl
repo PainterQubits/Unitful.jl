@@ -7,6 +7,7 @@ to preserve the precision of quantities.
 """
 struct UnitConversionFactor{T<:AbstractFloat} <: AbstractIrrational
     x::T
+    UnitConversionFactor(x::T) where {T<:AbstractFloat} = new{T}(x) 
 end
 
 Base.:(==)(a::UnitConversionFactor, b::UnitConversionFactor) = a.x == b.x
