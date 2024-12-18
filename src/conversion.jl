@@ -1,5 +1,5 @@
 """
-    UnitConversionFactor(x::T) where {T<:AbstractFloat}
+    UnitConversionFactor(x::AbstractFloat)
 Conversion factor with value `x`.
 
 Used by the [`convfact`](@ref) function to preserve
@@ -11,6 +11,8 @@ struct UnitConversionFactor{T<:AbstractFloat} <: AbstractIrrational
     UnitConversionFactor(x::T) where {T<:AbstractFloat} = new{T}(x) 
 end
 
+Base.:*(a::UnitConversionFactor, b::BigFloat) = a.x * b
+Base.:*(a::BigFloat, b::UnitConversionFactor) = a * b.x
 Base.:(==)(a::UnitConversionFactor, b::UnitConversionFactor) = a.x == b.x
 Base.hash(x::UnitConversionFactor, h::UInt) = hash(x.x, h)
 Base.BigFloat(x::UnitConversionFactor) = BigFloat(x.x)
