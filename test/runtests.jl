@@ -1864,6 +1864,31 @@ end
         @test convert(Float64, u"10dB_p") === 10.0
         @test convert(Float64, u"20dB_rp") === 10.0
 
+        @test_throws ErrorException convert(typeof(1.0dB/s), 5.0Hz)
+        @test convert(typeof(1.0dB_p/s), 100.0Hz) === 20.0dB_p/s
+        @test convert(typeof(1.0dB_rp/s), 100.0Hz) === 40.0dB_rp/s
+
+        @test_throws ErrorException convert(typeof(1.0dB/rad), 5.0)
+        @test convert(typeof(1.0dB_p/rad), 100.0) === 20.0dB_p/rad
+        @test convert(typeof(1.0dB_rp/rad), 100.0) === 40.0dB_rp/rad
+
+        @test convert(typeof(1.0m/cm), 40.0dB_rp) === 1.0m/cm
+        @test convert(typeof(1.0dB_p/s), 1.0dB_p/s) === 1.0dB_p/s
+
+        # This currently (and unnecessarily) involves a conversion to linear and back to logarithmic.
+        # This is lossy due to floating-point, therefore broken.
+        @test_broken convert(Quantity{typeof(1.0dB_rp), NoDims, typeof(Unitful.NoUnits)}, 1dB_rp) === 1.0dB_rp
+        @test_broken convert(typeof(1.0dB_p/s), 1dB_p/s) === 1.0dB_p/s # conversion to linear and back to logarithmic → lossy due to floating-point
+        @test isapprox(convert(typeof(1.0dB_p/s), 1dB_p/s), 1.0dB_p/s, rtol = 1e-3, atol=0/s)
+
+        # Wrongly throwing DimensionError
+        @test_broken convert(typeof(1.0dBm/s), 5.0mW*Hz) === @dB(5.0mW/1mW)/s
+        @test convert(typeof(1.0u"dBFS/rad"), 100.0) === @dB(100.0/1, true)/rad
+        @test_broken convert(typeof(1.0dBm/rad), 20.0dBm) === @dB(100.0mW/1mW)/rad
+        @test convert(typeof(1.0u"dBFS/rad"), 5.0u"dBFS") === 5.0u"dBFS/rad"
+        @test_broken convert(Quantity{typeof(1.0dBm), dimension(Unitful.mW), typeof(Unitful.NoUnits)}, 5.0dBm) === Quantity{typeof(1.0dBm), dimension(Unitful.mW), typeof(Unitful.NoUnits)}(5.0dBm)
+        @test convert(typeof(1.0m/cm), 40.0u"dBFS") === 1.0m/cm
+
         for L = (40u"dB_rp", 20u"dB_p", 40u"dBFS")
             for U = (NoUnits, FixedUnits(NoUnits), ContextUnits(NoUnits, m/mm))
                 @test convert(Quantity{Int,NoDims,typeof(U)}, L) === Quantity{Int,NoDims,typeof(U)}(100)
