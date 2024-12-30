@@ -115,17 +115,15 @@ uconvert(a::Units, x::Missing) = missing
     t1 = a <: AffineUnits ? a.parameters[end].parameters[end] :
         :(zero($(x.parameters[1])))
     quote
-        dimension(a) != dimension(x) && return throw(DimensionError(a, x))
+        dimension(a) != dimension(x) && throw(DimensionError(a, x))
         return Quantity(((x.val - $t0) * $conv) + $t1, a)
     end
 end
 
 function convert(::Type{Quantity{T,D,U}}, x::Number) where {T,D,U}
-    if dimension(x) == D
-        Quantity(T(uconvert(U(),x).val), U())
-    else
-        throw(DimensionError(U(),x))
-    end
+    (dimension(x) != D) && throw(DimensionError(U(), x))
+    q = uconvert(U(), x)
+    Quantity{T,D,U}(isa(q, AbstractQuantity) ? q.val : q)
 end
 
 # needed ever since julialang/julia#28216
