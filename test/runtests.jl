@@ -173,6 +173,18 @@ end
             @test typeof(convert(typeof(0.0°), 90°)) == typeof(0.0°)
             @test (3.0+4.0im)*V == (3+4im)*V
             @test im*V == Complex(0,1)*V
+            for x = (3, 3.0, 3//1, 1+2im, 1.0+2.0im, (1//2)+(3//4)im)
+                for u = (m, °C)
+                    @test @inferred(big(x*u)) == big(x)*u
+                    @test typeof(big(x*u)) == typeof(big(x)*u)
+                    @test big(typeof(x*u)) == typeof(big(x)*u)
+                end
+                q = Quantity{typeof(x),NoDims,typeof(NoUnits)}(x)
+                big_q = Quantity{big(typeof(x)),NoDims,typeof(NoUnits)}(big(x))
+                @test @inferred(big(q)) == big_q
+                @test typeof(big(q)) == typeof(big_q)
+                @test big(typeof(q)) == typeof(big_q)
+            end
         end
         @testset ">> Intra-unit conversion" begin
             # an essentially no-op uconvert should not disturb numeric type
@@ -1845,6 +1857,14 @@ end
     @testset "> Conversion" begin
         @test float(3dB) == 3.0dB
         @test float(@dB 3V/1V) === @dB 3.0V/1V
+
+        for x = (20, 20.0, 20//1)
+            for u = (dB, dB/m, dBV, dBV/m)
+                @test @inferred(big(x*u)) == big(x)*u
+                @test typeof(big(x*u)) == typeof(big(x)*u)
+                @test big(typeof(x*u)) == typeof(big(x)*u)
+            end
+        end
 
         @test uconvert(V, (@dB 3V/2.14V)) === 3V
         @test uconvert(V, (@dB 3V/1V)) === 3V
