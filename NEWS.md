@@ -1,13 +1,18 @@
 # Unitful.jl changelog
 
+## v1.22.0 (2025-01-02)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) `Base.big` can now be used with quantities ([#755](https://github.com/PainterQubits/Unitful.jl/pull/755)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Using `Base.convert` to convert to a unitless quantity no longer errors ([#724](https://github.com/PainterQubits/Unitful.jl/pull/724)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Using `Base.convert` to convert to a mixed logarithmic quantity no longer returns wrong results. In cases that returned a result even though it was unknown whether the quantity was a power or root-power quantity, an error is thrown instead ([#724](https://github.com/PainterQubits/Unitful.jl/pull/724)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) `uconvert` now preserves the floating-point precision of quantities ([#754](https://github.com/PainterQubits/Unitful.jl/pull/754)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) When printing arrays, quantities are now aligned at the decimal point just like unitless numbers ([#752](https://github.com/PainterQubits/Unitful.jl/pull/752)).
+
 ## v1.21.1 (2024-11-29)
 
 * ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) `Base.cis` now returns more accurate results for arguments in degrees. This unfortunately is slower. If you prioritize speed over precision you can convert to `NoUnits` before calling `cis` or use `@fastmath` ([#745](https://github.com/PainterQubits/Unitful.jl/pull/745)).
-
 * ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Trigonometric functions now return more accurate results for arguments in degrees when using `BigFloat` precision and `@fastmath` ([#750](https://github.com/PainterQubits/Unitful.jl/pull/750)).
-
 * ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Performance of trigonometric functions with `@fastmath` is improved for some argument types ([#750](https://github.com/PainterQubits/Unitful.jl/pull/750)).
-
 * The documentation now contains a list of all units and constants defined in this package ([#729](https://github.com/PainterQubits/Unitful.jl/pull/729)).
 
 ## v1.21.0 (2024-07-19)
