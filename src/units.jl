@@ -14,9 +14,9 @@
 
     # linunits is an Array containing all of the Unit objects that were
     # found in the type parameters of the FreeUnits objects (a0, a...)
-    sort!(linunits, by=x->power(x))
-    sort!(linunits, by=x->tens(x))
-    sort!(linunits, by=x->name(x))
+    sort!(linunits, by=power)
+    sort!(linunits, by=tens)
+    sort!(linunits, by=name)
 
     # [m,m,cm,cm^2,cm^3,nm,m^4,μs,μs^2,s]
     # reordered as:
