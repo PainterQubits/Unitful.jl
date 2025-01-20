@@ -2390,29 +2390,26 @@ using REPL # This is necessary to make `@doc` work correctly
 end
 
 # Test precompiled Unitful extension modules
-load_path = mktempdir()
-load_cache_path = mktempdir()
-try
-    write(joinpath(load_path, "ExampleExtension.jl"),
-          """
-          module ExampleExtension
-          using Unitful
+mktempdir() do load_path
+    mktempdir() do load_cache_path
+        write(joinpath(load_path, "ExampleExtension.jl"),
+              """
+              module ExampleExtension
+              using Unitful
 
-          @unit year "year" JulianYear 365u"d" true
+              @unit year "year" JulianYear 365u"d" true
 
-          function __init__()
-              Unitful.register(ExampleExtension)
-          end
-          end
-          """)
-    pushfirst!(LOAD_PATH, load_path)
-    pushfirst!(DEPOT_PATH, load_cache_path)
-    @eval using ExampleExtension
-    # Delay u"year" expansion until test time
-    @eval @test uconvert(u"d", 1u"year") == 365u"d"
-finally
-    rm(load_path, recursive=true)
-    rm(load_cache_path, recursive=true)
+              function __init__()
+                  Unitful.register(ExampleExtension)
+              end
+              end
+              """)
+        pushfirst!(LOAD_PATH, load_path)
+        pushfirst!(DEPOT_PATH, load_cache_path)
+        @eval using ExampleExtension
+        # Delay u"year" expansion until test time
+        @eval @test uconvert(u"d", 1u"year") == 365u"d"
+    end
 end
 
 using Aqua
