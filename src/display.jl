@@ -24,7 +24,8 @@ const prefixdict = Dict(
 )
 
 """
-`abbr(x)` provides abbreviations for units or dimensions. Since a method should
+    abbr(x)
+Provides abbreviations for units or dimensions. Since a method should
 always be defined for each unit and dimension type, absence of a method for a
 specific unit or dimension type is likely an error. Consequently, we return ❓
 for generic arguments to flag unexpected behavior.
