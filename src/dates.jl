@@ -20,7 +20,9 @@ Return the units that correspond to a particular period.
 
 # Examples
 
-```julia
+```jldoctest
+julia> using Dates
+
 julia> unit(Second(15)) == u"s"
 true
 
