@@ -9,7 +9,7 @@ import Unitful:
     ac,
     mg, g, kg,
     Ra, °F, °C, K,
-    rad, mrad, °,
+    rad, mrad, °, deg,
     ms, s, minute, hr, d, yr, Hz,
     J, A, N, mol, V, mJ, eV,
     mW, W,
@@ -2288,6 +2288,8 @@ end
     @test (1//2)Unitful.ϵ0 === (1//2)Unitful.ε0
     @test Unitful.Å === Unitful.angstrom
     @test 1.0Unitful.Å === 1.0Unitful.angstrom
+    @test Unitful.deg === Unitful.°
+    @test 2Unitful.° === 2Unitful.deg
 end
 
 module DocUnits
