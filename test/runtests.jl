@@ -3,6 +3,7 @@ using Test, LinearAlgebra, Random, ConstructionBase, InverseFunctions
 import Unitful: DimensionError, AffineError
 import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
 import Unitful: FreeUnits, ContextUnits, FixedUnits, AffineUnits, AffineQuantity
+import ForwardDiff
 
 import Unitful:
     nm, μm, mm, cm, m, km, inch, ft, mi,
@@ -536,6 +537,11 @@ Unitful.uconvert(U::Unitful.Units, q::QQQ) = uconvert(U, Quantity(q.val, cm))
         @test Unitful.numtype(typeof(1.0kg)) <: Float64
         @test Unitful.numtype(1.0kg) <: Float64
     end
+end
+
+@testset "ForwardDiff extension, solving Issue 682" begin
+    @test ForwardDiff.Dual(1.0)*u"cm/m" + ForwardDiff.Dual(1.0) == 1.01
+    @test ForwardDiff.Dual(1.0)*u"cm/m" == ForwardDiff.Dual(0.01)
 end
 
 @testset "Unit string parsing" begin
