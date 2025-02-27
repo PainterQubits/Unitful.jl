@@ -704,6 +704,7 @@ Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
         @test zero(Quantity{Int, 𝐋}) isa Quantity{Int}
         @test @inferred(π/2*u"rad" + 90u"°") ≈ π        # Dimless quantities
         @test @inferred(π/2*u"rad" - 90u"°") ≈ 0        # Dimless quantities
+        @test @inferred(90u"deg" - 90u"°") == 0
         @test_throws DimensionError 1+1m                # Dim mismatched
         @test_throws DimensionError 1-1m
     end
@@ -2290,6 +2291,8 @@ end
     @test 1.0Unitful.Å === 1.0Unitful.angstrom
     @test Unitful.deg === Unitful.°
     @test 2Unitful.° === 2Unitful.deg
+    @test u"deg" === u"°"
+    @test uparse("deg") === uparse("°")
 end
 
 module DocUnits
