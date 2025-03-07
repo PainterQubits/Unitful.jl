@@ -12,8 +12,8 @@ big(x::Level{L,S}) where {L,S} = Level{L,S}(big(x.val))
 """
     logunit(x::LogScaled)
     logunit(x::Union{Type{<:LogScaled}, MixedUnits})
-Returns the units associated with a logarithmic `Quantity`, a logarithmically-scaled
-`Quantity` type, or a `Quantity` type with mixed logarithmic / linear scaling.
+Returns the units associated with a `LogScaled` instance, a `LogScaled` type,
+or a `MixedUnits`.
 
 Examples:
 ```jldoctest
