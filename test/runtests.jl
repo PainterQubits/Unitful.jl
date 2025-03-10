@@ -1,5 +1,5 @@
 using Unitful
-using Test, LinearAlgebra, Random, ConstructionBase, InverseFunctions
+using Test, LinearAlgebra, Random, ConstructionBase, InverseFunctions, Printf
 import Unitful: DimensionError, AffineError
 import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
 import Unitful: FreeUnits, ContextUnits, FixedUnits, AffineUnits, AffineQuantity
@@ -1754,6 +1754,10 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
     @test Base.alignment(stdout, 3.0dBm)   == Base.alignment(stdout, 3.0) .+ (0, 4)
     @test Base.alignment(stdout, 3.0dB*s)  == Base.alignment(stdout, 3.0) .+ (1, 6)
     @test Base.alignment(stdout, 3.0dBm*s) == Base.alignment(stdout, 3.0) .+ (1, 7)
+end
+
+VERSION ≥ v"1.9.0" && @testset "printf" begin
+    @test (@sprintf "%f %d %.2f" 1.23u"m" 123.4u"°" 0.1234u"W") == "1.230000m 123° 0.12W"
 end
 
 @testset "DimensionError message" begin
