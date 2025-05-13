@@ -1,5 +1,9 @@
 # Unitful.jl changelog
 
+## v1.22.1 (2025-05-13)
+
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) The behaviour to preserve the floating-point precision of quantities ([#754](https://github.com/PainterQubits/Unitful.jl/pull/754), added in v1.22.0) is reverted because it is not compatible with [IntervalArithmetic.jl](https://github.com/JuliaIntervals/IntervalArithmetic.jl) (see [#758](https://github.com/PainterQubits/Unitful.jl/issues/758)). The feature will be added in a non-breaking way in a future release.
+
 ## v1.22.0 (2025-01-02)
 
 * ![Feature:](https://img.shields.io/badge/-feature-green) `Base.big` can now be used with quantities ([#755](https://github.com/PainterQubits/Unitful.jl/pull/755)).
