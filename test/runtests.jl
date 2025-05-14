@@ -110,6 +110,23 @@ end
         Quantity{Complex{Float64},NoDims,NoUnits}
 end
 
+# A number type for which the results of `real` and `float`
+# are not `<:Real` or `<:AbstractFloat`, respectively
+struct NonReal <: Number
+    num::Int
+end
+Base.:*(x::NonReal, y::Float64) = x.num * y
+Base.real(x::NonReal) = x
+Base.float(x::NonReal) = x
+
+# A number type for which `real` and `float` throw an error
+struct ErrReal <: Number
+    num::Int
+end
+Base.:*(x::ErrReal, y::Float64) = x.num * y
+Base.real(x::ErrReal) = error("real not defined")
+Base.float(x::ErrReal) = error("float not defined")
+
 @testset "Conversion" begin
     @testset "> Unitless ↔ unitful conversion" begin
         @test_throws DimensionError convert(typeof(3m), 1)
@@ -266,6 +283,8 @@ end
             @test Unitful.numtype(uconvert(cm, (Float16(1)π + im) * m)) === ComplexF16
             @test Unitful.numtype(uconvert(rad, Float16(360)°)) === Float16
             @test Unitful.numtype(uconvert(°, (Float16(2)π + im) * rad)) === ComplexF16
+            @test uconvert(rad, NonReal(360)°) == uconvert(rad, 360°)
+            @test uconvert(rad, ErrReal(360)°) == uconvert(rad, 360°)
             # Floating point overflow/underflow in uconvert can happen if the
             # conversion factor is large, because uconvert does not cancel
             # common basefactors (or just for really large exponents and/or
