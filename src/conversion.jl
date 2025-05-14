@@ -50,12 +50,26 @@ convfact(s::Units{S}, t::Units{S}) where {S} = 1
     convfact(T::Type, s::Units, t::Units)
 Returns the appropriate conversion factor from unit `t` to unit `s` for the number type `T`.
 """
-function convfact(::Type{T}, s::Units, t::Units) where {T<:Number}
-    cf = convfact(s, t)
+@generated function convfact(::Type{T}, s::Units, t::Units) where T
+    cf = convfact(s(), t())
     if cf isa AbstractFloat
-        convert(float(real(T)), cf)
+        F = floattype(T)
+        # Since conversion factors only have Float64 precision,
+        # there is no point in converting to BigFloat
+        convert(F == BigFloat ? Float64 : F, cf)
     else
         cf
+    end
+end
+
+function floattype(::Type{T}) where T
+    # Use try-catch instead of hasmethod because a
+    # fallback method might exist but throw an error
+    try
+        F = float(real(T))
+        F <: AbstractFloat ? F : Float64
+    catch
+        Float64
     end
 end
 
