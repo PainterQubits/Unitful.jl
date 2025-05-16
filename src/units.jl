@@ -209,6 +209,9 @@ function basefactor(inex, ex, eq, tens, p)
     if isinteger(p)
         p = Integer(p)
     end
+    if isinteger(tens)
+        tens = Integer(tens)
+    end
 
     eq_is_exact = false
     output_ex_float = (10.0^tens * float(ex))^p
@@ -226,7 +229,7 @@ function basefactor(inex, ex, eq, tens, p)
     can_exact2 &= (1/eq_raised < typemax(Int))
     can_exact2 &= isinteger(p)
 
-    if can_exact
+    if can_exact && isinteger(tens)
         if eq_is_exact
             # If we got here then p is an integer.
             # Note that sometimes x^1 can cause an overflow error if x is large because
