@@ -114,6 +114,8 @@ true
 julia> unit(typeof(1.0u"m")) == u"m"
 true
 ```
+
+See also: [`logunit`](@ref).
 """
 @inline unit(x::AbstractQuantity{T,D,U}) where {T,D,U} = U()
 @inline unit(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = U()

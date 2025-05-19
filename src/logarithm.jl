@@ -9,6 +9,29 @@ function Base.float(x::Level{L,S}) where {L,S}
     return Level{L,S,typeof(v)}(v)
 end
 big(x::Level{L,S}) where {L,S} = Level{L,S}(big(x.val))
+"""
+    logunit(x::LogScaled)
+    logunit(x::Union{Type{<:LogScaled}, MixedUnits})
+Returns the logarithmic "units" associated with a `LogScaled` instance, a 
+`LogScaled` type, or a `MixedUnits`.
+
+Examples:
+```jldoctest
+julia> using Unitful
+
+julia> logunit(1*u"dB")
+dB
+
+julia> logunit(u"dB")
+dB
+
+julia> logunit(u"dB/s")
+dB
+```
+
+See also: [`unit`](@ref).
+"""
+function logunit end
 logunit(x::Level{L,S}) where {L,S} = MixedUnits{Level{L,S}}()
 logunit(x::Type{T}) where {L,S,T<:Level{L,S}} = MixedUnits{Level{L,S}}()
 
