@@ -1757,7 +1757,7 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
 end
 
 VERSION ≥ v"1.9.0" && @testset "printf" begin
-    @test (@sprintf "%f %d %.2f" 1.23u"m" 123.4u"°" 0.1234u"W") == "1.230000m 123° 0.12W"
+    @test (@sprintf "%f %d %.2f" 1.23u"m" 123.4u"°" 0.1234u"W") == "1.230000 m 123° 0.12 W"
 end
 
 @testset "DimensionError message" begin
