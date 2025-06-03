@@ -432,8 +432,8 @@ displaying logarithmic quantities:
 ## API
 
 ```@docs
-    Unitful.logunit
     Unitful.linear
+    Unitful.logunit
     Unitful.reflevel
     Unitful.uconvertp
     Unitful.uconvertrp
