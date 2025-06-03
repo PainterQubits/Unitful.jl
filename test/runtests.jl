@@ -279,8 +279,10 @@ end
             # Issue 780:
             @unit Fr      "Fr"      franklin 1sqrt(dyn)*cm false
             @unit Test780 "Test780" test780  1sqrt(mN)*cm  false
-            @test uconvert(dyn, (1Fr)^2/(1cm)^2) ≈ 1dyn
-            @test uconvert(mN, (1Test780)^2/(1cm)^2) ≈ 1mN
+            @test uconvert(dyn, 1Fr^2/cm^2) ≈ 1dyn
+            @test uconvert(mN, 1Test780^2/cm^2) ≈ 1mN
+            @test_broken uconvert(dyn, 1Fr^2/cm^2) === 1dyn
+            @test_broken uconvert(mN, 1Test780^2/cm^2) === 1mN
         end
     end
 end
