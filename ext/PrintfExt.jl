@@ -6,8 +6,8 @@ using Unitful
 Printf.plength(f::Printf.Spec{<:Printf.Ints}, x::Quantity) = Printf.plength(f, ustrip(x)) + length(string(unit(x))) + 1
 
 # separate methods for disambiguation
-Printf.fmt(buf, pos, arg::Quantity, spec::Printf.Spec{<:Printf.Floats}) = _fmt(buf, pos, arg, spec)
-Printf.fmt(buf, pos, arg::Quantity, spec::Printf.Spec{<:Printf.Ints}) = _fmt(buf, pos, arg, spec)
+Printf.fmt(buf, pos, arg::AbstractQuantity{<:Real}, spec::Printf.Spec{<:Printf.Floats}) = _fmt(buf, pos, arg, spec)
+Printf.fmt(buf, pos, arg::AbstractQuantity{<:Real}, spec::Printf.Spec{<:Printf.Ints}) = _fmt(buf, pos, arg, spec)
 
 function _fmt(buf, pos, arg, spec)
     pos = Printf.fmt(buf, pos, ustrip(arg), spec)
