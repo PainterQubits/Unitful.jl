@@ -3,6 +3,7 @@ using Test, LinearAlgebra, Random, ConstructionBase, InverseFunctions
 import Unitful: DimensionError, AffineError
 import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
 import Unitful: FreeUnits, ContextUnits, FixedUnits, AffineUnits, AffineQuantity
+import ForwardDiff
 
 import Unitful:
     nm, μm, mm, cm, m, km, inch, ft, mi,
@@ -2206,6 +2207,12 @@ end
     @test isa(TUM.fu^2, TUM.FakeDim212345Units)
 end
 
+if isdefined(Base, :get_extension)
+    @testset "ForwardDiff extension, solving Issue 682" begin
+        @test ForwardDiff.Dual(1.0)*u"cm/m" + ForwardDiff.Dual(1.0) == 1.01
+        @test ForwardDiff.Dual(1.0)*u"cm/m" == ForwardDiff.Dual(0.01)
+    end
+end
 
 struct Num <: Real
    x::Float64
