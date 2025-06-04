@@ -3,7 +3,7 @@ module PrintfExt
 using Printf
 using Unitful
 
-Printf.plength(f::Printf.Spec{<:Printf.Ints}, x::Quantity) = Printf.plength(f, ustrip(x)) + length(string(unit(x))) + 1
+Printf.plength(f::Printf.Spec{<:Printf.Ints}, x::AbstractQuantity{<:Real}) = Printf.plength(f, ustrip(x)) + length(string(unit(x))) + Unitful.has_unit_spacing(unit(x))
 
 # separate methods for disambiguation
 Printf.fmt(buf, pos, arg::AbstractQuantity{<:Real}, spec::Printf.Spec{<:Printf.Floats}) = _fmt(buf, pos, arg, spec)
