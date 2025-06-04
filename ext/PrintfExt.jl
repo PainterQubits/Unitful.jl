@@ -2,6 +2,7 @@ module PrintfExt
 
 using Printf
 using Unitful
+using Unitful: AbstractQuantity
 
 Printf.plength(f::Printf.Spec{<:Printf.Ints}, x::AbstractQuantity{<:Real}) = Printf.plength(f, ustrip(x)) + length(string(unit(x))) + Unitful.has_unit_spacing(unit(x))
 
