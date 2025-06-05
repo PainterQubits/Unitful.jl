@@ -1,25 +1,4 @@
 """
-    UnitConversionFactor(x::AbstractFloat)
-Conversion factor with value `x`.
-
-Used by the [`convfact`](@ref) function to preserve
-the floating-point precision of quantities.
-"""
-struct UnitConversionFactor{T<:AbstractFloat} <: AbstractIrrational
-    x::T
-    # the inner constructor necessary for ambiguity resolution
-    UnitConversionFactor(x::T) where {T<:AbstractFloat} = new{T}(x) 
-end
-
-Base.:*(a::UnitConversionFactor, b::BigFloat) = a.x * b
-Base.:*(a::BigFloat, b::UnitConversionFactor) = a * b.x
-Base.:(==)(a::UnitConversionFactor, b::UnitConversionFactor) = a.x == b.x
-Base.hash(x::UnitConversionFactor, h::UInt) = hash(x.x, h)
-Base.BigFloat(x::UnitConversionFactor) = BigFloat(x.x)
-Base.Float64(x::UnitConversionFactor) = Float64(x.x)
-Base.Float32(x::UnitConversionFactor) = Float32(x.x)
-
-"""
     convfact(s::Units, t::Units)
 Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 1//100`.
 """
@@ -58,7 +37,7 @@ Find the conversion factor from unit `t` to unit `s`, e.g., `convfact(m, cm) == 
             "exponents and/or SI prefixes in units"
         ))
     end
-    return result isa AbstractFloat ? UnitConversionFactor(result) : result
+    return :($result)
 end
 
 """

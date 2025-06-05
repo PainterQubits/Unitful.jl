@@ -433,6 +433,7 @@ displaying logarithmic quantities:
 
 ```@docs
     Unitful.linear
+    Unitful.logunit
     Unitful.reflevel
     Unitful.uconvertp
     Unitful.uconvertrp

@@ -3,6 +3,7 @@ using Test, LinearAlgebra, Random, ConstructionBase, InverseFunctions, Printf
 import Unitful: DimensionError, AffineError
 import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
 import Unitful: FreeUnits, ContextUnits, FixedUnits, AffineUnits, AffineQuantity
+import ForwardDiff
 
 import Unitful:
     nm, μm, mm, cm, m, km, inch, ft, mi,
@@ -248,24 +249,6 @@ end
             # Issue 647:
             @test uconvert(u"kb^1000", 1u"kb^1001 * b^-1") === 1000u"kb^1000"
             @test uconvert(u"kOe^1000", 1u"kOe^1001 * Oe^-1") === 1000u"kOe^1000"
-            # Issue 753:
-            # preserve the floating-point precision of quantities
-            @test Unitful.numtype(uconvert(m, BigFloat(100)cm)) === BigFloat
-            @test Unitful.numtype(uconvert(cm, (BigFloat(1)π + im) * m)) === Complex{BigFloat}
-            @test Unitful.numtype(uconvert(rad, BigFloat(360)°)) === BigFloat
-            @test Unitful.numtype(uconvert(°, (BigFloat(2)π + im) * rad)) === Complex{BigFloat}
-            @test Unitful.numtype(uconvert(m, 100.0cm)) === Float64
-            @test Unitful.numtype(uconvert(cm, (1.0π + im) * m)) === ComplexF64
-            @test Unitful.numtype(uconvert(rad, 360.0°)) === Float64
-            @test Unitful.numtype(uconvert(°, (2.0π + im) * rad)) === ComplexF64
-            @test Unitful.numtype(uconvert(m, 100f0cm)) === Float32
-            @test Unitful.numtype(uconvert(cm, (1f0π + im) * m)) === ComplexF32
-            @test Unitful.numtype(uconvert(rad, 360f0°)) === Float32
-            @test Unitful.numtype(uconvert(°, (2f0π + im) * rad)) === ComplexF32
-            @test Unitful.numtype(uconvert(m, Float16(100)cm)) === Float16
-            @test Unitful.numtype(uconvert(cm, (Float16(1)π + im) * m)) === ComplexF16
-            @test Unitful.numtype(uconvert(rad, Float16(360)°)) === Float16
-            @test Unitful.numtype(uconvert(°, (Float16(2)π + im) * rad)) === ComplexF16
             # Floating point overflow/underflow in uconvert can happen if the
             # conversion factor is large, because uconvert does not cancel
             # common basefactors (or just for really large exponents and/or
@@ -2228,6 +2211,12 @@ end
     @test isa(TUM.fu^2, TUM.FakeDim212345Units)
 end
 
+if isdefined(Base, :get_extension)
+    @testset "ForwardDiff extension, solving Issue 682" begin
+        @test ForwardDiff.Dual(1.0)*u"cm/m" + ForwardDiff.Dual(1.0) == 1.01
+        @test ForwardDiff.Dual(1.0)*u"cm/m" == ForwardDiff.Dual(0.01)
+    end
+end
 
 struct Num <: Real
    x::Float64
