@@ -111,6 +111,23 @@ end
         Quantity{Complex{Float64},NoDims,NoUnits}
 end
 
+# A number type for which the results of `real` and `float`
+# are not `<:Real` or `<:AbstractFloat`, respectively
+struct NonReal <: Number
+    num::Int
+end
+Base.:*(x::NonReal, y::Float64) = x.num * y
+Base.real(x::NonReal) = x
+Base.float(x::NonReal) = x
+
+# A number type for which `real` and `float` throw an error
+struct ErrReal <: Number
+    num::Int
+end
+Base.:*(x::ErrReal, y::Float64) = x.num * y
+Base.real(x::ErrReal) = error("real not defined")
+Base.float(x::ErrReal) = error("float not defined")
+
 @testset "Conversion" begin
     @testset "> Unitless ↔ unitful conversion" begin
         @test_throws DimensionError convert(typeof(3m), 1)
@@ -249,6 +266,26 @@ end
             # Issue 647:
             @test uconvert(u"kb^1000", 1u"kb^1001 * b^-1") === 1000u"kb^1000"
             @test uconvert(u"kOe^1000", 1u"kOe^1001 * Oe^-1") === 1000u"kOe^1000"
+            # Issue 753:
+            # preserve the floating point precision of quantities
+            @test Unitful.numtype(uconvert(m, BigFloat(100)cm)) === BigFloat
+            @test Unitful.numtype(uconvert(cm, (BigFloat(1)π + im) * m)) === Complex{BigFloat}
+            @test Unitful.numtype(uconvert(rad, BigFloat(360)°)) === BigFloat
+            @test Unitful.numtype(uconvert(°, (BigFloat(2)π + im) * rad)) === Complex{BigFloat}
+            @test Unitful.numtype(uconvert(m, 100.0cm)) === Float64
+            @test Unitful.numtype(uconvert(cm, (1.0π + im) * m)) === ComplexF64
+            @test Unitful.numtype(uconvert(rad, 360.0°)) === Float64
+            @test Unitful.numtype(uconvert(°, (2.0π + im) * rad)) === ComplexF64
+            @test Unitful.numtype(uconvert(m, 100f0cm)) === Float32
+            @test Unitful.numtype(uconvert(cm, (1f0π + im) * m)) === ComplexF32
+            @test Unitful.numtype(uconvert(rad, 360f0°)) === Float32
+            @test Unitful.numtype(uconvert(°, (2f0π + im) * rad)) === ComplexF32
+            @test Unitful.numtype(uconvert(m, Float16(100)cm)) === Float16
+            @test Unitful.numtype(uconvert(cm, (Float16(1)π + im) * m)) === ComplexF16
+            @test Unitful.numtype(uconvert(rad, Float16(360)°)) === Float16
+            @test Unitful.numtype(uconvert(°, (Float16(2)π + im) * rad)) === ComplexF16
+            @test uconvert(rad, NonReal(360)°) == uconvert(rad, 360°)
+            @test uconvert(rad, ErrReal(360)°) == uconvert(rad, 360°)
             # Floating point overflow/underflow in uconvert can happen if the
             # conversion factor is large, because uconvert does not cancel
             # common basefactors (or just for really large exponents and/or
