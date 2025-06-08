@@ -1,5 +1,12 @@
 # Unitful.jl changelog
 
+## v1.23.0 (2025-06-08)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) On Julia ≥ 1.9, dimensionless quantities can now be converted to `ForwardDiff.Dual`. This is important for compatibility with the SciML ecosystem and is provided via a package extension ([#765](https://github.com/PainterQubits/Unitful.jl/pull/765)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) On Julia ≥ 1.9, `@printf` and `@sprintf` can now be used with Unitful quantities. The specified format is applied to the numeric part of the quantity and the unit is appended to that. This is provided via a package extension ([#772](https://github.com/PainterQubits/Unitful.jl/pull/772)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Certain unit conversions involving units that are defined using non-integer exponents no longer error ([#783](https://github.com/PainterQubits/Unitful.jl/pull/783)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) `uconvert` now preserves the floating-point precision of quantities in a non-breaking way ([#782](https://github.com/PainterQubits/Unitful.jl/pull/782)).
+
 ## v1.22.1 (2025-05-13)
 
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) The behaviour to preserve the floating-point precision of quantities ([#754](https://github.com/PainterQubits/Unitful.jl/pull/754), added in v1.22.0) is reverted because it is not compatible with [IntervalArithmetic.jl](https://github.com/JuliaIntervals/IntervalArithmetic.jl) (see [#758](https://github.com/PainterQubits/Unitful.jl/issues/758)). The feature will be added in a non-breaking way in a future release.
