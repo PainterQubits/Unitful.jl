@@ -12,7 +12,7 @@ import Unitful:
     Ra, °F, °C, K,
     rad, mrad, °,
     ms, s, minute, hr, d, yr, Hz,
-    J, A, N, mol, V, mJ, eV,
+    J, A, N, mol, V, mJ, eV, dyn, mN,
     mW, W,
     dB, dB_rp, dB_p, dBm, dBV, dBSPL, Decibel,
     Np, Np_rp, Np_p, Neper,
@@ -314,6 +314,13 @@ Base.float(x::ErrReal) = error("float not defined")
                 (1u"ab^8", 1u"fb^8")
             # Issue 660:
             @test uconvert(u"Å * ps^-2", 1.0u"kcal*Å^-1*g^-1") ≈ 418.4u"Å * ps^-2"
+            # Issue 780:
+            @unit Fr      "Fr"      franklin 1sqrt(dyn)*cm false
+            @unit Test780 "Test780" test780  1sqrt(mN)*cm  false
+            @test uconvert(dyn, 1Fr^2/cm^2) ≈ 1dyn
+            @test uconvert(mN, 1Test780^2/cm^2) ≈ 1mN
+            @test_broken uconvert(dyn, 1Fr^2/cm^2) === 1dyn
+            @test_broken uconvert(mN, 1Test780^2/cm^2) === 1mN
         end
     end
 end
