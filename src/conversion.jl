@@ -66,12 +66,15 @@ function floattype(::Type{T}) where T
     # Use try-catch instead of hasmethod because a
     # fallback method might exist but throw an error
     try
-        F = float(real(T))
-        F <: AbstractFloat ? F : Float64
+        _floattype(float(real(T)))
     catch
         Float64
     end
 end
+
+_floattype(::Type) = Float64
+_floattype(::Type{Float16}) = Float16
+_floattype(::Type{Float32}) = Float32
 
 """
     uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
