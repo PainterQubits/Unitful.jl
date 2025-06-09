@@ -50,8 +50,8 @@ convfact(s::Units{S}, t::Units{S}) where {S} = 1
     convfact(T::Type, s::Units, t::Units)
 Returns the appropriate conversion factor from unit `t` to unit `s` for the number type `T`.
 """
-@generated function convfact(::Type{T}, s::Units, t::Units) where T
-    cf = convfact(s(), t())
+function convfact(::Type{T}, s::Units, t::Units) where T
+    cf = convfact(s, t)
     if cf isa AbstractFloat
         F = floattype(T)
         # Since conversion factors only have Float64 precision,
