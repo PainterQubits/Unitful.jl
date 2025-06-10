@@ -1,5 +1,9 @@
 # Unitful.jl changelog
 
+## v1.23.1 (2025-06-10)
+
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Fix a world-age issue with the new mechanism to preserve the floating-point precision on unit conversion ([#790](https://github.com/PainterQubits/Unitful.jl/issues/790)).
+
 ## v1.23.0 (2025-06-08)
 
 * ![Feature:](https://img.shields.io/badge/-feature-green) On Julia ≥ 1.9, dimensionless quantities can now be converted to `ForwardDiff.Dual`. This is important for compatibility with the SciML ecosystem and is provided via a package extension ([#765](https://github.com/PainterQubits/Unitful.jl/pull/765)).
