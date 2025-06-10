@@ -50,10 +50,10 @@ convfact(s::Units{S}, t::Units{S}) where {S} = 1
     convfact(T::Type, s::Units, t::Units)
 Returns the appropriate conversion factor from unit `t` to unit `s` for the number type `T`.
 """
-@generated function convfact(::Type{T}, s::Units, t::Units) where T
-    cf = convfact(s(), t())
+function convfact(::Type{T}, s::Units, t::Units) where T
+    cf = convfact(s, t)
     if cf isa AbstractFloat
-        F = floattype(T)
+        F = convfact_floattype(T)
         # Since conversion factors only have Float64 precision,
         # there is no point in converting to BigFloat
         convert(F == BigFloat ? Float64 : F, cf)
@@ -62,16 +62,19 @@ Returns the appropriate conversion factor from unit `t` to unit `s` for the numb
     end
 end
 
-function floattype(::Type{T}) where T
+function convfact_floattype(::Type{T}) where T
     # Use try-catch instead of hasmethod because a
     # fallback method might exist but throw an error
     try
-        F = float(real(T))
-        F <: AbstractFloat ? F : Float64
+        _convfact_floattype(float(real(T)))
     catch
         Float64
     end
 end
+
+_convfact_floattype(::Type) = Float64
+_convfact_floattype(::Type{Float16}) = Float16
+_convfact_floattype(::Type{Float32}) = Float32
 
 """
     uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
