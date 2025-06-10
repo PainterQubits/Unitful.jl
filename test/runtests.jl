@@ -128,6 +128,14 @@ Base.:*(x::ErrReal, y::Float64) = x.num * y
 Base.real(x::ErrReal) = error("real not defined")
 Base.float(x::ErrReal) = error("float not defined")
 
+# A number type for which `real` and `float` do not return a built-in type
+struct MyFloat64 <: AbstractFloat
+    num::Float64
+end
+Base.:*(x::MyFloat64, y::Float64) = x.num * y
+# Base.real(x::MyFloat) = x
+# Base.float(x::MyFloat) = x
+
 @testset "Conversion" begin
     @testset "> Unitless ↔ unitful conversion" begin
         @test_throws DimensionError convert(typeof(3m), 1)
@@ -286,6 +294,7 @@ Base.float(x::ErrReal) = error("float not defined")
             @test Unitful.numtype(uconvert(°, (Float16(2)π + im) * rad)) === ComplexF16
             @test uconvert(rad, NonReal(360)°) == uconvert(rad, 360°)
             @test uconvert(rad, ErrReal(360)°) == uconvert(rad, 360°)
+            @test uconvert(rad, MyFloat64(360)°) == uconvert(rad, 360°)
             # Floating point overflow/underflow in uconvert can happen if the
             # conversion factor is large, because uconvert does not cancel
             # common basefactors (or just for really large exponents and/or
