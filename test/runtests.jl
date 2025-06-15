@@ -276,25 +276,19 @@ Base.:*(x::MyFloat64, y::Float64) = x.num * y
             @test uconvert(u"kOe^1000", 1u"kOe^1001 * Oe^-1") === 1000u"kOe^1000"
             # Issue 753:
             # preserve the floating point precision of quantities
-            @test Unitful.numtype(uconvert(m, BigFloat(100)cm)) === BigFloat
-            @test Unitful.numtype(uconvert(cm, (BigFloat(1)π + im) * m)) === Complex{BigFloat}
-            @test Unitful.numtype(uconvert(rad, BigFloat(360)°)) === BigFloat
-            @test Unitful.numtype(uconvert(°, (BigFloat(2)π + im) * rad)) === Complex{BigFloat}
-            @test Unitful.numtype(uconvert(m, 100.0cm)) === Float64
-            @test Unitful.numtype(uconvert(cm, (1.0π + im) * m)) === ComplexF64
-            @test Unitful.numtype(uconvert(rad, 360.0°)) === Float64
-            @test Unitful.numtype(uconvert(°, (2.0π + im) * rad)) === ComplexF64
-            @test Unitful.numtype(uconvert(m, 100f0cm)) === Float32
-            @test Unitful.numtype(uconvert(cm, (1f0π + im) * m)) === ComplexF32
-            @test Unitful.numtype(uconvert(rad, 360f0°)) === Float32
-            @test Unitful.numtype(uconvert(°, (2f0π + im) * rad)) === ComplexF32
-            @test Unitful.numtype(uconvert(m, Float16(100)cm)) === Float16
-            @test Unitful.numtype(uconvert(cm, (Float16(1)π + im) * m)) === ComplexF16
-            @test Unitful.numtype(uconvert(rad, Float16(360)°)) === Float16
-            @test Unitful.numtype(uconvert(°, (Float16(2)π + im) * rad)) === ComplexF16
+            for T = [Float16, Float32, Float64, BigFloat]
+                @test Unitful.numtype(uconvert(m, T(100)cm)) === T
+                @test Unitful.numtype(uconvert(cm, (T(1)π + im) * m)) === Complex{T}
+                @test Unitful.numtype(uconvert(rad, T(360)°)) === T
+                @test Unitful.numtype(uconvert(°, (T(2)π + im) * rad)) === Complex{T}
+                @test typeof(upreferred(T(360)°)) === T
+            end
             @test uconvert(rad, NonReal(360)°) == uconvert(rad, 360°)
             @test uconvert(rad, ErrReal(360)°) == uconvert(rad, 360°)
             @test uconvert(rad, MyFloat64(360)°) == uconvert(rad, 360°)
+            @test upreferred(NonReal(360)°) == upreferred(360°)
+            @test upreferred(ErrReal(360)°) == upreferred(360°)
+            @test upreferred(MyFloat64(360)°) == upreferred(360°)
             # Floating point overflow/underflow in uconvert can happen if the
             # conversion factor is large, because uconvert does not cancel
             # common basefactors (or just for really large exponents and/or
