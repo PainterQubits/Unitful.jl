@@ -206,10 +206,17 @@ sqrt(x::AbstractQuantity) = Quantity(sqrt(x.val), sqrt(unit(x)))
 cbrt(x::AbstractQuantity) = Quantity(cbrt(x.val), cbrt(unit(x)))
 
 for _y in (:sin, :cos, :tan, :asin, :acos, :atan, :sinh, :cosh, :tanh, :asinh, :acosh, :atanh,
-           :sinpi, :cospi, :tanpi, :sinc, :cosc, :cis, :cispi, :sincospi)
+           :sinpi, :cospi, :tanpi, :sinc, :cosc, :sincos, :sincospi)
     if isdefined(Base, _y)
         @eval Base.$(_y)(x::DimensionlessQuantity) = Base.$(_y)(uconvert(NoUnits, x))
     end
+end
+cis(x::DimensionlessQuantity{<:Real}) = Complex(reverse(sincos(x))...)
+cis(x::DimensionlessQuantity{<:Complex}) = exp(-imag(x)) * cis(real(x))
+if isdefined(Base, :cispi)
+    import Base: cispi
+    Base.cispi(x::DimensionlessQuantity{<:Real}) = Complex(reverse(sincospi(x))...)
+    Base.cispi(x::DimensionlessQuantity{<:Complex}) = exp(-(π*imag(x))) * cispi(real(x))
 end
 
 atan(y::AbstractQuantity{T1,D,U1}, x::AbstractQuantity{T2,D,U2}) where {T1,T2,D,U1,U2} =
@@ -265,17 +272,17 @@ isapprox(x::Number, y::AbstractQuantity; kwargs...) = isapprox(y, x; kwargs...)
 function isapprox(
     x::AbstractArray{<:AbstractQuantity{T1,D,U1}},
     y::AbstractArray{<:AbstractQuantity{T2,D,U2}};
-    rtol::Real=Base.rtoldefault(T1,T2,0),
     atol=zero(Quantity{real(T1),D,U1}),
+    rtol::Real=Base.rtoldefault(T1,T2,atol>zero(atol)),
+    nans::Bool=false,
     norm::Function=norm,
 ) where {T1,D,U1,T2,U2}
-
     d = norm(x - y)
     if isfinite(d)
-        return d <= atol + rtol*max(norm(x), norm(y))
+        return iszero(rtol) ? d <= atol : d <= max(atol, rtol*max(norm(x), norm(y)))
     else
         # Fall back to a component-wise approximate comparison
-        return all(ab -> isapprox(ab[1], ab[2]; rtol=rtol, atol=atol), zip(x, y))
+        return all(ab -> isapprox(ab[1], ab[2]; rtol=rtol, atol=atol, nans=nans), zip(x, y))
     end
 end
 
@@ -470,6 +477,9 @@ Convert the numeric backing type of `x` to a rational number representation.
 Returns a `Quantity` with the same units.
 """
 Rational(x::AbstractQuantity) = Quantity(Rational(x.val), unit(x))
+
+big(x::AbstractQuantity{T,D,U}) where {T,D,U} = Quantity{big(T),D,U}(big(x.val))
+big(::Type{<:AbstractQuantity{T,D,U}}) where {T,D,U} = Quantity{big(T),D,U}
 
 Base.hastypemax(::Type{<:AbstractQuantity{T}}) where {T} = Base.hastypemax(T)
 

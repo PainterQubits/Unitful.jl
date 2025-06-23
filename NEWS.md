@@ -1,5 +1,51 @@
 # Unitful.jl changelog
 
+## v1.23.1 (2025-06-10)
+
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Fix a world-age issue with the new mechanism to preserve the floating-point precision on unit conversion ([#790](https://github.com/PainterQubits/Unitful.jl/issues/790)).
+
+## v1.23.0 (2025-06-08)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) On Julia ≥ 1.9, dimensionless quantities can now be converted to `ForwardDiff.Dual`. This is important for compatibility with the SciML ecosystem and is provided via a package extension ([#765](https://github.com/PainterQubits/Unitful.jl/pull/765)).
+* ![Feature:](https://img.shields.io/badge/-feature-green) On Julia ≥ 1.9, `@printf` and `@sprintf` can now be used with Unitful quantities. The specified format is applied to the numeric part of the quantity and the unit is appended to that. This is provided via a package extension ([#772](https://github.com/PainterQubits/Unitful.jl/pull/772)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Certain unit conversions involving units that are defined using non-integer exponents no longer error ([#783](https://github.com/PainterQubits/Unitful.jl/pull/783)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) `uconvert` now preserves the floating-point precision of quantities in a non-breaking way ([#782](https://github.com/PainterQubits/Unitful.jl/pull/782)).
+
+## v1.22.1 (2025-05-13)
+
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) The behaviour to preserve the floating-point precision of quantities ([#754](https://github.com/PainterQubits/Unitful.jl/pull/754), added in v1.22.0) is reverted because it is not compatible with [IntervalArithmetic.jl](https://github.com/JuliaIntervals/IntervalArithmetic.jl) (see [#758](https://github.com/PainterQubits/Unitful.jl/issues/758)). The feature will be added in a non-breaking way in a future release.
+
+## v1.22.0 (2025-01-02)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) `Base.big` can now be used with quantities ([#755](https://github.com/PainterQubits/Unitful.jl/pull/755)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Using `Base.convert` to convert to a unitless quantity no longer errors ([#724](https://github.com/PainterQubits/Unitful.jl/pull/724)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Using `Base.convert` to convert to a mixed logarithmic quantity no longer returns wrong results. In cases that returned a result even though it was unknown whether the quantity was a power or root-power quantity, an error is thrown instead ([#724](https://github.com/PainterQubits/Unitful.jl/pull/724)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) `uconvert` now preserves the floating-point precision of quantities ([#754](https://github.com/PainterQubits/Unitful.jl/pull/754)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) When printing arrays, quantities are now aligned at the decimal point just like unitless numbers ([#752](https://github.com/PainterQubits/Unitful.jl/pull/752)).
+
+## v1.21.1 (2024-11-29)
+
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) `Base.cis` now returns more accurate results for arguments in degrees. This unfortunately is slower. If you prioritize speed over precision you can convert to `NoUnits` before calling `cis` or use `@fastmath` ([#745](https://github.com/PainterQubits/Unitful.jl/pull/745)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Trigonometric functions now return more accurate results for arguments in degrees when using `BigFloat` precision and `@fastmath` ([#750](https://github.com/PainterQubits/Unitful.jl/pull/750)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Performance of trigonometric functions with `@fastmath` is improved for some argument types ([#750](https://github.com/PainterQubits/Unitful.jl/pull/750)).
+* The documentation now contains a list of all units and constants defined in this package ([#729](https://github.com/PainterQubits/Unitful.jl/pull/729)).
+
+## v1.21.0 (2024-07-19)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) Arithmetic between `Dates.TimeType` and `Unitful.Time` is added, e.g., `Dates.now() + 1u"hr"` now works ([#731](https://github.com/PainterQubits/Unitful.jl/pull/731)).
+
+## v1.20.0 (2024-05-17)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) `isapprox` with arrays of quantities now supports the `nans` keyword argument ([#719](https://github.com/PainterQubits/Unitful.jl/pull/719)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `isapprox` with arrays of quantities now calculates the default `rtol` correctly, i.e., `rtol` defaults to zero if a positive `atol` is specified, like in the scalar or unitless case ([#719](https://github.com/PainterQubits/Unitful.jl/pull/719)).
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) `isapprox` with arrays of quantities now checks whether `norm(x-y) ≤ max(atol, rtol*max(norm(x), norm(y)))`, like in the scalar or unitless case, instead of `norm(x-y) ≤ atol + rtol*max(norm(x),
+  norm(y))` ([#719](https://github.com/PainterQubits/Unitful.jl/pull/719)).
+
+## v1.19.1 (2024-05-13)
+
+* ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Broadcasting `upreferred`, `ustrip`, or a unit (when used as a conversion function) over ranges now works correctly again ([#711](https://github.com/PainterQubits/Unitful.jl/pull/711), [#715](https://github.com/PainterQubits/Unitful.jl/pull/715)).
+* ![Enhancement:](https://img.shields.io/badge/-enhancement-blue) Broadcasting `upreferred`, `ustrip`, or a unit (when used as a conversion function) over a `StepRange` now returns a `StepRangeLen` when the conversion results in floating-point numbers ([#715](https://github.com/PainterQubits/Unitful.jl/pull/715)).
+
 ## v1.19.0 (2023-11-29)
 
 * ![Feature:](https://img.shields.io/badge/-feature-green) The dimensionless units parts per cent mille (`pcm`, 10^-5), parts per million (`ppm`, 10^-6), parts per billion (`ppb`, 10^-9), parts per trillion (`ppt`, 10^-12), and parts per quadrillion (`ppq`, 10^-15) are added ([#699](https://github.com/PainterQubits/Unitful.jl/pull/699)).

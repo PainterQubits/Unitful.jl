@@ -107,14 +107,6 @@ Unitful.cd
 
 The candela, the SI base unit of luminous intensity.
 
-#### Lumen
-
-```
-Unitful.lm
-```
-
-The lumen, an SI unit of luminous flux, defined as 1 cd × sr.
-
 ### Mass
 
 #### Dram
@@ -529,6 +521,16 @@ Unitful.St
 
 The stokes, a CGS unit of kinematic viscosity, defined as 1 cm^2 / s.
 
+### Luminous flux
+
+#### Lumen
+
+```
+Unitful.lm
+```
+
+The lumen, an SI unit of luminous flux, defined as 1 cd × sr.
+
 ### MagneticFlux
 
 #### Maxwell
@@ -759,7 +761,7 @@ The degree, a unit of angle. There are 360° in a circle.
 | `Np`       |        Neper |
 | `cNp`      |       Centineper |
 
-### "Dimensionful" logarithmic units
+### Log units related to reference levels
 | Unit           | Reference level                            |
 |----------------|---------------------------------|
 | `dBHz`       |         1Hz |
@@ -897,7 +899,7 @@ Unitful.Φ0
 
 A quantity representing the superconducting magnetic flux quantum, defined as h / (2 × q).
 
-#### ε0
+#### ε0, ϵ0
 
 ```
 Unitful.ε0
@@ -929,15 +931,6 @@ Unitful.σ
 ```
 
 A quantity representing the Stefan-Boltzmann constant, defined as π^2 × k^4 / (60 × ħ^3 × c^2).
-
-#### ϵ0
-
-```
-Unitful.ε0
-Unitful.ϵ0
-```
-
-A quantity representing the vacuum permittivity constant, defined as 1 / (μ0 × c^2).
 
 ## Metric (SI) Prefixes
 

@@ -115,6 +115,18 @@ for (_x,_y) in ((:sin,:sind), (:cos,:cosd), (:tan,:tand),
     @eval ($_x)(x::Quantity{T, NoDims, typeof(°)}) where {T} = ($_y)(ustrip(x))
     @eval ($_y)(x::Quantity{T, NoDims, typeof(°)}) where {T} = ($_y)(ustrip(x))
 end
+if isdefined(Base, :sincosd)
+    import Base: sincosd
+    sincos(x::Quantity{T, NoDims, typeof(°)}) where {T} = sincosd(ustrip(x))
+    sincosd(x::Quantity{T, NoDims, typeof(°)}) where {T} = sincosd(ustrip(x))
+else
+    sincos(x::Quantity{T, NoDims, typeof(°)}) where {T} = (u = ustrip(x); (sind(u), cosd(u)))
+end
+for f in (:cos, :sin, :tan, :sincos, :cis)
+    f_fast = fast_op[f]
+    # Use deg2rad because uncnvert only has Float64 precision
+    @eval $f_fast(x::Quantity{T, NoDims, typeof(°)}) where {T} = $f_fast(deg2rad(x.val))
+end
 
 # conversion between degrees and radians
 import Base: deg2rad, rad2deg

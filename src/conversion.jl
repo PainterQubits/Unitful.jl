@@ -47,6 +47,36 @@ Returns 1. (Avoids effort when unnecessary.)
 convfact(s::Units{S}, t::Units{S}) where {S} = 1
 
 """
+    convfact(T::Type, s::Units, t::Units)
+Returns the appropriate conversion factor from unit `t` to unit `s` for the number type `T`.
+"""
+function convfact(::Type{T}, s::Units, t::Units) where T
+    cf = convfact(s, t)
+    if cf isa AbstractFloat
+        F = convfact_floattype(T)
+        # Since conversion factors only have Float64 precision,
+        # there is no point in converting to BigFloat
+        convert(F == BigFloat ? Float64 : F, cf)
+    else
+        cf
+    end
+end
+
+function convfact_floattype(::Type{T}) where T
+    # Use try-catch instead of hasmethod because a
+    # fallback method might exist but throw an error
+    try
+        _convfact_floattype(float(real(T)))
+    catch
+        Float64
+    end
+end
+
+_convfact_floattype(::Type) = Float64
+_convfact_floattype(::Type{Float16}) = Float16
+_convfact_floattype(::Type{Float32}) = Float32
+
+"""
     uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
 Convert a [`Unitful.Quantity`](@ref) to different units. The conversion will
 fail if the target units `a` have a different dimension than the dimension of
@@ -69,7 +99,7 @@ function uconvert(a::Units, x::Quantity{T,D,U}) where {T,D,U}
     elseif (a isa AffineUnits) || (x isa AffineQuantity)
         return uconvert_affine(a, x)
     else
-        return Quantity(x.val * convfact(a, U()), a)
+        return Quantity(x.val * convfact(T, a, U()), a)
     end
 end
 
@@ -94,17 +124,15 @@ uconvert(a::Units, x::Missing) = missing
     t1 = a <: AffineUnits ? a.parameters[end].parameters[end] :
         :(zero($(x.parameters[1])))
     quote
-        dimension(a) != dimension(x) && return throw(DimensionError(a, x))
+        dimension(a) != dimension(x) && throw(DimensionError(a, x))
         return Quantity(((x.val - $t0) * $conv) + $t1, a)
     end
 end
 
 function convert(::Type{Quantity{T,D,U}}, x::Number) where {T,D,U}
-    if dimension(x) == D
-        Quantity(T(uconvert(U(),x).val), U())
-    else
-        throw(DimensionError(U(),x))
-    end
+    (dimension(x) != D) && throw(DimensionError(U(), x))
+    q = uconvert(U(), x)
+    Quantity{T,D,U}(isa(q, AbstractQuantity) ? q.val : q)
 end
 
 # needed ever since julialang/julia#28216

@@ -32,8 +32,8 @@ true
         length(xp) > 0 && append!(b, xp)
     end
 
-    sort!(b, by=x->power(x))
-    sort!(b, by=x->name(x))
+    sort!(b, by=power)
+    sort!(b, by=name)
 
     c = Vector{Dimension}()
     if !isempty(b)

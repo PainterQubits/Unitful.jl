@@ -1,0 +1,37 @@
+name: Documentation
+
+on:
+  push:
+    branches: "master"
+    tags: ["*"]
+    paths:
+      - '.github/workflows/documentation.yaml'
+      - 'src/**'
+      - 'docs/**'
+      - 'Project.toml'
+  pull_request:
+    paths:
+      - '.github/workflows/documentation.yaml'
+      - 'src/**'
+      - 'docs/**'
+      - 'Project.toml'
+  release:
+
+concurrency:
+  # Skip intermediate builds: always.
+  # Cancel intermediate builds: only if it is a pull request build.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
+
+jobs:
+  Documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: 1
+      - uses: julia-actions/cache@v2
+      - uses: julia-actions/julia-docdeploy@v1
+        env:
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}

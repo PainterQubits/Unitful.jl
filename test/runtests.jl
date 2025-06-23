@@ -1,8 +1,9 @@
 using Unitful
-using Test, LinearAlgebra, Random, ConstructionBase, InverseFunctions
+using Test, LinearAlgebra, Random, ConstructionBase, InverseFunctions, Printf
 import Unitful: DimensionError, AffineError
 import Unitful: LogScaled, LogInfo, Level, Gain, MixedUnits, Decibel
 import Unitful: FreeUnits, ContextUnits, FixedUnits, AffineUnits, AffineQuantity
+import ForwardDiff
 
 import Unitful:
     nm, μm, mm, cm, m, km, inch, ft, mi,
@@ -11,7 +12,7 @@ import Unitful:
     Ra, °F, °C, K,
     rad, mrad, °,
     ms, s, minute, hr, d, yr, Hz,
-    J, A, N, mol, V,
+    J, A, N, mol, V, mJ, eV, dyn, mN,
     mW, W,
     dB, dB_rp, dB_p, dBm, dBV, dBSPL, Decibel,
     Np, Np_rp, Np_p, Neper,
@@ -110,6 +111,31 @@ end
         Quantity{Complex{Float64},NoDims,NoUnits}
 end
 
+# A number type for which the results of `real` and `float`
+# are not `<:Real` or `<:AbstractFloat`, respectively
+struct NonReal <: Number
+    num::Int
+end
+Base.:*(x::NonReal, y::Float64) = x.num * y
+Base.real(x::NonReal) = x
+Base.float(x::NonReal) = x
+
+# A number type for which `real` and `float` throw an error
+struct ErrReal <: Number
+    num::Int
+end
+Base.:*(x::ErrReal, y::Float64) = x.num * y
+Base.real(x::ErrReal) = error("real not defined")
+Base.float(x::ErrReal) = error("float not defined")
+
+# A number type for which `real` and `float` do not return a built-in type
+struct MyFloat64 <: AbstractFloat
+    num::Float64
+end
+Base.:*(x::MyFloat64, y::Float64) = x.num * y
+# Base.real(x::MyFloat) = x
+# Base.float(x::MyFloat) = x
+
 @testset "Conversion" begin
     @testset "> Unitless ↔ unitful conversion" begin
         @test_throws DimensionError convert(typeof(3m), 1)
@@ -144,6 +170,14 @@ end
         @test convert(Int, 1*FreeUnits(m/mm)) === 1000
         @test convert(Int, 1*FixedUnits(m/mm)) === 1000
         @test convert(Int, 1*ContextUnits(m/mm, NoUnits)) === 1000
+        for U = (NoUnits, FixedUnits(NoUnits), ContextUnits(NoUnits, m/mm))
+            @test convert(Quantity{Int,NoDims,typeof(U)}, 1*FreeUnits(m/mm)) === Quantity{Int,NoDims,typeof(U)}(1000)
+            @test convert(Quantity{Int,NoDims,typeof(U)}, 1*FixedUnits(m/mm)) === Quantity{Int,NoDims,typeof(U)}(1000)
+            @test convert(Quantity{Int,NoDims,typeof(U)}, 1*ContextUnits(m/mm, NoUnits)) === Quantity{Int,NoDims,typeof(U)}(1000)
+            @test convert(Quantity{Int,NoDims,typeof(U)}, 1) === Quantity{Int,NoDims,typeof(U)}(1)
+        end
+        @test convert(Quantity{Int}, 1) === Quantity{Int,NoDims,typeof(NoUnits)}(1)
+        @test convert(Quantity{Int,NoDims}, 1) === Quantity{Int,NoDims,typeof(NoUnits)}(1)
 
         # w/ units distinct from w/o units
         @test 1m != 1
@@ -165,6 +199,18 @@ end
             @test typeof(convert(typeof(0.0°), 90°)) == typeof(0.0°)
             @test (3.0+4.0im)*V == (3+4im)*V
             @test im*V == Complex(0,1)*V
+            for x = (3, 3.0, 3//1, 1+2im, 1.0+2.0im, (1//2)+(3//4)im)
+                for u = (m, °C)
+                    @test @inferred(big(x*u)) == big(x)*u
+                    @test typeof(big(x*u)) == typeof(big(x)*u)
+                    @test big(typeof(x*u)) == typeof(big(x)*u)
+                end
+                q = Quantity{typeof(x),NoDims,typeof(NoUnits)}(x)
+                big_q = Quantity{big(typeof(x)),NoDims,typeof(NoUnits)}(big(x))
+                @test @inferred(big(q)) == big_q
+                @test typeof(big(q)) == typeof(big_q)
+                @test big(typeof(q)) == typeof(big_q)
+            end
         end
         @testset ">> Intra-unit conversion" begin
             # an essentially no-op uconvert should not disturb numeric type
@@ -214,12 +260,35 @@ end
             @test 1u"rps" == 2π/s
             @test 1u"rpm" == 360°/minute
             @test 1u"rpm" == 2π/minute
+            # Issue 430:
+            # definition for arcsecond taken from UnitfulAngles.jl
+            # definition for Jy arcsecond taken from UnitfulAstro.jl
+            @unit angles_arcsecond "angles_″" angles_Arcsecond °//3600 false
+            @unit astro_Jy "astro_Jy" astro_Jansky 1e-23u"erg*s^-1*cm^-2*Hz^-1" true
+            @test uconvert(
+                astro_Jy / angles_arcsecond^2, 1.0u"GHz^2 * J * c^-2"
+            ) ≈ 2.6152205956835644e16 * astro_Jy * angles_arcsecond^-2
             # Issue 458:
             @test deg2rad(360°) ≈ 2π * rad
             @test rad2deg(2π * rad) ≈ 360°
             # Issue 647:
             @test uconvert(u"kb^1000", 1u"kb^1001 * b^-1") === 1000u"kb^1000"
             @test uconvert(u"kOe^1000", 1u"kOe^1001 * Oe^-1") === 1000u"kOe^1000"
+            # Issue 753:
+            # preserve the floating point precision of quantities
+            for T = [Float16, Float32, Float64, BigFloat]
+                @test Unitful.numtype(uconvert(m, T(100)cm)) === T
+                @test Unitful.numtype(uconvert(cm, (T(1)π + im) * m)) === Complex{T}
+                @test Unitful.numtype(uconvert(rad, T(360)°)) === T
+                @test Unitful.numtype(uconvert(°, (T(2)π + im) * rad)) === Complex{T}
+                @test typeof(upreferred(T(360)°)) === T
+            end
+            @test uconvert(rad, NonReal(360)°) == uconvert(rad, 360°)
+            @test uconvert(rad, ErrReal(360)°) == uconvert(rad, 360°)
+            @test uconvert(rad, MyFloat64(360)°) == uconvert(rad, 360°)
+            @test upreferred(NonReal(360)°) == upreferred(360°)
+            @test upreferred(ErrReal(360)°) == upreferred(360°)
+            @test upreferred(MyFloat64(360)°) == upreferred(360°)
             # Floating point overflow/underflow in uconvert can happen if the
             # conversion factor is large, because uconvert does not cancel
             # common basefactors (or just for really large exponents and/or
@@ -232,7 +301,6 @@ end
             @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"Tb^11", 1u"ab^11"))
             @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"b^11 * eV", 1u"m^22 * J"))
             @test_or_throws ArgumentError is_finite_nonzero(uconvert(u"m^22 * J", 1u"b^11 * eV"))
-
             # min/max had code doing the equivalent of uconvert, and suffering
             # from similar problems as issue 647 (see above)
             @test_or_throws ArgumentError max(1u"Ym^18", 1u"Em^18") === 1u"Ym^18"
@@ -247,6 +315,15 @@ end
             @test_or_throws ArgumentError min(1u"ab^8", 1u"fb^8") === 1u"ab^8"
             @test_or_throws ArgumentError minmax(1u"fb^8", 1u"ab^8") ===
                 (1u"ab^8", 1u"fb^8")
+            # Issue 660:
+            @test uconvert(u"Å * ps^-2", 1.0u"kcal*Å^-1*g^-1") ≈ 418.4u"Å * ps^-2"
+            # Issue 780:
+            @unit Fr      "Fr"      franklin 1sqrt(dyn)*cm false
+            @unit Test780 "Test780" test780  1sqrt(mN)*cm  false
+            @test uconvert(dyn, 1Fr^2/cm^2) ≈ 1dyn
+            @test uconvert(mN, 1Test780^2/cm^2) ≈ 1mN
+            @test_broken uconvert(dyn, 1Fr^2/cm^2) === 1dyn
+            @test_broken uconvert(mN, 1Test780^2/cm^2) === 1mN
         end
     end
 end
@@ -732,7 +809,8 @@ Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
         @test @inferred(cbrt(m^3)) === m
         @test (2m)^3 === 8*m^3
         @test (8m)^(1//3) === 2.0*m^(1//3)
-        @test @inferred(cis(90°)) ≈ im
+        @test @inferred(cis(90°)) == im
+        @test @inferred(cis((90 - rad2deg(1)*im)°)) ≈ ℯ*im
 
         # Test inferrability of literal powers
         _pow_m3(x) = x^-3
@@ -778,6 +856,10 @@ Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
         @test @inferred(asec(1m/1nm)) ≈ π/2
         @test @inferred(acot(2sqrt(3)s/2000ms)) ≈ 30°
 
+        @test @inferred(sincos(250mrad)) === sincos(0.25)
+        @test @inferred(sincos((1+2im)rad)) === sincos(1+2im)
+        @test @inferred(sincos(30°)) === (sind(30), cosd(30))
+
         @test @inferred(sinh(0.0rad)) == 0.0
         @test @inferred(sinh(1J/N/m) + cosh(1rad)) ≈ MathConstants.e
         @test @inferred(tanh(1m/1μm)) == 1
@@ -797,6 +879,7 @@ Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
         @test @inferred(cosc(1ft/3inch)) === 0.25
         if isdefined(Base, :cispi)
             @test @inferred(cispi(rad/2)) === complex(0.0, 1.0)
+            @test @inferred(cispi(rad/2 + im*rad)) ≈ complex(0.0, exp(-π))
         end
         if isdefined(Base, :sincospi)
             @test @inferred(sincospi(rad/2)) === (1.0, 0.0)
@@ -813,6 +896,10 @@ Base.:(<=)(x::Issue399, y::Issue399) = x.num <= y.num
         @test @inferred(atan(m*sqrt(3),1e+3mm)) ≈ 60°
         @test_throws DimensionError atan(m*sqrt(3),1e+3s)
         @test @inferred(angle((3im)*V)) ≈ 90°
+
+        if isdefined(Base, :sincosd)
+            @test @inferred(sincosd(5°)) == sincos(5°) == (sind(5°), cosd(5°))
+        end
     end
     @testset "> Exponentials and logarithms" begin
         for f in (exp, exp10, exp2, expm1, log, log10, log1p, log2)
@@ -1033,10 +1120,12 @@ end
 
             half = 1°/convert(T, 2)
             third = 1°/convert(T, 3)
-            for f in (:cos, :sin, :tan)
+            for f in (:cos, :sin, :tan, :cis)
                 @test isapprox((@eval @fastmath $f($half)), (@eval $f($half)))
                 @test isapprox((@eval @fastmath $f($third)), (@eval $f($third)))
             end
+            @test all(x -> isapprox(x...), Iterators.zip((@eval @fastmath sincos($half)), (@eval sincos($half))))
+            @test all(x -> isapprox(x...), Iterators.zip((@eval @fastmath sincos($third)), (@eval sincos($third))))
         end
 
         # complex arithmetic
@@ -1325,14 +1414,61 @@ end
 
             @test @inferred((1:2:5) .* cm .|> mm) === 10mm:20mm:50mm
             @test mm.((1:2:5) .* cm) === 10mm:20mm:50mm
+            @test @inferred(StepRange(1cm,1mm,2cm) .|> km) === (1//100_000)km:(1//1_000_000)km:(2//100_000)km
+
             @test @inferred((1:2:5) .* km .|> upreferred) === 1000m:2000m:5000m
             @test @inferred((1:2:5)km .|> upreferred) === 1000m:2000m:5000m
             @test @inferred((1:2:5) .|> upreferred) === 1:2:5
             @test @inferred((1.0:2.0:5.0) .* km .|> upreferred) === 1000.0m:2000.0m:5000.0m
             @test @inferred((1.0:2.0:5.0)km .|> upreferred) === 1000.0m:2000.0m:5000.0m
             @test @inferred((1.0:2.0:5.0) .|> upreferred) === 1.0:2.0:5.0
+            @test @inferred(StepRange(1cm,1mm,2cm) .|> upreferred) === (1//100)m:(1//1000)m:(2//100)m
+
+            # float conversion, dimensionful
+            for r = [1eV:1eV:5eV, 1eV:1eV:5_000_000eV, 5_000_000eV:-1eV:-1eV, -123_456_789eV:2eV:987_654_321eV, (-11//12)eV:(1//3)eV:(11//4)eV]
+                for f = (mJ, upreferred)
+                    rf = @inferred(r .|> f)
+                    test_indices = length(r) ≤ 10_000 ? eachindex(r) : rand(eachindex(r), 10_000)
+                    @test eltype(rf) === typeof(f(zero(eltype(r))))
+                    @test all(≈(rf[i], f(r[i]); rtol=eps()) for i = test_indices)
+                end
+            end
+
+            # float conversion from unitless
+            r = 1:1:360
+            rf = °.(r)
+            @test all(≈(rf[i], °(r[i]); rtol=eps()) for i = eachindex(r))
+
+            # float conversion to unitless
+            r = (1:1:360)°
+            for f = (mrad, NoUnits, upreferred)
+                rf = f.(r)
+                @test eltype(rf) === typeof(f(zero(eltype(r))))
+                @test all(≈(rf[i], f(r[i]); rtol=eps()) for i = eachindex(r))
+            end
+
+            # exact conversion from and to unitless
+            @test rad.(1:1:360) === (1:1:360)rad
+            @test mrad.(1:1:360) === (1_000:1_000:360_000)mrad
+            @test upreferred.(1:1:360) === 1:1:360
+            @test NoUnits.((1:1:360)rad) === 1:1:360
+            @test upreferred.((1:1:360)rad) === 1:1:360
+            @test NoUnits.((1:2:5)mrad) === 1//1000:1//500:1//200
+            @test upreferred.((1:2:5)mrad) === 1//1000:1//500:1//200
+
             @test @inferred((1:2:5) .* cm .|> mm .|> ustrip) === 10:20:50
             @test @inferred((1f0:2f0:5f0) .* cm .|> mm .|> ustrip) === 10f0:20f0:50f0
+            @test @inferred(StepRange{typeof(1m),typeof(1cm)}(1m,1cm,2m) .|> ustrip) === 1:1//100:2
+            @test @inferred(StepRangeLen{typeof(1f0m)}(1.0m, 1.0cm, 101) .|> ustrip) === StepRangeLen{Float32}(1.0, 0.01, 101)
+            @test @inferred(StepRangeLen{typeof(1.0m)}(Base.TwicePrecision(1.0m), Base.TwicePrecision(1.0cm), 101) .|> ustrip) === StepRangeLen{Float64}(Base.TwicePrecision(1.0), Base.TwicePrecision(0.01), 101)
+            @test @inferred((1:0.1:1.0) .|> ustrip) == 1:0.1:1.0
+            @test @inferred((1m:0.1m:1.0m) .|> ustrip) == 1:0.1:1.0
+            @test @inferred(StepRange{typeof(0m),typeof(1cm)}(1m,1cm,2m) .|> ustrip) === 1:1//100:2
+            @test @inferred(StepRangeLen{typeof(1f0m)}(1.0m, 1.0cm, 101) .|> ustrip) === StepRangeLen{Float32}(1.0, 0.01, 101)
+            @test @inferred(StepRangeLen{typeof(1.0m)}(Base.TwicePrecision(1.0m), Base.TwicePrecision(1.0cm), 101) .|> ustrip) === StepRangeLen{Float64}(Base.TwicePrecision(1.0), Base.TwicePrecision(0.01), 101)
+            @test @inferred(StepRangeLen{typeof(1.0mm)}(Base.TwicePrecision(1.0m), Base.TwicePrecision(1.0cm), 101) .|> ustrip) === 1000.0:10.0:2000.0
+            @test ustrip.(1:0.1:1.0) == 1:0.1:1.0
+            @test ustrip.(1m:0.1m:1.0m) == 1:0.1:1.0
         end
         @testset ">> quantities and non-quantities" begin
             @test range(1, step=1m/mm, length=5) == 1:1000:4001
@@ -1495,6 +1631,10 @@ end
             @test isapprox([1cm, 200cm], [0.01m, 2.0m])
             @test !isapprox([1.0], [1.0m])
             @test !isapprox([1.0m], [1.0])
+            @test isapprox([1.0m, NaN*m], [nextfloat(1.0)*m, NaN*m], nans=true)
+            @test !isapprox([1.0m, NaN*m], [nextfloat(1.0)*m, NaN*m], nans=false)
+            @test !isapprox([1.0m, 2.0m], [1.1m, 2.2m], rtol=0.05, atol=0.2m)
+            @test !isapprox([1.0m], [nextfloat(1.0)*m], atol=eps(0.1)*m)
         end
         @testset ">> Unit stripping" begin
             @test @inferred(ustrip([1u"m", 2u"m"])) == [1,2]
@@ -1638,6 +1778,16 @@ Base.show(io::IO, ::MIME"text/plain", ::Foo) = print(io, "42.0")
         @test repr(1.0 * u"m * s * kg^(-1//2)") ==
             (Sys.isapple() ? "1.0 m s kg⁻¹ᐟ²" : "1.0 m s kg^-1/2")
     end
+    @test Base.alignment(stdout, (1//3)m)  == Base.alignment(stdout, 1//3) .+ (0, 2)
+    @test Base.alignment(stdout, (2+3im)m) == Base.alignment(stdout, 2+3im) .+ (1, 3)
+    @test Base.alignment(stdout, 3.0dB)    == Base.alignment(stdout, 3.0) .+ (0, 3)
+    @test Base.alignment(stdout, 3.0dBm)   == Base.alignment(stdout, 3.0) .+ (0, 4)
+    @test Base.alignment(stdout, 3.0dB*s)  == Base.alignment(stdout, 3.0) .+ (1, 6)
+    @test Base.alignment(stdout, 3.0dBm*s) == Base.alignment(stdout, 3.0) .+ (1, 7)
+end
+
+VERSION ≥ v"1.9.0" && @testset "printf" begin
+    @test (@sprintf "%f %d %.2f %05d" 1.23u"m" 123.4u"°" 0.1234u"W" 12.34u"km") == "1.230000 m 123° 0.12 W 00012 km"
 end
 
 @testset "DimensionError message" begin
@@ -1742,6 +1892,14 @@ end
         @test float(3dB) == 3.0dB
         @test float(@dB 3V/1V) === @dB 3.0V/1V
 
+        for x = (20, 20.0, 20//1)
+            for u = (dB, dB/m, dBV, dBV/m)
+                @test @inferred(big(x*u)) == big(x)*u
+                @test typeof(big(x*u)) == typeof(big(x)*u)
+                @test big(typeof(x*u)) == typeof(big(x)*u)
+            end
+        end
+
         @test uconvert(V, (@dB 3V/2.14V)) === 3V
         @test uconvert(V, (@dB 3V/1V)) === 3V
         @test uconvert(mW/Hz, 0dBm/Hz) == 1mW/Hz
@@ -1759,6 +1917,42 @@ end
         @test_throws ErrorException convert(Float64, u"10dB")
         @test convert(Float64, u"10dB_p") === 10.0
         @test convert(Float64, u"20dB_rp") === 10.0
+
+        @test_throws ErrorException convert(typeof(1.0dB/s), 5.0Hz)
+        @test convert(typeof(1.0dB_p/s), 100.0Hz) === 20.0dB_p/s
+        @test convert(typeof(1.0dB_rp/s), 100.0Hz) === 40.0dB_rp/s
+
+        @test_throws ErrorException convert(typeof(1.0dB/rad), 5.0)
+        @test convert(typeof(1.0dB_p/rad), 100.0) === 20.0dB_p/rad
+        @test convert(typeof(1.0dB_rp/rad), 100.0) === 40.0dB_rp/rad
+
+        @test convert(typeof(1.0m/cm), 40.0dB_rp) === 1.0m/cm
+        @test convert(typeof(1.0dB_p/s), 1.0dB_p/s) === 1.0dB_p/s
+
+        # This currently (and unnecessarily) involves a conversion to linear and back to logarithmic.
+        # This is lossy due to floating-point, therefore broken.
+        @test_broken convert(Quantity{typeof(1.0dB_rp), NoDims, typeof(Unitful.NoUnits)}, 1dB_rp) === 1.0dB_rp
+        @test_broken convert(typeof(1.0dB_p/s), 1dB_p/s) === 1.0dB_p/s # conversion to linear and back to logarithmic → lossy due to floating-point
+        @test isapprox(convert(typeof(1.0dB_p/s), 1dB_p/s), 1.0dB_p/s, rtol = 1e-3, atol=0/s)
+
+        # Wrongly throwing DimensionError
+        @test_broken convert(typeof(1.0dBm/s), 5.0mW*Hz) === @dB(5.0mW/1mW)/s
+        @test convert(typeof(1.0u"dBFS/rad"), 100.0) === @dB(100.0/1, true)/rad
+        @test_broken convert(typeof(1.0dBm/rad), 20.0dBm) === @dB(100.0mW/1mW)/rad
+        @test convert(typeof(1.0u"dBFS/rad"), 5.0u"dBFS") === 5.0u"dBFS/rad"
+        @test_broken convert(Quantity{typeof(1.0dBm), dimension(Unitful.mW), typeof(Unitful.NoUnits)}, 5.0dBm) === Quantity{typeof(1.0dBm), dimension(Unitful.mW), typeof(Unitful.NoUnits)}(5.0dBm)
+        @test convert(typeof(1.0m/cm), 40.0u"dBFS") === 1.0m/cm
+
+        for L = (40u"dB_rp", 20u"dB_p", 40u"dBFS")
+            for U = (NoUnits, FixedUnits(NoUnits), ContextUnits(NoUnits, m/mm))
+                @test convert(Quantity{Int,NoDims,typeof(U)}, L) === Quantity{Int,NoDims,typeof(U)}(100)
+                @test convert(Quantity{Int,NoDims,typeof(U)}, L/rad) === Quantity{Int,NoDims,typeof(U)}(100)
+            end
+            @test convert(Quantity{Int}, L) === Quantity{Int,NoDims,typeof(NoUnits)}(100)
+            @test convert(Quantity{Int}, L/rad) === 100/rad
+            @test convert(Quantity{Int,NoDims}, L) === Quantity{Int,NoDims,typeof(NoUnits)}(100)
+            @test convert(Quantity{Int,NoDims}, L/rad) === 100/rad
+        end
 
         @test isapprox(uconvertrp(NoUnits, 6.02dB), 2.0, atol=0.001)
         @test uconvertrp(NoUnits, 1Np) ≈ MathConstants.e
@@ -2064,6 +2258,12 @@ end
     @test isa(TUM.fu^2, TUM.FakeDim212345Units)
 end
 
+if isdefined(Base, :get_extension)
+    @testset "ForwardDiff extension, solving Issue 682" begin
+        @test ForwardDiff.Dual(1.0)*u"cm/m" + ForwardDiff.Dual(1.0) == 1.01
+        @test ForwardDiff.Dual(1.0)*u"cm/m" == ForwardDiff.Dual(0.01)
+    end
+end
 
 struct Num <: Real
    x::Float64
@@ -2152,8 +2352,9 @@ using REPL # This is necessary to make `@doc` work correctly
     @test string(@doc DocUnits.𝐃) == "dimension docs\n"
     @test string(@doc DocUnits.dRefFoo) == "refunit docs\n"
     @test string(@doc DocUnits.dFoo) == "unit docs\n"
+    CODEBLOCK_LANG = VERSION ≥ v"1.12.0-DEV" ? "julia" : ""
     @test string(@doc DocUnits.DocDimension) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.DocDimension{T, U}
         ```
 
@@ -2162,7 +2363,7 @@ using REPL # This is necessary to make `@doc` work correctly
         See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref), `Unitful.Quantity`, `Unitful.Level`.
         """
     @test string(@doc DocUnits.DocDimensionUnits) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.DocDimensionUnits{U}
         ```
 
@@ -2171,7 +2372,7 @@ using REPL # This is necessary to make `@doc` work correctly
         See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref), `Unitful.Units`.
         """
     @test string(@doc DocUnits.DocDimensionFreeUnits) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.DocDimensionFreeUnits{U}
         ```
 
@@ -2180,7 +2381,7 @@ using REPL # This is necessary to make `@doc` work correctly
         See also: [`$(@__MODULE__).DocUnits.𝐃`](@ref).
         """
     @test string(@doc DocUnits.DerivedDocDimension) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.DerivedDocDimension{T, U}
         ```
 
@@ -2189,7 +2390,7 @@ using REPL # This is necessary to make `@doc` work correctly
         See also: `Unitful.Quantity`, `Unitful.Level`.
         """
     @test string(@doc DocUnits.DerivedDocDimensionUnits) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.DerivedDocDimensionUnits{U}
         ```
 
@@ -2198,14 +2399,14 @@ using REPL # This is necessary to make `@doc` work correctly
         See also: `Unitful.Units`.
         """
     @test string(@doc DocUnits.DerivedDocDimensionFreeUnits) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.DerivedDocDimensionFreeUnits{U}
         ```
 
         A supertype for `Unitful.FreeUnits` of dimension `𝐃 * 𝐋`. Equivalent to `Unitful.FreeUnits{U, 𝐃 * 𝐋}`.
         """
     @test string(@doc DocUnits.kdFoo) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.kdFoo
         ```
 
@@ -2216,7 +2417,7 @@ using REPL # This is necessary to make `@doc` work correctly
         See also: [`$(@__MODULE__).DocUnits.dFoo`](@ref).
         """
     @test string(@doc DocUnits.kdRefFoo) == """
-        ```
+        ```$CODEBLOCK_LANG
         $(@__MODULE__).DocUnits.kdRefFoo
         ```
 
@@ -2229,29 +2430,26 @@ using REPL # This is necessary to make `@doc` work correctly
 end
 
 # Test precompiled Unitful extension modules
-load_path = mktempdir()
-load_cache_path = mktempdir()
-try
-    write(joinpath(load_path, "ExampleExtension.jl"),
-          """
-          module ExampleExtension
-          using Unitful
+mktempdir() do load_path
+    mktempdir() do load_cache_path
+        write(joinpath(load_path, "ExampleExtension.jl"),
+              """
+              module ExampleExtension
+              using Unitful
 
-          @unit year "year" JulianYear 365u"d" true
+              @unit year "year" JulianYear 365u"d" true
 
-          function __init__()
-              Unitful.register(ExampleExtension)
-          end
-          end
-          """)
-    pushfirst!(LOAD_PATH, load_path)
-    pushfirst!(DEPOT_PATH, load_cache_path)
-    @eval using ExampleExtension
-    # Delay u"year" expansion until test time
-    @eval @test uconvert(u"d", 1u"year") == 365u"d"
-finally
-    rm(load_path, recursive=true)
-    rm(load_cache_path, recursive=true)
+              function __init__()
+                  Unitful.register(ExampleExtension)
+              end
+              end
+              """)
+        pushfirst!(LOAD_PATH, load_path)
+        pushfirst!(DEPOT_PATH, load_cache_path)
+        @eval using ExampleExtension
+        # Delay u"year" expansion until test time
+        @eval @test uconvert(u"d", 1u"year") == 365u"d"
+    end
 end
 
 using Aqua

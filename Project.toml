@@ -1,6 +1,6 @@
 name = "Unitful"
 uuid = "1986cc42-f94f-5a68-af5c-568840ba703d"
-version = "1.19.0"
+version = "1.23.1"
 
 [deps]
 ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
@@ -11,18 +11,24 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [weakdeps]
 ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [extensions]
 ConstructionBaseUnitfulExt = "ConstructionBase"
+ForwardDiffExt = "ForwardDiff"
 InverseFunctionsUnitfulExt = "InverseFunctions"
+PrintfExt = "Printf"
 
 [compat]
 Aqua = "0.8"
 ConstructionBase = "1"
 Dates = "<0.0.1, 1"
+ForwardDiff = "0.10, 1"
 InverseFunctions = "0.1"
 LinearAlgebra = "<0.0.1, 1"
+Printf = "<0.0.1, 1"
 REPL = "<0.0.1, 1"
 Random = "<0.0.1, 1"
 Test = "<0.0.1, 1"
@@ -31,11 +37,13 @@ julia = "1"
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 ConstructionBase = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 REPL = "3fa0cd96-eef1-5676-8a61-b3b8758bbffb"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "ConstructionBase", "InverseFunctions", "LinearAlgebra", "Test", "Random", "REPL"]
+test = ["Aqua", "ConstructionBase", "ForwardDiff", "InverseFunctions", "LinearAlgebra", "Test", "Random", "REPL", "Printf"]
