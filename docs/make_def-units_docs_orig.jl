@@ -1,13 +1,6 @@
 module MakeDefUnitsDocs
 
-## TODO remove later on
-using ShareAdd
-@usingany OrderedCollections
-using Unitful
-##
-
-# using Unitful, OrderedCollections
-## TODO uncomment later on
+using Unitful, OrderedCollections
 
 mdfile = "docs/src/defaultunits.md"
 mdheader = "docs/src/assets/defaultunits-header.md"
@@ -64,7 +57,7 @@ docstr(n::Symbol) = Base.Docs.doc(Base.Docs.Binding(Unitful, n)) |> string
 
 isprefixed(u::Symbol) = occursin("A prefixed unit, equal", docstr(u))
 
-isdocumented(n::Symbol) = !startswith(docstr(n), "No documentation found")
+isdocumented(n::Symbol) = !startswith(docstr(n), "No documentation found.")
 
 """
     getphysdims(uids::Vector{Symbol})
@@ -156,9 +149,9 @@ end
 
 function physconstants(uids) 
     ph_consts = [n for n in uids if 
-        isconst(Unitful, n) && 
-        (getproperty(Unitful, n) isa Quantity) &&
-        isdocumented(n) ]
+    isconst(Unitful, n) && 
+    !(getproperty(Unitful, n) isa Union{Type, Unitful.Units, Unitful.Dimensions, Module, Function}) &&
+    isdocumented(n) ]
     sort!(ph_consts)
     return ph_consts
 end
@@ -174,26 +167,10 @@ nodimsunits(uids) = [n for n in uids if isnodims(n) && isdocumented(n) && !ispre
 removerefs(d) = replace(d, r"\[(`[\w\.]+\`)]\(@ref\)" => s"\1")
 
 """
-    udoc(s::Symbol)
-Truncates documentation of a unit and removes references
+    udoc(s)
+Truncates documentation and removes references
 """
-function udoc(s)
-    m = match(r"(?ms)(.+)\n\nDimension: ", docstr(s))
-    isnothing(m) && return nothing
-    return m.captures[1] |> removerefs
-end
-
-"""
-    dimdoc(s::Symbol)
-    dimdoc(s::AbstractString)
-Truncates documentation of a dimension and removes references
-"""
-function dimdoc(s::Symbol) 
-    doctxt = match(r"(supertype for .+)with a value", docstr(s)).captures[1] |> removerefs |> strip |> uppercasefirst
-    return "```\nUnitful.$s\n```\n\n$(doctxt)\n\n"
-end
-
-dimdoc(s::AbstractString) = dimdoc(s |> Symbol)
+udoc(s) = match(r"(?ms)(.+)\n\nDimension: ", docstr(s)).captures[1] |> removerefs
 
 function nameofunit(u)
     special = Dict(u"ha" => "Hectare", u"kg" => "Kilogram", u"°F" => "Degree Fahrenheit", u"°C" => "Degree Celcius")
@@ -227,10 +204,9 @@ function make_simple_section_text(sectiontitle, uvec; isunit=true)
 end
 
 function make_structured_section_text(sectiontitle, sectiondict)
-    s = "## $sectiontitle\n\n" 
+    s = "## $sectiontitle\n\n"
     for (dim, uvec) in sectiondict 
         s *= "### $dim\n\n"
-        s *= dimdoc(dim)
         s *= make_subsection_text(uvec)
     end
     return s
@@ -314,12 +290,3 @@ end
 export make_chapter
 
 end # module
-
-"""
-julia> typeof(Unitful.Na)
-Quantity{Float64, 𝐍⁻¹, Unitful.FreeUnits{(mol⁻¹,), 𝐍⁻¹, nothing}}
-
-julia> typeof(Unitful.Np)
-Unitful.MixedUnits{Gain{Unitful.LogInfo{:Neper, ℯ, 1//2}, :?}, Unitful.FreeUnits{(), NoDims, nothing}}
-
-"""

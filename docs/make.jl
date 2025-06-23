@@ -1,3 +1,7 @@
+using Pkg
+Pkg.activate(@__DIR__)
+Pkg.develop(path=(joinpath(@__DIR__, "../") |> normpath))
+
 using Documenter, Unitful, Dates
 
 const ci = get(ENV, "CI", nothing) == "true"

@@ -7,7 +7,7 @@
 | `Np`       |        Neper |
 | `cNp`      |       Centineper |
 
-### "Dimensionful" logarithmic units
+### Log units related to reference levels
 | Unit           | Reference level                            |
 |----------------|---------------------------------|
 | `dBHz`       |         1Hz |
@@ -19,3 +19,4 @@
 | `dBFS`        |         RootPowerRatio(1) |
 | `dBΩ`          |         1Ω |
 | `dBS`          |         1S |
+
