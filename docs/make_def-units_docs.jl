@@ -1,13 +1,6 @@
 module MakeDefUnitsDocs
 
-## TODO remove later on
-using ShareAdd
-@usingany OrderedCollections
-using Unitful
-##
-
-# using Unitful, OrderedCollections
-## TODO uncomment later on
+using Unitful, OrderedCollections
 
 mdfile = "docs/src/defaultunits.md"
 mdheader = "docs/src/assets/defaultunits-header.md"
@@ -341,12 +334,3 @@ end
 export make_chapter
 
 end # module
-
-"""
-julia> typeof(Unitful.Na)
-Quantity{Float64, 𝐍⁻¹, Unitful.FreeUnits{(mol⁻¹,), 𝐍⁻¹, nothing}}
-
-julia> typeof(Unitful.Np)
-Unitful.MixedUnits{Gain{Unitful.LogInfo{:Neper, ℯ, 1//2}, :?}, Unitful.FreeUnits{(), NoDims, nothing}}
-
-"""

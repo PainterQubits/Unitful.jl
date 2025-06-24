@@ -1,7 +1,3 @@
-using Pkg
-Pkg.activate(@__DIR__)
-Pkg.develop(path=(joinpath(@__DIR__, "../") |> normpath))
-
 using Documenter, Unitful, Dates
 
 const ci = get(ENV, "CI", nothing) == "true"
@@ -45,7 +41,7 @@ makedocs(
         "Interoperability with `Dates`" => "dates.md"
         "Extending Unitful" => "extending.md"
         "Troubleshooting" => "trouble.md"
-        "Pre-defined units and constants" => "defaultunits.md"
+        "Pre-defined dimensions, units, and constants" => "defaultunits.md"
         "License" => "LICENSE.md"
     ]
 )
