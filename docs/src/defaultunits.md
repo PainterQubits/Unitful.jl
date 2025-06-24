@@ -948,46 +948,6 @@ The degree, a unit of angle. There are 360° in a circle.
 
 ## Physical constants
 
-#### G
-
-```
-Unitful.G
-```
-
-A quantity representing the universal gravitational constant, equal to 6.674,30 × 10^-11 m^3 / (kg × s^2) (the CODATA 2018 recommended value).
-
-#### Na
-
-```
-Unitful.Na
-```
-
-A quantity representing Avogadro's constant, defined as exactly 6.022,140,76 × 10^23 / mol.
-
-#### R
-
-```
-Unitful.R
-```
-
-A quantity representing the molar gas constant, defined as Na × k.
-
-#### R∞
-
-```
-Unitful.R∞
-```
-
-A quantity representing the Rydberg constant, equal to 1.097,373,156,8160 × 10^-7 / m (the CODATA 2018 recommended value).
-
-#### Z0
-
-```
-Unitful.Z0
-```
-
-A quantity representing the impedance of free space, a constant defined as μ0 × c.
-
 #### c0
 
 ```
@@ -997,6 +957,14 @@ Unitful.c0
 A quantity representing the speed of light in a vacuum, defined as exactly 2.997,924,58 × 10^8 m/s.
 
 `Unitful.c0` is a quantity (with units `m/s`) whereas `Unitful.c` is a unit equal to `c0`.
+
+#### G
+
+```
+Unitful.G
+```
+
+A quantity representing the universal gravitational constant, equal to 6.674,30 × 10^-11 m^3 / (kg × s^2) (the CODATA 2018 recommended value).
 
 #### gn
 
@@ -1048,6 +1016,14 @@ Unitful.mp
 
 A quantity representing the rest mass of a proton, equal to 1.672,621,923,69 × 10^-27 kg (the CODATA 2018 recommended value).
 
+#### Na
+
+```
+Unitful.Na
+```
+
+A quantity representing Avogadro's constant, defined as exactly 6.022,140,76 × 10^23 / mol.
+
 #### q
 
 ```
@@ -1055,6 +1031,30 @@ Unitful.q
 ```
 
 A quantity equal to the elementary charge, the charge of a single electron, with a value of exactly 1.602,176,634 × 10^-19 C. The letter `q` is used instead of `e` to avoid confusion with Euler's number.
+
+#### R
+
+```
+Unitful.R
+```
+
+A quantity representing the molar gas constant, defined as Na × k.
+
+#### R∞
+
+```
+Unitful.R∞
+```
+
+A quantity representing the Rydberg constant, equal to 1.097,373,156,8160 × 10^-7 / m (the CODATA 2018 recommended value).
+
+#### Z0
+
+```
+Unitful.Z0
+```
+
+A quantity representing the impedance of free space, a constant defined as μ0 × c.
 
 #### ħ
 
@@ -1064,15 +1064,7 @@ Unitful.ħ
 
 A quantity representing the reduced Planck constant, defined as h / 2π.
 
-#### Φ0
-
-```
-Unitful.Φ0
-```
-
-A quantity representing the superconducting magnetic flux quantum, defined as h / (2 × q).
-
-#### ε0
+#### ε0, ϵ0
 
 ```
 Unitful.ε0
@@ -1105,14 +1097,13 @@ Unitful.σ
 
 A quantity representing the Stefan-Boltzmann constant, defined as π^2 × k^4 / (60 × ħ^3 × c^2).
 
-#### ϵ0
+#### Φ0
 
 ```
-Unitful.ε0
-Unitful.ϵ0
+Unitful.Φ0
 ```
 
-A quantity representing the vacuum permittivity constant, defined as 1 / (μ0 × c^2).
+A quantity representing the superconducting magnetic flux quantum, defined as h / (2 × q).
 
 ## Metric (SI) Prefixes
 

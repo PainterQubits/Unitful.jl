@@ -159,8 +159,33 @@ function physconstants(uids)
         isconst(Unitful, n) && 
         (getproperty(Unitful, n) isa Quantity) &&
         isdocumented(n) ]
-    sort!(ph_consts)
+    sort!(ph_consts, by = x -> lowercase(string(x)))
     return ph_consts
+end
+
+mutable struct PhysConst
+    symbol::Symbol
+    allsymbols::Set{Symbol}
+    mark4del::Bool
+end
+
+equiv(pc1::PhysConst, pc2::PhysConst) = getproperty(Unitful, pc1.symbol) === getproperty(Unitful, pc2.symbol)
+
+Base.string(pc::PhysConst) = join((pc.allsymbols |> collect .|> string |> sort), ", ")
+
+function merge_duplicate_constants(ph_consts)
+    pcarr = [PhysConst(s, Set([s]), false) for s in ph_consts]
+    for i in 1:lastindex(pcarr)-1
+        pcarr[i].mark4del && continue
+        for j in i+1:lastindex(pcarr)
+            pcarr[j].mark4del && continue
+            if equiv(pcarr[i], pcarr[j])
+                push!(pcarr[i].allsymbols, pcarr[j].symbol)
+                pcarr[j].mark4del=true
+            end
+        end
+    end
+    filter!(pc -> !pc.mark4del, pcarr)
 end
 
 function isnodims(u) 
@@ -182,6 +207,8 @@ function udoc(s)
     isnothing(m) && return nothing
     return m.captures[1] |> removerefs
 end
+
+udoc(pc::PhysConst) = udoc(pc.symbol)
 
 """
     dimdoc(s::Symbol)
@@ -262,7 +289,7 @@ function makefulltext(sections, nodims_units, phys_consts)
     end
     s *= make_simple_section_text("Dimensionless units", nodims_units)
     s *= logunits()
-    s *= make_simple_section_text("Physical constants", phys_consts; isunit=false)
+    s *= make_simple_section_text("Physical constants", phys_consts |> merge_duplicate_constants; isunit=false)
     s *= makeprefixsection(prefnamesvals())
     s *= footer()
     return s
