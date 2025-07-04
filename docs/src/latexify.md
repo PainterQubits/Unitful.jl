@@ -88,7 +88,7 @@ latexify("v", u"km/s")
 
 This enables this dreamlike example:
 
-```@example plot
+```
 using Unitful, Plots, Latexify 
 gr()
 default(fontfamily="Computer Modern")
@@ -111,7 +111,7 @@ To use these in a plot call, either pass a function like
 ```
 or call `Latexify.set_default(labelformat=:square)`, the pass `latexify` as your unitformat.
 
-```@example plot
+```
 args = (m, v)
 kwargs = (xguide="\\mathrm{mass}", yguide="v_x", legend=false)
 Latexify.set_default(labelformat=:square)
