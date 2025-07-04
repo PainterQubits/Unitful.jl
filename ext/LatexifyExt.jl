@@ -1,3 +1,8 @@
+#=========================================#
+# Extension for Unitful.jl + Latexify.jl, #
+# based on UnitfulLatexify.jl by          #
+# David Gustavsson (@gustaphe)            #
+#=========================================#
 module LatexifyExt
 using Unitful:
     Unitful,
