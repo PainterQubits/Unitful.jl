@@ -62,11 +62,11 @@ latexify(612.2u"nm"; fmt=SiunitxNumberFormatter()) # This will not render right 
 print(ans) # hide
 ```
 
-### Ranges and lists
+### Lists
 
 Another thing that `siunitx` does uniquely is lists and ranges of quantities.
-If you want the default behaviour of tuples and ranges to be printed as arrays,
-use `collect(x)` or `[x...]` to explicitly turn them into arrays first.
+To get `siunitx`'s list behavior, pass a tuple instead of an array;
+if you want a tuple to be written as an array instead, use `collect(x)` or `[x...]` to explicitly it into an array first.
 
 ```@example main
 string.([
@@ -80,7 +80,7 @@ latexify((1u"m", 2u"m", 3u"m"); fmt=SiunitxNumberFormatter()),
 
 ## Plots labels
 
-UnitfulLatexify also interfaces with `Plots` by way of implementing a two-argument `(label, unit)` recipe:
+This extension also interfaces with `Plots` by way of implementing a two-argument `(label, unit)` recipe:
 
 ```@example main
 latexify("v", u"km/s")
