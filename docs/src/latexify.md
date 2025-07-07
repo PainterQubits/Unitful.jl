@@ -70,10 +70,9 @@ if you want a tuple to be written as an array instead, use `collect(x)` or `[x..
 
 ```@example main
 string.([
-latexify((1:5)u"m"),
-latexify((1:5)u"m"; fmt=SiunitxNumberFormatter()),
-latexify(collect((1:5)u"m"); fmt=SiunitxNumberFormatter()),
-latexify((1u"m", 2u"m", 3u"m"); fmt=SiunitxNumberFormatter()),
+latexify((1, 2, 3).*u"m"),
+latexify((1, 2, 3).*u"m"; fmt=SiunitxNumberFormatter()),
+latexify(collect((1, 2, 3).*u"m"); fmt=SiunitxNumberFormatter()),
 ])
 ```
 
