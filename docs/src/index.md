@@ -111,7 +111,7 @@ julia> units = uparse(unit_str)
 kg m^-2
 
 julia> 100 * units
-100 kg m⁻²
+100 kg m^-2
 ```
 
 One useful interactive function is being able to convert to preferred (in this case SI) units. 
