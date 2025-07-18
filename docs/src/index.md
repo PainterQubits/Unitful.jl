@@ -104,7 +104,7 @@ julia> mod(1hr+3minute+5s, 24s)
 
 You can also parse units from a string
 ```jldoctest
-julia> unit_str = "km/m^2"
+julia> unit_str = "kg/m^2"
 "kg/m^2"
 
 julia> units = uparse(unit_str)
