@@ -108,7 +108,7 @@ julia> unit_str = "kg/m^2"
 "kg/m^2"
 
 julia> units = uparse(unit_str)
-kg m⁻²
+kg m^-2
 
 julia> 100 * units
 100 kg m⁻²
