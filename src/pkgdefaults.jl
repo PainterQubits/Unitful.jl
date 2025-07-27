@@ -105,14 +105,10 @@ const AbsoluteScaleTemperature = Quantity{T, 𝚯, <:ScalarUnits} where T
 \nDimension: [`Unitful.NoDims`](@ref)."
 @unit rad     "rad"     Radian      1                       true true
 "    Unitful.°
+    Unitful.deg
 \nThe degree, a unit of angle. There are 360° in a circle.
 \nDimension: [`Unitful.NoDims`](@ref)."
-@unit °       "°"       Degree      pi/180                  false
-"    Unitful.deg
-\nAlias for [`Unitful.°`](@ref).
-\nThe degree, a unit of angle. There are 360 deg in a circle.
-\nDimension: [`Unitful.NoDims`](@ref)."
-const deg = °
+((@unit °       "°"       Degree      pi/180                  false), const deg = °)
 # For numerical accuracy, specific to the degree
 import Base: sind, cosd, tand, secd, cscd, cotd
 for (_x,_y) in ((:sin,:sind), (:cos,:cosd), (:tan,:tand),
