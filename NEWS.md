@@ -1,5 +1,9 @@
 # Unitful.jl changelog
 
+## v1.24.0 (2025-07-31)
+
+* ![Feature:](https://img.shields.io/badge/-feature-green) The alias `deg` for `°` is added ([#764](https://github.com/PainterQubits/Unitful.jl/pull/764)).
+
 ## v1.23.1 (2025-06-10)
 
 * ![Bugfix:](https://img.shields.io/badge/-bugfix-purple) Fix a world-age issue with the new mechanism to preserve the floating-point precision on unit conversion ([#790](https://github.com/PainterQubits/Unitful.jl/issues/790)).
