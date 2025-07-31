@@ -31,11 +31,10 @@ jobs:
       fail-fast: false
       matrix:
         julia-version:
-          - "1.0"
-          - "1.6"
-          - "1.10"
+          - "min"
+          - "lts"
           - "1"
-          - "nightly"
+          - "pre"
         os:
           - ubuntu-latest
           - macos-latest
