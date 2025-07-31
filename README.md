@@ -12,7 +12,7 @@ cases eliminate the run-time penalty of units. There should be facilities
 for dimensional analysis. All of this should integrate easily with the usual
 mathematical operations and collections that are found in Julia base.
 
-### Documentation: [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://PainterQubits.github.io/Unitful.jl/stable) [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://PainterQubits.github.io/Unitful.jl/dev)
+### Documentation: [![](https://img.shields.io/badge/docs-stable-blue.svg)](https://JuliaPhysics.github.io/Unitful.jl/stable) [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://JuliaPhysics.github.io/Unitful.jl/dev)
 
 
 ## Other packages in the Unitful family
