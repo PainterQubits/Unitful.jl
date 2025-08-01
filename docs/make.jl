@@ -19,6 +19,7 @@ makedocs(
         "Logarithmic scales" => "logarithm.md"
         "Temperature scales" => "temperature.md"
         "Interoperability with `Dates`" => "dates.md"
+        "Latexifying units" => "latexify.md"
         "Extending Unitful" => "extending.md"
         "Troubleshooting" => "trouble.md"
         "Pre-defined units and constants" => "defaultunits.md"
