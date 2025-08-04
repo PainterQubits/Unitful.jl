@@ -191,7 +191,7 @@ mktempdir() do dir
 
         try
             run(
-                `magick -fill white -opaque none -density 600 -quality 90 $(joinpath(dir,s*".pdf")) $(joinpath(pkgdir(UnitfulLatexify),"docs","src","assets",s*".png"))`,
+                `magick -fill white -opaque none -density 600 -quality 90 $(joinpath(dir,s*".pdf")) $(joinpath(pkgdir(UnitfulLatexify),"docs","src","assets","latex-"*s*".png"))`,
             )
         catch
         end

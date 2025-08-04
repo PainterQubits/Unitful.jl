@@ -1,5 +1,8 @@
 using Documenter, Unitful, Dates
 
+@info "Generating latex images for documentation"
+include("generate_latex_images.jl")
+
 DocMeta.setdocmeta!(Unitful, :DocTestSetup, :(using Unitful))
 
 makedocs(
