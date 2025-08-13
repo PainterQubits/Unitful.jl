@@ -1,10 +1,4 @@
-#!/bin/julia
-
-# generate_latex_images.jl
-# Run locally (rarely) to generate a couple of figures needed by the
-# documentation
-
-using LaTeXStrings, Unitful, Latexify
+using LaTeXStrings, Unitful, Latexify, tectonic_jll
 
 commands = [
     :(latexify(612.2u"nm")),
@@ -24,8 +18,13 @@ tab1 = map(commands) do command
 end
 ltab1 = latextabular(tab1, adjustment=:l, transpose=true, latex=false, booktabs=true, 
     head=["julia", "\\LaTeX", "Result"])
-ltab1 = LaTeXString("\\pagecolor{white}\n" * ltab1)
+# Setting an explicit white background color results in transparent PDF, so go offwhite.
+ltab1 = LaTeXString("\\definecolor{offwhite}{rgb}{0.999,0.999,0.999}\n\\pagecolor{offwhite}\n\\color{black}\n" * ltab1)
 
+render(ltab1, MIME("image/png"); use_tectonic=true,
+    name="src/assets/latex-examples", 
+    packages=["booktabs", "color", "siunitx"], 
+    documentclass=("standalone"))
 
 functions = [
     x -> "\\verb+$(string(x))+",
@@ -131,14 +130,11 @@ tab2 = map(allunits) do unit
 end
 ltab2 = latextabular(tab2, adjustment=:l, transpose=true, latex=false, booktabs=true, 
     head=["Name", ":mathrm", ":siunitx", ":siunitxsimple"])
-ltab2 = LaTeXString("\\pagecolor{white}\n" * ltab2)
+# Set background to not-quite-white so it doesn't get treated as transparent
+ltab2 = LaTeXString("\\definecolor{offwhite}{rgb}{0.999,0.999,0.999}\n\\pagecolor{offwhite}\n\\color{black}\n" * ltab2)
 
-render(ltab1, MIME("image/png");
-    name="src/assets/latex-examples", 
-    packages=["booktabs", "color", "siunitx"], 
-    documentclass=("standalone"))
-
-render(ltab2, MIME("image/png");
+render(ltab2, MIME("image/png"); use_tectonic=true, 
+    tectonic_flags=`-Z continue-on-errors`,
     name="src/assets/latex-allunits", 
     packages=["booktabs", "color", "siunitx"], 
     documentclass=("standalone"))
