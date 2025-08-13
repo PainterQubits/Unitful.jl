@@ -133,8 +133,8 @@ ltab2 = latextabular(tab2, adjustment=:l, transpose=true, latex=false, booktabs=
 # Set background to not-quite-white so it doesn't get treated as transparent
 ltab2 = LaTeXString(
     """
-    \\setmainfont{FreeSerif}
-    \\setmonofont{FreeMono}
+    \\setmainfont{Noto Serif}
+    \\setmonofont{Noto Sans Mono}
     \\definecolor{offwhite}{rgb}{0.999,0.999,0.999}
     \\pagecolor{offwhite}
     \\color{black}
