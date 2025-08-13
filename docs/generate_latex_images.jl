@@ -22,7 +22,7 @@ ltab1 = latextabular(tab1, adjustment=:l, transpose=true, latex=false, booktabs=
 ltab1 = LaTeXString("\\definecolor{offwhite}{rgb}{0.999,0.999,0.999}\n\\pagecolor{offwhite}\n\\color{black}\n" * ltab1)
 
 render(ltab1, MIME("image/png"); use_tectonic=true,
-    name="src/assets/latex-examples", 
+    name=(@__DIR__)*"/src/assets/latex-examples", 
     packages=["booktabs", "color", "siunitx"], 
     documentclass=("standalone"))
 
@@ -131,10 +131,17 @@ end
 ltab2 = latextabular(tab2, adjustment=:l, transpose=true, latex=false, booktabs=true, 
     head=["Name", ":mathrm", ":siunitx", ":siunitxsimple"])
 # Set background to not-quite-white so it doesn't get treated as transparent
-ltab2 = LaTeXString("\\definecolor{offwhite}{rgb}{0.999,0.999,0.999}\n\\pagecolor{offwhite}\n\\color{black}\n" * ltab2)
+ltab2 = LaTeXString(
+    """
+    \\setmainfont{FreeSerif}
+    \\setmonofont{FreeMono}
+    \\definecolor{offwhite}{rgb}{0.999,0.999,0.999}
+    \\pagecolor{offwhite}
+    \\color{black}
+    """ * ltab2)
 
 render(ltab2, MIME("image/png"); use_tectonic=true, 
     tectonic_flags=`-Z continue-on-errors`,
-    name="src/assets/latex-allunits", 
-    packages=["booktabs", "color", "siunitx"], 
+    name=(@__DIR__)*"/src/assets/latex-allunits", 
+    packages=["booktabs", "color", "siunitx", "fontspec"], 
     documentclass=("standalone"))
